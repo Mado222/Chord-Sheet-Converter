@@ -90,10 +90,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         {
             base.Process_NM_Data(DataIn, 1);
 
-            if (DataIn.HWChannelNumber == ModulePortNo)
+            if (DataIn.HW_cn == ModulePortNo)
             {
                 Temp_ist = DataReceiver.Connection.GetScaledValue(DataIn);
-                if (DataIn.SWChannelNumber == 1)
+                if (DataIn.SW_cn== 1)
                 {
                     //Temperatur Anzeigen
                     if (f_Multi_Temp != null)

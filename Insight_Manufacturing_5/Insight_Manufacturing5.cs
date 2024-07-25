@@ -1491,7 +1491,7 @@ namespace Insight_Manufacturing5_net8
                 {
                     CYvsTimeData c = new CYvsTimeData(1)
                     {
-                        xData = DataIn.dt_absolute
+                        xData = DataIn.DT_absolute
                     };
                     if (((CRead_Neuromaster)(Current_CMeasurementItem.Measurement_Object)).DataReceiver != null)
                     {

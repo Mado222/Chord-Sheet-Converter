@@ -462,7 +462,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public virtual void Process_NM_Data(CDataIn DataIn, int swcn = 0)
         {
-            if (DataIn.HWChannelNumber == ModulePortNo)
+            if (DataIn.HW_cn == ModulePortNo)
             {
                 double d = DataReceiver.Connection.GetScaledValue(DataIn);
 
@@ -470,8 +470,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                 {
                     if (CntSettings < AllResults.Count)
                     {
-                        if (DataIn.SWChannelNumber == swcn) CntSamplesCollected++;
-                        AllResults[CntSettings].ChannelResults[DataIn.SWChannelNumber].AddValue(d, DataIn);
+                        if (DataIn.SW_cn == swcn) CntSamplesCollected++;
+                        AllResults[CntSettings].ChannelResults[DataIn.SW_cn].AddValue(d, DataIn);
                     }
                 }
                 OnDataReady(d, DataIn);
