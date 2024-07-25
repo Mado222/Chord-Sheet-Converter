@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_BarChart", "Test_BarChart\Test_BarChart.csproj", "{C6B6A0ED-2742-48E1-A4CD-1A626884B1DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedbackDataLib_GUI", "..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj", "{9E74BA13-DE6C-402C-9BB9-07FAD2DB0166}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6B6A0ED-2742-48E1-A4CD-1A626884B1DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6B6A0ED-2742-48E1-A4CD-1A626884B1DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6B6A0ED-2742-48E1-A4CD-1A626884B1DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6B6A0ED-2742-48E1-A4CD-1A626884B1DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E74BA13-DE6C-402C-9BB9-07FAD2DB0166}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E74BA13-DE6C-402C-9BB9-07FAD2DB0166}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E74BA13-DE6C-402C-9BB9-07FAD2DB0166}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E74BA13-DE6C-402C-9BB9-07FAD2DB0166}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {08DC672C-BB33-4600-AB0D-14C2D07125FD}
+	EndGlobalSection
+EndGlobal

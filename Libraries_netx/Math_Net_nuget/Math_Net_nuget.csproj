@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <Platforms>AnyCPU;x64</Platforms>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <AssemblyName>Math_Net_nuget</AssemblyName>
+    <RootNamespace>Math_Net_nuget</RootNamespace>
+  </PropertyGroup> 
+
+  <ItemGroup>
+    <Compile Include="CCrossCorrelation.cs" Link="CCrossCorrelation.cs" />
+    <Compile Include="CFFT_MathNet.cs" Link="CFFT_MathNet.cs" />
+    <Compile Include="CFrequencyRangecs.cs" />
+    <Compile Include="CHRV.cs" Link="CHRV.cs" />
+    <Compile Include="CPeakDetect.cs" Link="CPeakDetect.cs" />
+    <Compile Include="CSignalFilter_Base.cs" Link="CSignalFilter_Base.cs" />
+    <Compile Include="CSignalFilter_FIR.cs" Link="CSignalFilter_FIR.cs" />
+    <Compile Include="CSignalFilter_OnlineFilter.cs" Link="CSignalFilter_OnlineFilter.cs" />
+    <Compile Include="ucSignalAnalyser.cs" Link="ucSignalAnalyser.cs" />
+    <Compile Include="ucSignalAnalyser.Designer.cs" Link="ucSignalAnalyser.Designer.cs" />
+    <Compile Include="..\AssemblyInfoInsight_netx.cs" Link="AssemblyInfoInsight_netx.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Filtering.Signed" Version="0.7.0" />
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ComponentsLib_GUI\ComponentsLib_GUI.csproj" />
+    <ProjectReference Include="..\WindControlLib\WindControlLib.csproj" />
+  </ItemGroup>
+
+</Project>

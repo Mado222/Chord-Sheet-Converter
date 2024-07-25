@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Neuromaster_V5</AssemblyName>
+    <StartupObject>Neuromaster_5_net8.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries_netx\BMTCommunication\BMTCommunicationLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\ComponentsLib_GUI\ComponentsLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FilteringLibrary\FilteringLibrary.csproj" />
+    <ProjectReference Include="..\Libraries_netx\Math_Net_nuget\Math_Net_nuget.csproj" />
+    <ProjectReference Include="..\Libraries_netx\WindControlLib\WindControlLib.csproj" />
+  </ItemGroup>
+
+</Project>

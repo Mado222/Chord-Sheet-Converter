@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <RootNamespace>Neuromaster_Demo_Library_Reduced__netx</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries_netx\BMTCommunication\BMTCommunication_Insight.csproj" />
+    <ProjectReference Include="..\Libraries_netx\DataGridViewNumericUpDown\DataGridViewNumericUpDown.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FilteringLibrary\FilteringLibrary.csproj" />
+    <ProjectReference Include="..\Libraries_netx\Math_Net_nuget\Math_Net_nuget_Insight.csproj" />
+    <ProjectReference Include="..\Libraries_netx\WindControlLib\WindControlLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\XBeeLib\XBeeLib_Insight.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Management">
+      <HintPath>dll\System.Management.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="dll\ComponentsLib.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="dll\FeedbackDataLib.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="dll\WindControlLib.dll">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="dll\" />
+  </ItemGroup>
+
+</Project>

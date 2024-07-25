@@ -1,0 +1,68 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace XBeeLib
+{
+    public class CTXRequest16 : CTXRequestBasic
+    {
+        public CTXRequest16()
+        {
+            APID = CXBAPICommands.TXRequest16bitAaddress;
+        }
+
+        /// <summary>
+        /// </summary>
+        private UInt16 _DestinationAddress16 = CXBAPICommands.Default16BitAddress;
+        /// <summary>
+        /// "MY" Address of the Remote Device
+        /// </summary>
+        public UInt16 DestinationAddress16
+        {
+            get { return _DestinationAddress16; }
+            set { _DestinationAddress16 = value; }
+        }
+        
+        override public TXRequestOptions options
+        {
+            get { return _options; }
+            set
+            {
+                _options = value;
+                if (value == TXRequestOptions.sendPacketWithBroadcastPanID)
+                    DestinationAddress16 = 0xFFFF;
+            }
+        }
+
+        /// <summary>
+        /// Basic DataFrame
+        /// </summary>
+        override protected byte[] MakeBasicDataFrame(List<byte> FrameData)
+        {
+            return base.MakeBasicDataFrame(FrameData);
+        }
+
+        /// <summary>
+        /// Returns complete byte [] to be sent to configure remote device
+        /// </summary>
+        override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
+        {
+            List<byte> FrameData = new List<byte>
+            {
+                //FrameData Byte 0
+                APID,
+                //FrameData Byte 1
+                frameId
+            };
+
+            //FrameData Byte 2-3: 16 Bit Destination Address
+            byte[] be = BitConverter.GetBytes(_DestinationAddress16);
+            for (int i = be.Length - 1; i >= 0; i--)
+                FrameData.Add(be[i]);
+
+            FrameData.Add((byte)options);
+            FrameData.AddRange(rfData);
+
+            return MakeBasicDataFrame(FrameData, ApiMode);
+        }
+    }
+}

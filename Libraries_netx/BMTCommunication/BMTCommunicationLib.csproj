@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AssemblyInfoInsight_netx.cs" Link="AssemblyInfoInsight_netx.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WindControlLib\WindControlLib.csproj" />
+    <ProjectReference Include="..\XBeeLib\XBeeLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FTD2XX_NET">
+      <HintPath>..\..\..\..\Visual Studio 23 Libraries Imported\FTDI_D2XX\FTD2XX_NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

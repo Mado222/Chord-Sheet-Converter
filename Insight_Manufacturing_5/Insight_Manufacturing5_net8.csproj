@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Libraries_netx\ComponentsLib_GUI\ComponentsLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FilteringLibrary\FilteringLibrary.csproj" />
+    <ProjectReference Include="..\Libraries_netx\PhidgetLib\PhidgetLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\WindControlLib\WindControlLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\XBeeLib\XBeeLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="test_measurements\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ExcelDataReader" Version="3.7.0-develop00385" />
+    <PackageReference Include="ExcelDataReader.DataSet" Version="3.7.0-develop00385" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-preview.3.24172.4" />
+    <PackageReference Include="System.Data.Odbc" Version="9.0.0-preview.3.24172.9" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="dataSources\dsManufacturing.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsManufacturing.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\DataSources\dsManufacturing.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsManufacturing.xsd</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="dataSources\dsManufacturing.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsManufacturing.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="MeasureOffsetVoltage400.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="images\Offset_300mV_600.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="images\Offset_30mV_600.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="images\Orange_400.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="images\Prepare_NM.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
