@@ -1265,7 +1265,7 @@ namespace Neuromaster_V5
         {
             for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos.Count; i++)
             {
-                for (int j = 0; j < DataReceiver.Connection.Device.ModuleInfos[i].numSWChannels; j++)
+                for (int j = 0; j < DataReceiver.Connection.Device.ModuleInfos[i].NumSWChannels; j++)
                 {
                     DataReceiver.Connection.Device.ModuleInfos[i].SWChannels[j].SendChannel = false;
                     DataReceiver.Connection.Device.ModuleInfos[i].SWChannels[j].SaveChannel = false;

@@ -114,19 +114,9 @@ namespace FeedbackDataLib
                         ModuleInfos[mi.HW_cn] = new CModuleSCLADS1292();
                         break;
                     case enumModuleType.cModuleExGADS94:
+                        //ModuleInfos[mi.HW_cn] = new CModuleExGADS1294_EEG();
                         ModuleInfos[mi.HW_cn] = new CModuleExGADS1294();
                         break;
-                    /*
-                    case enumModuleType.cModuleExGADS:
-                        break;
-                    case enumModuleType.cModuleAtem:
-                        break;
-                    case enumModuleType.cModuleVaso:
-                        break;
-                                        case enumModuleType.cModuleTypeEmpty:
-                        break;
-
-                    */
                     default:
                         ModuleInfos[mi.HW_cn] = new CModuleBase();
                         break;
@@ -138,7 +128,7 @@ namespace FeedbackDataLib
                 {
                     cntTypes[idx]++;    //Count modules of same type
                     //Now update SWChannels with VirtualID
-                    for (int i = 0; i < ModuleInfos[mi.HW_cn].numSWChannels; i++)
+                    for (int i = 0; i < ModuleInfos[mi.HW_cn].NumSWChannels; i++)
                     {
                         ModuleInfos[mi.HW_cn].SWChannels[i]
                                              .SetVirtualID(cntTypes[idx], ModuleInfos[mi.HW_cn].ModuleType, (uint)i);

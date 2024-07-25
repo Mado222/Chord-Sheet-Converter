@@ -1,4 +1,5 @@
-﻿using FeedbackDataLib.Modules.CADS1294x;
+﻿using BMTCommunicationLib;
+using FeedbackDataLib.Modules.CADS1294x;
 using WindControlLib;
 
 
@@ -16,6 +17,17 @@ namespace FeedbackDataLib.Modules
         {
             ChangeGainEvent?.Invoke(this, this, gain);
         }
+
+        public enum EnTypeExtradat_ADS
+        {
+            ExRp = 0,
+            ExRn = 1,
+            ExUp = 2,
+            empty
+        }
+
+        public ExtraData<EnTypeExtradat_ADS>[][] extraDatas;
+
 
         //////////////////
         //Configurations
@@ -87,6 +99,18 @@ namespace FeedbackDataLib.Modules
                 enumSWChannelType.cSWChannelTypeImpADS3,
             ];
 
+            extraDatas = new ExtraData<EnTypeExtradat_ADS>[num_raw_Channels][];
+            int innerSize = Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length;
+
+            for (int i = 0; i < num_raw_Channels; i++)
+            {
+                extraDatas[i] = new ExtraData<EnTypeExtradat_ADS>[innerSize];
+                // Optionally initialize inner arrays' elements
+                for (int j = 0; j < innerSize; j++)
+                {
+                    extraDatas[i][j] = new ExtraData<EnTypeExtradat_ADS>(EnTypeExtradat_ADS.empty);
+                }
+            }
         }
 
         public virtual void Init()
@@ -115,11 +139,8 @@ namespace FeedbackDataLib.Modules
         }
 
 
-        protected override void Setup_SWChannels()
+        protected virtual void Setup_SWChannels(string prefix = "channel")
         {
-            base.Setup_SWChannels();
-
-            string prefix = "ch";
             //Copy from Neuromodul coming Channels to sWChannels_Module
             sWChannels_Module.Clear();
             for (int i = 0; i < SWChannels.Count; i++)
@@ -164,24 +185,37 @@ namespace FeedbackDataLib.Modules
 
         public override List<CDataIn> Processdata(CDataIn dataIn)
         {
-            List<CDataIn> ret = [];
-            CDataIn chan = (CDataIn)dataIn.Clone();
-            int d = dataIn.Value;// - 0x800000;      //‭8 388 608‬ ... -‭8 388 607
+            var ret = new List<CDataIn>();
+            var chan = (CDataIn)dataIn.Clone();
+            int d = dataIn.Value;
 
             if (dataIn.SW_cn < num_raw_Channels)
             {
                 //ExecAutorange(dataIn); //debug weg
-                
+
                 //im debug weg
                 //d = (int)HP[dataIn.SWChannelNumber].ProcessSample(d);
+
                 sumVals[dataIn.SW_cn] += d;
                 numVals[dataIn.SW_cn]++;
             }
 
+            if (dataIn.NumExtraDat > 0)
+            {
+                var decodedValue = BitConverter.ToInt32(CInsightDataEnDecoder.DecodeFrom7Bit(dataIn.ExtraDat), 0);
+                var extraData = extraDatas[dataIn.SW_cn][dataIn.TypeExtraDat];
+
+                extraData.Value = decodedValue;
+                extraData.DTLastUpdated = DateTime.Now;
+                extraData.TypeExtradat = (EnTypeExtradat_ADS)dataIn.TypeExtraDat;
+            }
+
             chan.Value = d;
             ret.Add(chan);
+
             return ret;
         }
+
 
 
         //public void ExecAutorange (CDataIn dataIn)
@@ -308,8 +342,6 @@ namespace FeedbackDataLib.Modules
                     RegisterValue = 0
                 }
             ];
-
-            //ElectrodeImpedance = new CADS1292x_ElectrodeImp(num_raw_Channels);
         }
 
         public override byte[] GetModuleSpecific()

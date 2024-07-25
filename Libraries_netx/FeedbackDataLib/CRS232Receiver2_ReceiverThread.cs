@@ -247,7 +247,9 @@ namespace FeedbackDataLib
                     {
                         if (isEP == 1)
                         {
-                            mustbeinbuf += (byte)((RS232inBytes.Peek(mustbeinbuf - 2) >> 4) & 0x07);
+                            int numExtradata = (RS232inBytes.Peek(mustbeinbuf - 2) >> 4) &0x07;
+                            if (numExtradata > 0)
+                                mustbeinbuf += numExtradata;
                         }
                         if (RS232inBytes.Count >= mustbeinbuf)
                         {

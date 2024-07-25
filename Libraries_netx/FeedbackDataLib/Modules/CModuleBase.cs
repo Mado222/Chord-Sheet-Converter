@@ -71,6 +71,20 @@ namespace FeedbackDataLib.Modules
             }
         }
 
+        public class ExtraData <T>
+        {
+            public double Value { get; set; } = -1;
+            public DateTime DTLastUpdated = DateTime.MinValue;
+
+            public ExtraData(T typeExtradat)
+            {
+                TypeExtradat = typeExtradat;
+            }
+
+            public T TypeExtradat { get; set; }
+        }
+
+
         /// <summary>
         /// Hardware Channel number
         /// </summary>
@@ -108,7 +122,7 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// Gets the number of SW channels.
         /// </summary>
-        public byte numSWChannels
+        public byte NumSWChannels
         {
             get
             {

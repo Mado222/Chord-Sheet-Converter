@@ -339,7 +339,7 @@ namespace FeedbackDataLib
                             {
                                 if (ModuleInfo[DataIn.HW_cn].IsModuleActive)
                                 {
-                                    if (DataIn.SW_cn < ModuleInfo[DataIn.HW_cn].numSWChannels)
+                                    if (DataIn.SW_cn < ModuleInfo[DataIn.HW_cn].NumSWChannels)
                                     {
                                         if (ModuleInfo[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SWConfigChannel.SaveChannel)
                                         {

@@ -316,6 +316,7 @@ namespace FeedbackDataLib
         {
             List<CDataIn> _DataIn = [];
 
+            
             foreach (CDataIn di in DataIn)
             {
                 //27.1.2020

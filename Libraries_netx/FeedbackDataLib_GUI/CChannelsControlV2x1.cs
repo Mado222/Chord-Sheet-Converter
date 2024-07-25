@@ -366,7 +366,7 @@ namespace FeedbackDataLib_GUI
             {
                 if (SelectedModuleRow.ModuleType != enumModuleType.cModuleTypeEmpty)
                 {
-                    for (int sw_cn = 0; sw_cn < SelectedModuleRow.numSWChannels; sw_cn++)
+                    for (int sw_cn = 0; sw_cn < SelectedModuleRow.NumSWChannels; sw_cn++)
                     {
                         default_Scaling_Values.SetScalingValues(SelectedModuleRow.SWChannels[sw_cn].SkalMax,
                             SelectedModuleRow.SWChannels[sw_cn].SkalMin,

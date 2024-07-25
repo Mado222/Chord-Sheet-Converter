@@ -142,8 +142,8 @@ namespace FeedbackDataLib_GUI
         private void GetComboBoxes()
         {
             CModuleExGADS1292 mi = cModuleExGADS1292;
-            mi.CONFIG1[0].Sample_Mode = (CADS1292x_CONFIG1.enConfig1_bit7) sample_ModeComboBox.SelectedItem;
-            mi.CONFIG1[0].Sample_Rate = (CADS1292x_CONFIG1.enConfig1_bit2_0) sample_RateComboBox.SelectedItem;
+            mi.CONFIG1[0].Sample_Mode = (CADS1292x_CONFIG1.enConfig1_bit7)sample_ModeComboBox.SelectedItem;
+            mi.CONFIG1[0].Sample_Rate = (CADS1292x_CONFIG1.enConfig1_bit2_0)sample_RateComboBox.SelectedItem;
 
             //CONFIG2
             mi.CONFIG2[0].Lead_off = (CADS1292x_CONFIG2.enConfig2_bit6_Lead_off) lead_offComboBox.SelectedItem;

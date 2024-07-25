@@ -5,7 +5,7 @@ using WindControlLib;
 namespace FeedbackDataLib.Modules
 {
     [Serializable()]    //Set this attribute to all the classes that want to serialize
-    public class CModuleExGADS1292_EEG : CModuleExGADS1292
+    public class CModuleExGADS1294_EEG : CModuleExGADS1294
     {
 
         public enum EnTypeExtradat_ADS
@@ -16,7 +16,20 @@ namespace FeedbackDataLib.Modules
             empty
         }
 
-        public ExtraData<EnTypeExtradat_ADS>[] extraDatas = [];
+        public class ExtraData
+        {
+            public double Value { get; set; } = -1;
+            public DateTime DTLastUpdated = DateTime.MinValue;
+
+            public ExtraData(EnTypeExtradat_ADS typeExtradat)
+            {
+                TypeExtradat = typeExtradat;
+            }
+
+            public EnTypeExtradat_ADS TypeExtradat { get; set; } = EnTypeExtradat_ADS.empty;
+        }
+
+        public ExtraData[] extraDatas = [];
 
 
         //////////////////
@@ -51,7 +64,7 @@ namespace FeedbackDataLib.Modules
             new (0,0,0,0,2000),
             new(0,0,0,0,2000) ];
 
-        public CModuleExGADS1292_EEG()
+        public CModuleExGADS1294_EEG()
         {
             _num_raw_Channels = 2;
             _ModuleType_Unmodified = enumModuleType.cModuleExGADS;
@@ -83,7 +96,7 @@ namespace FeedbackDataLib.Modules
                 cSWChannelNames.AddRange(longnames);
             }
 
-            extraDatas = new ExtraData<EnTypeExtradat_ADS> [Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length];
+            extraDatas = new ExtraData [Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length];
             for (int i = 0;i< Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length; i++)
             {
                 extraDatas[i] = new((EnTypeExtradat_ADS)i);
