@@ -37,7 +37,7 @@ namespace FeedbackDataLib
                         CDataIn[] di = Data.PopAll();
                         if (di != null && di.Length > 0)
                         {
-                            OnDataReadyComm(di.ToList());
+                            OnDataReadyComm([.. di]);
                         }
                     }
                     else

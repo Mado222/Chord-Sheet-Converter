@@ -88,7 +88,7 @@ namespace BMTCommunicationLib
         public static byte[] DecodeFrom7Bit(byte[] inByte)
         {
             int length = inByte.Length;
-            int outLength = (length * 7) / 8; // Calculate the required size for the output array
+            int outLength = length * 7 / 8; // Calculate the required size for the output array
             byte[] outByte = new byte[outLength];
 
             int outIndex = 0;

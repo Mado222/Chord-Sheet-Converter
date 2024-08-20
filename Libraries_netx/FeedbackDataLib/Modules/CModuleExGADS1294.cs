@@ -202,12 +202,18 @@ namespace FeedbackDataLib.Modules
 
             if (dataIn.NumExtraDat > 0)
             {
-                var decodedValue = BitConverter.ToInt32(CInsightDataEnDecoder.DecodeFrom7Bit(dataIn.ExtraDat), 0);
-                var extraData = extraDatas[dataIn.SW_cn][dataIn.TypeExtraDat];
-
-                extraData.Value = decodedValue;
-                extraData.DTLastUpdated = DateTime.Now;
-                extraData.TypeExtradat = (EnTypeExtradat_ADS)dataIn.TypeExtraDat;
+                try
+                {
+                    var decodedValue = BitConverter.ToInt32(CInsightDataEnDecoder.DecodeFrom7Bit(dataIn.ExtraDat), 0);
+                    var extraData = extraDatas[dataIn.SW_cn][dataIn.TypeExtraDat];
+                    extraData.Value = decodedValue;
+                    extraData.DTLastUpdated = DateTime.Now;
+                    extraData.TypeExtradat = (EnTypeExtradat_ADS)dataIn.TypeExtraDat;
+                }
+                catch (Exception ee)
+                {
+                    Console.WriteLine(value: $"process.Data: {ee.Message}");
+                }
             }
 
             chan.Value = d;
