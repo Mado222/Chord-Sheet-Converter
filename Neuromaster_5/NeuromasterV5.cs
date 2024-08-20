@@ -82,7 +82,7 @@ namespace Neuromaster_V5
 
             tmrUpdateFFT = new System.Windows.Forms.Timer();
             tmrUpdateFFT.Interval = 1000;
-            tmrUpdateFFT.Enabled = false;
+            tmrUpdateFFT.Enabled = true;
             tmrUpdateFFT.Tick += TmrUpdateFFT_Tick;
         }
 
@@ -975,7 +975,7 @@ namespace Neuromaster_V5
             //Display FFT in case of EEG
             if (FrmSpectrum is not null)
             {
-                if (ModuleInfo.ModuleType == enumModuleType.cModuleEEG || ModuleInfo.ModuleType == enumModuleType.cModuleExGADS)
+                if (ModuleInfo.ModuleType == enumModuleType.cModuleEEG || ModuleInfo.ModuleType == enumModuleType.cModuleExGADS94)
 
                 {
                     FrmSpectrum.Visible = true;
@@ -1683,19 +1683,19 @@ namespace Neuromaster_V5
 
         private void resetPortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BMTCommunication.FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetPort();
+            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetPort();
             GetFTDIStatus("Reset Ports: ", Color.Green);
         }
 
         private void resetDeviceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BMTCommunication.FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetDevice();
+            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetDevice();
             GetFTDIStatus("Reset Device: ", Color.Green);
         }
 
         private void cyclePortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BMTCommunication.FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.CyclePort();
+            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.CyclePort();
             GetFTDIStatus("Cycle Port: ", Color.Green);
         }
 
@@ -1845,34 +1845,39 @@ namespace Neuromaster_V5
                     {
                         if (num_raw_EEG_Channels < 0)
                         {
-                            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule] is CModuleEEG)
-                                num_raw_EEG_Channels = new CModuleEEG().num_raw_Channels;
-                            else
-                                num_raw_EEG_Channels = new CModuleExGADS1292_EEG().num_raw_Channels;
+                            num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].num_raw_Channels;
+
+                            //if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule] is CModuleEEG)
+                            //    num_raw_EEG_Channels = new CModuleEEG().num_raw_Channels;
+                            //else
+                            //    num_raw_EEG_Channels = new CModuleExGADS1294_EEG().num_raw_Channels;
                         }
 
                         for (int i = 0; i < num_raw_EEG_Channels; i++)
                         {
-                            ((CModuleExGADS1292_EEG)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).Set_EEGBands_SampleInt_ms(i, cChannelsControlV2x11.GetSR_ms(i));
+                            var module = (CModuleExGADS1294_EEG)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule];
 
-                            if (((CModuleExGADS1292_EEG)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).SWChannels[i].SendChannel)
+                            module.Set_EEGBands_SampleInt_ms(i, cChannelsControlV2x11.GetSR_ms(i));
+
+                            if (module.SWChannels[i].SendChannel)
                             {
-                                double[] ret = ((CModuleExGADS1292_EEG)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).GetEEGSpectrum_1Hz_Steps(i);
-                                if (ret != null)
+                                double[]? ret = module.GetEEGSpectrum_1Hz_Steps(i);
+
+                                if (ret is not null)
                                 {
                                     if (FrmSpectrum is null)
                                     {
                                         FrmSpectrum = new frmSpectrum(num_raw_EEG_Channels);
                                         string[] cat = new string[ret.Length];
                                         for (int j = 0; j < ret.Length; j++)
-                                            cat[j] = (j.ToString());
+                                            cat[j] = j.ToString();
 
                                         for (int j = 0; j < num_raw_EEG_Channels; j++)
-                                            FrmSpectrum.UpdateXAxisCategories(j, cat.ToArray());
+                                            FrmSpectrum.UpdateXAxisCategories(j, [.. cat]);
                                         FrmSpectrum.Show();
                                     }
 
-                                    FrmSpectrum.UpdateChartValues(i, ret);
+                                    FrmSpectrum.UpdateChartValues(i, ret, module.extraDatas[i]);
                                 }
                             }
                         }

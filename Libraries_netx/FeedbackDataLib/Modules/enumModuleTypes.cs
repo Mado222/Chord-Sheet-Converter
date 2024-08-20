@@ -64,20 +64,15 @@ namespace FeedbackDataLib
         [XmlEnum(Name = "Atem_IR_Dig")]
         cModuleAtemIRDig = 0x06,
         /// <summary>
-        /// ModuleType: EXG_ADS
+        /// ModuleType: EXG_ADS94
         /// </summary>
-        [XmlEnum(Name = "EXG_ADS")]
-        cModuleExGADS = 0x0C,
+        [XmlEnum(Name = "EXG_ADS94")]
+        cModuleExGADS94 = 0x0C,
         /// <summary>
         /// ModuleType: SCL_ADS
         /// </summary>
         [XmlEnum(Name = "SCL_ADS")]
         cModuleSCLADS = 0x0D,
-        /// <summary>
-        /// ModuleType: EXG_ADS94
-        /// </summary>
-        [XmlEnum(Name = "EXG_ADS94")]
-        cModuleExGADS94 = 0x0E,
         /// <summary>
         /// ModuleType: Neuromaster / only for Manufacturing
         /// </summary>

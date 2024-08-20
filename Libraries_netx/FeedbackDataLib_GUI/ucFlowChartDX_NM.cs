@@ -178,7 +178,7 @@ namespace FeedbackDataLib_GUI
                 DefChannel.Add(new CDefChannel(enumModuleType.cModuleECG, 1));       //
                 DefChannel.Add(new CDefChannel(enumModuleType.cModuleEEG, 3));       //
                 //DefChannel.Add(new CDefChannel(enumModuleType.cModuleEEGADS, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleExGADS, 1));       //
+                DefChannel.Add(new CDefChannel(enumModuleType.cModuleExGADS94, 1));       //
                 DefChannel.Add(new CDefChannel(enumModuleType.cModuleEMG, 1));       //
                 DefChannel.Add(new CDefChannel(enumModuleType.cModuleMultisensor, 2));       //
             }

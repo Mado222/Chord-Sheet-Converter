@@ -39,7 +39,7 @@ namespace FeedbackDataLib_GUI
             //Electrode Information
 
             lblxnR1.Text = (mi.Get_ElectrodeInfo_n(0).Impedance_Ohm / 1000).ToString("F0");
-            lblxnV1.Text = (mi.Get_ElectrodeInfo_n(0).UElektrode_V * 1e6).ToString("F0");
+            lblUel1.Text = (mi.Get_ElectrodeInfo_n(0).UElektrode_V * 1e6).ToString("F0");
 
             lblxnR2.Text = (mi.Get_ElectrodeInfo_p(0).Impedance_Ohm / 1000).ToString("F0");
             lblxnV2.Text = (mi.Get_ElectrodeInfo_p(0).UElektrode_V * 1e6).ToString("F0");

@@ -191,7 +191,7 @@ namespace FeedbackDataLib_GUI
 
         public byte[] GetModuleSpecific (int HW_cn)
         {
-            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS && frmModuleSpecificSetup_ExGADS != null)
+            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94 && frmModuleSpecificSetup_ExGADS != null)
             {
                 return frmModuleSpecificSetup_ExGADS.GetModuleSpecific();
             }
@@ -382,7 +382,7 @@ namespace FeedbackDataLib_GUI
         ucModuleSpecificSetup_MultiSensor ucModuleSpecificSetup_MultiSensor = new();
         ucModuleExGADS_Impedance ucModuleExGADS_Impedance = new();
         ucModuleEEG? ucModuleEEG = new ();
-        frmModuleSpecificSetup_ExGADS frmModuleSpecificSetup_ExGADS = new ();
+        frmModuleSpecificSetup_ExGADS1292 frmModuleSpecificSetup_ExGADS = new ();
         
 
         private void UpdateInfo()
@@ -399,7 +399,7 @@ namespace FeedbackDataLib_GUI
                 string s2 = "";
                 s2 += "Module_Revision: " + SelectedModuleRow.ModuleRevision.ToString() + Environment.NewLine;
                 s2 += "SWRevision: " + SelectedModuleRow.SWRevision_string + Environment.NewLine;
-                s2 += "uuid: " + SelectedModuleRow.uuid.ToString() + Environment.NewLine;
+                s2 += "uuid: " + SelectedModuleRow.UUID.ToString() + Environment.NewLine;
                 txtInfo1.Text = s2;
             }
         }
@@ -436,7 +436,7 @@ namespace FeedbackDataLib_GUI
                 {
                     ucModuleSpecificSetup_VasoIR = new ucModuleSpecificSetup_VasoIR();
                     this.Controls.Add(ucModuleSpecificSetup_VasoIR);
-                    ucModuleSpecificSetup_VasoIR.Location = new System.Drawing.Point(Left, Top);
+                    ucModuleSpecificSetup_VasoIR.Location = new Point(Left, Top);
                     ucModuleSpecificSetup_VasoIR.Name = "ucModuleSpecificSetup_VasoIR";
                     ucModuleSpecificSetup_VasoIR.Width = Width;
                 }
@@ -483,15 +483,15 @@ namespace FeedbackDataLib_GUI
                     _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalValue_k = ModuleInfo.SWChannels[sw_cn].SkalValue_k;
                 }
 
-                if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS)
+                if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
                 {
                     if (ucModuleExGADS_Impedance == null)
                     {
                         ucModuleExGADS_Impedance = new ucModuleExGADS_Impedance();
-                        this.Controls.Add(ucModuleExGADS_Impedance);
+                        Controls.Add(ucModuleExGADS_Impedance);
 
 
-                        ucModuleExGADS_Impedance.Location = new System.Drawing.Point(Left, Top);
+                        ucModuleExGADS_Impedance.Location = new Point(Left, Top);
                         ucModuleExGADS_Impedance.Name = "ucModuleExGADS_Impedance";
                         ucModuleExGADS_Impedance.Width = Width;
                     }
@@ -500,17 +500,22 @@ namespace FeedbackDataLib_GUI
 #if DEBUG
                     if (frmModuleSpecificSetup_ExGADS == null)
                     {
-                        frmModuleSpecificSetup_ExGADS = new frmModuleSpecificSetup_ExGADS
+                        frmModuleSpecificSetup_ExGADS = new frmModuleSpecificSetup_ExGADS1292
                         {
                             Name = "frmModuleSpecificSetup_ExGADS"
                         };
                     }
-                    frmModuleSpecificSetup_ExGADS.SetModuleSpecificInfo((CModuleExGADS1292)ModuleInfo);
-                    frmModuleSpecificSetup_ExGADS.Visible = true;
-                    ((CModuleExGADS1292)ModuleInfo).visible = true;
+                    //frmModuleSpecificSetup_ExGADS.SetModuleSpecificInfo((CModuleExGADS1292)ModuleInfo);
+                    //frmModuleSpecificSetup_ExGADS.Visible = true;
+                    //((CModuleExGADS1294)ModuleInfo).visible = true;
 
 #endif
                 }
+                else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
+                {
+
+                }
+
                 else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleEEG)
                 {
                     if (ucModuleEEG == null)
@@ -592,7 +597,7 @@ namespace FeedbackDataLib_GUI
                 ModuleInfo = mr;
             }
 
-            else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS)
+            else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
             {
                 //frmModuleSpecificSetup_ExGADS.ReadModuleSpecificInfo(ref ModuleInfo);
             }

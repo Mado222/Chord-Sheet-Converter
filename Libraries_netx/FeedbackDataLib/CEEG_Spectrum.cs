@@ -129,7 +129,7 @@ namespace FeedbackDataLib
         /// <returns>
         /// Ueff von 0 ... 29Hz
         /// </returns>
-        public double[] GetEEGSpectrum_1Hz_Steps(double[] samples, double Sample_time_ms)
+        public double[]? GetEEGSpectrum_1Hz_Steps(double[] samples, double Sample_time_ms)
         {
             if (dtLastFFT + new TimeSpan(0, 0, 2) < DateTime.Now)
                 Process_Spectrum (samples, Sample_time_ms);

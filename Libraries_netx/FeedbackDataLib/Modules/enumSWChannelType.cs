@@ -51,22 +51,11 @@
             cSWChannelTypeEEG3 = (enumModuleType.cModuleEEG << 8) + 3,
 #endif
 
-        //EEG_ADS
-        //cSWChannelTypeEEGADS0 = (((UInt16)enumModuleType.cModuleEEGADS << 8) + 0),
-        //cSWChannelTypeEEGADS1 = (((UInt16)enumModuleType.cModuleEEGADS << 8) + 1),
-        //cSWChannelTypeEEGADS2 = (((UInt16)enumModuleType.cModuleEEGADS << 8) + 2),
-        //cSWChannelTypeEEGADS3 = (((UInt16)enumModuleType.cModuleEEGADS << 8) + 3),
-
         //ExG_ADS
-        cSWChannelTypeExGADS0 = (enumModuleType.cModuleExGADS << 8) + 0,
-        cSWChannelTypeExGADS1 = (enumModuleType.cModuleExGADS << 8) + 1,
-        cSWChannelTypeExGADS2 = (enumModuleType.cModuleExGADS << 8) + 2,
-        cSWChannelTypeExGADS3 = (enumModuleType.cModuleExGADS << 8) + 3,
-        cSWChannelTypeImpADS0 = (enumModuleType.cModuleExGADS << 8) + 4,
-        cSWChannelTypeImpADS1 = (enumModuleType.cModuleExGADS << 8) + 5,
-        cSWChannelTypeImpADS2 = (enumModuleType.cModuleExGADS << 8) + 6,
-        cSWChannelTypeImpADS3 = (enumModuleType.cModuleExGADS << 8) + 7,
-
+        cSWChannelTypeExGADS0 = (enumModuleType.cModuleExGADS94 << 8) + 0,
+        cSWChannelTypeExGADS1 = (enumModuleType.cModuleExGADS94 << 8) + 1,
+        cSWChannelTypeExGADS2 = (enumModuleType.cModuleExGADS94 << 8) + 2,
+        cSWChannelTypeExGADS3 = (enumModuleType.cModuleExGADS94 << 8) + 3,
 
         //SCL_ADS
         cSWChannelTypeSCLADS0 = (enumModuleType.cModuleSCLADS << 8) + 0,

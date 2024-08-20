@@ -1,6 +1,6 @@
 ﻿namespace FeedbackDataLib_GUI
 {
-    partial class ucModuleSpecificSetup_ExGADS
+    partial class ucModuleSpecificSetup_ExGADS1292
     {
         /// <summary> 
         /// Required designer variable.

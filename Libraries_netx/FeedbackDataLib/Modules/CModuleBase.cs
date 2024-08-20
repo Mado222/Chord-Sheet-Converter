@@ -11,7 +11,7 @@ namespace FeedbackDataLib.Modules
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CModuleBase : ICloneable
     {
-        protected int _num_raw_Channels = 1;
+        protected int _num_raw_Channels = 4;
         public int num_raw_Channels { get => _num_raw_Channels; }
 
         public const int ModuleSpecific_sizeof = 16;
@@ -22,6 +22,7 @@ namespace FeedbackDataLib.Modules
         public CModuleBase()
         {
             SWChannels = [];
+            ModuleName = "Base Module";
         }
 
         public virtual void SetModuleSpecific(byte[] value)
@@ -36,8 +37,8 @@ namespace FeedbackDataLib.Modules
         }
 
 
-        public byte[] uuid_bytearray { get; } = new byte[16];
-        public string uuid => System.Text.Encoding.ASCII.GetString(uuid_bytearray);
+        public byte[] UUID_bytearray { get; } = new byte[16];
+        public string UUID => System.Text.Encoding.ASCII.GetString(UUID_bytearray);
 
         protected List<string> cSWChannelNames =
         [
@@ -240,7 +241,7 @@ namespace FeedbackDataLib.Modules
             {
                 buf.AddRange(Get_SWConfigChannelByteArray(swc, SW_cn));
             }
-            buf.AddRange(uuid_bytearray);
+            buf.AddRange(UUID_bytearray);
             //return buf.ToArray();
             return [.. buf];
         }
@@ -291,7 +292,7 @@ namespace FeedbackDataLib.Modules
         public virtual int Update_UID_ModuleType_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
             int ptr = Pointer_To_Array_Start; //Array Pointer
-            Array.Copy(InBuf, ptr, uuid_bytearray, 0, uuid_bytearray.Length); ptr += uuid_bytearray.Length;
+            Array.Copy(InBuf, ptr, UUID_bytearray, 0, UUID_bytearray.Length); ptr += UUID_bytearray.Length;
             ushort moduleTypeFromDevice = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(moduleTypeFromDevice);
             Update_ModuleTypeFromDevice(moduleTypeFromDevice);
             SWRevision = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWRevision);

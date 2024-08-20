@@ -54,7 +54,7 @@ namespace FeedbackDataLib.Modules
         public CModuleExGADS1292_EEG()
         {
             _num_raw_Channels = 2;
-            _ModuleType_Unmodified = enumModuleType.cModuleExGADS;
+            //_ModuleType_Unmodified = enumModuleType.cModuleExGADS92;
             _ModuleType = enumModuleType.cModuleEEG;
             Init();
         }

@@ -1,5 +1,6 @@
 ﻿namespace FeedbackDataLib_GUI
-{        partial class frmSpectrum
+{
+    partial class frmSpectrum
     {
         /// <summary>
         /// Required designer variable.
@@ -32,7 +33,7 @@
             // 
             // tableLayoutPanel1
             // 
-            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.ColumnCount = 2;
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
             tableLayoutPanel1.Dock = DockStyle.Fill;

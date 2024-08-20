@@ -1,5 +1,5 @@
 ﻿using BMTCommunicationLib;
-using System.Collections;
+using System.DirectoryServices.ActiveDirectory;
 using WindControlLib;
 
 namespace FeedbackDataLib.Modules
@@ -7,30 +7,6 @@ namespace FeedbackDataLib.Modules
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CModuleExGADS1294_EEG : CModuleExGADS1294
     {
-
-        public enum EnTypeExtradat_ADS
-        {
-            ExRp = 0,
-            ExRn = 1,
-            ExUp = 2,
-            empty
-        }
-
-        public class ExtraData
-        {
-            public double Value { get; set; } = -1;
-            public DateTime DTLastUpdated = DateTime.MinValue;
-
-            public ExtraData(EnTypeExtradat_ADS typeExtradat)
-            {
-                TypeExtradat = typeExtradat;
-            }
-
-            public EnTypeExtradat_ADS TypeExtradat { get; set; } = EnTypeExtradat_ADS.empty;
-        }
-
-        public ExtraData[] extraDatas = [];
-
 
         //////////////////
         //Configurations
@@ -56,19 +32,24 @@ namespace FeedbackDataLib.Modules
         public const int Default_Sample_Int_ms = 10;
         public const int Default_EEGBands_Int_ms = 200;
 
-        [NonSerialized()] protected CEEGProcessor[] EEGProcessor;
+        [NonSerialized()] protected CEEGProcessor[]? EEGProcessor = null;
 
         //private frmSpectrum frmSpectrum = null;
-        private DateTime [] dtNextSpectrumUpdate;
-        private readonly TimeSpan[] tsSpectrumUpdateInterval_ms = [
-            new (0,0,0,0,2000),
-            new(0,0,0,0,2000) ];
+        private DateTime[] dtNextSpectrumUpdate;
+        private readonly TimeSpan[] tsSpectrumUpdateInterval_ms;
 
         public CModuleExGADS1294_EEG()
         {
-            _num_raw_Channels = 2;
-            _ModuleType_Unmodified = enumModuleType.cModuleExGADS;
+            _ModuleType_Unmodified = enumModuleType.cModuleExGADS94;
             _ModuleType = enumModuleType.cModuleEEG;
+            dtNextSpectrumUpdate = new DateTime[num_raw_Channels];
+            tsSpectrumUpdateInterval_ms = new TimeSpan[num_raw_Channels];
+            for (int i = 0; i < num_raw_Channels; i++)
+            {
+                dtNextSpectrumUpdate[i] = DateTime.Now;
+                tsSpectrumUpdateInterval_ms[i] = new TimeSpan(0, 0, 0, 0, 2000);
+            }
+
             Init();
         }
 
@@ -94,12 +75,6 @@ namespace FeedbackDataLib.Modules
                     longnames[j] = i.ToString() + "_" + longnames[j];
                 }
                 cSWChannelNames.AddRange(longnames);
-            }
-
-            extraDatas = new ExtraData [Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length];
-            for (int i = 0;i< Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length; i++)
-            {
-                extraDatas[i] = new((EnTypeExtradat_ADS)i);
             }
         }
 
@@ -143,7 +118,10 @@ namespace FeedbackDataLib.Modules
                 EEGProcessor = new CEEGProcessor[num_raw_Channels];
                 for (i = 0; i < EEGProcessor.Length; i++)
                 {
-                    EEGProcessor[i] = new CEEGProcessor(i, this);
+                    EEGProcessor[i] = new CEEGProcessor(i, this) 
+                    { 
+                        SpectrumChannelsactive = true 
+                    };
                     FFT_WindowWidth_ms = EEGProcessor[i].UpdateEEGProcessor(i, this, FFT_WindowWidth_ms);
                 }
             }
@@ -154,9 +132,9 @@ namespace FeedbackDataLib.Modules
         /// </summary>
         /// <param name="chanNo">The chan no.</param>
         /// <returns></returns>
-        public double[] GetEEGSpectrum_1Hz_Steps(int chanNo)
+        public double[]? GetEEGSpectrum_1Hz_Steps(int chanNo)
         {
-            return EEGProcessor[chanNo].GetEEGSpectrum_1Hz_Steps();
+            return EEGProcessor == null ? null : EEGProcessor[chanNo].GetEEGSpectrum_1Hz_Steps();
         }
 
         /// <summary>
@@ -166,23 +144,31 @@ namespace FeedbackDataLib.Modules
         /// </summary>
         /// <param name="original_Data">Original data from device</param>
         /// <returns></returns>
-        public override List<CDataIn> Processdata(CDataIn original_Data)
+        public override List<CDataIn> Processdata(CDataIn originalData)
         {
-           
-            List<CDataIn> processedData = base.Processdata(original_Data); //HP Filter
-            original_Data = processedData[0];
+            // Apply base processing (HP Filter)
+            var processedData = base.Processdata(originalData);
+
+            // Update original data with the processed result
+            originalData = processedData[0];
             processedData.Clear();
-            if (original_Data.NumExtraDat > 0)
+
+            // Handle extra data if present
+            if (originalData.NumExtraDat > 0)
             {
-                //Extradata, it is a Int32 value
-                extraDatas[original_Data.TypeExtraDat].Value = 
-                    BitConverter.ToInt32(
-                        CInsightDataEnDecoder.DecodeFrom7Bit(original_Data.ExtraDat), 
-                        0);
-                extraDatas[original_Data.TypeExtraDat].DTLastUpdated = DateTime.Now;
-                extraDatas[original_Data.TypeExtraDat].TypeExtradat = (EnTypeExtradat_ADS) original_Data.TypeExtraDat;
+                // Decode and store the extra data
+                var decodedValue = BitConverter.ToInt32(
+                    CInsightDataEnDecoder.DecodeFrom7Bit(originalData.ExtraDat),
+                    0);
+
+                var extraData = extraDatas[originalData.HW_cn][originalData.TypeExtraDat];
+                extraData.Value = decodedValue;
+                extraData.DTLastUpdated = DateTime.Now;
+                extraData.TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
             }
-            return ProcessDataEEG_Basic(original_Data, processedData);
+
+            // Return the result after further processing
+            return ProcessDataEEG_Basic(originalData, processedData);
         }
 
         protected List<CDataIn> ProcessDataEEG_Basic(CDataIn originialData, List<CDataIn> processedData)
@@ -193,10 +179,13 @@ namespace FeedbackDataLib.Modules
                 if (sWChannels_Module[swcn].SendChannel)
                 {
                     processedData.Add(originialData);
-                    
-                    List<CDataIn> _DataEEG = EEGProcessor[swcn].AddEEGSample(originialData);
-                    if (_DataEEG != null)
-                        processedData.AddRange(_DataEEG);
+
+                    if (EEGProcessor is not null)
+                    {
+                        List<CDataIn> _DataEEG = EEGProcessor[swcn].AddEEGSample(originialData);
+                        if (_DataEEG != null)
+                            processedData.AddRange(_DataEEG);
+                    }
                 }
             }
             return processedData;

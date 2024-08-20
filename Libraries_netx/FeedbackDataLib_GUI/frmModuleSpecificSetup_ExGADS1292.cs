@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using FeedbackDataLib;
+﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
@@ -8,11 +7,11 @@ namespace FeedbackDataLib_GUI
     /// Just to encapsulate ucModuleSpecificSetup_ExGADS on a form
     /// </summary>
     /// <seealso cref="System.Windows.Forms.Form" />
-    public partial class frmModuleSpecificSetup_ExGADS : Form
+    public partial class frmModuleSpecificSetup_ExGADS1292 : Form
     {
         //ucModuleSpecificSetup_ExGADS ucModuleSpecificSetup_ExGADS1 = new ucModuleSpecificSetup_ExGADS();
-        ucModuleSpecificSetup_ExGADS ucModuleSpecificSetup_ExGADS1 = new ucModuleSpecificSetup_ExGADS();
-        public frmModuleSpecificSetup_ExGADS()
+        ucModuleSpecificSetup_ExGADS1292 ucModuleSpecificSetup_ExGADS1 = new ucModuleSpecificSetup_ExGADS1292();
+        public frmModuleSpecificSetup_ExGADS1292()
         {
             InitializeComponent();
             SuspendLayout();

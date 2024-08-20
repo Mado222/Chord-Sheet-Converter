@@ -31,251 +31,358 @@ namespace FeedbackDataLib_GUI
         /// </summary>
         private void InitializeComponent()
         {
-            this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblxpV2 = new System.Windows.Forms.Label();
-            this.lblxpV1 = new System.Windows.Forms.Label();
-            this.lblxnV2 = new System.Windows.Forms.Label();
-            this.lblxnV1 = new System.Windows.Forms.Label();
-            this.lblxpR2 = new System.Windows.Forms.Label();
-            this.lblxpR1 = new System.Windows.Forms.Label();
-            this.lblxnR2 = new System.Windows.Forms.Label();
-            this.lblxnR1 = new System.Windows.Forms.Label();
-            this.uElektrode_xp_mVLabel = new System.Windows.Forms.Label();
-            this.uElektrode_xn_mVLabel = new System.Windows.Forms.Label();
-            this.electrode_imp_xpLabel = new System.Windows.Forms.Label();
-            this.electrode_imp_xnLabel = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.txtSR0 = new System.Windows.Forms.TextBox();
-            this.txtSR1 = new System.Windows.Forms.TextBox();
-            this.tableLayoutPanel6.SuspendLayout();
-            this.SuspendLayout();
+            tableLayoutPanel6 = new TableLayoutPanel();
+            txtSR2 = new TextBox();
+            txtSR3 = new TextBox();
+            lblUel4 = new Label();
+            lblxpR4 = new Label();
+            lblxnR4 = new Label();
+            lblUel3 = new Label();
+            lblxpR3 = new Label();
+            lblxnR3 = new Label();
+            label3 = new Label();
+            label2 = new Label();
+            label1 = new Label();
+            lblUel2 = new Label();
+            lblUel1 = new Label();
+            lblxpR2 = new Label();
+            lblxpR1 = new Label();
+            lblxnR2 = new Label();
+            lblxnR1 = new Label();
+            uElektrode_xp_mVLabel = new Label();
+            uElektrode_xn_mVLabel = new Label();
+            electrode_imp_xpLabel = new Label();
+            electrode_imp_xnLabel = new Label();
+            label6 = new Label();
+            label7 = new Label();
+            txtSR0 = new TextBox();
+            txtSR1 = new TextBox();
+            tableLayoutPanel6.SuspendLayout();
+            SuspendLayout();
             // 
             // tableLayoutPanel6
             // 
-            this.tableLayoutPanel6.ColumnCount = 3;
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
-            this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 130F));
-            this.tableLayoutPanel6.Controls.Add(this.label1, 0, 5);
-            this.tableLayoutPanel6.Controls.Add(this.lblxpV2, 2, 4);
-            this.tableLayoutPanel6.Controls.Add(this.lblxpV1, 1, 4);
-            this.tableLayoutPanel6.Controls.Add(this.lblxnV2, 2, 3);
-            this.tableLayoutPanel6.Controls.Add(this.lblxnV1, 1, 3);
-            this.tableLayoutPanel6.Controls.Add(this.lblxpR2, 2, 2);
-            this.tableLayoutPanel6.Controls.Add(this.lblxpR1, 1, 2);
-            this.tableLayoutPanel6.Controls.Add(this.lblxnR2, 2, 1);
-            this.tableLayoutPanel6.Controls.Add(this.lblxnR1, 1, 1);
-            this.tableLayoutPanel6.Controls.Add(this.uElektrode_xp_mVLabel, 0, 4);
-            this.tableLayoutPanel6.Controls.Add(this.uElektrode_xn_mVLabel, 0, 3);
-            this.tableLayoutPanel6.Controls.Add(this.electrode_imp_xpLabel, 0, 2);
-            this.tableLayoutPanel6.Controls.Add(this.electrode_imp_xnLabel, 0, 1);
-            this.tableLayoutPanel6.Controls.Add(this.label6, 2, 0);
-            this.tableLayoutPanel6.Controls.Add(this.label7, 1, 0);
-            this.tableLayoutPanel6.Controls.Add(this.txtSR0, 1, 5);
-            this.tableLayoutPanel6.Controls.Add(this.txtSR1, 2, 5);
-            this.tableLayoutPanel6.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tableLayoutPanel6.Name = "tableLayoutPanel6";
-            this.tableLayoutPanel6.RowCount = 6;
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel6.Size = new System.Drawing.Size(454, 136);
-            this.tableLayoutPanel6.TabIndex = 24;
+            tableLayoutPanel6.ColumnCount = 5;
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 200F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 130F));
+            tableLayoutPanel6.Controls.Add(txtSR2, 3, 5);
+            tableLayoutPanel6.Controls.Add(txtSR3, 4, 5);
+            tableLayoutPanel6.Controls.Add(lblUel4, 4, 3);
+            tableLayoutPanel6.Controls.Add(lblxpR4, 4, 2);
+            tableLayoutPanel6.Controls.Add(lblxnR4, 4, 1);
+            tableLayoutPanel6.Controls.Add(lblUel3, 3, 3);
+            tableLayoutPanel6.Controls.Add(lblxpR3, 3, 2);
+            tableLayoutPanel6.Controls.Add(lblxnR3, 3, 1);
+            tableLayoutPanel6.Controls.Add(label3, 5, 0);
+            tableLayoutPanel6.Controls.Add(label2, 3, 0);
+            tableLayoutPanel6.Controls.Add(label1, 0, 5);
+            tableLayoutPanel6.Controls.Add(lblUel2, 2, 3);
+            tableLayoutPanel6.Controls.Add(lblUel1, 1, 3);
+            tableLayoutPanel6.Controls.Add(lblxpR2, 2, 2);
+            tableLayoutPanel6.Controls.Add(lblxpR1, 1, 2);
+            tableLayoutPanel6.Controls.Add(lblxnR2, 2, 1);
+            tableLayoutPanel6.Controls.Add(lblxnR1, 1, 1);
+            tableLayoutPanel6.Controls.Add(uElektrode_xp_mVLabel, 0, 4);
+            tableLayoutPanel6.Controls.Add(uElektrode_xn_mVLabel, 0, 3);
+            tableLayoutPanel6.Controls.Add(electrode_imp_xpLabel, 0, 2);
+            tableLayoutPanel6.Controls.Add(electrode_imp_xnLabel, 0, 1);
+            tableLayoutPanel6.Controls.Add(label6, 2, 0);
+            tableLayoutPanel6.Controls.Add(label7, 1, 0);
+            tableLayoutPanel6.Controls.Add(txtSR0, 1, 5);
+            tableLayoutPanel6.Controls.Add(txtSR1, 2, 5);
+            tableLayoutPanel6.Location = new Point(0, 0);
+            tableLayoutPanel6.Margin = new Padding(3, 2, 3, 2);
+            tableLayoutPanel6.Name = "tableLayoutPanel6";
+            tableLayoutPanel6.RowCount = 6;
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 19.23077F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 20.76923F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 38F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tableLayoutPanel6.Size = new Size(715, 170);
+            tableLayoutPanel6.TabIndex = 24;
+            // 
+            // txtSR2
+            // 
+            txtSR2.Dock = DockStyle.Fill;
+            txtSR2.Location = new Point(463, 134);
+            txtSR2.Margin = new Padding(3, 4, 3, 4);
+            txtSR2.Name = "txtSR2";
+            txtSR2.Size = new Size(124, 27);
+            txtSR2.TabIndex = 52;
+            txtSR2.Text = "200";
+            // 
+            // txtSR3
+            // 
+            txtSR3.Dock = DockStyle.Fill;
+            txtSR3.Location = new Point(593, 134);
+            txtSR3.Margin = new Padding(3, 4, 3, 4);
+            txtSR3.Name = "txtSR3";
+            txtSR3.Size = new Size(124, 27);
+            txtSR3.TabIndex = 51;
+            txtSR3.Text = "200";
+            // 
+            // lblUel4
+            // 
+            lblUel4.AutoSize = true;
+            lblUel4.Location = new Point(593, 77);
+            lblUel4.Name = "lblUel4";
+            lblUel4.Size = new Size(30, 20);
+            lblUel4.TabIndex = 50;
+            lblUel4.Text = "xxx";
+            // 
+            // lblxpR4
+            // 
+            lblxpR4.AutoSize = true;
+            lblxpR4.Location = new Point(593, 52);
+            lblxpR4.Name = "lblxpR4";
+            lblxpR4.Size = new Size(30, 20);
+            lblxpR4.TabIndex = 49;
+            lblxpR4.Text = "xxx";
+            // 
+            // lblxnR4
+            // 
+            lblxnR4.AutoSize = true;
+            lblxnR4.Location = new Point(593, 26);
+            lblxnR4.Name = "lblxnR4";
+            lblxnR4.Size = new Size(30, 20);
+            lblxnR4.TabIndex = 48;
+            lblxnR4.Text = "xxx";
+            // 
+            // lblUel3
+            // 
+            lblUel3.AutoSize = true;
+            lblUel3.Location = new Point(463, 77);
+            lblUel3.Name = "lblUel3";
+            lblUel3.Size = new Size(30, 20);
+            lblUel3.TabIndex = 47;
+            lblUel3.Text = "xxx";
+            // 
+            // lblxpR3
+            // 
+            lblxpR3.AutoSize = true;
+            lblxpR3.Location = new Point(463, 52);
+            lblxpR3.Name = "lblxpR3";
+            lblxpR3.Size = new Size(30, 20);
+            lblxpR3.TabIndex = 46;
+            lblxpR3.Text = "xxx";
+            // 
+            // lblxnR3
+            // 
+            lblxnR3.AutoSize = true;
+            lblxnR3.Location = new Point(463, 26);
+            lblxnR3.Name = "lblxnR3";
+            lblxnR3.Size = new Size(30, 20);
+            lblxnR3.TabIndex = 45;
+            lblxnR3.Text = "xxx";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Location = new Point(593, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(54, 16);
+            label3.TabIndex = 44;
+            label3.Text = "Chan3:";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Location = new Point(463, 0);
+            label2.Name = "label2";
+            label2.Size = new Size(54, 16);
+            label2.TabIndex = 43;
+            label2.Text = "Chan2:";
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(3, 105);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(139, 17);
-            this.label1.TabIndex = 38;
-            this.label1.Text = "FFT sample_int [ms]:";
+            label1.AutoSize = true;
+            label1.Location = new Point(3, 130);
+            label1.Name = "label1";
+            label1.Size = new Size(142, 20);
+            label1.TabIndex = 38;
+            label1.Text = "FFT sample_int [ms]:";
             // 
-            // lblxpV2
+            // lblUel2
             // 
-            this.lblxpV2.AutoSize = true;
-            this.lblxpV2.Location = new System.Drawing.Point(333, 84);
-            this.lblxpV2.Name = "lblxpV2";
-            this.lblxpV2.Size = new System.Drawing.Size(26, 17);
-            this.lblxpV2.TabIndex = 37;
-            this.lblxpV2.Text = "xxx";
+            lblUel2.AutoSize = true;
+            lblUel2.Location = new Point(333, 77);
+            lblUel2.Name = "lblUel2";
+            lblUel2.Size = new Size(30, 20);
+            lblUel2.TabIndex = 35;
+            lblUel2.Text = "xxx";
             // 
-            // lblxpV1
+            // lblUel1
             // 
-            this.lblxpV1.AutoSize = true;
-            this.lblxpV1.Location = new System.Drawing.Point(203, 84);
-            this.lblxpV1.Name = "lblxpV1";
-            this.lblxpV1.Size = new System.Drawing.Size(26, 17);
-            this.lblxpV1.TabIndex = 36;
-            this.lblxpV1.Text = "xxx";
-            // 
-            // lblxnV2
-            // 
-            this.lblxnV2.AutoSize = true;
-            this.lblxnV2.Location = new System.Drawing.Point(333, 63);
-            this.lblxnV2.Name = "lblxnV2";
-            this.lblxnV2.Size = new System.Drawing.Size(26, 17);
-            this.lblxnV2.TabIndex = 35;
-            this.lblxnV2.Text = "xxx";
-            // 
-            // lblxnV1
-            // 
-            this.lblxnV1.AutoSize = true;
-            this.lblxnV1.Location = new System.Drawing.Point(203, 63);
-            this.lblxnV1.Name = "lblxnV1";
-            this.lblxnV1.Size = new System.Drawing.Size(26, 17);
-            this.lblxnV1.TabIndex = 34;
-            this.lblxnV1.Text = "xxx";
+            lblUel1.AutoSize = true;
+            lblUel1.Location = new Point(203, 77);
+            lblUel1.Name = "lblUel1";
+            lblUel1.Size = new Size(30, 20);
+            lblUel1.TabIndex = 34;
+            lblUel1.Text = "xxx";
             // 
             // lblxpR2
             // 
-            this.lblxpR2.AutoSize = true;
-            this.lblxpR2.Location = new System.Drawing.Point(333, 42);
-            this.lblxpR2.Name = "lblxpR2";
-            this.lblxpR2.Size = new System.Drawing.Size(26, 17);
-            this.lblxpR2.TabIndex = 33;
-            this.lblxpR2.Text = "xxx";
+            lblxpR2.AutoSize = true;
+            lblxpR2.Location = new Point(333, 52);
+            lblxpR2.Name = "lblxpR2";
+            lblxpR2.Size = new Size(30, 20);
+            lblxpR2.TabIndex = 33;
+            lblxpR2.Text = "xxx";
             // 
             // lblxpR1
             // 
-            this.lblxpR1.AutoSize = true;
-            this.lblxpR1.Location = new System.Drawing.Point(203, 42);
-            this.lblxpR1.Name = "lblxpR1";
-            this.lblxpR1.Size = new System.Drawing.Size(26, 17);
-            this.lblxpR1.TabIndex = 31;
-            this.lblxpR1.Text = "xxx";
+            lblxpR1.AutoSize = true;
+            lblxpR1.Location = new Point(203, 52);
+            lblxpR1.Name = "lblxpR1";
+            lblxpR1.Size = new Size(30, 20);
+            lblxpR1.TabIndex = 31;
+            lblxpR1.Text = "xxx";
             // 
             // lblxnR2
             // 
-            this.lblxnR2.AutoSize = true;
-            this.lblxnR2.Location = new System.Drawing.Point(333, 21);
-            this.lblxnR2.Name = "lblxnR2";
-            this.lblxnR2.Size = new System.Drawing.Size(26, 17);
-            this.lblxnR2.TabIndex = 30;
-            this.lblxnR2.Text = "xxx";
+            lblxnR2.AutoSize = true;
+            lblxnR2.Location = new Point(333, 26);
+            lblxnR2.Name = "lblxnR2";
+            lblxnR2.Size = new Size(30, 20);
+            lblxnR2.TabIndex = 30;
+            lblxnR2.Text = "xxx";
             // 
             // lblxnR1
             // 
-            this.lblxnR1.AutoSize = true;
-            this.lblxnR1.Location = new System.Drawing.Point(203, 21);
-            this.lblxnR1.Name = "lblxnR1";
-            this.lblxnR1.Size = new System.Drawing.Size(26, 17);
-            this.lblxnR1.TabIndex = 29;
-            this.lblxnR1.Text = "xxx";
+            lblxnR1.AutoSize = true;
+            lblxnR1.Location = new Point(203, 26);
+            lblxnR1.Name = "lblxnR1";
+            lblxnR1.Size = new Size(30, 20);
+            lblxnR1.TabIndex = 29;
+            lblxnR1.Text = "xxx";
             // 
             // uElektrode_xp_mVLabel
             // 
-            this.uElektrode_xp_mVLabel.AutoSize = true;
-            this.uElektrode_xp_mVLabel.Location = new System.Drawing.Point(3, 84);
-            this.uElektrode_xp_mVLabel.Name = "uElektrode_xp_mVLabel";
-            this.uElektrode_xp_mVLabel.Size = new System.Drawing.Size(129, 17);
-            this.uElektrode_xp_mVLabel.TabIndex = 23;
-            this.uElektrode_xp_mVLabel.Text = "UElektrode xp [µV]:";
+            uElektrode_xp_mVLabel.AutoSize = true;
+            uElektrode_xp_mVLabel.Location = new Point(3, 104);
+            uElektrode_xp_mVLabel.Name = "uElektrode_xp_mVLabel";
+            uElektrode_xp_mVLabel.Size = new Size(0, 20);
+            uElektrode_xp_mVLabel.TabIndex = 23;
             // 
             // uElektrode_xn_mVLabel
             // 
-            this.uElektrode_xn_mVLabel.AutoSize = true;
-            this.uElektrode_xn_mVLabel.Location = new System.Drawing.Point(3, 63);
-            this.uElektrode_xn_mVLabel.Name = "uElektrode_xn_mVLabel";
-            this.uElektrode_xn_mVLabel.Size = new System.Drawing.Size(129, 17);
-            this.uElektrode_xn_mVLabel.TabIndex = 23;
-            this.uElektrode_xn_mVLabel.Text = "UElektrode xn [µV]:";
+            uElektrode_xn_mVLabel.AutoSize = true;
+            uElektrode_xn_mVLabel.Location = new Point(3, 77);
+            uElektrode_xn_mVLabel.Name = "uElektrode_xn_mVLabel";
+            uElektrode_xn_mVLabel.Size = new Size(141, 20);
+            uElektrode_xn_mVLabel.TabIndex = 23;
+            uElektrode_xn_mVLabel.Text = "UElektrode [DC µV]:";
             // 
             // electrode_imp_xpLabel
             // 
-            this.electrode_imp_xpLabel.AutoSize = true;
-            this.electrode_imp_xpLabel.Location = new System.Drawing.Point(3, 42);
-            this.electrode_imp_xpLabel.Name = "electrode_imp_xpLabel";
-            this.electrode_imp_xpLabel.Size = new System.Drawing.Size(165, 17);
-            this.electrode_imp_xpLabel.TabIndex = 23;
-            this.electrode_imp_xpLabel.Text = "Electrode imp xp [kOhm]:";
+            electrode_imp_xpLabel.AutoSize = true;
+            electrode_imp_xpLabel.Location = new Point(3, 52);
+            electrode_imp_xpLabel.Name = "electrode_imp_xpLabel";
+            electrode_imp_xpLabel.Size = new Size(178, 20);
+            electrode_imp_xpLabel.TabIndex = 23;
+            electrode_imp_xpLabel.Text = "Electrode imp xp [kOhm]:";
             // 
             // electrode_imp_xnLabel
             // 
-            this.electrode_imp_xnLabel.AutoSize = true;
-            this.electrode_imp_xnLabel.Location = new System.Drawing.Point(3, 21);
-            this.electrode_imp_xnLabel.Name = "electrode_imp_xnLabel";
-            this.electrode_imp_xnLabel.Size = new System.Drawing.Size(165, 17);
-            this.electrode_imp_xnLabel.TabIndex = 23;
-            this.electrode_imp_xnLabel.Text = "Electrode imp xn [kOhm]:";
+            electrode_imp_xnLabel.AutoSize = true;
+            electrode_imp_xnLabel.Location = new Point(3, 26);
+            electrode_imp_xnLabel.Name = "electrode_imp_xnLabel";
+            electrode_imp_xnLabel.Size = new Size(177, 20);
+            electrode_imp_xnLabel.TabIndex = 23;
+            electrode_imp_xnLabel.Text = "Electrode imp xn [kOhm]:";
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(333, 0);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(59, 17);
-            this.label6.TabIndex = 20;
-            this.label6.Text = "Chan1:";
+            label6.AutoSize = true;
+            label6.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label6.Location = new Point(333, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(54, 16);
+            label6.TabIndex = 20;
+            label6.Text = "Chan1:";
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(203, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(59, 17);
-            this.label7.TabIndex = 21;
-            this.label7.Text = "Chan0:";
+            label7.AutoSize = true;
+            label7.Font = new Font("Microsoft Sans Serif", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label7.Location = new Point(203, 0);
+            label7.Name = "label7";
+            label7.Size = new Size(54, 16);
+            label7.TabIndex = 21;
+            label7.Text = "Chan0:";
             // 
             // txtSR0
             // 
-            this.txtSR0.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSR0.Location = new System.Drawing.Point(203, 108);
-            this.txtSR0.Name = "txtSR0";
-            this.txtSR0.Size = new System.Drawing.Size(124, 22);
-            this.txtSR0.TabIndex = 39;
-            this.txtSR0.Text = "200";
+            txtSR0.Dock = DockStyle.Fill;
+            txtSR0.Location = new Point(203, 134);
+            txtSR0.Margin = new Padding(3, 4, 3, 4);
+            txtSR0.Name = "txtSR0";
+            txtSR0.Size = new Size(124, 27);
+            txtSR0.TabIndex = 39;
+            txtSR0.Text = "200";
             // 
             // txtSR1
             // 
-            this.txtSR1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSR1.Location = new System.Drawing.Point(333, 108);
-            this.txtSR1.Name = "txtSR1";
-            this.txtSR1.Size = new System.Drawing.Size(124, 22);
-            this.txtSR1.TabIndex = 41;
-            this.txtSR1.Text = "200";
+            txtSR1.Dock = DockStyle.Fill;
+            txtSR1.Location = new Point(333, 134);
+            txtSR1.Margin = new Padding(3, 4, 3, 4);
+            txtSR1.Name = "txtSR1";
+            txtSR1.Size = new Size(124, 27);
+            txtSR1.TabIndex = 41;
+            txtSR1.Text = "200";
             // 
             // ucModuleExGADS_Impedance
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.tableLayoutPanel6);
-            this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "ucModuleExGADS_Impedance";
-            this.Size = new System.Drawing.Size(464, 145);
-            this.tableLayoutPanel6.ResumeLayout(false);
-            this.tableLayoutPanel6.PerformLayout();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Controls.Add(tableLayoutPanel6);
+            Margin = new Padding(4, 5, 4, 5);
+            Name = "ucModuleExGADS_Impedance";
+            Size = new Size(738, 181);
+            tableLayoutPanel6.ResumeLayout(false);
+            tableLayoutPanel6.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
 
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
-        private System.Windows.Forms.Label lblxpV2;
-        private System.Windows.Forms.Label lblxpV1;
-        private System.Windows.Forms.Label lblxnV2;
-        private System.Windows.Forms.Label lblxnV1;
-        private System.Windows.Forms.Label lblxpR2;
-        private System.Windows.Forms.Label lblxpR1;
-        private System.Windows.Forms.Label lblxnR2;
-        private System.Windows.Forms.Label lblxnR1;
-        private System.Windows.Forms.Label uElektrode_xp_mVLabel;
-        private System.Windows.Forms.Label uElektrode_xn_mVLabel;
-        private System.Windows.Forms.Label electrode_imp_xpLabel;
-        private System.Windows.Forms.Label electrode_imp_xnLabel;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtSR0;
-        private System.Windows.Forms.TextBox txtSR1;
+        private TableLayoutPanel tableLayoutPanel6;
+        private Label lblxpV2;
+        private Label lblxpV1;
+        private Label lblxnV2;
+        private Label lblUel1;
+        private Label lblUel2;
+        private Label lblxpR2;
+        private Label lblxpR1;
+        private Label lblxnR2;
+        private Label lblxnR1;
+        private Label lblUel3;
+        private Label lblxpR3;
+        private Label lblxnR3;
+        private Label lblUel4;
+        private Label lblxpR4;
+        private Label lblxnR4;
+
+        private Label uElektrode_xp_mVLabel;
+        private Label uElektrode_xn_mVLabel;
+        private Label electrode_imp_xpLabel;
+        private Label electrode_imp_xnLabel;
+        private Label label6;
+        private Label label7;
+        private Label label1;
+        private TextBox txtSR0;
+        private TextBox txtSR1;
+        private Label label2;
+        private Label label3;
+        private TextBox txtSR2;
+        private TextBox txtSR3;
     }
 }

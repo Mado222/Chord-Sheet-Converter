@@ -3,127 +3,70 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
 using System.Reflection;
+using static FeedbackDataLib.Modules.CModuleBase;
+using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
 {
     public partial class frmSpectrum : Form
     {
-        private PlotView[] chartViews;
-        private Color[] cols = new Color[] { Color.MintCream, Color.MintCream, Color.MintCream };
-        public frmSpectrum(int no_of_Charts = 2)
+        private uc_Spectrum_Impedance[] spectrumViews;
+        private Color[] cols = { Color.MintCream, Color.MintCream, Color.MintCream, Color.MintCream };
+        public frmSpectrum(int no_of_Charts = 4)
         {
             InitializeComponent();
-            init_Charts(no_of_Charts);
-        }
 
-        private void init_Charts(int numberOfCharts)
-        {
             SuspendLayout();
             // Initialize the array of PlotViews
-            chartViews = new PlotView[numberOfCharts];
+            spectrumViews = new uc_Spectrum_Impedance[no_of_Charts];
 
             // Create multiple charts
-            for (int i = 0; i < numberOfCharts; i++)
+            for (int i = 0; i < no_of_Charts; i++)
             {
-                // Create a new plot model
-                var plotModel = new PlotModel { Title = $"FFT Channel {i}" };
-
-                var categoryAxis = new CategoryAxis
+                spectrumViews[i] = new uc_Spectrum_Impedance(i, cols[i])
                 {
-                    Position = AxisPosition.Bottom,
-                    Key = "y1"
+                    Dock = DockStyle.Fill
                 };
-
-                var valueAxis = new LinearAxis
-                {
-                    Position = AxisPosition.Left,
-                    MinimumPadding = 0,
-                    MaximumPadding = 0.06,
-                    AbsoluteMinimum = 0,
-                    Key = "x1"
-                };
-
-                plotModel.Axes.Add(categoryAxis);
-                plotModel.Axes.Add(valueAxis);
-
-                // Create a new bar series
-                var s1 = new BarSeries
-                {
-                    Title = "Series 1",
-                    StrokeColor = OxyColors.Black,
-                    FillColor = OxyColors.Coral,
-                    StrokeThickness = 1,
-                    XAxisKey = "x1",
-                    YAxisKey = "y1"
-                };
-
-                s1.Items.Add(new BarItem { Value = i });
-                s1.Items.Add(new BarItem { Value = i + 5 });
-                //s1.LabelPlacement = LabelPlacement.Inside;
-                //s1.LabelFormatString = "{0}";
-
-                categoryAxis.Labels.Add("A");
-                categoryAxis.Labels.Add("B");
-
-                plotModel.Series.Add(s1);
-
-                // Create a PlotView, assign the model, and add it to the table
-                chartViews[i] = new PlotView
-                {
-                    Model = plotModel,
-                    Dock = DockStyle.Fill,
-                    BackColor = cols[i],
-                };
-                tableLayoutPanel1.Controls.Add(chartViews[i], 0, i);
             }
+
+            // Setting up the number of rows and columns in the TableLayoutPanel
+            int totalControls = spectrumViews.Length;
+            int columns = tableLayoutPanel1.ColumnCount;
+            int rows = (int)Math.Ceiling((double)totalControls / columns);
+
+            // Ensure the TableLayoutPanel has the correct number of rows
+            tableLayoutPanel1.RowCount = rows;
+
+            // Loop to add the controls to the TableLayoutPanel
+            for (int i = 0; i < totalControls; i++)
+            {
+                // Calculate the row and column indices for the current control
+                int row = i / columns;
+                int column = i % columns;
+
+                // Add the control to the TableLayoutPanel
+                tableLayoutPanel1.Controls.Add(spectrumViews[i], column, row);
+            }
+
             ResumeLayout(false);
         }
 
-        public void UpdateChartValues(int chartIndex, double[] newData)
+        public void UpdateChartValues(int chartIndex, double[] newData, ExtraData<CModuleExGADS1294.EnTypeExtradat_ADS>[] extraData)
         {
-            var plotModel = chartViews[chartIndex].Model;
-            if (plotModel.Series[0] is BarSeries series)
+            if (chartIndex < 0 || chartIndex >= spectrumViews.Length)
             {
-                for (int i = 0; i < series.Items.Count; i++)
-                {
-                    series.Items[i].Value = newData[i];
-                }
+                throw new ArgumentException("Invalid chart index");
             }
+            spectrumViews[chartIndex].UpdateChartValues(newData, extraData);
         }
 
         public void UpdateXAxisCategories(int chartIndex, string[] newCategories)
         {
-            if (chartIndex < 0 || chartIndex >= chartViews.Length)
+            if (chartIndex < 0 || chartIndex >= spectrumViews.Length)
             {
                 throw new ArgumentException("Invalid chart index");
             }
-
-            var plotModel = chartViews[chartIndex].Model;
-            var categoryAxis = plotModel.Axes[0] as CategoryAxis; // Assuming the first axis is the CategoryAxis
-
-            if (categoryAxis == null)
-            {
-                throw new InvalidOperationException("The specified axis is not a CategoryAxis.");
-            }
-
-            // Clear the existing categories
-            categoryAxis.Labels.Clear();
-
-            // Add new categories
-            foreach (var category in newCategories)
-            {
-                categoryAxis.Labels.Add(category);
-            }
-
-            BarSeries? series = plotModel.Series[0] as BarSeries;
-            if (series != null)
-            {
-                series.Items.Clear();
-                for (int i = 0; i < newCategories.Length; i++)
-                {
-                    series.Items.Add(new BarItem { Value = 0 });
-                }
-            }
+            spectrumViews[chartIndex].UpdateXAxisCategories(newCategories);
         }
     }
 }

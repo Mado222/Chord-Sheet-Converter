@@ -821,7 +821,7 @@ namespace FeedbackDataLib
         public bool GetElectrodeInfo(ref CADS1292x_ElectrodeImp ElectrodeImp, int HW_cn)
         {
             bool ret = true;
-            if (Device.ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS)
+            if (Device.ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
             {
                 if (SetModuleInfoSpecific(HW_cn, 128)) //Kanalnummer muss nur >= 128 sein
                 {

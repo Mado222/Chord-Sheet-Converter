@@ -1,6 +1,6 @@
 ﻿namespace FeedbackDataLib_GUI
 {
-    partial class frmModuleSpecificSetup_ExGADS
+    partial class frm_test
     {
         /// <summary>
         /// Required designer variable.
@@ -28,18 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            SuspendLayout();
             // 
-            // frmModuleSpecificSetup_ExGADS
+            // frm_test
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(850, 650);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Name = "frmModuleSpecificSetup_ExGADS";
-            this.Text = "frmModuleSpecificSetup_ExGADS";
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 450);
+            Name = "frm_test";
+            Text = "frm_test";
+            ResumeLayout(false);
         }
 
         #endregion

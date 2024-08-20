@@ -9,7 +9,7 @@ namespace FeedbackDataLib.Modules
     public class CModuleExGADS1294 : CModuleBase
     {
         public bool visible = true;
-        
+
         //Change gain
         public delegate void ChangeGainEventHandler(object sender, CModuleExGADS1294 origin, CADS1294x_Gain gain);
         public event ChangeGainEventHandler? ChangeGainEvent;
@@ -58,12 +58,7 @@ namespace FeedbackDataLib.Modules
         public CModuleExGADS1294()
         {
             _num_raw_Channels = 4;
-            //MaxVal = new int[num_raw_Channels];
-            //MinVal = new int[num_raw_Channels];
-            //cntMaxVal = new int[num_raw_Channels];
-            //cntMinVal = new int[num_raw_Channels];
-            //sumMinVal = new int[num_raw_Channels];
-            //sumMaxVal = new int[num_raw_Channels];
+
             sumVals = new long[num_raw_Channels];
             numVals = new int[num_raw_Channels];
 
@@ -76,14 +71,6 @@ namespace FeedbackDataLib.Modules
                 "ExG Ch2",
                 "ExG Ch3",
                 "ExG Ch4",
-                "Imp Ch1",
-                "Imp Ch2",
-                "Imp Ch3",
-                "Imp Ch4",
-                "DC Ch1",
-                "DC Ch2",
-                "DC Ch3",
-                "DC Ch4"
                 ];
 
             cSWChannelTypes =
@@ -91,12 +78,7 @@ namespace FeedbackDataLib.Modules
                 enumSWChannelType.cSWChannelTypeExGADS0,
                 enumSWChannelType.cSWChannelTypeExGADS1,
                 enumSWChannelType.cSWChannelTypeExGADS2,
-                enumSWChannelType.cSWChannelTypeExGADS3,
-
-                enumSWChannelType.cSWChannelTypeImpADS0,
-                enumSWChannelType.cSWChannelTypeImpADS1,
-                enumSWChannelType.cSWChannelTypeImpADS2,
-                enumSWChannelType.cSWChannelTypeImpADS3,
+                enumSWChannelType.cSWChannelTypeExGADS3
             ];
 
             extraDatas = new ExtraData<EnTypeExtradat_ADS>[num_raw_Channels][];

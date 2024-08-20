@@ -20,8 +20,8 @@ namespace FeedbackDataLib
         public int HWChannelNumber { get; private set; }
         private List<CSWChannel> SWChannels = [];
         private DateTime SWCha_NextSampleTime = DateTime.Now;
-        private CSWChannel rawChannel = null;
-        private bool SpectrumChannelsactive = false;
+        private CSWChannel? rawChannel = null;
+        public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
         private TimeSpan SampleInt_ms;
 
@@ -43,7 +43,6 @@ namespace FeedbackDataLib
         {
             EEGSWChannels = new CEEGSWChannels();
             _CEEG_Spectrum = new CEEG_Spectrum(EEGSWChannels._EEG_FFT_Channels);
-            SpectrumChannelsactive = false;
 
             SWChannels.Clear();
             string prefix = RawSignal_ChannelNumber.ToString() + "_";
@@ -55,8 +54,6 @@ namespace FeedbackDataLib
                     if (SWChannelName.Contains(prefix))
                     {
                         SWChannels.Add((CSWChannel)cm.SWChannels[i].Clone());
-                        if (cm.SWChannels[i].SendChannel)
-                            SpectrumChannelsactive = true;
                     }
                 }
                 else
@@ -76,9 +73,9 @@ namespace FeedbackDataLib
             return fft_window_width_ms;
         }
 
-        public double[] GetEEGSpectrum_1Hz_Steps()
+        public double[]? GetEEGSpectrum_1Hz_Steps()
         {
-            double[] buf = null;
+            double[] buf = [];
             RP.PopAll(ref buf);
             if (RP.StoredObjects == RP.Length)
                 return _CEEG_Spectrum.GetEEGSpectrum_1Hz_Steps(buf, SampleInt_ms.TotalMilliseconds);
@@ -101,7 +98,7 @@ namespace FeedbackDataLib
                 if (SpectrumChannelsactive && (DateTime.Now >= SWCha_NextSampleTime) && RP.StoredObjects >= RP.Length)
                 {
                     CDataIn cd;
-                    double[] buf = null;
+                    double[] buf = [];
                     RP.PopAll(ref buf);
                     _CEEG_Spectrum.Process_Spectrum(buf, SampleInt_ms.TotalMilliseconds);
 

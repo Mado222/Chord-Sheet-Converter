@@ -105,17 +105,13 @@ namespace FeedbackDataLib
                     case enumModuleType.cModuleTypeEmpty:
                         ModuleInfos[mi.HW_cn] = new CModuleEmpty();
                         break;
-                    case enumModuleType.cModuleExGADS:
-                        //EEG umschaltung
-                        ModuleInfos[mi.HW_cn] = new CModuleExGADS1292_EEG();
-                        //ModuleInfos[mi.HW_cn] = new CModuleExGADS1292();
-                        break;
                     case enumModuleType.cModuleSCLADS:
                         ModuleInfos[mi.HW_cn] = new CModuleSCLADS1292();
                         break;
                     case enumModuleType.cModuleExGADS94:
-                        //ModuleInfos[mi.HW_cn] = new CModuleExGADS1294_EEG();
-                        ModuleInfos[mi.HW_cn] = new CModuleExGADS1294();
+                        //ModuleInfos[mi.HW_cn]= new CModuleExGADS1294_EEG_GUI();
+                        ModuleInfos[mi.HW_cn] = new CModuleExGADS1294_EEG();
+                        //ModuleInfos[mi.HW_cn] = new CModuleExGADS1294();
                         break;
                     default:
                         ModuleInfos[mi.HW_cn] = new CModuleBase();
@@ -130,8 +126,7 @@ namespace FeedbackDataLib
                     //Now update SWChannels with VirtualID
                     for (int i = 0; i < ModuleInfos[mi.HW_cn].NumSWChannels; i++)
                     {
-                        ModuleInfos[mi.HW_cn].SWChannels[i]
-                                             .SetVirtualID(cntTypes[idx], ModuleInfos[mi.HW_cn].ModuleType, (uint)i);
+                        ModuleInfos[mi.HW_cn].SWChannels[i].SetVirtualID(cntTypes[idx], ModuleInfos[mi.HW_cn].ModuleType, (uint)i);
                     }
                 }
             }
