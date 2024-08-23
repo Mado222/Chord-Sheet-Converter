@@ -32,9 +32,9 @@
             label3 = new Label();
             label2 = new Label();
             label1 = new Label();
-            mtbxp = new MaskedTextBox();
-            mtbxn = new MaskedTextBox();
-            mtbUel = new MaskedTextBox();
+            mtbxp = new TextBox();
+            mtbxn = new TextBox();
+            mtbUel = new TextBox();
             lblTitle = new Label();
             tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
@@ -160,9 +160,9 @@
         private Label label1;
         private Label label3;
         private Label label2;
-        private MaskedTextBox mtbxp;
-        private MaskedTextBox mtbxn;
-        private MaskedTextBox mtbUel;
+        private TextBox mtbxp;
+        private TextBox mtbxn;
+        private TextBox mtbUel;
         private Label lblTitle;
     }
 }

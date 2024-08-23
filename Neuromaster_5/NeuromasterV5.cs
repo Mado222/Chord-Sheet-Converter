@@ -1877,7 +1877,7 @@ namespace Neuromaster_V5
                                         FrmSpectrum.Show();
                                     }
 
-                                    FrmSpectrum.UpdateChartValues(i, ret, module.extraDatas[i]);
+                                    FrmSpectrum.UpdateChartValues(i, ret, module.Rp[i], module.Rn[i], module.Uelectrode[i]);
                                 }
                             }
                         }

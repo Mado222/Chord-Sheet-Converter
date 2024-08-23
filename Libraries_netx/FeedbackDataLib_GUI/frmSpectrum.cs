@@ -51,13 +51,13 @@ namespace FeedbackDataLib_GUI
             ResumeLayout(false);
         }
 
-        public void UpdateChartValues(int chartIndex, double[] newData, ExtraData<CModuleExGADS1294.EnTypeExtradat_ADS>[] extraData)
+        public void UpdateChartValues(int chartIndex, double[] newData, double Rp, double Rn, double Uelectrode)
         {
             if (chartIndex < 0 || chartIndex >= spectrumViews.Length)
             {
                 throw new ArgumentException("Invalid chart index");
             }
-            spectrumViews[chartIndex].UpdateChartValues(newData, extraData);
+            spectrumViews[chartIndex].UpdateChartValues(newData, Rp, Rn, Uelectrode);
         }
 
         public void UpdateXAxisCategories(int chartIndex, string[] newCategories)

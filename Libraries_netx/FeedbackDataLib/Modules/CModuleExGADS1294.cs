@@ -20,13 +20,18 @@ namespace FeedbackDataLib.Modules
 
         public enum EnTypeExtradat_ADS
         {
-            ExRp = 0,
-            ExRn = 1,
-            ExUp = 2,
+            exUa0 = 0,
+            exUa1 = 1,
+            exUa2 = 2,
+            exUa3 = 3,
+            exgain = 4,
             empty
         }
 
         public ExtraData<EnTypeExtradat_ADS>[][] extraDatas;
+        public double[] Rp;
+        public double[] Rn;
+        public double[] Uelectrode;
 
 
         //////////////////
@@ -54,6 +59,11 @@ namespace FeedbackDataLib.Modules
         
             
         public string name = "base";
+
+        protected const double Iconst = 24e-9;
+        protected const double SKALVAL_K = 2 * 2.40386E-07;
+        protected const double SKALVAL_K_div_Iconst = SKALVAL_K / Iconst;
+        protected const double Rprotect = 68000;
 
         public CModuleExGADS1294()
         {
@@ -83,6 +93,9 @@ namespace FeedbackDataLib.Modules
 
             extraDatas = new ExtraData<EnTypeExtradat_ADS>[num_raw_Channels][];
             int innerSize = Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length;
+            Rp = new double[num_raw_Channels];
+            Rn = new double[num_raw_Channels];
+            Uelectrode = new double[num_raw_Channels];
 
             for (int i = 0; i < num_raw_Channels; i++)
             {
@@ -94,7 +107,7 @@ namespace FeedbackDataLib.Modules
                 }
             }
         }
-
+        
         public virtual void Init()
         {
             InitModuleSpecific();

@@ -165,6 +165,22 @@ namespace FeedbackDataLib.Modules
                 extraData.Value = decodedValue;
                 extraData.DTLastUpdated = DateTime.Now;
                 extraData.TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
+
+                if (extraData.TypeExtradat == EnTypeExtradat_ADS.exgain)
+                {
+                    //All data of one Measure-sequence are in - calc values
+                    var Uax2 = extraDatas[originalData.HW_cn];
+                    double gain = Uax2[(int)EnTypeExtradat_ADS.exgain].Value;
+                    double Ua2 = Uax2[(int)EnTypeExtradat_ADS.exUa2].Value * SKALVAL_K * 1e3 / gain;
+                    double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K * 1e3 / gain;
+                    double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K * 1e3 / gain; 
+
+                    Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst / 1e3 ;// - Rprotect);
+                    Rn[originalData.SW_cn] = (Ua1 - Ua0) / Iconst / 1e3;// - Rprotect);
+                    Uelectrode[originalData.SW_cn]= Ua0 / 1e3;
+
+
+                }
             }
 
             // Return the result after further processing

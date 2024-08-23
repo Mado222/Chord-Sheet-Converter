@@ -88,7 +88,7 @@ namespace FeedbackDataLib_GUI
 
         }
 
-        public void UpdateChartValues(double[] newData, ExtraData<CModuleExGADS1294.EnTypeExtradat_ADS>[] extraData)
+        public void UpdateChartValues(double[] newData, double Rp, double Rn, double Uelectrode)
         {
             var plotModel = plotView1.Model;
             if (plotModel.Series[0] is BarSeries series)
@@ -98,9 +98,9 @@ namespace FeedbackDataLib_GUI
                     series.Items[i].Value = newData[i];
                 }
             }
-            mtbxn.Text = (extraData[(int)CModuleExGADS1294.EnTypeExtradat_ADS.ExRn].Value / 1000).ToString();
-            mtbxp.Text = (extraData[(int)CModuleExGADS1294.EnTypeExtradat_ADS.ExRp].Value / 1000).ToString();
-            mtbUel.Text = (extraData[(int)CModuleExGADS1294.EnTypeExtradat_ADS.ExUp].Value / 1000).ToString();
+            mtbxn.Text = (Rn / 1000).ToString("F2");
+            mtbxp.Text = (Rp / 1000).ToString("F2");
+            mtbUel.Text = (Uelectrode * 1000).ToString("F2");
             plotView1.Refresh();
         }
 

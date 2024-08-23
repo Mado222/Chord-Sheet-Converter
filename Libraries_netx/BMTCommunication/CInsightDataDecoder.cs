@@ -174,15 +174,15 @@ namespace BMTCommunicationLib
 
             // Decode Byte 4 / 5
             dataIn.NumExtraDat = (byte)((src[idx] >> 4) & 0x07);
-            dataIn.TypeExtraDat = (byte)((src[idx] >> 2) & 0x03);
-            temp = src[idx] & 0x03;
-            temp <<= 22;
+            dataIn.TypeExtraDat = (byte)((src[idx] >> 1) & 0x07);
+            temp = src[idx] & 0x01;
+            temp <<= 23;
             dataIn.Value |= temp;
             idx++;
 
             // Decode Byte 5 / 6
-            temp = src[idx] & 0x7E;
-            temp <<= 15;
+            temp = src[idx] & 0x7F;
+            temp <<= 16;
             dataIn.Value |= temp;
             // Check if the sign bit (bit 23) is set
             if ((dataIn.Value & 0x800000) != 0)
