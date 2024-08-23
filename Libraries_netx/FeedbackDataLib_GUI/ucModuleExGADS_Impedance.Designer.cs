@@ -1,5 +1,4 @@
 ﻿using FeedbackDataLib.Modules;
-using FeedbackDataLib.Modules.CADS1292x;
 
 namespace FeedbackDataLib_GUI
 {

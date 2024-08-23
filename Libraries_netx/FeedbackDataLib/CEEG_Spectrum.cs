@@ -96,7 +96,7 @@ namespace FeedbackDataLib
                 FFT_MathNet.Hanning_Percent(Hanninng_Percentage, 0);
             }
 
-             FFT_MathNet.FFT();
+            FFT_MathNet.FFT();
 
             //Reset bands
             foreach (CFrequencyRange_EEG cf in EEG_Bands) cf?.Reset();

@@ -19,6 +19,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="frmModuleSpecificSetup_ExGADS1292.cs" />
+    <Compile Remove="frmModuleSpecificSetup_ExGADS1292.Designer.cs" />
+    <Compile Remove="ucModuleSpecificSetup_ExGADS1292.cs" />
+    <Compile Remove="ucModuleSpecificSetup_ExGADS1292.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="frmModuleSpecificSetup_ExGADS1292.resx" />
+    <EmbeddedResource Remove="ucModuleSpecificSetup_ExGADS1292.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.1.2" />
   </ItemGroup>
 

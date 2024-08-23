@@ -1,7 +1,4 @@
-﻿using FeedbackDataLib.Modules.CADS1292x;
-using FeedbackDataLib.Modules;
-using System;
-using System.Windows.Forms;
+﻿using FeedbackDataLib.Modules;
 
 
 namespace FeedbackDataLib_GUI

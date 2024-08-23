@@ -25,23 +25,23 @@ namespace FeedbackDataLib
         /// The eeg sw channel names
         /// </summary>
         public readonly CFrequencyRange_EEG[] _EEG_FFT_Channels =
-        {
-            new CFrequencyRange_EEG("DC",0, 0.9, 1),
-            new CFrequencyRange_EEG("Delta",1,3,1),
-            new CFrequencyRange_EEG("Theta",4,8,1),
-            new CFrequencyRange_EEG("Alpha",8,12,1),
-            new CFrequencyRange_EEG("SMR",12,15,1),
-            new CFrequencyRange_EEG("LowBeta",15,18,1),
-            new CFrequencyRange_EEG("Beta",18,23,1),
-            new CFrequencyRange_EEG("HighBeta",23,30,1),
-            new CFrequencyRange_EEG("Artefacts",51,58,1),
-        };
+        [
+            new("DC",0, 0.9, 1),
+            new ("Delta",1,3,1),
+            new ("Theta",4,8,1),
+            new ("Alpha",8,12,1),
+            new ("SMR",12,15,1),
+            new ("LowBeta",15,18,1),
+            new ("Beta",18,23,1),
+            new ("HighBeta",23,30,1),
+            new ("Artefacts",51,58,1),
+        ];
         private readonly string[] _EEG_Calc_Channels =
-        {
+        [
             "Ratio_Theta_LowBeta",
             "Ratio_Theta_Beta",
             "Ratio_Theta_LowBeta_Beta"
-        };
+        ];
 
         private string[] get_Channel_Shortnames ()
         {

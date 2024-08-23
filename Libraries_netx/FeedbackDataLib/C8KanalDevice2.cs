@@ -7,7 +7,7 @@ namespace FeedbackDataLib
     {
         public List<CModuleBase> ModuleInfos { get; set; }
 
-        public event CModuleExGADS1292.ChangeGainEventHandler? ChangeGainEvent;
+        public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
 
         public C8KanalDevice2()
         {
@@ -106,7 +106,7 @@ namespace FeedbackDataLib
                         ModuleInfos[mi.HW_cn] = new CModuleEmpty();
                         break;
                     case enumModuleType.cModuleSCLADS:
-                        ModuleInfos[mi.HW_cn] = new CModuleSCLADS1292();
+                        //ModuleInfos[mi.HW_cn] = new CModuleSCLADS1292();
                         break;
                     case enumModuleType.cModuleExGADS94:
                         //ModuleInfos[mi.HW_cn]= new CModuleExGADS1294_EEG_GUI();

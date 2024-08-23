@@ -1,7 +1,7 @@
 ﻿using BMTCommunication;
 using FeedbackDataLib.Modules;
-using FeedbackDataLib.Modules.CADS1292x;
 using WindControlLib;
+using FeedbackDataLib.Modules.CADS1294x;
 
 namespace FeedbackDataLib
 {
@@ -818,7 +818,7 @@ namespace FeedbackDataLib
         /// <returns>
         /// Electrode information or null if not appropriate or something went werng
         /// </returns>
-        public bool GetElectrodeInfo(ref CADS1292x_ElectrodeImp ElectrodeImp, int HW_cn)
+        public bool GetElectrodeInfo(ref CADS1294x_ElectrodeImp ElectrodeImp, int HW_cn)
         {
             bool ret = true;
             if (Device.ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94)

@@ -97,7 +97,7 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// Gets or sets the SW channels for the GUI
         /// </summary>
-        public List<CSWChannel> SWChannels { get => sWChannels; set => sWChannels = value; }
+        public virtual List<CSWChannel> SWChannels { get => sWChannels; set => sWChannels = value; }
 
         /// <summary>
         /// SWChannels die vom Modul kommen
@@ -364,10 +364,10 @@ namespace FeedbackDataLib.Modules
         {
             CModuleBase mi = (CModuleBase)MemberwiseClone();
             mi.SWChannels = [];
-            for (int i = 0; i < SWChannels.Count; i++)
+            for (int i = 0; i < sWChannels.Count; i++)
             {
-                CSWChannel c = (CSWChannel)SWChannels[i].Clone();
-                mi.SWChannels.Add(c);
+                CSWChannel c = (CSWChannel)sWChannels[i].Clone();
+                mi.sWChannels.Add(c);
             }
             return mi;
         }

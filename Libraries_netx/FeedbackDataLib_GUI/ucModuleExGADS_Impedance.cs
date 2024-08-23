@@ -1,15 +1,16 @@
-﻿using FeedbackDataLib.Modules.CADS1292x;
+﻿using FeedbackDataLib.Modules.CADS1294x;
 using FeedbackDataLib;
+using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
 {
     public partial class ucModuleExGADS_Impedance : UserControl
     {
-        public CModuleExGADS1292 cModuleExGADS1292 { get; set; }
+        public CModuleExGADS1294 cModuleExGADS1294 { get; set; }
         public ucModuleExGADS_Impedance()
         {
             InitializeComponent();
-            cModuleExGADS1292 = new CModuleExGADS1292
+            cModuleExGADS1294 = new CModuleExGADS1294
             {
                 name = "ucModuleImpedance"
             };
@@ -34,7 +35,7 @@ namespace FeedbackDataLib_GUI
             return res;
         }
 
-        public void SetImpedanceBoxes(CADS1292x_ElectrodeImp mi)
+        public void SetImpedanceBoxes(CADS1294x_ElectrodeImp mi)
         {
             //Electrode Information
 

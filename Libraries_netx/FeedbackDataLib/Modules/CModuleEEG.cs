@@ -1,7 +1,7 @@
 ﻿namespace FeedbackDataLib.Modules
 {
     [Serializable()]    //Set this attribute to all the classes that want to serialize
-    public class CModuleEEG : CModuleExGADS1292_EEG
+    public class CModuleEEG : CModuleExGADS1294_EEG
     {
         public CModuleEEG()
         {

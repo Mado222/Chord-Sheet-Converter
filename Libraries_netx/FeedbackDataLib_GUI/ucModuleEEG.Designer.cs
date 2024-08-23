@@ -1,7 +1,4 @@
-﻿using FeedbackDataLib.Modules;
-using FeedbackDataLib.Modules.CADS1292x;
-
-namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLib_GUI
 {
     partial class ucModuleEEG
     {

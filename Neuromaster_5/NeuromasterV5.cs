@@ -1,13 +1,12 @@
 ﻿using BMTCommunication;
 using FeedbackDataLib;
-using FeedbackDataLib.Modules.CADS1292x;
 using Math_Net_nuget;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using WindControlLib;
 using FeedbackDataLib.Modules;
 using FeedbackDataLib_GUI;
-using System.Reflection;
+using FeedbackDataLib.Modules;
 
 
 namespace Neuromaster_V5
@@ -1800,31 +1799,31 @@ namespace Neuromaster_V5
         private void btGetElectrodeInfo_Click(object sender, EventArgs e)
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
-            CADS1292x_ElectrodeImp refparam = ((CModuleExGADS1292)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).ElectrodeImpedance;
+            ////CADS1294x_ElectrodeImp refparam = ((CModuleExGADS1294)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).ElectrodeImpedance;
 
-            if (DataReceiver.Connection.GetElectrodeInfo(ref refparam, HW_cn))
-            {
-                ((CModuleExGADS1292)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).ElectrodeImpedance = refparam;
-                cChannelsControlV2x11.UpdateModuleSpecificInfo(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]);
+            //if (DataReceiver.Connection.GetElectrodeInfo(ref refparam, HW_cn))
+            //{
+            //    //((CModuleExGADS1294)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule])..ElectrodeImpedance = refparam;
+            //    cChannelsControlV2x11.UpdateModuleSpecificInfo(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]);
 
-                cChannelsControlV2x11.Update_ucModuleExGADS_Impedance(refparam);
+            //    cChannelsControlV2x11.Update_ucModuleExGADS_Impedance(refparam);
 
-                /*
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int j = 0; j < 2; j++)
-                     {
-                        AddStatusString("==================== Chan " + i.ToString() + "/ "+j.ToString() +"====================");
-                        AddStatusString("Impedance =" + (refparam.ElectrodeInfo[i][j].Impedance_Ohm / 1000).ToString() + " kOhm");
-                        AddStatusString("Uelectrod = " + (refparam.ElectrodeInfo[i][j].UElektrode_V*1000).ToString() + "mV");
-                        AddStatusString("Succeeded (OK: 0) = " + refparam.ElectrodeInfo[i][j].Succeeded.ToString());
-                    }
-                }*/
-            }
-            else
-            {
-                AddStatusString("Get Electrode Chan 0 failed", Color.Red);
-            }
+            //    /*
+            //    for (int i = 0; i < 2; i++)
+            //    {
+            //        for (int j = 0; j < 2; j++)
+            //         {
+            //            AddStatusString("==================== Chan " + i.ToString() + "/ "+j.ToString() +"====================");
+            //            AddStatusString("Impedance =" + (refparam.ElectrodeInfo[i][j].Impedance_Ohm / 1000).ToString() + " kOhm");
+            //            AddStatusString("Uelectrod = " + (refparam.ElectrodeInfo[i][j].UElektrode_V*1000).ToString() + "mV");
+            //            AddStatusString("Succeeded (OK: 0) = " + refparam.ElectrodeInfo[i][j].Succeeded.ToString());
+            //        }
+            //    }*/
+            //}
+            //else
+            //{
+            //    AddStatusString("Get Electrode Chan 0 failed", Color.Red);
+            //}
     }
 
         private void convertToTxtToolStripMenuItem_Click(object sender, EventArgs e)

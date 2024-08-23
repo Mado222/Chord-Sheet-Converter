@@ -34,6 +34,8 @@ namespace FeedbackDataLib
 
         public enumSWChannelType SWChannelType_enum { get; set; }
 
+        public int EEG_related_swcn { get; set; }
+
         /// <summary>
         /// Type of SW channel
         /// </summary>

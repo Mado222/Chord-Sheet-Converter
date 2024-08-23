@@ -1,9 +1,7 @@
-﻿using FeedbackDataLib.Modules.CADS1292x;
+﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
-using FeedbackDataLib;
-using System.Drawing;
-using System.Windows.Forms;
 using System.Xml.Serialization;
+using FeedbackDataLib.Modules;
 
 
 namespace FeedbackDataLib_GUI
@@ -191,11 +189,11 @@ namespace FeedbackDataLib_GUI
 
         public byte[] GetModuleSpecific (int HW_cn)
         {
-            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94 && frmModuleSpecificSetup_ExGADS != null)
-            {
-                return frmModuleSpecificSetup_ExGADS.GetModuleSpecific();
-            }
-            else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor!= null)
+            //if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94 && frmModuleSpecificSetup_ExGADS != null)
+            //{
+            //    return frmModuleSpecificSetup_ExGADS.GetModuleSpecific();
+            //}
+            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor!= null)
             {
                 CModuleMultisensor ModuleInfo = new CModuleMultisensor();
                 ucModuleSpecificSetup_MultiSensor.ReadModuleSpecificInfo(ref ModuleInfo);
@@ -382,7 +380,7 @@ namespace FeedbackDataLib_GUI
         ucModuleSpecificSetup_MultiSensor ucModuleSpecificSetup_MultiSensor = new();
         ucModuleExGADS_Impedance ucModuleExGADS_Impedance = new();
         ucModuleEEG? ucModuleEEG = new ();
-        frmModuleSpecificSetup_ExGADS1292 frmModuleSpecificSetup_ExGADS = new ();
+        //frmModuleSpecificSetup_ExGADS1292 frmModuleSpecificSetup_ExGADS = new ();
         
 
         private void UpdateInfo()
@@ -498,13 +496,13 @@ namespace FeedbackDataLib_GUI
                     ucModuleExGADS_Impedance.Visible = true;
 
 #if DEBUG
-                    if (frmModuleSpecificSetup_ExGADS == null)
-                    {
-                        frmModuleSpecificSetup_ExGADS = new frmModuleSpecificSetup_ExGADS1292
-                        {
-                            Name = "frmModuleSpecificSetup_ExGADS"
-                        };
-                    }
+                    //if (frmModuleSpecificSetup_ExGADS == null)
+                    //{
+                    //    frmModuleSpecificSetup_ExGADS = new frmModuleSpecificSetup_ExGADS1292
+                    //    {
+                    //        Name = "frmModuleSpecificSetup_ExGADS"
+                    //    };
+                    //}
                     //frmModuleSpecificSetup_ExGADS.SetModuleSpecificInfo((CModuleExGADS1292)ModuleInfo);
                     //frmModuleSpecificSetup_ExGADS.Visible = true;
                     //((CModuleExGADS1294)ModuleInfo).visible = true;
@@ -540,22 +538,23 @@ namespace FeedbackDataLib_GUI
                 if (ucModuleEEG != null)
                     ucModuleEEG.Visible = false;
 
-                if (frmModuleSpecificSetup_ExGADS != null)
-                {
-                    frmModuleSpecificSetup_ExGADS.Visible = false;
-                }
-                if (ModuleInfo is CModuleExGADS1292)
-                {
-                    ((CModuleExGADS1292)ModuleInfo).visible = false;
-                }
-                else if (ModuleInfo is CModuleEEG)
-                {
-                    ((CModuleEEG)ModuleInfo).visible = false;
-                }
+                //if (frmModuleSpecificSetup_ExGADS != null)
+                //{
+                //    frmModuleSpecificSetup_ExGADS.Visible = false;
+                //}
+
+                //if (ModuleInfo is CModuleExGADS1292)
+                //{
+                //    ((CModuleExGADS1292)ModuleInfo).visible = false;
+                //}
+                //else if (ModuleInfo is CModuleEEG)
+                //{
+                //    ((CModuleEEG)ModuleInfo).visible = false;
+                //}
             }
         }
 
-        public void Update_ucModuleExGADS_Impedance(CADS1292x_ElectrodeImp mi)
+        public void Update_ucModuleExGADS_Impedance(CADS1294x_ElectrodeImp mi)
         {
             if (ucModuleExGADS_Impedance != null)
                 ucModuleExGADS_Impedance.SetImpedanceBoxes(mi);

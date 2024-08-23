@@ -26,6 +26,18 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <Compile Remove="Modules\CADS1292x\**" />
+    <EmbeddedResource Remove="Modules\CADS1292x\**" />
+    <None Remove="Modules\CADS1292x\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Modules\CModuleExGADS1292.cs" />
+    <Compile Remove="Modules\CModuleExGADS1292_EEG.cs" />
+    <Compile Remove="Modules\CModuleSCLADS1292.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <PackageReference Include="System.Data.OleDb" Version="8.0.0" />
   </ItemGroup>
 

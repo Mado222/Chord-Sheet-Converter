@@ -1,6 +1,9 @@
 ﻿using BMTCommunicationLib;
 using System.DirectoryServices.ActiveDirectory;
 using WindControlLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FeedbackDataLib.Modules
 {
@@ -16,9 +19,35 @@ namespace FeedbackDataLib.Modules
         public int FFT_WindowWidth_ms { get; set; } = 2560;
         public int EEGBands_SampleInt_ms { get; set; }
 
+        List<int> idxs_EEG_to_send = [];
+        public override List<CSWChannel> SWChannels
+        {
+            get
+            {
+                // Custom getter logic for the derived class
+                return base.SWChannels; // You can also modify or process this as needed
+            }
+            set
+            {
+                base.SWChannels = value;
+            }
+        }
+
+        protected void build_idxs_EEG_to_send ()
+        {
+            idxs_EEG_to_send.Clear();
+            for (int i = 0; i < sWChannels.Count; i++)
+            {
+                if (sWChannels[i].SendChannel)
+                    idxs_EEG_to_send.Add(i);
+            }
+        }
+
+        private List<CEEGSWChannels> EEGSWChannels = [];
+
         public void Set_EEGBands_SampleInt_ms(int chno, int value)
         {
-            if (EEGProcessor != null)
+            if (EEGProcessor is not null)
             {
                 if (chno < EEGProcessor.Length)
                     EEGProcessor[chno].SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(value);
@@ -60,6 +89,7 @@ namespace FeedbackDataLib.Modules
             ModuleColor = Color.Yellow;
             dtNextSpectrumUpdate = new DateTime[num_raw_Channels];
 
+            //Setup new Software channel names
             cSWChannelNames.Clear();
             for (int i = 0; i < num_raw_Channels; i++)
             {
@@ -109,20 +139,23 @@ namespace FeedbackDataLib.Modules
                 sws.SWChannelColor = Color.LightGray;
                 sws.SampleInt = Default_EEGBands_Int_ms;
                 sws.ModuleType = ModuleType;
+                sws.EEG_related_swcn = new CEEGSWChannels().get_idx_from_SWChannelName(cSWChannelNames[i][2..]);
                 sWChannels.Add(sws);
                 i++;
             }
+            EEGSWChannels.Clear();
             //Prepare sample Intervals for EEG Prozessor
             if (EEGProcessor == null || EEGProcessor.Length == 0)
             {
                 EEGProcessor = new CEEGProcessor[num_raw_Channels];
                 for (i = 0; i < EEGProcessor.Length; i++)
                 {
-                    EEGProcessor[i] = new CEEGProcessor(i, this) 
-                    { 
-                        SpectrumChannelsactive = true 
+                    CEEGSWChannels eegc = new();
+                    EEGSWChannels.Add(eegc);
+                    EEGProcessor[i] = new CEEGProcessor(SWChannels[i], eegc)
+                    {
+                        SpectrumChannelsactive = true
                     };
-                    FFT_WindowWidth_ms = EEGProcessor[i].UpdateEEGProcessor(i, this, FFT_WindowWidth_ms);
                 }
             }
         }
@@ -161,12 +194,11 @@ namespace FeedbackDataLib.Modules
                     CInsightDataEnDecoder.DecodeFrom7Bit(originalData.ExtraDat),
                     0);
 
-                var extraData = extraDatas[originalData.HW_cn][originalData.TypeExtraDat];
-                extraData.Value = decodedValue;
-                extraData.DTLastUpdated = DateTime.Now;
-                extraData.TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
+                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].Value = decodedValue;
+                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].DTLastUpdated = DateTime.Now;
+                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
 
-                if (extraData.TypeExtradat == EnTypeExtradat_ADS.exgain)
+                if (extraDatas[originalData.SW_cn][originalData.TypeExtraDat].TypeExtradat == EnTypeExtradat_ADS.exgain)
                 {
                     //All data of one Measure-sequence are in - calc values
                     var Uax2 = extraDatas[originalData.HW_cn];
@@ -178,8 +210,6 @@ namespace FeedbackDataLib.Modules
                     Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst / 1e3 ;// - Rprotect);
                     Rn[originalData.SW_cn] = (Ua1 - Ua0) / Iconst / 1e3;// - Rprotect);
                     Uelectrode[originalData.SW_cn]= Ua0 / 1e3;
-
-
                 }
             }
 
@@ -196,13 +226,24 @@ namespace FeedbackDataLib.Modules
                 {
                     processedData.Add(originialData);
 
-                    if (EEGProcessor is not null)
+                    double sample = SWChannels[swcn].GetScaledValue(originialData.Value);
+                    EEGProcessor[swcn].AddEEGSample(sample);
+
+                    //Check for FFT results
+                    for (int i = 0; i < idxs_EEG_to_send.Count; i++)
                     {
-                        List<CDataIn> _DataEEG = EEGProcessor[swcn].AddEEGSample(originialData);
-                        if (_DataEEG != null)
-                            processedData.AddRange(_DataEEG);
+                        CDataIn cd = (CDataIn)originialData.Clone();
                     }
+
+
+                    //if (_DataEEG != null)
+                    //    processedData.AddRange(_DataEEG);
+
                 }
+            }
+            else
+            {
+                //Here we do the calculated channels
             }
             return processedData;
         }
