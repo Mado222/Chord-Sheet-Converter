@@ -337,11 +337,11 @@ namespace FeedbackDataLib
                             //Überprüfen ob Daten plausibel
                             if (DataIn.HW_cn < ModuleInfo.Count)
                             {
-                                if (ModuleInfo[DataIn.HW_cn].IsModuleActive)
+                                if (ModuleInfo[DataIn.HW_cn].IsModuleActive())
                                 {
                                     if (DataIn.SW_cn < ModuleInfo[DataIn.HW_cn].NumSWChannels)
                                     {
-                                        if (ModuleInfo[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SWConfigChannel.SaveChannel)
+                                        if (ModuleInfo[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SaveChannel)
                                         {
                                             bpacketvalid = true;
                                             isDataByte = true;

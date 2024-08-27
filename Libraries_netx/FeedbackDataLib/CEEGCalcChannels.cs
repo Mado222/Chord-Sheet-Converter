@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static FeedbackDataLib.CEEG_Spectrum;
+﻿using static FeedbackDataLib.CEEG_Spectrum;
 
 namespace FeedbackDataLib
 {
-    public class CEEGSWChannels
+    public class CEEGCalcChannels
     {
         /// <summary>
         /// All info about EEG SW Channels
@@ -24,7 +19,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// The eeg sw channel names
         /// </summary>
-        public readonly CFrequencyRange_EEG[] _EEG_FFT_Channels =
+        public readonly CEEG_FrequencyRanges[] EEG_FrequencyRanges =
         [
             new("DC",0, 0.9, 1),
             new ("Delta",1,3,1),
@@ -36,7 +31,7 @@ namespace FeedbackDataLib
             new ("HighBeta",23,30,1),
             new ("Artefacts",51,58,1),
         ];
-        private readonly string[] _EEG_Calc_Channels =
+        private readonly string[] EEGCalcParams =
         [
             "Ratio_Theta_LowBeta",
             "Ratio_Theta_Beta",
@@ -46,18 +41,18 @@ namespace FeedbackDataLib
         private string[] get_Channel_Shortnames ()
         {
             List<string> ret = [];
-            for (int i=0; i<_EEG_FFT_Channels.Length; i++)
+            for (int i=0; i<EEG_FrequencyRanges.Length; i++)
             {
-                ret.Add(_EEG_FFT_Channels[i].Name);
+                ret.Add(EEG_FrequencyRanges[i].Name);
             }
-            for (int i = 0; i < _EEG_Calc_Channels.Length; i++)
+            for (int i = 0; i < EEGCalcParams.Length; i++)
             {
-                ret.Add(_EEG_Calc_Channels[i]);
+                ret.Add(EEGCalcParams[i]);
             }
             return ret.ToArray();
         }
 
-        public CEEGSWChannels()
+        public CEEGCalcChannels()
         {
             EEG_SWChannels = [];
             update_idx(0);

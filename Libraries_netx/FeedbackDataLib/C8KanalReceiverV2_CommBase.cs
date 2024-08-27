@@ -707,7 +707,7 @@ namespace FeedbackDataLib
         }
 #endif
 
-
+        /*
         /// <summary>
         /// Gets Channel Configuration from device
         /// </summary>
@@ -732,7 +732,7 @@ namespace FeedbackDataLib
                     ConfigChannel.UpdateFrom_ByteArray(InData, 0);
                     if (UpdateModuleInfo)
                     {
-                        Device.ModuleInfos[HW_cn].SWChannels[SW_cn].SWConfigChannel = (CSWConfigChannel)ConfigChannel.Clone();
+                        Device.ModuleInfos[HW_cn].SWChannels[SW_cn].configVals = (CSWConfigChannel)ConfigChannel.Clone();
                         //UpdateVirtual(HW_cn);
                     }
                 }
@@ -746,7 +746,7 @@ namespace FeedbackDataLib
                 //Error
             }
             return ConfigChannel;
-        }
+        }*/
 
 
         /// <summary>

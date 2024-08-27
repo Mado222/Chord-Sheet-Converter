@@ -1,15 +1,35 @@
 ﻿using BMTCommunicationLib;
-using System.DirectoryServices.ActiveDirectory;
 using WindControlLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace FeedbackDataLib.Modules
 {
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CModuleExGADS1294_EEG : CModuleExGADS1294
     {
+
+        /// <summary>
+        /// Just a helper class to bundle two parameters
+        /// </summary>
+        private class CActiveFFTChannel
+        {
+            /// <summary>
+            ///   <para>Channel no in SWChannels for the claculated (FFT) channel</para>
+            /// </summary>
+            public int calc_cn = -1;
+            /// <summary>
+            ///   <para>Index of the Band according to CEEGChannels</para>
+            /// </summary>
+            public int eegBandNo = -1;
+
+            public CActiveFFTChannel()
+            { }
+
+            public CActiveFFTChannel(int swcn, int eegBandNo)
+            {
+                calc_cn = swcn;
+                this.eegBandNo = eegBandNo;
+            }
+        }
 
         //////////////////
         //Configurations
@@ -19,31 +39,14 @@ namespace FeedbackDataLib.Modules
         public int FFT_WindowWidth_ms { get; set; } = 2560;
         public int EEGBands_SampleInt_ms { get; set; }
 
-        List<int> idxs_EEG_to_send = [];
-        public override List<CSWChannel> SWChannels
-        {
-            get
-            {
-                // Custom getter logic for the derived class
-                return base.SWChannels; // You can also modify or process this as needed
-            }
-            set
-            {
-                base.SWChannels = value;
-            }
-        }
+        private readonly List<CEEGCalcChannels> EEGSWChannels = [];
 
-        protected void build_idxs_EEG_to_send ()
-        {
-            idxs_EEG_to_send.Clear();
-            for (int i = 0; i < sWChannels.Count; i++)
-            {
-                if (sWChannels[i].SendChannel)
-                    idxs_EEG_to_send.Add(i);
-            }
-        }
+        /// <summary>Default sample interval [ms] for the raw channel</summary>
+        public const int Default_Sample_Int_ms = 10;
+        /// <summary>Default sample interval [ms] for the FFT Channels</summary>
+        public const int Default_EEGBands_Int_ms = 200;
 
-        private List<CEEGSWChannels> EEGSWChannels = [];
+        public TimeSpan default_SpectrumUpdateInterval_ms = new TimeSpan(0, 0, 0, 0, 2000);
 
         public void Set_EEGBands_SampleInt_ms(int chno, int value)
         {
@@ -57,13 +60,14 @@ namespace FeedbackDataLib.Modules
         //////////////////
         //Channel numbers
         //////////////////
-
-        public const int Default_Sample_Int_ms = 10;
-        public const int Default_EEGBands_Int_ms = 200;
-
+        /// <summary>Caculates FFT</summary>
         [NonSerialized()] protected CEEGProcessor[]? EEGProcessor = null;
+        /// <summary>
+        ///   <para>
+        /// Helper function: Holds the calculated channels to send</para>
+        /// </summary>
+        [NonSerialized()] private List<CActiveFFTChannel>[] FFT_Channels_List;
 
-        //private frmSpectrum frmSpectrum = null;
         private DateTime[] dtNextSpectrumUpdate;
         private readonly TimeSpan[] tsSpectrumUpdateInterval_ms;
 
@@ -76,9 +80,13 @@ namespace FeedbackDataLib.Modules
             for (int i = 0; i < num_raw_Channels; i++)
             {
                 dtNextSpectrumUpdate[i] = DateTime.Now;
-                tsSpectrumUpdateInterval_ms[i] = new TimeSpan(0, 0, 0, 0, 2000);
+                tsSpectrumUpdateInterval_ms[i] = default_SpectrumUpdateInterval_ms;
             }
-
+            FFT_Channels_List = new List<CActiveFFTChannel>[num_raw_Channels];
+            for (int i = 0; i< FFT_Channels_List.Length; i++)
+            {
+                FFT_Channels_List[i] = new List<CActiveFFTChannel>();
+            }
             Init();
         }
 
@@ -98,13 +106,35 @@ namespace FeedbackDataLib.Modules
             }
             for (int i = 0; i < num_raw_Channels; i++)
             {
-                string[] longnames = new CEEGSWChannels().get_longNamesArray();
+                string[] longnames = new CEEGCalcChannels().get_longNamesArray();
                 for (int j = 0; j < longnames.Length; j++)
                 {
                     //Add ChanNo to LongNames: 0_Delta [Veff]
                     longnames[j] = i.ToString() + "_" + longnames[j];
                 }
                 cSWChannelNames.AddRange(longnames);
+            }
+        }
+
+
+
+        public override void Update_SWChannels(List<CSWChannel> sWChannels)
+        {
+            base.Update_SWChannels(sWChannels);
+
+            if (FFT_Channels_List != null)
+            {
+                for (int rawch = 0; rawch < num_raw_Channels; rawch++)
+                {
+                    FFT_Channels_List[rawch].Clear();
+                    for (int i = num_raw_Channels; i < SWChannels.Count; i++)
+                    {
+                        if (SWChannels[i].SendChannel && Char.GetNumericValue(SWChannels[i].SWChannelName[0]) == rawch)
+                        {
+                            FFT_Channels_List[rawch].Add(new CActiveFFTChannel(i, SWChannels[i].EEG_related_swcn));
+                        }
+                    }
+                }
             }
         }
 
@@ -133,14 +163,14 @@ namespace FeedbackDataLib.Modules
             while (i < cSWChannelNames.Count)
             {
                 int related_raw_chanNo = int.Parse(cSWChannelNames[i][0].ToString());
-                CSWChannel sws = (CSWChannel)sWChannels[related_raw_chanNo].Clone();
+                CSWChannel sws = (CSWChannel)SWChannels[related_raw_chanNo].Clone();
                 sws.SWChannelName = cSWChannelNames[i];
                 sws.SWChannelNumber = (byte)i;
                 sws.SWChannelColor = Color.LightGray;
                 sws.SampleInt = Default_EEGBands_Int_ms;
                 sws.ModuleType = ModuleType;
-                sws.EEG_related_swcn = new CEEGSWChannels().get_idx_from_SWChannelName(cSWChannelNames[i][2..]);
-                sWChannels.Add(sws);
+                sws.EEG_related_swcn = new CEEGCalcChannels().get_idx_from_SWChannelName(cSWChannelNames[i][2..]);
+                SWChannels.Add(sws);
                 i++;
             }
             EEGSWChannels.Clear();
@@ -150,7 +180,7 @@ namespace FeedbackDataLib.Modules
                 EEGProcessor = new CEEGProcessor[num_raw_Channels];
                 for (i = 0; i < EEGProcessor.Length; i++)
                 {
-                    CEEGSWChannels eegc = new();
+                    CEEGCalcChannels eegc = new();
                     EEGSWChannels.Add(eegc);
                     EEGProcessor[i] = new CEEGProcessor(SWChannels[i], eegc)
                     {
@@ -205,40 +235,42 @@ namespace FeedbackDataLib.Modules
                     double gain = Uax2[(int)EnTypeExtradat_ADS.exgain].Value;
                     double Ua2 = Uax2[(int)EnTypeExtradat_ADS.exUa2].Value * SKALVAL_K * 1e3 / gain;
                     double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K * 1e3 / gain;
-                    double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K * 1e3 / gain; 
+                    double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K * 1e3 / gain;
 
-                    Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst / 1e3 ;// - Rprotect);
+                    Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst / 1e3;// - Rprotect);
                     Rn[originalData.SW_cn] = (Ua1 - Ua0) / Iconst / 1e3;// - Rprotect);
-                    Uelectrode[originalData.SW_cn]= Ua0 / 1e3;
+                    Uelectrode[originalData.SW_cn] = Ua0 / 1e3;
                 }
             }
 
             // Return the result after further processing
-            return ProcessDataEEG_Basic(originalData, processedData);
-        }
+            //return ProcessDataEEG_Basic(originalData, processedData);
+            //}
 
-        protected List<CDataIn> ProcessDataEEG_Basic(CDataIn originialData, List<CDataIn> processedData)
-        {
-            if (originialData.SW_cn < num_raw_Channels)
+            //protected List<CDataIn> ProcessDataEEG_Basic(CDataIn originalData, List<CDataIn> processedData)
+            //{
+            if (originalData.SW_cn < num_raw_Channels)
             {
-                int swcn = originialData.SW_cn;
+                int swcn = originalData.SW_cn;
                 if (sWChannels_Module[swcn].SendChannel)
                 {
-                    processedData.Add(originialData);
+                    processedData.Add(originalData);
 
-                    double sample = SWChannels[swcn].GetScaledValue(originialData.Value);
-                    EEGProcessor[swcn].AddEEGSample(sample);
-
-                    //Check for FFT results
-                    for (int i = 0; i < idxs_EEG_to_send.Count; i++)
+                    double sample = SWChannels[swcn].GetScaledValue(originalData.Value);
+                    if (EEGProcessor is not null)
                     {
-                        CDataIn cd = (CDataIn)originialData.Clone();
+                        EEGProcessor[swcn].AddEEGSample(sample);
+
+                        //Check for FFT results
+                        List<CActiveFFTChannel> fftchan = FFT_Channels_List[swcn];
+                        for (int i = 0; i < fftchan.Count; i++)
+                        {
+                            CDataIn cd = (CDataIn)originalData.Clone();
+                            cd.Value = SWChannels[i].GetUnscaledValue(EEGProcessor[swcn].Get_EEG_Band_Value(fftchan[i].eegBandNo));
+                            cd.SW_cn = (byte)fftchan[i].calc_cn;
+                            processedData.Add(cd);
+                        }
                     }
-
-
-                    //if (_DataEEG != null)
-                    //    processedData.AddRange(_DataEEG);
-
                 }
             }
             else
@@ -251,11 +283,11 @@ namespace FeedbackDataLib.Modules
 
         public override byte[] Get_SWConfigChannelsByteArray()
         {
-            if (IsModuleActive)
+            if (IsModuleActive())
             {
                 for (int i=0; i< num_raw_Channels; i++)
                 {
-                    SWChannels_Module[i].SWConfigChannel= SWChannels[i].SWConfigChannel; //Raw signals channels are in the beginning
+                    SWChannels_Module[i].configVals= SWChannels[i].configVals; //Raw signals channels are in the beginning
                 }
                 //Module werden frisch gesetzt - EEG Prozessor aktualisieren
             }

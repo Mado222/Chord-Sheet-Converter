@@ -1,22 +1,30 @@
 ﻿using FeedbackDataLib.Modules;
+using System.Collections.Generic;
 using WindControlLib;
 
 namespace FeedbackDataLib
 {
     public class C8KanalDevice2 : ICloneable
     {
-        public List<CModuleBase> ModuleInfos { get; set; }
+        private List<CModuleBase> moduleInfos = [];
+
+        public List<CModuleBase> ModuleInfos { get => moduleInfos; set => moduleInfos = value; }
+
+        public List<CModuleBase> GetModuleInfo_Clone() {
+            List<CModuleBase> ret = [];
+            foreach (var module in moduleInfos) {
+                ret.Add((CModuleBase) module.Clone());
+            }
+            return moduleInfos; }
+
 
         public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
 
         public C8KanalDevice2()
         {
-            ModuleInfos = [];
-            //ModuleInfos.Clear();
-            //Reserve place for every HW channel
             for (int i = 0; i < C8KanalReceiverV2_CommBase.max_num_HWChannels; i++)
             {
-                ModuleInfos.Add(new CModuleBase());
+                moduleInfos.Add(new CModuleBase());
             }
         }
 

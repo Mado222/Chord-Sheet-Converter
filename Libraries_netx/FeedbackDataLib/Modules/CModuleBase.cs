@@ -93,11 +93,10 @@ namespace FeedbackDataLib.Modules
 
         public void SetHW_cn(ushort HW_cn) => this.HW_cn = HW_cn;
 
-        protected List<CSWChannel> sWChannels = [];
         /// <summary>
         /// Gets or sets the SW channels for the GUI
         /// </summary>
-        public virtual List<CSWChannel> SWChannels { get => sWChannels; set => sWChannels = value; }
+        public List<CSWChannel> SWChannels { get; set; } = [];
 
         /// <summary>
         /// SWChannels die vom Modul kommen
@@ -141,16 +140,12 @@ namespace FeedbackDataLib.Modules
         /// <value>
         ///   <c>true</c> Mudule is active / supplied; otherwise, <c>false</c>.
         /// </value>
-        public bool IsModuleActive
+        public bool IsModuleActive()
         {
-            get
-            {
-                if (SWChannels != null)
-                {
-                    return SWChannels.Any(c => c.SendChannel || c.SaveChannel);
-                }
-                return false;
-            }
+            for (int i = 0; i < SWChannels.Count; i++)
+            if (SWChannels[i].SendChannel)
+                    return true;
+            return false;
         }
 
 
@@ -249,7 +244,7 @@ namespace FeedbackDataLib.Modules
         protected virtual byte[] Get_SWConfigChannelByteArray(List<CSWChannel> swc, int SW_cn)
         {
             byte[] buf1 = [];
-            swc[SW_cn].SWConfigChannel.GetByteArray(ref buf1, 0);
+            swc[SW_cn].GetByteArray(ref buf1, 0);
             return buf1;
         }
 
@@ -326,6 +321,11 @@ namespace FeedbackDataLib.Modules
             return ptr;
          }
 
+        /// <summary>
+        /// Processes the data, coming drom distributor thread
+        /// </summary>
+        /// <param name="di">The di.</param>
+        /// <returns></returns>
         public virtual List<CDataIn> Processdata(CDataIn di)
         {
             List<CDataIn> ret = [di];
@@ -360,14 +360,47 @@ namespace FeedbackDataLib.Modules
                 ModuleTechnologyNo.ToString();
         }
 
+        /// <summary>
+        /// Updates all Channels
+        /// </summary>
+        /// <param name="sWConfigValues">Array with configuratin info.</param>
+        /// <returns></returns>
+        public virtual void Update_SWChannels(CSWConfigValues[] sWConfigValues)
+        {
+            for (int i = 0; i < sWConfigValues.Length; i++)
+            {
+                Update_SWChannel(i, sWConfigValues[i]);
+            }
+        }
+
+        public virtual void Update_SWChannels(List<CSWChannel> sWChannels)
+        {
+            for (int i =0; i<sWChannels.Count; i++)
+            {
+                Update_SWChannel(i, sWChannels[i].configVals);
+            }
+        }
+
+        /// <summary>
+        /// Updates the indexed SWCHannel with CSWConfigValues
+        /// 
+        /// </summary>
+        /// <param name="swcn">The SWCN.</param>
+        /// <param name="sWConfigValues">The configuration values.</param>
+        /// <returns></returns>
+        public virtual void Update_SWChannel(int swcn, CSWConfigValues sWConfigValues)
+        {
+            SWChannels[swcn].configVals.Update(sWConfigValues);
+        }
+
         public object Clone()
         {
             CModuleBase mi = (CModuleBase)MemberwiseClone();
             mi.SWChannels = [];
-            for (int i = 0; i < sWChannels.Count; i++)
+            for (int i = 0; i < SWChannels.Count; i++)
             {
-                CSWChannel c = (CSWChannel)sWChannels[i].Clone();
-                mi.sWChannels.Add(c);
+                CSWChannel c = (CSWChannel)SWChannels[i].Clone();
+                mi.SWChannels.Add(c);
             }
             return mi;
         }

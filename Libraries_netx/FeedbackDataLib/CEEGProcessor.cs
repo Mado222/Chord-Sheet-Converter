@@ -5,7 +5,7 @@ namespace FeedbackDataLib
 {
     public class CEEGProcessor
     {
-        public CEEGSWChannels EEGSWChannels;
+        public CEEGCalcChannels EEGSWChannels;
         private CEEG_Spectrum _CEEG_Spectrum;
 
 
@@ -15,7 +15,7 @@ namespace FeedbackDataLib
         /// </summary>
 
         private const int default_fft_window_width_ms = 2560;
-        private int fftWindowWidth_ms = default_fft_window_width_ms;
+        private int fftWindowWidth_ms= default_fft_window_width_ms;
         public int FFTWindowWidth_ms
         {
             get
@@ -24,9 +24,20 @@ namespace FeedbackDataLib
             }
             set
             {
-                num_samples_to_calc = CMyTools.getNearestPowerofTwoVal(value / SampleInt_ms.Milliseconds);
-                fftWindowWidth_ms = num_samples_to_calc * SampleInt_ms.Milliseconds;
+                fftWindowWidth_ms = value;
+                Update();
             }
+        }
+
+        private int sampleInt_ms;
+        public int SampleInt_ms
+        {
+            get => sampleInt_ms;
+            set { 
+                sampleInt_ms = value;
+                Update();
+            }
+
         }
 
         private int num_samples_to_calc;
@@ -34,17 +45,29 @@ namespace FeedbackDataLib
         private readonly CSWChannel? rawChannel = null;
         public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
-        private TimeSpan SampleInt_ms;
+        
         
 
         //private CRingpuffer RP;
-        private readonly CFifoBuffer<double> RP = new();
+        private CRingpuffer RP;
 
-        public CEEGProcessor (CSWChannel rawChannel, CEEGSWChannels eegChannels)
+        public CEEGProcessor (CSWChannel rawChannel, CEEGCalcChannels eegChannels)
         {
             EEGSWChannels = eegChannels;
-            _CEEG_Spectrum = new CEEG_Spectrum(eegChannels._EEG_FFT_Channels);
+            _CEEG_Spectrum = new CEEG_Spectrum(eegChannels.EEG_FrequencyRanges);
             this.rawChannel = rawChannel;
+            if (rawChannel != null)
+            {
+                SampleInt_ms = rawChannel.SampleInt;
+            }
+        }
+
+        private void Update()
+        {
+            num_samples_to_calc = CMyTools.getNearestPowerofTwoVal(fftWindowWidth_ms / sampleInt_ms);
+            fftWindowWidth_ms = num_samples_to_calc * sampleInt_ms;
+            RP = new CRingpuffer(num_samples_to_calc)
+            { IgnoreOverflowDuringPush = true };
         }
 
         /// <summary>
@@ -90,8 +113,10 @@ namespace FeedbackDataLib
 
         public double[]? GetEEGSpectrum_1Hz_Steps()
         {
-            if (RP.Count == num_samples_to_calc)
-                return _CEEG_Spectrum.GetEEGSpectrum_1Hz_Steps(RP.PopAll(), SampleInt_ms.TotalMilliseconds);
+            double[] buf = [];
+            RP.PopAll(ref buf);
+            if (RP.StoredObjects == RP.Length)
+                return _CEEG_Spectrum.GetEEGSpectrum_1Hz_Steps(buf, SampleInt_ms);
             return null;
         }
 
@@ -106,12 +131,14 @@ namespace FeedbackDataLib
                 //Prepare results
                 res = [];
                 //At least one EEG Channel active, Sample time of chan0 reached, enough values in buffer
-                if (SpectrumChannelsactive && (DateTime.Now >= SWCha_NextSampleTime) && RP.Count >= num_samples_to_calc)
+                if (SpectrumChannelsactive && (DateTime.Now >= SWCha_NextSampleTime) && RP.StoredObjects >= num_samples_to_calc)
                 {
-                    CDataIn cd;
-                    double[] buf = RP.PopAll();
-                    ==> es müssen genug Daten im Puffer sein!!
-                    _CEEG_Spectrum.Process_Spectrum(buf, SampleInt_ms.TotalMilliseconds);
+                    //CDataIn cd;
+                    double[] buf = [];
+                    RP.PopAll(ref buf);
+
+                    //==> es müssen genug Daten im Puffer sein!!
+                    _CEEG_Spectrum.Process_Spectrum(buf, SampleInt_ms);
 
                     //foreach (CSWChannel swcn in SWChannels)
                     //{

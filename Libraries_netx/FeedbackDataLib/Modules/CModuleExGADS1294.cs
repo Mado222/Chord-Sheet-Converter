@@ -157,24 +157,9 @@ namespace FeedbackDataLib.Modules
                 sws.Offset_hex = 0;
                 //sws.SkalValue_k = 1;
                 //sws.SkalValue_k = getSkalValue_k(j);
-                sWChannels.Add(sws);
+                SWChannels.Add(sws);
                 j++;
             }
-            /*
-            //Now Add other channels
-            for (int i = 0; i < sWChannels_Module.Count; i++)
-            {
-                CSWChannel sws2 = SWChannels_Module[0].Clone() as CSWChannel;
-                sws2.SWChannelName = prefix + i.ToString() + " DC [V]";
-                sws2.SWChannelNumber = (byte)j;
-                sWChannels.Add(sws2);
-                j++;
-                CSWChannel sws3 = SWChannels_Module[0].Clone() as CSWChannel;
-                sws3.SWChannelName = prefix + i.ToString() + " ElWid [Ohm]";
-                sws3.SWChannelNumber = (byte)j;
-                sWChannels.Add(sws3);
-                j++;
-            }*/
         }
 
 

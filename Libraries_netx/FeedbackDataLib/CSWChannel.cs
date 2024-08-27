@@ -36,6 +36,8 @@ namespace FeedbackDataLib
 
         public int EEG_related_swcn { get; set; }
 
+        public CSWConfigValues configVals = new();
+
         /// <summary>
         /// Type of SW channel
         /// </summary>
@@ -113,24 +115,13 @@ namespace FeedbackDataLib
         /// </remarks>
         public double SkalMin { get; set; } = 0;
 
-
-        /// <summary>
-        /// Configuration of the Software Channel
-        /// </summary>
-        private CSWConfigChannel _SWConfigChannel;
-        public CSWConfigChannel SWConfigChannel
-        {
-            get => _SWConfigChannel;
-            set { _SWConfigChannel = value; CheckSWConfig(); }
-        }
-
         /// <summary>
         /// Checks if Send Flag = false
         /// </summary>
         private void CheckSWConfig()
         {
-            SWChan_ts_SampleInt = new TimeSpan(0, 0, 0, 0, _SWConfigChannel.SampleInt);
-            if (_SWConfigChannel.SendChannel == false)
+            SWChan_ts_SampleInt = new TimeSpan(0, 0, 0, 0, configVals.SampleInt);
+            if (configVals.SendChannel == false)
             {
                 //Channel Start Time zurücksetzen
                 Resync();
@@ -150,10 +141,10 @@ namespace FeedbackDataLib
         #region Access_Helper_Properties
         public ushort SampleInt
         {
-            get { return _SWConfigChannel.SampleInt; }
+            get { return configVals.SampleInt; }
             set
             {
-                _SWConfigChannel.SampleInt = value;
+                configVals.SampleInt = value;
                 CheckSWConfig();
             }
         }
@@ -164,10 +155,10 @@ namespace FeedbackDataLib
         /// </summary>
         public bool SendChannel
         {
-            get => _SWConfigChannel.SendChannel;
+            get => configVals.SendChannel;
             set
             {
-                _SWConfigChannel.SendChannel = value;
+                configVals.SendChannel = value;
                 CheckSWConfig();
             }
         }
@@ -177,8 +168,8 @@ namespace FeedbackDataLib
         /// </summary>
         public bool SaveChannel
         {
-            get => _SWConfigChannel.SaveChannel;
-            set => _SWConfigChannel.SaveChannel = value;
+            get => configVals.SaveChannel;
+            set => configVals.SaveChannel = value;
         }
 
         /// <summary>
@@ -247,7 +238,6 @@ namespace FeedbackDataLib
 
         public CSWChannel()
         {
-            _SWConfigChannel = new CSWConfigChannel();
             SWChannelInfo = new CSWChannelInfo();
         }
 
@@ -365,8 +355,7 @@ namespace FeedbackDataLib
             ptr += System.Runtime.InteropServices.Marshal.SizeOf(_SWChannelTypeFromDevice);
             SWChannelInfo = new CSWChannelInfo();
             ptr = SWChannelInfo.UpdateFrom_ByteArray(InBuf, ptr);
-            SWConfigChannel = new CSWConfigChannel();
-            ptr = SWConfigChannel.UpdateFrom_ByteArray(InBuf, ptr);
+            ptr = Update_configVals_From_ByteArray(InBuf, ptr);
             CheckSWConfig();
             return ptr;
         }
@@ -440,6 +429,36 @@ namespace FeedbackDataLib
             }
         }
 
+        /// <summary>
+        /// Fills properties from received byte array
+        /// </summary>
+        public int Update_configVals_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        {
+            int ptr = Pointer_To_Array_Start; //Array Pointer
+            configVals.SampleInt = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(configVals.SampleInt);
+            configVals.ConfigByte = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(configVals.ConfigByte);
+            return ptr;
+        }
+
+        /// <summary>
+        /// Array as it can be sent to Device
+        /// </summary>
+        public void GetByteArray(ref byte[] buffer, int Index_where_to_start_filling)
+        {
+            List<byte> buf = [];
+            if (Index_where_to_start_filling > 0)
+            {
+                //Reserve place
+                for (int i = 0; i < Index_where_to_start_filling; i++)
+                    buf.Add(buffer[i]);
+            }
+
+            byte[] b = BitConverter.GetBytes(configVals.SampleInt);
+            buf.AddRange(b);
+            b = BitConverter.GetBytes(configVals.ConfigByte);
+            buf.AddRange(b);
+            buffer = [.. buf];
+        }
 
 
         #region ICloneable Members
@@ -454,7 +473,7 @@ namespace FeedbackDataLib
         {
             CSWChannel c = (CSWChannel)MemberwiseClone();
             c.SWChannelInfo = (CSWChannelInfo)SWChannelInfo.Clone();
-            c.SWConfigChannel = (CSWConfigChannel)SWConfigChannel.Clone();
+            c.configVals = (CSWConfigValues)configVals.Clone();
             return c;
         }
 

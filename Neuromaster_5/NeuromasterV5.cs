@@ -1,12 +1,11 @@
 ﻿using BMTCommunication;
 using FeedbackDataLib;
+using FeedbackDataLib.Modules;
+using FeedbackDataLib_GUI;
 using Math_Net_nuget;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using WindControlLib;
-using FeedbackDataLib.Modules;
-using FeedbackDataLib_GUI;
-using FeedbackDataLib.Modules;
 
 
 namespace Neuromaster_V5
@@ -48,25 +47,16 @@ namespace Neuromaster_V5
         /// </summary>
         private int BU_idx_SelectedModule = -1;
 
-        /// <summary>
-        /// Flag for USB disconnection / reconnection
-        /// </summary>
-        //private bool USB_Reconnected = false;
-
-        //private StreamWriter sw;
-        //private bool FileOpen = false;
         private CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new CNeuromaster_Textfile_Importer_Exporter();
 
-        //private CFlowChartDX_NM.CLink_Track_ModuleConfig Link_Track_ModuleConfig = new CFlowChartDX_NM.CLink_Track_ModuleConfig();
-        private CFFT_MathNet FFT_MathNet = new CFFT_MathNet();
+        private CFFT_MathNet FFT_MathNet = new();
 
         private bool ConfigSetOK = false;
 
-        List<ucSignalAnalyser> ucSignalAnalysers = new List<ucSignalAnalyser>();
+        List<ucSignalAnalyser> ucSignalAnalysers = [];
 
         System.Windows.Forms.Timer tmrUpdateFFT;
         frmSpectrum? FrmSpectrum = null;
-        //CModuleBase ModuleInfo_CurrentlySelectedEEG;
 
         public NeuromasterV5()
         {
@@ -119,7 +109,6 @@ namespace Neuromaster_V5
         {
             if (rawChannelsToolStripMenuItem.Checked && (DisplayState != enDisplayState.Raw))
             {
-                //cFlowChartDX1.SetupFlowChart_for_RawData(DataReceiver.Connection.Device.ModuleInfos);
                 Init_Graphs();
                 DisplayState = enDisplayState.Raw;
             }
@@ -142,18 +131,9 @@ namespace Neuromaster_V5
             {
                 if (SDCardData != null)
                 {
-                    //multiChart1.chart1.BackColor = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].ModuleColor;
-                    //multiChart1.ClearAll();
                     for (int swcn = 0; swcn < DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].SWChannels.Count; swcn++)
                     {
                         List<CYvsTimeData> ret = SDCardData.GetChannelData(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn, swcn);
-                        if (ret.Count > 0)
-                        {
-                            for (int j = 0; j < ret.Count; j++)
-                            {
-                                //multiChart1.AddPoint(swcn, ret[j].xData, ret[j].yData[0]);
-                            }
-                        }
                     }
                 }
             }
@@ -174,7 +154,7 @@ namespace Neuromaster_V5
                         tlpMeasure.RowCount = cFlowChartDX1.Link_Track_ModuleConfig.LinkedValues.Count;
                         for (int i = rc; i <= cFlowChartDX1.Link_Track_ModuleConfig.LinkedValues.Count - 1; i++)
                         {
-                            ucSignalAnalyser uc = new ucSignalAnalyser();
+                            ucSignalAnalyser uc = new();
                             tlpMeasure.Controls.Add(uc, 0, i);
                             ucSignalAnalysers.Add(uc);
                         }
@@ -277,7 +257,7 @@ namespace Neuromaster_V5
             StartConnection();
         }
 
-        Stopwatch stopwatch = new Stopwatch();
+        Stopwatch stopwatch = new();
         private void StartConnection()
         {
             stopwatch.Reset();
@@ -598,10 +578,6 @@ namespace Neuromaster_V5
 
                                     DataReceiver.Connection.Device.Calculate_SkalMax_SkalMin();
 
-                                    //SetupFlowChart();
-                                    //Init_Graphs();
-
-                                    //Thread.Sleep(2000);
                                     RestoreOldConfiguration();
                                     SetAllConfig();
                                     DataReceiver.Connection.EnableDataReadyEvent = true;
@@ -719,28 +695,6 @@ namespace Neuromaster_V5
                     c.yData[0] = ci.Value;
 
 
-                //Debug VasoMId
-                /*
-                else if (DataReceiver.Connection.Device.ModuleInfos[ci.HWChannelNumber].ModuleType == .enumModuleType.cModuleVasoIRDig)
-                {
-                    if (HP == null)
-                        HP = MathNet.Filtering.OnlineFilter.CreateHighpass(MathNet.Fil tering.ImpulseResponse.Finite, 1000 / 20, .5, 1);
-                    if (ci.SWChannelNumber == 0)
-                    {
-                        cFlowChartDX1.AddValue(0, c);
-                        //c.yData[0] = VasoProcessor.ProcessVasoSample(c.yData[0]);
-                        //c.yData[0] = HP.ProcessSample(c.yData[0]);
-                        cFlowChartDX1.AddValue(1, c);
-                    }
-                    else if (ci.SWChannelNumber == 3)
-                    {
-                        //Display in Channel 1
-                        //**** use PIC Algorithm ****
-                        //ci.Value = VasoProcessor.ProcessVasoSampleAutoRange((UInt16) ci.Value);
-                        //c.yData[0] = DataReceiver.Connection.GetScaledValue(ci);
-                    }
-                }*/
-
                 /////////// ***** /////////////
                 // Normal Processing
                 /////////// ***** /////////////
@@ -807,7 +761,7 @@ namespace Neuromaster_V5
                     {
                         SignalFilters.Add(new CSignalFilter(enumSignalFilterType.BandStop, 2, DataReceiver.Connection.Device.ModuleInfos[i].SWChannels[0].SampleInt, 2));
                     }*/
-                    cChannelsControlV2x11.SetModuleInfos(DataReceiver.Connection.Device.ModuleInfos);
+                    cChannelsControlV2x11.SetModuleInfos(DataReceiver.Connection.Device.GetModuleInfo_Clone());
                     cChannelsControlV2x11.Refresh();
                     SetupFlowChart();
                     Init_Graphs();
@@ -879,7 +833,12 @@ namespace Neuromaster_V5
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
             ConfigSetOK = false;
-            DataReceiver.Connection.Device.ModuleInfos[HW_cn] = cChannelsControlV2x11.GetModuleInfo(HW_cn);
+            //DataReceiver.Connection.Device.ModuleInfos[HW_cn] = cChannelsControlV2x11.GetModuleInfo(HW_cn);
+
+            //Update Modules 
+            var target = DataReceiver.Connection.Device.ModuleInfos[HW_cn];
+            var source = cChannelsControlV2x11.GetModuleInfo(HW_cn);
+            DataReceiver.Connection.Device.ModuleInfos[HW_cn].Update_SWChannels(source.SWChannels);
 
             if (DataReceiver.Connection.SetConfigModule(HW_cn))
             {
@@ -888,17 +847,12 @@ namespace Neuromaster_V5
                 lblXBeeCapacity.Text = pbXBeeChannelCapacity.Value.ToString();
                 ConfigSetOK = true;
                 SetupFlowChart();
-
-                //Debug für Vasosensor
-                //AddStatusString("Debug for Vasosensor active", Color.Red);
-                //VasoProcessor.Init_VasoProcessor(1/(double) DataReceiver.Connection.Device.ModuleInfos[0].SWChannels[0].SampleInt*1000);
             }
             else
                 AddStatusString("Config not set" + HW_cn.ToString(), Color.Red);
         }
 
-        //List<int> AtemHW = new List<int>();
-        //List<CModuleBase> AtemBU = new List<CModuleBase>();
+
         private void btSetAllConfig_Click(object sender, EventArgs e)
         {
             SetAllConfig();
@@ -994,66 +948,6 @@ namespace Neuromaster_V5
             //Set Axis
             SetupFlowChart();
         }
-
-
-        private void btFFT_Click(object sender, EventArgs e)
-        {
-            /*
-            int SampleInt = (int) DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].SWChannels[SelectedFFTSWCHan].SampleInt;
-
-            double Samplingint1000 = ((double)SampleInt)/1000;
-            double t = 0;
-
-            double[] y = new double[0];
-            FFTData.PopAll(ref y);
-            object[] dt = new object[0];
-            FFTTime.PopAll(ref dt);
-            double [] time = new double [y.Length];
-            
-            //FFT_MathNet.Data_y = new double [temp.Length];
-            //FFT_MathNet.Data_x = new double[temp.Length];
-
-            //Buffer.BlockCopy(temp, 0, FFT_MathNet.Data_y, 0, temp.Length * sizeof(double));
-            
-            for (int i = 0; i < FFTData.Length; i++)
-            {
-                time[i] = (((TimeSpan)dt[i])- (TimeSpan)dt[0]).TotalMilliseconds/1000;
-                t = t + Samplingint1000;
-                //FFT_MathNet.Data_y[i]=temp[i];
-           }
-
-
-            RefreshGraph(zedGraphControl2, 0, time, y, true, "Signal");
-
-            //FFT_MathNet.ResampleData(y, 0, time[time.Length-1], 256);
-            FFT_MathNet.ResampleData(y, time, 256);
-            //FFT_MathNet.FFT();
-            FFT_MathNet.Data_y[0] = 0; //Gleichspannungsanteil nicht anzeigen
-            //RefreshGraph(zedGraphControl2, 1, FFT_MathNet.fftFrequ, FFT_MathNet.fftAmplitude, true, "Amplitudenspektrum");
-             */
-        }
-
-/*
-        public static void RefreshGraph(ZedGraphControl ZG, int PaneNo, double[] x, double[] y, bool Clear, string CurveLabel)
-        {
-            RefreshGraph(ZG, PaneNo, x, y, Clear, CurveLabel, SymbolType.None, Color.Red);
-        }
-
-        public static void RefreshGraph(ZedGraphControl ZG, int PaneNo, double[] x, double[] y, bool Clear, string CurveLabel, SymbolType CurveSymbol, Color CurveColor)
-        {
-            GraphPane m = ZG.MasterPane[PaneNo];
-            if (Clear) m.CurveList.Clear();
-            //m.Chart.Fill.Color = Color.Yellow;
-            m.AddCurve(CurveLabel, x, y, CurveColor, CurveSymbol);
-
-            using (Graphics g = ZG.CreateGraphics())
-            {
-                ZG.MasterPane.SetLayout(g, PaneLayout.SingleColumn);
-                ZG.MasterPane.AxisChange(g);
-            }
-
-            ZG.Refresh();
-        }*/
 
 
         private void OpenFile()
@@ -1187,54 +1081,7 @@ namespace Neuromaster_V5
             }
             SetAllConfig();
         }
-        /*
-        /// <summary>
-        /// 
-        /// </summary>
-        public class CDefaultChannels
-        {
-            /// <summary>
-            /// 
-            /// </summary>
-            public class CDefChannel
-            {
-                /// <summary>
-                /// The module type
-                /// </summary>
-                public .enumModuleType ModuleType = .enumModuleType.cModuleTypeEmpty;
-                /// <summary>
-                /// The S W_CN
-                /// </summary>
-                public int SW_cn = 0;
-
-                public CDefChannel(.enumModuleType ModuleType, int SW_cn)
-                {
-                    this.ModuleType = ModuleType;
-                    this.SW_cn = SW_cn;
-                }
-            }
-
-            /// <summary>
-            /// The def channel
-            /// </summary>
-            public List<CDefChannel> DefChannel = new List<CDefChannel>();
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="CDefaultChannels"/> class.
-            /// </summary>
-            public CDefaultChannels()
-            {
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleAtem, 1));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleECG, 1));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleEEG, 3));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleEEGADS, 1));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleExGADS, 1));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleEMG, 1));       //
-                DefChannel.Add(new CDefChannel(.enumModuleType.cModuleMultisensor, 2));       //
-            }
-        }
-        */
-
+ 
         private void AllDefaultOn_Click(object sender, EventArgs e)
         {
             ucFlowChartDX_NM.CDefaultChannels Def = new ucFlowChartDX_NM.CDefaultChannels();
@@ -1503,7 +1350,7 @@ namespace Neuromaster_V5
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
 
-            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive)
+            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive())
             {
                 if (DataReceiver.Connection.GetModuleInfoSpecific(HW_cn, true) != null)
                 {
@@ -1548,7 +1395,7 @@ namespace Neuromaster_V5
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
 
-            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive)
+            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive())
             {
                 byte[] buf = cChannelsControlV2x11.GetModuleSpecific(HW_cn);
                 DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].SetModuleSpecific(buf);
@@ -1799,32 +1646,7 @@ namespace Neuromaster_V5
         private void btGetElectrodeInfo_Click(object sender, EventArgs e)
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
-            ////CADS1294x_ElectrodeImp refparam = ((CModuleExGADS1294)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]).ElectrodeImpedance;
-
-            //if (DataReceiver.Connection.GetElectrodeInfo(ref refparam, HW_cn))
-            //{
-            //    //((CModuleExGADS1294)DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule])..ElectrodeImpedance = refparam;
-            //    cChannelsControlV2x11.UpdateModuleSpecificInfo(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule]);
-
-            //    cChannelsControlV2x11.Update_ucModuleExGADS_Impedance(refparam);
-
-            //    /*
-            //    for (int i = 0; i < 2; i++)
-            //    {
-            //        for (int j = 0; j < 2; j++)
-            //         {
-            //            AddStatusString("==================== Chan " + i.ToString() + "/ "+j.ToString() +"====================");
-            //            AddStatusString("Impedance =" + (refparam.ElectrodeInfo[i][j].Impedance_Ohm / 1000).ToString() + " kOhm");
-            //            AddStatusString("Uelectrod = " + (refparam.ElectrodeInfo[i][j].UElektrode_V*1000).ToString() + "mV");
-            //            AddStatusString("Succeeded (OK: 0) = " + refparam.ElectrodeInfo[i][j].Succeeded.ToString());
-            //        }
-            //    }*/
-            //}
-            //else
-            //{
-            //    AddStatusString("Get Electrode Chan 0 failed", Color.Red);
-            //}
-    }
+        }
 
         private void convertToTxtToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -1846,10 +1668,6 @@ namespace Neuromaster_V5
                         {
                             num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].num_raw_Channels;
 
-                            //if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule] is CModuleEEG)
-                            //    num_raw_EEG_Channels = new CModuleEEG().num_raw_Channels;
-                            //else
-                            //    num_raw_EEG_Channels = new CModuleExGADS1294_EEG().num_raw_Channels;
                         }
 
                         for (int i = 0; i < num_raw_EEG_Channels; i++)

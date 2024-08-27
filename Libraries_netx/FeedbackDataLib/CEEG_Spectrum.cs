@@ -26,13 +26,13 @@ namespace FeedbackDataLib
     /// </summary>
     public class CEEG_Spectrum
     {
-        public class CFrequencyRange_EEG : CFrequencyRange
+        public class CEEG_FrequencyRanges : CFrequencyRange
         {
-            public CFrequencyRange_EEG(double f_Low, double f_High, double Calibration_factor) : base("NoName", f_Low, f_High, Calibration_factor)
+            public CEEG_FrequencyRanges(double f_Low, double f_High, double Calibration_factor) : base("NoName", f_Low, f_High, Calibration_factor)
             {
             }
 
-            public CFrequencyRange_EEG(string Name,double f_Low, double f_High, double Calibration_factor) : base(Name, f_Low, f_High, Calibration_factor)
+            public CEEG_FrequencyRanges(string Name,double f_Low, double f_High, double Calibration_factor) : base(Name, f_Low, f_High, Calibration_factor)
             {
             }
 
@@ -51,7 +51,7 @@ namespace FeedbackDataLib
         }
 
         private CFFT_MathNet FFT_MathNet;
-        public List<CFrequencyRange_EEG> EEG_Bands;
+        public List<CEEG_FrequencyRanges> EEG_Bands;
 
         public DateTime dtLastFFT { get; set; } = DateTime.Now;
 
@@ -68,12 +68,12 @@ namespace FeedbackDataLib
         /// <summary>
         /// Initializes a new instance of the <see cref="CEEG_Spectrum"/> class.
         /// </summary>
-        public CEEG_Spectrum(CFrequencyRange_EEG[] Frequ_Ranges)
+        public CEEG_Spectrum(CEEG_FrequencyRanges[] Frequ_Ranges)
         {
             Init_CEEG_Spectrum(Frequ_Ranges);
         }
 
-        private void Init_CEEG_Spectrum(in CFrequencyRange_EEG[] Frequ_Ranges)
+        private void Init_CEEG_Spectrum(in CEEG_FrequencyRanges[] Frequ_Ranges)
         {
             FFT_MathNet = new CFFT_MathNet();
             EEG_Bands = [];
@@ -99,7 +99,7 @@ namespace FeedbackDataLib
             FFT_MathNet.FFT();
 
             //Reset bands
-            foreach (CFrequencyRange_EEG cf in EEG_Bands) cf?.Reset();
+            foreach (CEEG_FrequencyRanges cf in EEG_Bands) cf?.Reset();
             double[] fftFrequ = FFT_MathNet.fftFrequ;
             double[] fftRMS = FFT_MathNet.fftAmplitudeRMS; //Power [s^2/Hz]
 
@@ -114,7 +114,7 @@ namespace FeedbackDataLib
                 f = fftFrequ[i];
                 y = fftRMS[i]; //Power [s^2/Hz]
 
-                foreach (CFrequencyRange_EEG cf in EEG_Bands)
+                foreach (CEEG_FrequencyRanges cf in EEG_Bands)
                     cf?.Add(f, y);
             }
             dtLastFFT = DateTime.Now;

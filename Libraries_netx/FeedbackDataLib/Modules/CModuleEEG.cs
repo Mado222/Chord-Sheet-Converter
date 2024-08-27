@@ -15,7 +15,7 @@
         {
             if (SWChannels != null)
             {
-                SWChannels_Module[0].SWConfigChannel.SampleInt = SWChannels[0].SWConfigChannel.SampleInt;
+                SWChannels_Module[0].SampleInt = SWChannels[0].SampleInt;
                 return base.Get_SWConfigChannelsByteArray();
             }
             return [];
