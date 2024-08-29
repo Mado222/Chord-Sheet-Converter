@@ -1,17 +1,9 @@
-﻿using OxyPlot;
-using OxyPlot.Axes;
-using OxyPlot.Series;
-using OxyPlot.WindowsForms;
-using System.Reflection;
-using static FeedbackDataLib.Modules.CModuleBase;
-using FeedbackDataLib.Modules;
-
-namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLib_GUI
 {
     public partial class frmSpectrum : Form
     {
-        private uc_Spectrum_Impedance[] spectrumViews;
-        private Color[] cols = { Color.MintCream, Color.MintCream, Color.MintCream, Color.MintCream };
+        private readonly uc_Spectrum_Impedance[] spectrumViews;
+        private readonly Color[] cols = [Color.MintCream, Color.MintCream, Color.MintCream, Color.MintCream];
         public frmSpectrum(int no_of_Charts = 4)
         {
             InitializeComponent();

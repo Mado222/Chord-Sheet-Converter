@@ -68,25 +68,25 @@ namespace FeedbackDataLib
             }
 
             // Populate the dictionary with short names and their corresponding indices
-            foreach (var data in EEG_SWChannels)
+            foreach (var (index, shortName, longName) in EEG_SWChannels)
             {
-                shortNameToindex[data.shortName] = data.index;
-                longNameToindex[data.longName] = data.index;
+                shortNameToindex[shortName] = index;
+                longNameToindex[longName] = index;
             }
         }
 
-        public int get_idx_from_shortName(string shortName)
+        public int Get_idx_from_shortName(string shortName)
         {
             shortNameToindex.TryGetValue(shortName, out int ret);
             return ret;
         }
 
-        public int get_idx_from_longName(string longName)
+        public int Get_idx_from_longName(string longName)
         {
             longNameToindex.TryGetValue(longName, out int ret);
             return ret;
         }
-        public int get_idx_from_SWChannelName(string SWChannelName)
+        public int Get_idx_from_SWChannelName(string SWChannelName)
         {
             int ret = -1;
             if (SWChannelNameToindex.TryGetValue(SWChannelName, out int _ret))
@@ -108,8 +108,7 @@ namespace FeedbackDataLib
             return ret;
         }
 
-
-        public string[] get_longNamesArray()
+        public string[] Get_longNamesArray()
         {
             return EEG_SWChannels.Select(item => item.longName).ToArray();
         }

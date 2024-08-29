@@ -377,7 +377,7 @@ namespace FeedbackDataLib.Modules
         {
             for (int i =0; i<sWChannels.Count; i++)
             {
-                Update_SWChannel(i, sWChannels[i].configVals);
+                Update_SWChannel(i, sWChannels[i].SWChannelConfig);
             }
         }
 
@@ -390,7 +390,7 @@ namespace FeedbackDataLib.Modules
         /// <returns></returns>
         public virtual void Update_SWChannel(int swcn, CSWConfigValues sWConfigValues)
         {
-            SWChannels[swcn].configVals.Update(sWConfigValues);
+            SWChannels[swcn].SWChannelConfig.Update(sWConfigValues);
         }
 
         public object Clone()

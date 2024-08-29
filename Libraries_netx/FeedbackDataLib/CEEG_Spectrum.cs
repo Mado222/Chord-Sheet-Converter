@@ -39,7 +39,6 @@ namespace FeedbackDataLib
             public override void Add(double f, double value)
             {
                 base.Add(f, Math.Pow(value, 2));
-                //base.Add(f, value);
             }
             /// <summary>
             /// Value

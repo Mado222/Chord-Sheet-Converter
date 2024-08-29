@@ -1,9 +1,9 @@
-﻿using OxyPlot;
+﻿using LiveChartsCore.Drawing;
+using LiveChartsCore.SkiaSharpView;
+using OxyPlot;
 using OxyPlot.Axes;
-using OxyPlot.WindowsForms;
 using OxyPlot.Series;
-using FeedbackDataLib.Modules;
-using static FeedbackDataLib.Modules.CModuleBase;
+using OxyPlot.WindowsForms;
 
 namespace FeedbackDataLib_GUI
 {
@@ -13,6 +13,8 @@ namespace FeedbackDataLib_GUI
 
         public int ChanNo { get; }
         public Color ChanColor { get; }
+
+        public const int default_YMAX = 1000000;
 
         public uc_Spectrum_Impedance(int ChanNo, Color ChanColor)
         {
@@ -27,6 +29,10 @@ namespace FeedbackDataLib_GUI
             // Create a new plot model
             var plotModel = new PlotModel();//{ Title = $"FFT Channel {ChanNo}" };
 
+            //Typically, in OxyPlot, BarSeries are plotted horizontally by default, meaning the bars
+            //extend along the X - axis(bottom axis).Therefore, the CategoryAxis should be aligned
+            //with the Y-axis(left axis) rather than the X-axis.
+
             var categoryAxis = new CategoryAxis
             {
                 Position = AxisPosition.Bottom,
@@ -39,6 +45,7 @@ namespace FeedbackDataLib_GUI
                 MinimumPadding = 0,
                 MaximumPadding = 0.06,
                 AbsoluteMinimum = 0,
+                Maximum = double.NaN, //= Autoscaling on
                 Key = "x1"
             };
 
@@ -56,13 +63,8 @@ namespace FeedbackDataLib_GUI
                 YAxisKey = "y1"
             };
 
-            //s1.Items.Add(new BarItem { Value = 1 });
-            //s1.Items.Add(new BarItem { Value = 1 + 5 });
-            //s1.LabelPlacement = LabelPlacement.Inside;
-            //s1.LabelFormatString = "{0}";
-
-            categoryAxis.Labels.Add("A");
-            categoryAxis.Labels.Add("B");
+            //categoryAxis.Labels.Add("A");
+            //categoryAxis.Labels.Add("B");
 
             plotModel.Series.Add(s1);
 
@@ -82,8 +84,12 @@ namespace FeedbackDataLib_GUI
                 ZoomVerticalCursor = Cursors.SizeNS,
                 Visible = true
             };
-            tableLayoutPanel1.Controls.Add (plotView1, 0, tableLayoutPanel1.RowCount-1);
+            tableLayoutPanel1.Controls.Add(plotView1, 0, tableLayoutPanel1.RowCount - 1);
             tableLayoutPanel1.SetColumnSpan(plotView1, tableLayoutPanel1.ColumnCount);
+
+            nudYmax.Maximum = 2 * default_YMAX;
+            nudYmax.Value = default_YMAX;
+
             ResumeLayout(false);
 
         }
@@ -93,21 +99,27 @@ namespace FeedbackDataLib_GUI
             var plotModel = plotView1.Model;
             if (plotModel.Series[0] is BarSeries series)
             {
+                // Update existing items
                 for (int i = 0; i < series.Items.Count; i++)
                 {
-                    series.Items[i].Value = newData[i];
+                    series.Items[i].Value = newData[i] * 1000000;        //mV
                 }
             }
-            mtbxn.Text = (Rn / 1000).ToString("F2");
-            mtbxp.Text = (Rp / 1000).ToString("F2");
-            mtbUel.Text = (Uelectrode * 1000).ToString("F2");
-            plotView1.Refresh();
+            mtbxn.Text = (Rn / 1000).ToString("F0");
+            mtbxp.Text = (Rp / 1000).ToString("F0");
+            mtbUel.Text = (Uelectrode * 1e3).ToString("F0");
+
+            plotModel.InvalidatePlot(true);
+            if (cbAutoscale.Checked)
+                nudYmax.Value = (int) GetYMAX();
+
+            //plotView1.Refresh();
         }
 
         public void UpdateXAxisCategories(string[] newCategories)
         {
             var plotModel = plotView1.Model;
-            
+
             var categoryAxis = plotModel.Axes[0] as CategoryAxis ?? throw new InvalidOperationException("The specified axis is not a CategoryAxis."); // Assuming the first axis is the CategoryAxis
 
             // Clear the existing categories
@@ -127,6 +139,47 @@ namespace FeedbackDataLib_GUI
                     series.Items.Add(new BarItem { Value = 0 });
                 }
             }
+        }
+
+        private void SetYMAX(double max)
+        {
+            var plotModel = plotView1.Model;
+            var valueAxis = plotModel.Axes.FirstOrDefault(axis => axis.Key == "x1");
+            if (valueAxis != null)
+            {
+                valueAxis.Maximum = max; // Set to your desired maximum value
+            }
+        }
+
+        private int GetYMAX()
+        {
+            var plotModel = plotView1.Model;
+            var valueAxis = plotModel.Axes.FirstOrDefault(axis => axis.Key == "x1");
+            if (valueAxis != null)
+            {
+                return (int)valueAxis.ActualMaximum;
+            }
+            return 0;
+        }
+
+        private void nudYmax_ValueChanged(object sender, EventArgs e)
+        {
+            if (!cbAutoscale.Checked)
+            {
+                SetYMAX((int)nudYmax.Value);
+                return;
+            }
+            SetYMAX(double.NaN);
+        }
+
+        private void cbAutoscale_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!cbAutoscale.Checked)
+            {
+                nudYmax.Value = (int) GetYMAX();
+                return;
+            }
+            SetYMAX(double.NaN);
         }
     }
 }

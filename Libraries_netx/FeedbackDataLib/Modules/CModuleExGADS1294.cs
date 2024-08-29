@@ -61,9 +61,9 @@ namespace FeedbackDataLib.Modules
         public string name = "base";
 
         protected const double Iconst = 24e-9;
-        protected const double SKALVAL_K = 2 * 2.40386E-07;
-        protected const double SKALVAL_K_div_Iconst = SKALVAL_K / Iconst;
-        protected const double Rprotect = 68000;
+        //protected const double SKALVAL_K = 2 * 2.40386E-07;
+        //protected const double SKALVAL_K_div_Iconst = SKALVAL_K / Iconst;
+        protected const double Rprotect = 75000;
 
         public CModuleExGADS1294()
         {

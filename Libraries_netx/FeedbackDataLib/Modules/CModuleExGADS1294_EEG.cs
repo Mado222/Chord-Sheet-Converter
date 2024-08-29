@@ -106,7 +106,7 @@ namespace FeedbackDataLib.Modules
             }
             for (int i = 0; i < num_raw_Channels; i++)
             {
-                string[] longnames = new CEEGCalcChannels().get_longNamesArray();
+                string[] longnames = new CEEGCalcChannels().Get_longNamesArray();
                 for (int j = 0; j < longnames.Length; j++)
                 {
                     //Add ChanNo to LongNames: 0_Delta [Veff]
@@ -116,8 +116,8 @@ namespace FeedbackDataLib.Modules
             }
         }
 
-
-
+        /// <summary>Updates CSWConfigValues</summary>
+        /// <param name="sWChannels">SWChannels to update from</param>
         public override void Update_SWChannels(List<CSWChannel> sWChannels)
         {
             base.Update_SWChannels(sWChannels);
@@ -132,6 +132,7 @@ namespace FeedbackDataLib.Modules
                         if (SWChannels[i].SendChannel && Char.GetNumericValue(SWChannels[i].SWChannelName[0]) == rawch)
                         {
                             FFT_Channels_List[rawch].Add(new CActiveFFTChannel(i, SWChannels[i].EEG_related_swcn));
+                            SWChannels[rawch].SendChannel = true;   //Sicherheitshalber den zugehörigen raw channel auch setzen
                         }
                     }
                 }
@@ -169,7 +170,7 @@ namespace FeedbackDataLib.Modules
                 sws.SWChannelColor = Color.LightGray;
                 sws.SampleInt = Default_EEGBands_Int_ms;
                 sws.ModuleType = ModuleType;
-                sws.EEG_related_swcn = new CEEGCalcChannels().get_idx_from_SWChannelName(cSWChannelNames[i][2..]);
+                sws.EEG_related_swcn = new CEEGCalcChannels().Get_idx_from_SWChannelName(cSWChannelNames[i][2..]);
                 SWChannels.Add(sws);
                 i++;
             }
@@ -231,15 +232,18 @@ namespace FeedbackDataLib.Modules
                 if (extraDatas[originalData.SW_cn][originalData.TypeExtraDat].TypeExtradat == EnTypeExtradat_ADS.exgain)
                 {
                     //All data of one Measure-sequence are in - calc values
-                    var Uax2 = extraDatas[originalData.HW_cn];
+                    var Uax2 = extraDatas[originalData.SW_cn];
                     double gain = Uax2[(int)EnTypeExtradat_ADS.exgain].Value;
-                    double Ua2 = Uax2[(int)EnTypeExtradat_ADS.exUa2].Value * SKALVAL_K * 1e3 / gain;
-                    double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K * 1e3 / gain;
-                    double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K * 1e3 / gain;
 
-                    Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst / 1e3;// - Rprotect);
-                    Rn[originalData.SW_cn] = (Ua1 - Ua0) / Iconst / 1e3;// - Rprotect);
-                    Uelectrode[originalData.SW_cn] = Ua0 / 1e3;
+                    double SKALVAL_K = SWChannels[originalData.SW_cn].SkalValue_k;
+
+                    double Ua2 = Uax2[(int)EnTypeExtradat_ADS.exUa2].Value * SKALVAL_K  / gain;
+                    double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K  / gain;
+                    double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K  / gain;
+
+                    Rp[originalData.SW_cn] = (Ua2 - Ua0) / Iconst  *2 - Rprotect; //Keine Ahnung warum / 2
+                    Rn[originalData.SW_cn] = (Ua1 - Ua0) / Iconst  / 4 *2 - Rprotect;
+                    Uelectrode[originalData.SW_cn] = Ua0 ;
                 }
             }
 
@@ -287,7 +291,7 @@ namespace FeedbackDataLib.Modules
             {
                 for (int i=0; i< num_raw_Channels; i++)
                 {
-                    SWChannels_Module[i].configVals= SWChannels[i].configVals; //Raw signals channels are in the beginning
+                    SWChannels_Module[i].SWChannelConfig= SWChannels[i].SWChannelConfig; //Raw signals channels are in the beginning
                 }
                 //Module werden frisch gesetzt - EEG Prozessor aktualisieren
             }

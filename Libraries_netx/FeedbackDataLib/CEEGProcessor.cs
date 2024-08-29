@@ -123,36 +123,16 @@ namespace FeedbackDataLib
 
         public void AddEEGSample(double scaled_val)
         {
-            List<CDataIn> res;
             RP.Push(scaled_val);    //Add to RingBuffer
-
-            if (true)
+                                    //At least one EEG Channel active, Sample time of chan0 reached, enough values in buffer
+            if (SpectrumChannelsactive && (DateTime.Now >= SWCha_NextSampleTime) && RP.StoredObjects >= num_samples_to_calc)
             {
-                //Prepare results
-                res = [];
-                //At least one EEG Channel active, Sample time of chan0 reached, enough values in buffer
-                if (SpectrumChannelsactive && (DateTime.Now >= SWCha_NextSampleTime) && RP.StoredObjects >= num_samples_to_calc)
-                {
-                    //CDataIn cd;
-                    double[] buf = [];
-                    RP.PopAll(ref buf);
+                double[] buf = [];
+                RP.PopAll(ref buf);
 
-                    //==> es müssen genug Daten im Puffer sein!!
-                    _CEEG_Spectrum.Process_Spectrum(buf, SampleInt_ms);
-
-                    //foreach (CSWChannel swcn in SWChannels)
-                    //{
-                    //    if (swcn.SendChannel && !swcn.SWChannelName.Contains("raw"))
-                    //    {
-                    //        cd = (CDataIn)val.Clone();
-                    //        double d = _CEEG_Spectrum.EEG_Bands[EEGSWChannels.get_idx_from_SWChannelName(swcn.SWChannelName)].value;
-                    //        cd.Value = SWChannels[0].GetUnscaledValue(d);
-                    //        cd.SW_cn = swcn.SWChannelNumber;
-                    //        res.Add(cd);
-                    //    }
-                    //}
-                    SWCha_NextSampleTime = DateTime.Now + SpectrumChannelSampleTime;
-                }
+                //==> es müssen genug Daten im Puffer sein!!
+                _CEEG_Spectrum.Process_Spectrum(buf, SampleInt_ms);
+                SWCha_NextSampleTime = DateTime.Now + SpectrumChannelSampleTime;
             }
         }
 

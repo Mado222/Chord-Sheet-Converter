@@ -1,15 +1,11 @@
-﻿using System;
+﻿using FeedbackDataLib.Modules;
 using WindControlLib;
-using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib
 {
     /// <summary>
-    /// To wrap CSWConfigChannel and CSWChannelInfo in one class
+    /// To wrap CSWConfigValues and CSWChannelInfo in one class
     /// </summary>
-    /// <remarks>
-    /// Better for indexing CModuleInfo
-    /// </remarks>
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CSWChannel : ICloneable
     {
@@ -36,7 +32,7 @@ namespace FeedbackDataLib
 
         public int EEG_related_swcn { get; set; }
 
-        public CSWConfigValues configVals = new();
+        public CSWConfigValues SWChannelConfig = new();
 
         /// <summary>
         /// Type of SW channel
@@ -50,18 +46,9 @@ namespace FeedbackDataLib
             {
                 return (ushort)(((ushort)ModuleType << 8) + SWChannelNumber);
             }
-            //set 
         }
 
-        //[System.Xml.Serialization.XmlIgnore] //-> Sont git es beim serialisieren einen zirkulären Fehler
-        //public CModuleInfo ModuleInfo = null;
-
-#if VASOCHECKERACTIVE
-        //public CModuleInfo ModuleInfo = null;
-        public double VasoIR_Current_scalingfactor = 0;
-#endif
-
-        private ushort _SWChannelTypeFromDevice
+        private ushort SWChannelTypeFromDevice
         {
             get;
             set;
@@ -120,8 +107,8 @@ namespace FeedbackDataLib
         /// </summary>
         private void CheckSWConfig()
         {
-            SWChan_ts_SampleInt = new TimeSpan(0, 0, 0, 0, configVals.SampleInt);
-            if (configVals.SendChannel == false)
+            SWChan_ts_SampleInt = new TimeSpan(0, 0, 0, 0, SWChannelConfig.SampleInt);
+            if (SWChannelConfig.SendChannel == false)
             {
                 //Channel Start Time zurücksetzen
                 Resync();
@@ -141,10 +128,10 @@ namespace FeedbackDataLib
         #region Access_Helper_Properties
         public ushort SampleInt
         {
-            get { return configVals.SampleInt; }
+            get { return SWChannelConfig.SampleInt; }
             set
             {
-                configVals.SampleInt = value;
+                SWChannelConfig.SampleInt = value;
                 CheckSWConfig();
             }
         }
@@ -155,10 +142,10 @@ namespace FeedbackDataLib
         /// </summary>
         public bool SendChannel
         {
-            get => configVals.SendChannel;
+            get => SWChannelConfig.SendChannel;
             set
             {
-                configVals.SendChannel = value;
+                SWChannelConfig.SendChannel = value;
                 CheckSWConfig();
             }
         }
@@ -168,8 +155,8 @@ namespace FeedbackDataLib
         /// </summary>
         public bool SaveChannel
         {
-            get => configVals.SaveChannel;
-            set => configVals.SaveChannel = value;
+            get => SWChannelConfig.SaveChannel;
+            set => SWChannelConfig.SaveChannel = value;
         }
 
         /// <summary>
@@ -351,8 +338,8 @@ namespace FeedbackDataLib
         {
             int ptr = Pointer_To_Array_Start; //Array Pointer
 
-            _SWChannelTypeFromDevice = BitConverter.ToUInt16(InBuf, ptr);
-            ptr += System.Runtime.InteropServices.Marshal.SizeOf(_SWChannelTypeFromDevice);
+            SWChannelTypeFromDevice = BitConverter.ToUInt16(InBuf, ptr);
+            ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWChannelTypeFromDevice);
             SWChannelInfo = new CSWChannelInfo();
             ptr = SWChannelInfo.UpdateFrom_ByteArray(InBuf, ptr);
             ptr = Update_configVals_From_ByteArray(InBuf, ptr);
@@ -435,8 +422,8 @@ namespace FeedbackDataLib
         public int Update_configVals_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
             int ptr = Pointer_To_Array_Start; //Array Pointer
-            configVals.SampleInt = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(configVals.SampleInt);
-            configVals.ConfigByte = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(configVals.ConfigByte);
+            SWChannelConfig.SampleInt = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWChannelConfig.SampleInt);
+            SWChannelConfig.ConfigByte = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWChannelConfig.ConfigByte);
             return ptr;
         }
 
@@ -453,9 +440,9 @@ namespace FeedbackDataLib
                     buf.Add(buffer[i]);
             }
 
-            byte[] b = BitConverter.GetBytes(configVals.SampleInt);
+            byte[] b = BitConverter.GetBytes(SWChannelConfig.SampleInt);
             buf.AddRange(b);
-            b = BitConverter.GetBytes(configVals.ConfigByte);
+            b = BitConverter.GetBytes(SWChannelConfig.ConfigByte);
             buf.AddRange(b);
             buffer = [.. buf];
         }
@@ -473,7 +460,7 @@ namespace FeedbackDataLib
         {
             CSWChannel c = (CSWChannel)MemberwiseClone();
             c.SWChannelInfo = (CSWChannelInfo)SWChannelInfo.Clone();
-            c.configVals = (CSWConfigValues)configVals.Clone();
+            c.SWChannelConfig = (CSWConfigValues)SWChannelConfig.Clone();
             return c;
         }
 
