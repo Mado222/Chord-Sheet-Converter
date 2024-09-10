@@ -1,4 +1,6 @@
-﻿namespace FeedbackDataLib_GUI
+﻿using FeedbackDataLib.Modules;
+
+namespace FeedbackDataLib_GUI
 {
     public partial class frmSpectrum : Form
     {
@@ -43,13 +45,13 @@
             ResumeLayout(false);
         }
 
-        public void UpdateChartValues(int chartIndex, double[] newData, double Rp, double Rn, double Uelectrode)
+        public void UpdateChartValues(int chartIndex, double[] newData, CEEGElectrodeData electrodeData)
         {
             if (chartIndex < 0 || chartIndex >= spectrumViews.Length)
             {
                 throw new ArgumentException("Invalid chart index");
             }
-            spectrumViews[chartIndex].UpdateChartValues(newData, Rp, Rn, Uelectrode);
+            spectrumViews[chartIndex].UpdateChartValues(newData, electrodeData);
         }
 
         public void UpdateXAxisCategories(int chartIndex, string[] newCategories)

@@ -47,21 +47,21 @@ namespace Neuromaster_V5
         /// </summary>
         private int BU_idx_SelectedModule = -1;
 
-        private CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new CNeuromaster_Textfile_Importer_Exporter();
+        private readonly CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new CNeuromaster_Textfile_Importer_Exporter();
 
         private CFFT_MathNet FFT_MathNet = new();
 
         private bool ConfigSetOK = false;
 
-        List<ucSignalAnalyser> ucSignalAnalysers = [];
+        private readonly List<ucSignalAnalyser> ucSignalAnalysers = [];
 
-        System.Windows.Forms.Timer tmrUpdateFFT;
-        frmSpectrum? FrmSpectrum = null;
+        private readonly System.Windows.Forms.Timer tmrUpdateFFT;
+        private frmSpectrum? FrmSpectrum = null;
 
         public NeuromasterV5()
         {
             InitializeComponent();
-            this.SuspendLayout();
+            SuspendLayout();
 
 
             Init_Graphs();
@@ -1694,7 +1694,7 @@ namespace Neuromaster_V5
                                         FrmSpectrum.Show();
                                     }
 
-                                    FrmSpectrum.UpdateChartValues(i, ret, module.Rp[i], module.Rn[i], module.Uelectrode[i]);
+                                    FrmSpectrum.UpdateChartValues(i, ret, module.ElectrodeDatas[i]);
                                 }
                             }
                         }

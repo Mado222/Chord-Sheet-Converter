@@ -1,9 +1,8 @@
-﻿using LiveChartsCore.Drawing;
-using LiveChartsCore.SkiaSharpView;
-using OxyPlot;
+﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
+using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
 {
@@ -94,7 +93,7 @@ namespace FeedbackDataLib_GUI
 
         }
 
-        public void UpdateChartValues(double[] newData, double Rp, double Rn, double Uelectrode)
+        public void UpdateChartValues(double[] newData, CEEGElectrodeData electrodeData)
         {
             var plotModel = plotView1.Model;
             if (plotModel.Series[0] is BarSeries series)
@@ -105,13 +104,15 @@ namespace FeedbackDataLib_GUI
                     series.Items[i].Value = newData[i] * 1000000;        //mV
                 }
             }
-            mtbxn.Text = (Rn / 1000).ToString("F0");
-            mtbxp.Text = (Rp / 1000).ToString("F0");
-            mtbUel.Text = (Uelectrode * 1e3).ToString("F0");
+            mtbxn.Text = (electrodeData.Rn / 1000).ToString("F0");
+            mtbxp.Text = (electrodeData.Rp / 1000).ToString("F0");
+            mtbUel.Text = (electrodeData.Uelectrode * 1e6).ToString("F0");
+            tbUa1.Text = (electrodeData.Ua1 * 1e6).ToString("F1");
+            tbUa2.Text = (electrodeData.Ua2 * 1e6).ToString("F1");
 
             plotModel.InvalidatePlot(true);
             if (cbAutoscale.Checked)
-                nudYmax.Value = (int) GetYMAX();
+                nudYmax.Value = (int)GetYMAX();
 
             //plotView1.Refresh();
         }
@@ -176,7 +177,7 @@ namespace FeedbackDataLib_GUI
         {
             if (!cbAutoscale.Checked)
             {
-                nudYmax.Value = (int) GetYMAX();
+                nudYmax.Value = (int)GetYMAX();
                 return;
             }
             SetYMAX(double.NaN);

@@ -29,9 +29,8 @@ namespace FeedbackDataLib.Modules
         }
 
         public ExtraData<EnTypeExtradat_ADS>[][] extraDatas;
-        public double[] Rp;
-        public double[] Rn;
-        public double[] Uelectrode;
+        public CEEGElectrodeData[] ElectrodeDatas;
+        
 
 
         //////////////////
@@ -93,12 +92,11 @@ namespace FeedbackDataLib.Modules
 
             extraDatas = new ExtraData<EnTypeExtradat_ADS>[num_raw_Channels][];
             int innerSize = Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length;
-            Rp = new double[num_raw_Channels];
-            Rn = new double[num_raw_Channels];
-            Uelectrode = new double[num_raw_Channels];
+            ElectrodeDatas = new CEEGElectrodeData[num_raw_Channels];
 
             for (int i = 0; i < num_raw_Channels; i++)
             {
+                ElectrodeDatas[i] = new CEEGElectrodeData();
                 extraDatas[i] = new ExtraData<EnTypeExtradat_ADS>[innerSize];
                 // Optionally initialize inner arrays' elements
                 for (int j = 0; j < innerSize; j++)
