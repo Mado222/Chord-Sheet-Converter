@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>BMTCommunication</AssemblyName>
-    <BaseOutputPath>d:\Daten\Visual Studio 23\net8\dlls_netx</BaseOutputPath>
+    <BaseOutputPath>d:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx</BaseOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

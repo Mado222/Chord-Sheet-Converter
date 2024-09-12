@@ -341,6 +341,8 @@ namespace WindControlLib
             ni.NumberDecimalSeparator = DecimalSeperator;
             return ni;
         }
+
+        
     }
 
     /// <summary>

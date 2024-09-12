@@ -1,13 +1,13 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Runtime.Versioning;
 
 namespace ComponentsLib_GUI
 {
-    public class CToggleButton : System.Windows.Forms.Button
+    [SupportedOSPlatform("windows")]
+    public class CToggleButton : Button
     {
         // Fields
-        private string _TextState1;
-        private string _TextState2;
+        private string _TextState1 = string.Empty;
+        private string _TextState2 = string.Empty;
         private Color _ColorState1;
         private Color _ColorState2;
         private bool _AcceptChange;
@@ -16,24 +16,24 @@ namespace ComponentsLib_GUI
         public CToggleButton()
         {
             // Set Default toggled Text
-            this._TextState1 = "State1";
-            this._TextState2 = "State2";
+            _TextState1 = "State1";
+            _TextState2 = "State2";
 
             // Set Default toggled Color
-            this._ColorState1 = Color.Gray;
-            this._ColorState2 = this.BackColor;
+            _ColorState1 = Color.Gray;
+            _ColorState2 = BackColor;
 
             _AcceptChange = true;
         }
 
         public string TextState1
         {
-            get { return this._TextState1; }
+            get { return _TextState1; }
             set
             {
-                this._TextState1 = value;
+                _TextState1 = value;
                 {
-                    this.Text = _TextState1;
+                    Text = _TextState1;
                 }
             }
         }
@@ -46,8 +46,8 @@ namespace ComponentsLib_GUI
         /// </value>
         public string TextState2
         {
-            get { return this._TextState2; }
-            set { this._TextState2 = value; }
+            get { return _TextState2; }
+            set { _TextState2 = value; }
         }
 
         /// <summary>
@@ -58,12 +58,12 @@ namespace ComponentsLib_GUI
         /// </value>
         public Color ColorState1
         {
-            get { return this._ColorState1; }
+            get { return _ColorState1; }
             set
             {
-                this._ColorState1 = value;
+                _ColorState1 = value;
                 {
-                    this.BackColor = _ColorState1;
+                    BackColor = _ColorState1;
                 }
             }
         }
@@ -76,8 +76,8 @@ namespace ComponentsLib_GUI
         /// </value>
         public Color ColorState2
         {
-            get { return this._ColorState2; }
-            set { this._ColorState2 = value; }
+            get { return _ColorState2; }
+            set { _ColorState2 = value; }
         }
 
         /// <summary>
@@ -88,17 +88,17 @@ namespace ComponentsLib_GUI
         /// </value>
         public bool AcceptChange
         {
-            get { return this._AcceptChange; }
-            set { this._AcceptChange = value; }
+            get { return _AcceptChange; }
+            set { _AcceptChange = value; }
         }
 
-        public event EventHandler ToState2;
+        public event EventHandler? ToState2;
         protected virtual void OnToState2(EventArgs e)
         {
             ToState2?.Invoke(this, e);
         }
 
-        public event EventHandler ToState1;
+        public event EventHandler? ToState1;
         protected virtual void OnToState1(EventArgs e)
         {
             ToState1?.Invoke(this, e);
@@ -110,14 +110,14 @@ namespace ComponentsLib_GUI
 
             // Set Text and Color according to the current state
             _AcceptChange = true;
-            if (this.Text == this._TextState2)
+            if (Text == _TextState2)
             {
                 //State 2 -> State 1
                 OnToState1(new EventArgs());
                 if (_AcceptChange)
                 {
-                    this.Text = this._TextState1;
-                    this.BackColor = this._ColorState1;
+                    Text = _TextState1;
+                    BackColor = _ColorState1;
                 }
             }
             else
@@ -126,8 +126,8 @@ namespace ComponentsLib_GUI
                 OnToState2(new EventArgs());
                 if (_AcceptChange)
                 {
-                    this.Text = this._TextState2;
-                    this.BackColor = this._ColorState2;
+                    Text = _TextState2;
+                    BackColor = _ColorState2;
                 }
             }
         }
@@ -139,8 +139,8 @@ namespace ComponentsLib_GUI
         public void GoToState1(bool TriggerEvent)
         {
             //this.Text = this._TextState1;
-            this.Invoke(new Action(() => this.Text = this._TextState1));
-            this.Invoke(new Action(() => this.BackColor = this._ColorState1));
+            Invoke(new Action(() => Text = _TextState1));
+            Invoke(new Action(() => BackColor = _ColorState1));
 
             //this.BackColor = this._ColorState1;
             if (TriggerEvent) OnToState1(new EventArgs());
@@ -154,8 +154,8 @@ namespace ComponentsLib_GUI
         {
             //this.Text = this._TextState2;
             //this.BackColor = this._ColorState2;
-            this.Invoke(new Action(() => this.Text = this._TextState2));
-            this.Invoke(new Action(() => this.BackColor = this._ColorState2));
+            Invoke(new Action(() => Text = _TextState2));
+            Invoke(new Action(() => BackColor = _ColorState2));
 
             if (TriggerEvent) OnToState2(new EventArgs());
         }

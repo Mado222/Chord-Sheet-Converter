@@ -1,8 +1,11 @@
-﻿using System.Text;
+﻿using System.Runtime.Versioning;
+using System.Text;
 using BMTCommunication;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ComponentsLib_GUI
 {
+    [SupportedOSPlatform("windows")]
     /// <summary>
     /// Klasse für Funktionsgenerator
     /// </summary>
@@ -14,8 +17,8 @@ namespace ComponentsLib_GUI
         public const int Resolution_bit = 14;
         public const int NumValues_Arbitrary  = 8192;
 
-        private CSerialPortWrapper _Seriell32;
-        private readonly byte[] default_return_value = { 0xa };
+        private CSerialPortWrapper? _Seriell32;
+        private readonly byte[] default_return_value = [0xa];
 
         private List<byte> LastReturnValue = new List<byte>();
         private bool _isOpen = false;
@@ -34,14 +37,11 @@ namespace ComponentsLib_GUI
         {
             if (!_isOpen)
             {
-                UCComPortSelector ucs = new UCComPortSelector();
+                UCComPortSelector? ucs = new ();
                 ucs.Init(DriverName);
-                if (ucs.Items.Count == 1)
+                if (ucs.SelectedItem is not null && ucs.Items.Count == 1)
                 {
-                    if (_Seriell32 == null)
-                    {
-                        _Seriell32 = new CSerialPortWrapper();
-                    }
+                    _Seriell32 ??= new CSerialPortWrapper();
                     _Seriell32.PortName = (string)ucs.SelectedItem;
                     _Seriell32.BaudRate = 115200;
                     _Seriell32.Open();
@@ -85,13 +85,13 @@ namespace ComponentsLib_GUI
         public bool SetFrequency(double f, bool check_return_value)
         {
             int ff = (int)(f * 1e6); //[µHz]
-            string val = "WMF" + ff.ToString();
+            string val = "WMF" + ff.ToString("00000000000000");//.Replace(",", "").Replace(".", "");
             return Send_Command(val, default_return_value, check_return_value);
         }
 
         public bool SetVss(double Vss, bool check_return_value)
         {
-            string val = "WMA" + String.Format("{0:0.00}", Vss);
+            string val = "WMA" + string.Format("{0:0.00}", Vss);
             val = val.Replace(",", ".");
             return Send_Command(val, default_return_value, check_return_value);
         }
@@ -189,13 +189,13 @@ namespace ComponentsLib_GUI
         public int GetWaveform()
         {
             //0 = Sinus
-            _Seriell32.DiscardInBuffer();
+            _Seriell32?.DiscardInBuffer();
             if (Send_Command("RMW", default_return_value, false))
             {
-                byte[] return_value = GetResponse();
+                byte[]? return_value = GetResponse();
                 if (return_value != null)
                 {
-                    string res = ASCIIEncoding.ASCII.GetString(return_value);
+                    string res = Encoding.ASCII.GetString(return_value);
                     return Convert.ToInt32(res);
                 }
             }
@@ -206,13 +206,13 @@ namespace ComponentsLib_GUI
         {
             //00000120.000000 -> 120Hz
 
-            _Seriell32.DiscardInBuffer();
+            _Seriell32?.DiscardInBuffer();
             if (Send_Command("RMF", default_return_value, false))
             {
-                byte[] return_value = GetResponse();
+                byte[]? return_value = GetResponse();
                 if (return_value != null)
                 {
-                    string res = ASCIIEncoding.ASCII.GetString(return_value);
+                    string res = Encoding.ASCII.GetString(return_value);
                     res = res.Replace(".", ",");
                     return Convert.ToDouble(res);
                 }
@@ -224,13 +224,13 @@ namespace ComponentsLib_GUI
         {
             //60000 -> 6V
 
-            _Seriell32.DiscardInBuffer();
+            _Seriell32?.DiscardInBuffer();
             if (Send_Command("RMA", default_return_value, false))
             {
-                byte[] return_value = GetResponse();
+                byte[]? return_value = GetResponse();
                 if (return_value != null)
                 {
-                    string res = ASCIIEncoding.ASCII.GetString(return_value);
+                    string res = Encoding.ASCII.GetString(return_value);
                     res = res.Replace(".", ",");
                     return Convert.ToDouble(res) / 10000;
                 }
@@ -239,14 +239,14 @@ namespace ComponentsLib_GUI
         }
 
 
-        private byte[] GetResponse()
+        private byte[]? GetResponse()
         {
-            List<byte> ret = new List<byte>();
+            List<byte> ret = [];
             DateTime dt = DateTime.Now + new TimeSpan(0, 0, 0, 0, 20);
 
             while (DateTime.Now < dt)
             {
-                if (_Seriell32.BytesToRead > 0)
+                if (_Seriell32 is not null && _Seriell32.BytesToRead > 0)
                 {
                     byte[] btret = new byte[_Seriell32.BytesToRead];
                     _Seriell32.Read(ref btret, 0, _Seriell32.BytesToRead);
@@ -276,19 +276,19 @@ namespace ComponentsLib_GUI
         /// <param name="s">  String Command to send</param>
         /// <param name="return_value">Return value from FY6900 - will be checked</param>
         /// <returns></returns>
-        private bool Send_Command(string s, byte[] return_value = null)
+        private bool Send_Command(string s, byte[]? return_value = null)
         {
-            List<byte> outbuf = new List<byte>(ASCIIEncoding.ASCII.GetBytes(s)) {0x0a};
+            List<byte> outbuf = new(Encoding.ASCII.GetBytes(s)) {0x0a};
             return Send_Command(outbuf.ToArray(), return_value);
         }
-        private bool Send_Command(byte[] outbuf, byte[] return_value = null)
+        private bool Send_Command(byte[] outbuf, byte[]? return_value = null)
     {
             bool bret = true;
-            if (_Seriell32.IsOpen)
+            if (_Seriell32 is not null && _Seriell32.IsOpen)
             {
                 _Seriell32.DiscardInBuffer();
                 _Seriell32.DiscardOutBuffer();
-                _Seriell32.Write(outbuf.ToArray(), 0, outbuf.Length);
+                _Seriell32.Write([.. outbuf], 0, outbuf.Length);
 
                 if (return_value != null)
                 {

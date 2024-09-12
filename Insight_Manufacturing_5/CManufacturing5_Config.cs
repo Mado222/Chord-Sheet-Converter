@@ -17,7 +17,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             List<enumModuleType> lenVals = new List<enumModuleType>(enVals);
             lenVals.Remove(enumModuleType.cNotDefined);
             //lenVals.Remove(enumModuleType.cModuleAtemIRDig);
-            lenVals.Remove(enumModuleType.cModuleExGADS);
+            lenVals.Remove(enumModuleType.cModuleExGADS94);
             lenVals.Remove(enumModuleType.cModuleMultiSCL);
             lenVals.Remove(enumModuleType.cModuleTypeEmpty);
             lenVals.Remove(enumModuleType.cModuleVaso);

@@ -151,7 +151,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                         {
                             if (DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].ModuleType == ConnectedModuleType)
                             {
-                                string ser = DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].uuid;
+                                string ser = DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].UUID;
                                 ser = ser.Replace("\0", string.Empty);
                                 ser = ser.Replace(" ", string.Empty);
                                 ser = ser.Replace("ty", string.Empty);
@@ -231,7 +231,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                                 }
                                 else
                                 {
-                                    OnReportMeasurementProgress("Seriennummer stimmt nicht überein. Modul: " + DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].uuid, Color.Red);
+                                    OnReportMeasurementProgress("Seriennummer stimmt nicht überein. Modul: " + DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].UUID, Color.Red);
                                     isOK = false;
                                 }
                             }

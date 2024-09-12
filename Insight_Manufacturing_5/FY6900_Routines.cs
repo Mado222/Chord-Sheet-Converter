@@ -7,6 +7,7 @@ namespace Insight_Manufacturing5_net8
         private void cToggleButton_COM_ToState2(object sender, EventArgs e)
         {
             //OpenCOM
+            Seriell32.PortName = ucComPortSelector1.Text;
             Seriell32.Open();
 
             if (!Seriell32.IsOpen)
@@ -17,8 +18,7 @@ namespace Insight_Manufacturing5_net8
 
         private void cToggleButton_COM_ToState1(object sender, EventArgs e)
         {
-            if (Seriell32 != null)
-                Seriell32.Close();
+            Seriell32?.Close();
         }
 
         private void btSetSinus_Click(object sender, EventArgs e)
@@ -129,7 +129,7 @@ namespace Insight_Manufacturing5_net8
 
         public CInsightModuleTester_Settings Settings_To_Testboard ()
         {
-            CInsightModuleTester_Settings ret = new CInsightModuleTester_Settings();
+            CInsightModuleTester_Settings ret = new ();
             if (cbPhi_ICDOn.Checked)
             {
                 //ICD on
@@ -184,19 +184,19 @@ namespace Insight_Manufacturing5_net8
                 ret.UoffLevel = CInsightModuleTester_Settings.enUoffLevel.UoffLevel_High;
             }
 
-            InsightModuleTestBoardV1.Init(ret);
+            _ = InsightModuleTestBoardV1.Init(ret);
 
             return ret;
         }
 
-        delegate void Update_from_TestboardDelegate(CInsightModuleTester_Settings settings);
+        private delegate void Update_from_TestboardDelegate(CInsightModuleTester_Settings settings);
         public void Update_from_Testboard(CInsightModuleTester_Settings settings)
         {
             if (cbPhi_ICDOn.InvokeRequired)
             {
                 Invoke(
                     new Update_from_TestboardDelegate(Update_from_Testboard),
-                    new object[] { settings });
+                    [settings]);
             }
             else
             {

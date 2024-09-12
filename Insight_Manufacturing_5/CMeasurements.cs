@@ -7,12 +7,11 @@ namespace Insight_Manufacturing5_net8
 {
     public class CMeasurements
     {
-        public List<CMeasurementItem> Measurements_Items;
+        public List<CMeasurementItem> Measurements_Items = [];
 
         public CMeasurements()
         {
             //Hier stehen alle verfügbaren Module zum flashen, messen usw.
-            Measurements_Items = new List<CMeasurementItem>();
         }
 
         public bool is_Save_to_DB_overwritten(System.Type class_to_check)
@@ -28,13 +27,13 @@ namespace Insight_Manufacturing5_net8
 
     public class CMeasurementItem
     {
-        public CBase_tests_measurements Measurement_Object { get; set; } = null;
+        public CBase_tests_measurements? Measurement_Object { get; set; } = null;
         public CBase_tests_measurements.enModuleTestResult ModuleTestResult => Measurement_Object.ModuleTestResult;
         public bool Measurement_Active { get; set; } = false;
         public bool Measurement_SavetoDB { get; set; } = true;
         public int Measurement_idx { get; set; }
         public bool Measurement_done { get; set; } = false;
-        public string Measurement_Duration { get; set; }
+        public string Measurement_Duration { get; set; } = string.Empty;
         //public string Measurement_Name { get; set; }
 
         
@@ -44,10 +43,12 @@ namespace Insight_Manufacturing5_net8
             get
             {
                 string ret = _Measurement_Name;
-                if (!ret.Contains("hex"))
+                if (!ret.Contains("hex") && Measurement_Object is not null)
                 {
                     if (Measurement_Object.Job_Message != "")
+                    {
                         ret += ": " + Measurement_Object.Job_Message;
+                    }
                 }
                 return ret;
             }
@@ -71,9 +72,9 @@ namespace Insight_Manufacturing5_net8
             string Measurement_Name,
             bool Measurement_Active,
             bool Measurement_SavetoDB,
-            CBase_tests_measurements Measurement_Object = null)
+            CBase_tests_measurements? Measurement_Object = null)
         {
-            if (Measurement_Object.Default_Active == null)
+            if (Measurement_Object is not null && Measurement_Object.Default_Active == null)
                 this.Measurement_Active = Measurement_Active;
             else
                 this.Measurement_Active = (bool) Measurement_Object.Default_Active;

@@ -7,10 +7,12 @@ using Insight_Manufacturing5_net8.tests_measurements;
 using Insight_Manufacturing5_net8.dataSources;
 using System.Media;
 using WindControlLib;
+using System.Runtime.Versioning;
 
 
 namespace Insight_Manufacturing5_net8
 {
+    [SupportedOSPlatform("windows")]
     public partial class frmInsight_Manufacturing5 : Form
     {
         //Basic Paths
@@ -363,10 +365,10 @@ namespace Insight_Manufacturing5_net8
 
                             if ((readNM.DataReceiver.Connection.Device.ModuleInfos != null) && !readNM.DataReceiver.Connection.Device.ModuleInfos[0].ModuleBootloaderError)
                             {
-                                txtStatus.AddStatusString("Serial: " + readNM.DataReceiver.Connection.Device.ModuleInfos[channo].uuid, Color.Blue);
+                                txtStatus.AddStatusString("Serial: " + readNM.DataReceiver.Connection.Device.ModuleInfos[channo].UUID, Color.Blue);
                                 txtStatus.AddStatusString("Firmware Version: " + readNM.DataReceiver.Connection.Device.ModuleInfos[channo].SWRevision_string, Color.Blue);
                                 txtStatus.AddStatusString("Module Type: " + readNM.DataReceiver.Connection.Device.ModuleInfos[channo].ModuleType_string, Color.Blue);
-                                txtSerialNo.Text = readNM.DataReceiver.Connection.Device.ModuleInfos[channo].uuid;
+                                txtSerialNo.Text = readNM.DataReceiver.Connection.Device.ModuleInfos[channo].UUID;
                                 dgv_SWChannelInfo.DataSource = readNM.DataReceiver.Connection.Device.ModuleInfos[channo].SWChannels;
                                 dgv_SWChannelInfo.Refresh();
                             }
@@ -680,11 +682,11 @@ namespace Insight_Manufacturing5_net8
             }
         }
 
-        private void btGetProgrammers_Click(object sender, EventArgs e)
+        private void btGetProgrammers_Click(object? sender, EventArgs? e)
         {
-            CIPE_Base cIPE_Base = new CIPE_Base();
+            CIPE_Base cIPE_Base = new();
             List<CMicrochip_Programmer> mp = cIPE_Base.Get_Available_Programmers();
-            if (mp != null)
+            if (mp is not null && cbProgrammer is not null)
             {
                 cbProgrammer.DataSource = mp;
                 programmer_info = (CMicrochip_Programmer)cbProgrammer.SelectedItem;
@@ -697,7 +699,7 @@ namespace Insight_Manufacturing5_net8
 
         private void btShowRS232_Click(object sender, EventArgs e)
         {
-            CFTDI_D2xx FTDI_D2xx = new CFTDI_D2xx();
+            CFTDI_D2xx FTDI_D2xx = new ();
             int numDevices = FTDI_D2xx.CheckForConnectedDevices();  //fast
 
             txtStatus.Clear();
@@ -714,7 +716,10 @@ namespace Insight_Manufacturing5_net8
 
         private void dgvMeasurements_DataError(object sender, DataGridViewDataErrorEventArgs e)
         {
-            txtStatus.AddStatusString("DataGrid Error: " + e.Exception.Message);
+            if (e is not null && e.Exception is not null)
+            { 
+                txtStatus.AddStatusString("DataGrid Error: " + e.Exception.Message);
+            }
         }
 
         bool bShow_Battery_Check = false;
@@ -732,7 +737,7 @@ namespace Insight_Manufacturing5_net8
             Application.DoEvents();
             if (tabMeasurements.SelectedTab == tabMeasurements.TabPages["tabProgNeuroModul"])
             {
-                if (InsightModuleTestBoardV1.PhidgetIsConnected)
+                if (InsightModuleTestBoardV1 is not null && InsightModuleTestBoardV1.PhidgetIsConnected)
                 {
                     CInsightModuleTester_Settings def = CInsightModuleTesterV1.Get_Default_Setting();
                     def.Uoff = CInsightModuleTester_Settings.enUoff.Uoff_On;
@@ -749,8 +754,6 @@ namespace Insight_Manufacturing5_net8
                         "Bitte Batterien / Offsetspannung überprüfen (295mV... 305mV)");
 
                     fit.ShowDialog();
-                    //frmCheckBattery frmCheckBattery = new frmCheckBattery();
-                    //frmCheckBattery.ShowDialog();
 
                     def.UoffLevel = CInsightModuleTester_Settings.enUoffLevel.UoffLevel_Low;
                     Update_from_Testboard(def);
@@ -795,7 +798,7 @@ namespace Insight_Manufacturing5_net8
 
         CRead_Neuromaster ucread;
         readonly List<CRead_Neuromaster> uccheck = new List<CRead_Neuromaster>();
-        CRead_Neuromaster ucagain = null;
+        CRead_Neuromaster? ucagain = null;
 
         frmAmplitudeGain frmAgain;
 

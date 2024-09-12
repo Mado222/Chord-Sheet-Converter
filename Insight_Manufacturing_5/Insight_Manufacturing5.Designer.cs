@@ -81,6 +81,7 @@ namespace Insight_Manufacturing5_net8
             Measurement_SavetoDB = new DataGridViewCheckBoxColumn();
             Measurement_done = new DataGridViewCheckBoxColumn();
             Measurement_Duration = new DataGridViewTextBoxColumn();
+            cMeasurementsBindingSource = new BindingSource(components);
             openFileDialog_txt = new OpenFileDialog();
             tabMonitor = new TabControl();
             tabPLog = new TabPage();
@@ -101,6 +102,7 @@ namespace Insight_Manufacturing5_net8
             ((System.ComponentModel.ISupportInitialize)numericUpDownAmplitude).BeginInit();
             groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvMeasurements).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)cMeasurementsBindingSource).BeginInit();
             tabMonitor.SuspendLayout();
             tabPLog.SuspendLayout();
             tabPModuleInfo.SuspendLayout();
@@ -299,7 +301,7 @@ namespace Insight_Manufacturing5_net8
             groupBox2.Margin = new Padding(4, 5, 4, 5);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(4, 5, 4, 5);
-            groupBox2.Size = new Size(153, 98);
+            groupBox2.Size = new Size(228, 98);
             groupBox2.TabIndex = 13;
             groupBox2.TabStop = false;
             groupBox2.Text = "Offset Voltage [mV]";
@@ -615,8 +617,10 @@ namespace Insight_Manufacturing5_net8
             // 
             dgvMeasurements.AllowUserToAddRows = false;
             dgvMeasurements.AllowUserToDeleteRows = false;
+            dgvMeasurements.AutoGenerateColumns = false;
             dgvMeasurements.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvMeasurements.Columns.AddRange(new DataGridViewColumn[] { Column1, Measurement_Active, Measurement_SavetoDB, Measurement_done, Measurement_Duration });
+            dgvMeasurements.DataSource = cMeasurementsBindingSource;
             dgvMeasurements.Location = new Point(27, 660);
             dgvMeasurements.Margin = new Padding(4, 5, 4, 5);
             dgvMeasurements.Name = "dgvMeasurements";
@@ -680,6 +684,10 @@ namespace Insight_Manufacturing5_net8
             Measurement_Duration.Name = "Measurement_Duration";
             Measurement_Duration.Resizable = DataGridViewTriState.False;
             Measurement_Duration.Width = 125;
+            // 
+            // cMeasurementsBindingSource
+            // 
+            cMeasurementsBindingSource.DataSource = typeof(CMeasurements);
             // 
             // openFileDialog_txt
             // 
@@ -790,7 +798,7 @@ namespace Insight_Manufacturing5_net8
             Margin = new Padding(4, 5, 4, 5);
             Name = "frmInsight_Manufacturing5";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Insight Manufacturing 5.8.6";
+            Text = "Insight Manufacturing 6.0.0";
             FormClosing += frmInsight_Manufacturing5_FormClosing;
             Load += Insight_Manufacturing5_Load;
             tabMeasurements.ResumeLayout(false);
@@ -808,6 +816,7 @@ namespace Insight_Manufacturing5_net8
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvMeasurements).EndInit();
+            ((System.ComponentModel.ISupportInitialize)cMeasurementsBindingSource).EndInit();
             tabMonitor.ResumeLayout(false);
             tabPLog.ResumeLayout(false);
             tabPModuleInfo.ResumeLayout(false);
@@ -872,5 +881,6 @@ namespace Insight_Manufacturing5_net8
         private System.Windows.Forms.Label lblFWVersion;
         private System.Windows.Forms.Button btCalValstoDB;
         private System.Windows.Forms.CheckBox cbIgnoreSerialNumberCheck;
+        private BindingSource cMeasurementsBindingSource;
     }
 }
