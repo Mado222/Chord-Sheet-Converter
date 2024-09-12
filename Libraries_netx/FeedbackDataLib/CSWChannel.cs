@@ -9,6 +9,7 @@ namespace FeedbackDataLib
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CSWChannel : ICloneable
     {
+
         /// <summary>Last SyncSignal received on this channel</summary>
         public DateTime SWChan_LastSync = DateTime.MinValue;
 
@@ -34,6 +35,11 @@ namespace FeedbackDataLib
 
         public CSWConfigValues SWChannelConfig = new();
 
+        public CSWConfigValues GetUserChangableValues ()
+        {
+            return (CSWConfigValues) SWChannelConfig.Clone();
+        }
+
         /// <summary>
         /// Type of SW channel
         /// </summary>
@@ -48,11 +54,8 @@ namespace FeedbackDataLib
             }
         }
 
-        private ushort SWChannelTypeFromDevice
-        {
-            get;
-            set;
-        }
+        private ushort SWChannelTypeFromDevice { get; set; } = 0;
+
         /// <summary>
         /// Virtual (unique) Identifier
         /// </summary>
@@ -90,9 +93,7 @@ namespace FeedbackDataLib
         /// <remarks>
         /// Calculate_SkalMax_SkalMin fills this value with max possible value
         /// </remarks>
-        public double SkalMax { get; set; } = 70000;
-
-        public Color SWChannelColor { get; set; } = Color.White;
+        public double SkalMax { get => SWChannelConfig.SkalMax; set => SWChannelConfig.SkalMax = value; }
 
         /// <summary>
         /// To remember Min. Scale of Graph
@@ -100,7 +101,9 @@ namespace FeedbackDataLib
         /// <remarks>
         /// Calculate_SkalMax_SkalMin fills this value with min possible value
         /// </remarks>
-        public double SkalMin { get; set; } = 0;
+        public double SkalMin { get => SWChannelConfig.SkalMin; set => SWChannelConfig.SkalMin = value; }
+
+        public Color SWChannelColor { get; set; } = Color.White;
 
         /// <summary>
         /// Checks if Send Flag = false
@@ -119,7 +122,6 @@ namespace FeedbackDataLib
         /// Iformation about the Software Channel
         /// </summary>
         public CSWChannelInfo SWChannelInfo = new();
-
 
         /// <summary>
         ///  Properties that help to access data in CSWConfigChannel, CSWChannelInfo 

@@ -7,12 +7,7 @@
         /// </summary>
         /// <value>Interval [ms]</value>
         /// <remarks></remarks>
-        public ushort SampleInt
-        {
-            get { return _SampleInt; }
-            set { _SampleInt = value; }
-        }
-        private ushort _SampleInt;
+        public ushort SampleInt { get; set; }
 
 
         /// <summary>
@@ -68,19 +63,23 @@
 
         public CSWConfigValues()
         {
-            Update (200, false, false);
+            Update(200, false, false);
         }
 
-        public void Update (CSWConfigValues sWConfigValues)
+        public void Update(CSWConfigValues sWConfigValues)
         {
             SendChannel = sWConfigValues.SendChannel;
-            SaveChannel= sWConfigValues.SaveChannel;
+            SaveChannel = sWConfigValues.SaveChannel;
             SampleInt = sWConfigValues.SampleInt;
         }
 
+        //To make life easier ... for saving all User changable data together
+        public double SkalMax { get; set; } = 70000;
+        public double SkalMin { get; set; } = 0;
+
         public object Clone()
         {
-            return (CSWConfigValues) MemberwiseClone();
+            return (CSWConfigValues)MemberwiseClone();
         }
     }
 }

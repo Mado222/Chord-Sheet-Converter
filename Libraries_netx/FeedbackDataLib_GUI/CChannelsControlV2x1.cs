@@ -189,19 +189,15 @@ namespace FeedbackDataLib_GUI
 
         public byte[] GetModuleSpecific (int HW_cn)
         {
-            //if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94 && frmModuleSpecificSetup_ExGADS != null)
-            //{
-            //    return frmModuleSpecificSetup_ExGADS.GetModuleSpecific();
-            //}
             if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor!= null)
             {
-                CModuleMultisensor ModuleInfo = new CModuleMultisensor();
+                CModuleMultisensor ModuleInfo = new ();
                 ucModuleSpecificSetup_MultiSensor.ReadModuleSpecificInfo(ref ModuleInfo);
                 return ModuleInfo.GetModuleSpecific();
             }
             else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig && ucModuleSpecificSetup_AtemIR!= null)
             {
-                CModuleRespI ModuleInfo = new CModuleRespI();
+                CModuleRespI ModuleInfo = new ();
                 ucModuleSpecificSetup_AtemIR.ReadModuleSpecificInfo(ref ModuleInfo);
                 return ModuleInfo.GetModuleSpecific();
             }
@@ -216,7 +212,7 @@ namespace FeedbackDataLib_GUI
         {
             if (value != null)
             {
-                _ModuleInfos = new List<CModuleBase>();
+                _ModuleInfos = [];
                 for (int i = 0; i < value.Count; i++)
                 {
                     _ModuleInfos.Add((CModuleBase)value[i].Clone());
@@ -257,14 +253,46 @@ namespace FeedbackDataLib_GUI
             {
                 for (int sw_cn = 0; sw_cn < ModuleInfo[hw_cn].SWChannels.Count; sw_cn++)
                 {
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SampleInt = ModuleInfo[hw_cn].SWChannels[sw_cn].SampleInt;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SendChannel = ModuleInfo[hw_cn].SWChannels[sw_cn].SendChannel;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SaveChannel = ModuleInfo[hw_cn].SWChannels[sw_cn].SaveChannel;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalMax = ModuleInfo[hw_cn].SWChannels[sw_cn].SkalMax;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalMin = ModuleInfo[hw_cn].SWChannels[sw_cn].SkalMin;
+                    SetUserChangeableData(hw_cn, sw_cn, ModuleInfo[hw_cn].SWChannels[sw_cn].GetUserChangableValues());
                 }
             }
             Refresh();
+        }
+
+        public void SetUserChangeableData(CSWConfigValues[][] SWConfigValues)
+        {
+
+            for (int hw_cn = 0; hw_cn < _ModuleInfos.Count; hw_cn++)
+            {
+                for (int sw_cn = 0; sw_cn < _ModuleInfos[hw_cn].SWChannels.Count; sw_cn++)
+                {
+                    SetUserChangeableData(hw_cn, sw_cn, SWConfigValues[hw_cn][sw_cn]);
+                }
+            }
+            Refresh();
+        }
+
+        public void SetUserChangeableData(int hw_cn, int sw_cn,  CSWConfigValues SWConfigValues)
+        {
+            _ModuleInfos[hw_cn].SWChannels[sw_cn].SampleInt = SWConfigValues.SampleInt;
+            _ModuleInfos[hw_cn].SWChannels[sw_cn].SendChannel = SWConfigValues.SendChannel;
+            _ModuleInfos[hw_cn].SWChannels[sw_cn].SaveChannel = SWConfigValues.SaveChannel;
+            _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalMax = SWConfigValues.SkalMax;
+            _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalMin = SWConfigValues.SkalMin;
+        }
+
+        public CSWConfigValues[][] GetUserChangeableData()
+        {
+            CSWConfigValues[][] cv = new CSWConfigValues[_ModuleInfos.Count][];
+            for (int _hw_cn = 0; _hw_cn < _ModuleInfos.Count; _hw_cn++)
+            {
+                cv[_hw_cn] = new CSWConfigValues[_ModuleInfos[_hw_cn].NumSWChannels];
+                for (int _sw_cn = 0; _sw_cn < _ModuleInfos[_hw_cn].NumSWChannels; _sw_cn++)
+                {
+                    cv[_hw_cn][_sw_cn] = _ModuleInfos[_hw_cn].SWChannels[_sw_cn].GetUserChangableValues();
+                }
+            }
+            return cv;
         }
 
         /// <summary>

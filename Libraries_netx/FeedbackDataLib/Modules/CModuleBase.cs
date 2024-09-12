@@ -11,6 +11,7 @@ namespace FeedbackDataLib.Modules
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CModuleBase : ICloneable
     {
+
         protected int _num_raw_Channels = 4;
         public int num_raw_Channels { get => _num_raw_Channels; }
 

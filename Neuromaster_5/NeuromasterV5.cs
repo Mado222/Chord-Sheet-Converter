@@ -1022,9 +1022,9 @@ namespace Neuromaster_V5
                 FileStream fs = new FileStream(saveFileDialog_xml.FileName, FileMode.Create);
                 TextWriter writer = new StreamWriter(fs);
 
-                XmlSerializer ser = new XmlSerializer(typeof(List<CModuleBase>));
+                XmlSerializer ser = new(typeof(CSWConfigValues[][]));
                 //Simply save all
-                ser.Serialize(writer, DataReceiver.Connection.Device.ModuleInfos);
+                ser.Serialize(writer, cChannelsControlV2x11.GetUserChangeableData());
                 writer.Close();
                 LastSaveLoadFilename = saveFileDialog_xml.FileName;
                 btRestoreLastConfig.Enabled = true;
@@ -1048,12 +1048,15 @@ namespace Neuromaster_V5
             {
                 FileStream fs = new FileStream(path_xml_file, FileMode.Open);
                 TextReader reader = new StreamReader(fs);
-                XmlSerializer ser = new XmlSerializer(typeof(List<CModuleBase>));
-                List<CModuleBase> ModuleInfo = (List<CModuleBase>)ser.Deserialize(reader);
+                XmlSerializer ser = new(typeof(CSWConfigValues[][]));
+                CSWConfigValues[][]? ModuleInfo = (CSWConfigValues[][])ser.Deserialize(reader);
                 reader.Close();
                 //Only user changeable data into fields
-                cChannelsControlV2x11.SetUserChangeableData(ModuleInfo);
-                SetupFlowChart();
+                if (ModuleInfo is not null)
+                {
+                    cChannelsControlV2x11.SetUserChangeableData(ModuleInfo);
+                    SetupFlowChart();
+                }
             }
         }
 
