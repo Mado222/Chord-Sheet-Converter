@@ -729,7 +729,7 @@ namespace Neuromaster_V5
         /// <summary>
         /// Holds Backup of Module-configuration
         /// </summary>
-        List<CModuleBase> BU_ModuleInfo = new List<CModuleBase>();
+        List<CModuleBase> BU_ModuleInfo = [];
 
         /// <summary>
         /// Read the current Module-configuration (which modules are connected) from Neuromaster

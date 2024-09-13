@@ -11,36 +11,36 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries_netx\BMTCommunication\BMTCommunication_Insight.csproj" />
-    <ProjectReference Include="..\Libraries_netx\DataGridViewNumericUpDown\DataGridViewNumericUpDown.csproj" />
-    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
-    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj" />
-    <ProjectReference Include="..\Libraries_netx\FilteringLibrary\FilteringLibrary.csproj" />
-    <ProjectReference Include="..\Libraries_netx\Math_Net_nuget\Math_Net_nuget_Insight.csproj" />
-    <ProjectReference Include="..\Libraries_netx\WindControlLib\WindControlLib.csproj" />
-    <ProjectReference Include="..\Libraries_netx\XBeeLib\XBeeLib_Insight.csproj" />
+    <Compile Remove="dll\**" />
+    <EmbeddedResource Remove="dll\**" />
+    <None Remove="dll\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Management">
-      <HintPath>dll\System.Management.dll</HintPath>
+    <PackageReference Include="System.IO" Version="4.3.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BMTCommunication">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\BMTCommunication.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="dll\ComponentsLib.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="dll\FeedbackDataLib.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="dll\WindControlLib.dll">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="dll\" />
+    <Reference Include="ComponentsLib_GUI">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\ComponentsLib_GUI.dll</HintPath>
+    </Reference>
+    <Reference Include="FeedbackDataLib">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\FeedbackDataLib.dll</HintPath>
+    </Reference>
+    <Reference Include="FeedbackDataLib_GUI">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\FeedbackDataLib_GUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Math_Net_nuget">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\Math_Net_nuget.dll</HintPath>
+    </Reference>
+    <Reference Include="WindControlLib">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\WindControlLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

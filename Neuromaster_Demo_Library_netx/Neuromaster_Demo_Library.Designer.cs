@@ -34,7 +34,7 @@
             btGetClock = new Button();
             btSetClock = new Button();
             pnControls = new Panel();
-            cChannelsControlV2x11 = new FeedbackDataLib.CChannelsControlV2x1();
+            cChannelsControlV2x11 = new FeedbackDataLib_GUI.CChannelsControlV2x1();
             btSetAllConfig = new Button();
             gbConnectivitie = new GroupBox();
             pbXBEESignalStrength = new ProgressBar();
@@ -398,7 +398,7 @@
         private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.ProgressBar pbXBEESignalStrength;
         private System.Windows.Forms.Label label1;
-        private FeedbackDataLib.CChannelsControlV2x1 cChannelsControlV2x11;
+        private FeedbackDataLib_GUI.CChannelsControlV2x1 cChannelsControlV2x11;
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private Button btOpenTCP;

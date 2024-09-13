@@ -306,12 +306,12 @@ namespace Neuromaster_Demo
                     {
                         CYvsTimeData c = new CYvsTimeData(1);   //Just another data structure
 
-                        c.xData = ci.dt_absolute;
+                        c.xData = ci.DT_absolute;
 
                         c.yData[0] = DataReceiver.Connection.GetScaledValue(ci);
 
                         //Display value ... just that something happens in the GUI
-                        string s = c.xData.ToString() + "\t" + c.yData[0].ToString() + "\t" + ci.HWChannelNumber.ToString() + "\t" + ci.SWChannelNumber.ToString() + Environment.NewLine;
+                        string s = c.xData.ToString() + "\t" + c.yData[0].ToString() + "\t" + ci.HW_cn.ToString() + "\t" + ci.SW_cn.ToString() + Environment.NewLine;
                         txtData.AppendText(s);
                         if (TCP_Interface != null)
                             TCP_Interface.Write(ci);
@@ -790,7 +790,7 @@ namespace Neuromaster_Demo
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
 
-            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive)
+            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive())
             {
 
                 if (DataReceiver.Connection.GetModuleInfoSpecific(HW_cn, true) != null)
@@ -821,7 +821,7 @@ namespace Neuromaster_Demo
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
 
-            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive)
+            if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].IsModuleActive())
             {
                 byte[] buf = cChannelsControlV2x11.GetModuleSpecific(HW_cn);
                 DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].SetModuleSpecific(buf);

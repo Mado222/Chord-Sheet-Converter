@@ -25,11 +25,15 @@ namespace FeedbackDataLib
             {
                 while (!RS232DataDistributorThread.CancellationPending)
                 {
-                    //Daten holen
-                    if (RPDeviceCommunicationToPC.Count > 0)
+                    if (RPDeviceCommunicationToPC is not null)
                     {
-                        //Fire event
-                        OnDeviceCommunicationToPC(RPDeviceCommunicationToPC.Pop());
+                        //Daten holen
+                        if (RPDeviceCommunicationToPC.Count > 0)
+                        {
+                            //Fire event
+
+                            OnDeviceCommunicationToPC(buf: RPDeviceCommunicationToPC.Pop());
+                        }
                     }
 
                     if (Data.Count > 0)

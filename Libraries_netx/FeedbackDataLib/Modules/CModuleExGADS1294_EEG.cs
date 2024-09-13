@@ -241,8 +241,8 @@ namespace FeedbackDataLib.Modules
                     double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K / gain;
                     double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K / gain;
 
-                    ElectrodeDatas[originalData.SW_cn].Rp = ((Ua1 - Ua0) / Iconst)*2 - Rprotect; //Keine Ahnung warum / 2
-                    ElectrodeDatas[originalData.SW_cn].Rn = ((Ua2 - Ua0) / Iconst / 4)*2 - Rprotect;
+                    ElectrodeDatas[originalData.SW_cn].Rp = ((Ua1 - Ua0) / Iconst) - Rprotect; //Keine Ahnung warum / 2
+                    ElectrodeDatas[originalData.SW_cn].Rn = ((Ua2 - Ua0) / Iconst / 4) - Rprotect;
                     ElectrodeDatas[originalData.SW_cn].Uelectrode = Ua0 ;
                     ElectrodeDatas[originalData.SW_cn].Ua2 = Ua2;
                     ElectrodeDatas[originalData.SW_cn].Ua1 = Ua1;

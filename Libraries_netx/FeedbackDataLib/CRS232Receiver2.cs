@@ -316,7 +316,7 @@ namespace FeedbackDataLib
         }
 
         public event DeviceCommunicationToPCEventHandler? DeviceCommunicationToPC = null;
-        protected virtual void OnDeviceCommunicationToPC(byte[] buf)
+        protected virtual void OnDeviceCommunicationToPC(byte[]? buf)
         {
             DeviceCommunicationToPC?.Invoke(this, buf);
         }
