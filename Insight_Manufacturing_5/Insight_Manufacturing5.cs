@@ -30,7 +30,7 @@ namespace Insight_Manufacturing5_net8
         /// <summary>
         /// Timer der die einzelnen Tasks der Reihe nach abarbeitet .. flashen, messen, ... 
         /// </summary>
-        System.Windows.Forms.Timer tmrMeasurementManager = null;
+        System.Windows.Forms.Timer? tmrMeasurementManager = null;
         DateTime dtSingleMeasurementStarted = DateTime.Now;
 
         /// <summary>
@@ -42,7 +42,6 @@ namespace Insight_Manufacturing5_net8
         /// Function Generator - used to avoid turning it on and off during serial Measurements
         /// </summary>
         public CFY6900 FY6900;
-        readonly CSerialPortWrapper Seriell32;
 
         /// <summary>
         /// Test Board with Phidgets
@@ -90,23 +89,18 @@ namespace Insight_Manufacturing5_net8
         {
             InitializeComponent();
             btGetProgrammers_Click(null, null);
-            
-
-            Seriell32 = new CSerialPortWrapper();
-            FY6900 = new CFY6900(Seriell32);
-                        
+            FY6900 = new CFY6900();
             lblFWVersionBasicText = lblFWVersion.Text;
-
-            try
+            FY6900.Open();
+            cbComPortSelector.Items.Clear();
+            List<string>? p = FY6900.GetRelatedComPorts();
+            if (p is not null)
             {
-                ucComPortSelector1.Init(CFY6900.DriverName);
-                Seriell32.PortName = (string?)ucComPortSelector1.SelectedItem;
-                Seriell32.BaudRate = 115200;
+                cbComPortSelector.Items.AddRange(p.ToArray());
+                cbComPortSelector.SelectedIndex = 0;
             }
-            catch (Exception e)
-            {
-                txtStatus.AddStatusString("Exception: " + e.Message, Color.Red);
-            }
+            else
+                txtStatus.AddStatusString("No COM Ports found");
 
             rbOffsetHigh.Text = CInsightModuleTesterV1.Uoff_High_mV.ToString();
             rbOffsetLow.Text = CInsightModuleTesterV1.Uoff_Low_mV.ToString();
@@ -422,12 +416,6 @@ namespace Insight_Manufacturing5_net8
 
         private void Proc_tabMeasurements()
         {
-            if (Seriell32 != null)
-            {
-                Seriell32.Close();
-                if (ucComPortSelector1.Items.Count == 1)
-                    cToggleButton_COM.GoToState1(true);
-            }
 
             if (tabMeasurements.SelectedTab.Name == tabProgNeuroModul.Name)
             {
@@ -444,11 +432,6 @@ namespace Insight_Manufacturing5_net8
             {
                 Open_InsightTestBoard();
                 dgvMeasurements.Visible = false;
-                if (ucComPortSelector1.Items.Count == 1)
-                {
-                    //Open COM
-                    cToggleButton_COM.GoToState2(true);
-                }
             }
             dgvMeasurements_ResetColor();
         }
@@ -1687,6 +1670,274 @@ namespace Insight_Manufacturing5_net8
                     txtStatus.AddStatusString(s, col);
             }
         }
+
+        #region FY6900_Routines
+        private void CToggleButton_COM_ToState2(object sender, EventArgs e)
+        {
+            //OpenCOM
+            FY6900.Open(cbComPortSelector.Text);
+            if (!FY6900.IsOpen)
+            {
+                ((CToggleButton)sender).AcceptChange = false;
+                txtStatus.AddStatusString("Failed to open "+ cbComPortSelector.Text, Color.Red);
+            }
+            txtStatus.AddStatusString(cbComPortSelector.Text + " is open", Color.Green);
+        }
+
+        private void cToggleButton_COM_ToState1(object sender, EventArgs e)
+        {
+            FY6900.Close();
+            txtStatus.AddStatusString(FY6900.ComPort + " closed." , Color.Green);
+        }
+
+        private void btSetSinus_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: Sinus ";
+            if (FY6900.SetSinus(true))
+            {
+                int i = FY6900.GetWaveform();
+                if (i == 0)
+                    stat += "OK";
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        private void btArtifECG_002_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: ArtifECG_002 ";
+            if (FY6900.SetArbitrary(1, true))
+            {
+                int i = FY6900.GetWaveform();
+                if (i == 36)
+                    stat += "OK";
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        private void btArtifECG_003_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: ArtifECG_003 ";
+            if (FY6900.SetArbitrary(2, true))
+            {
+                int i = FY6900.GetWaveform();
+                if (i == 37)
+                    stat += "OK";
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        private void btArtifECG_004_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: ArtifECG_004 ";
+            if (FY6900.SetArbitrary(3, true))
+            {
+                int i = FY6900.GetWaveform();
+                if (i == 38)
+                    stat += "OK";
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        private void btArtifECG_005_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: ArtifECG_005 ";
+            if (FY6900.SetArbitrary(4, true))
+            {
+                int i = FY6900.GetWaveform();
+                if (i == 39)
+                    stat += "OK";
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        private void setFrequency_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: f ";
+            if (FY6900.SetFrequency((double)numericUpDownFrequqency.Value, true))
+            {
+                double i = FY6900.GetFrequency();
+                if (i > -1)
+                    stat += "OK " + i.ToString();
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+
+        }
+
+        private void btSetAmplitude_Click(object sender, EventArgs e)
+        {
+            string stat = "FY6900: Vss ";
+            if (FY6900.SetVss((double)numericUpDownAmplitude.Value, true))
+            {
+                double i = FY6900.GetVss();
+                if (i > -1)
+                    stat += "OK " + i.ToString();
+                else stat += "Read back failed";
+            }
+            else
+                stat += "Set failed";
+            txtStatus.AddStatusString(stat, Color.Green);
+        }
+
+        public CInsightModuleTester_Settings Settings_To_Testboard()
+        {
+            CInsightModuleTester_Settings ret = new();
+            if (cbPhi_ICDOn.Checked)
+            {
+                //ICD on
+                ret.ICD_State = CInsightModuleTester_Settings.enICD.ICD_Connected;
+            }
+            else
+            {
+                //ICD off
+                ret.ICD_State = CInsightModuleTester_Settings.enICD.ICD_DisConnected;
+            }
+
+            if (cbOffsetOn.Checked)
+            {
+                //Offset on
+                ret.Uoff = CInsightModuleTester_Settings.enUoff.Uoff_On;
+            }
+            else
+            {
+                //Offset off
+                ret.Uoff = CInsightModuleTester_Settings.enUoff.Uoff_Off;
+            }
+
+            if (cbOffsetPlus.Checked)
+            {
+                //Offset Plus
+                ret.UoffPolarity = CInsightModuleTester_Settings.enUoffPolarity.Polarity_Plus;
+            }
+            else
+            {
+                //Offset Minus
+                ret.UoffPolarity = CInsightModuleTester_Settings.enUoffPolarity.Polarity_Minus;
+            }
+
+            if (cbEEGOn.Checked)
+            {
+                //EEG on
+                ret.EEG = CInsightModuleTester_Settings.enEEG.EEG_On;
+            }
+            else
+            {
+                //EEG off
+                ret.EEG = CInsightModuleTester_Settings.enEEG.EEG_Off;
+            }
+
+            if (rbOffsetLow.Checked)
+            {
+                ret.UoffLevel = CInsightModuleTester_Settings.enUoffLevel.UoffLevel_Low;
+            }
+
+            if (rbOffsetHigh.Checked)
+            {
+                ret.UoffLevel = CInsightModuleTester_Settings.enUoffLevel.UoffLevel_High;
+            }
+
+            _ = InsightModuleTestBoardV1.Init(ret);
+
+            return ret;
+        }
+
+        private delegate void Update_from_TestboardDelegate(CInsightModuleTester_Settings settings);
+        public void Update_from_Testboard(CInsightModuleTester_Settings settings)
+        {
+            if (cbPhi_ICDOn.InvokeRequired)
+            {
+                Invoke(
+                    new Update_from_TestboardDelegate(Update_from_Testboard),
+                    [settings]);
+            }
+            else
+            {
+                UpdateBoard = false;
+                if (settings.ICD_State == CInsightModuleTester_Settings.enICD.ICD_Connected)
+                    cbPhi_ICDOn.Checked = true;
+                else
+                    cbPhi_ICDOn.Checked = false;
+
+                if (settings.Uoff == CInsightModuleTester_Settings.enUoff.Uoff_On)
+                    cbOffsetOn.Checked = true;
+                else
+                    cbOffsetOn.Checked = false;
+
+                if (settings.UoffPolarity == CInsightModuleTester_Settings.enUoffPolarity.Polarity_Plus)
+                    cbOffsetPlus.Checked = true;
+                else
+                    cbOffsetPlus.Checked = false;
+
+                if (settings.EEG == CInsightModuleTester_Settings.enEEG.EEG_On)
+                    cbEEGOn.Checked = true;
+                else
+                    cbEEGOn.Checked = false;
+
+                if (settings.UoffLevel == CInsightModuleTester_Settings.enUoffLevel.UoffLevel_Low)
+                    rbOffsetLow.Checked = true;
+                else
+                    rbOffsetHigh.Checked = true;
+
+                UpdateBoard = true;
+            }
+        }
+
+        bool UpdateBoard = true;
+
+        private void cbPhi_ICDON_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        private void cbOffsetOn_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        private void cbOffsetPlus_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        private void cbEEGOn_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        private void rbOffsetLow_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        private void rbOffsetHigh_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UpdateBoard)
+                Settings_To_Testboard();
+        }
+
+        #endregion
     }
 }
 

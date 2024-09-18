@@ -17,60 +17,79 @@ namespace ComponentsLib_GUI
         public const int Resolution_bit = 14;
         public const int NumValues_Arbitrary  = 8192;
 
-        private CSerialPortWrapper? _Seriell32;
+        private CSerialPortWrapper _Seriell32 = new ();
         private readonly byte[] default_return_value = [0xa];
+        private List<byte> LastReturnValue = [];
 
-        private List<byte> LastReturnValue = new List<byte>();
-        private bool _isOpen = false;
+        public bool IsOpen { get => _Seriell32.IsOpen; }
+
+        public string ComPort
+        {
+            get
+            {
+                if (_Seriell32?.PortName is not null)
+                    return _Seriell32.PortName;
+                return "";
+            }
+        }
+
+        public string Fw_Version { get; private set; } = string.Empty;
+
+        public UCComPortSelector? ucs = new();
+
+        public List<string>? GetRelatedComPorts ()
+        {
+            List<string>? ret = null;
+            if (ucs is not null && ucs.Items is not null)
+                ret = ucs.Items.Cast<string>().ToList();
+            return ret;
+        }
+
 
         public CFY6900()
         {
+            _Seriell32 = new CSerialPortWrapper();
+            ucs.Init(DriverName);
         }
 
-        public CFY6900(CSerialPortWrapper Seriell32)
+        public bool Open(string ComPort = "")
         {
-            _Seriell32 = Seriell32;
-            _isOpen = false;
-        }
-
-        public bool Open()
-        {
-            if (!_isOpen)
+            Close();
+            if (ComPort == "")
             {
-                UCComPortSelector? ucs = new ();
-                ucs.Init(DriverName);
-                if (ucs.SelectedItem is not null && ucs.Items.Count == 1)
+                if (ucs?.SelectedItem is not null && ucs?.Items.Count == 1)
                 {
-                    _Seriell32 ??= new CSerialPortWrapper();
-                    _Seriell32.PortName = (string)ucs.SelectedItem;
-                    _Seriell32.BaudRate = 115200;
-                    _Seriell32.Open();
-                    if (_Seriell32.IsOpen)
-                    {
-                        //Check for Generator
-                        if (SetOutput_Off(true))
-                        {
-                            _isOpen = true;
-                        }
-                    }
-
+                    ComPort = (string)ucs.SelectedItem;
                 }
             }
-            return isOpen;
-        }
 
-        public bool isOpen { get => _isOpen; }
+            if (ComPort != "")
+            {
+                _Seriell32 ??= new CSerialPortWrapper();
+                _Seriell32.PortName = ComPort;
+                _Seriell32.BaudRate = 115200;
+                _Seriell32.Open();
+                if (_Seriell32.IsOpen)
+                {
+                    //Check for Generator
+                    if (SetOutput_Off(true))
+                    {
+                        Fw_Version = GetFWVersion();
+                    }
+                }
+            }
+            return IsOpen;
+        }
 
         public void Close()
         {
             if (_Seriell32 != null)
                 _Seriell32.Close();
-            _isOpen = false;
         }
 
         public byte[] GetLastReturnValue()
         {
-            return LastReturnValue.ToArray();
+            return [.. LastReturnValue];
         }
 
         public bool SetOutput_On(bool check_return_value)
@@ -84,9 +103,25 @@ namespace ComponentsLib_GUI
 
         public bool SetFrequency(double f, bool check_return_value)
         {
-            int ff = (int)(f * 1e6); //[µHz]
-            string val = "WMF" + ff.ToString("00000000000000");//.Replace(",", "").Replace(".", "");
-            return Send_Command(val, default_return_value, check_return_value);
+            if (Fw_Version != string.Empty)
+            {
+                string val = "";
+                //FY6900 FW 1.3
+                if (Fw_Version == "V1.3")
+                {
+                    int ff = (int)(f * 1e6); //[µHz]
+                    val = "WMF" + ff.ToString("00000000000000");
+                }
+                else if (Fw_Version == "V1.5")
+                {
+                    //FY6900 FW 1.5
+                    val = "WMF" + f.ToString("00000000.000000").Replace(".", "");//
+                }
+
+                return Send_Command(val, default_return_value, check_return_value);
+
+            }
+            return false;
         }
 
         public bool SetVss(double Vss, bool check_return_value)
@@ -124,67 +159,24 @@ namespace ComponentsLib_GUI
             return false;
         }
 
-        /*
-        /// <summary>Uploads the arbitratry waveform.</summary>
-        /// <param name="values">  8192 values between +1 and -1</param>
-        /// <param name="ChanNo">  Arbitrary Channel No - 1, 2, ...</param>
-        /// <returns></returns>
-        public bool UploadArbitratryWaveform (double [] values, int ChanNo)
+
+        public string GetFWVersion()
         {
-            //First send
-            //"DDS_WAVE03"+0xA
-            string s = "DDS_WAVE" + ChanNo.ToString("D2");
-            List<byte> outbuf = new List<byte>(ASCIIEncoding.ASCII.GetBytes(s));
-            outbuf.Add(0x0A);
-            Send_Command(outbuf.ToArray());
-            //outbuf.AddRange (outbuf);
-            if (Send_Command(outbuf.ToArray(), new byte[] { 0x57, 0x0A }))
+            //V1.5
+            //V1.3
+            _Seriell32?.DiscardInBuffer();
+            if (Send_Command("UVE", default_return_value, false))
             {
-                //Make value array
-                outbuf.Clear();
-                double LSB = 2.0 / (1 << Resolution_bit);
-                UInt16 val16 = 0;
-                UInt16 [] val16all = new UInt16[values.Length];
-
-                values[0] = 1;
-
-                for (int i = 0; i < values.Length; i++)
+                byte[]? return_value = GetResponse();
+                if (return_value != null)
                 {
-                    if (i>0) values[i] = 0;
-                    if (values[i] < -1) values[i] = -1;
-                    if (values[i] > 1) values[i] = 1;
-
-                    val16 = (UInt16)((values[i] + 1) / LSB);
-                    if (val16 != 0) val16 -= 1;
-                    outbuf.AddRange(BitConverter.GetBytes(val16));
-                    val16all[i] = val16;
-                }
-                outbuf.AddRange(new byte [] {0,0,0,0,0,0,0 });
-                WindControlLib.CDelay.Delay_ms(500);
-
-                if (Send_Command(outbuf.ToArray(), new byte[] { 0x48, 0x0A }))
-                {
-                    return true;
+                    return Encoding.ASCII.GetString(return_value);
                 }
             }
-            return false;
+            return string.Empty;
+
         }
 
-        public void Init_China()
-        {
-            string[] cmds = new string[]
-            {
-                "UMO","UVE","RSA0","RSA1","RSA2",
-                "RSA3","RSA4","RBZ","RMS","RUL","RMW",
-                "RMF","RMA","RMO","RMD","RMP","RMT","RMN",
-                "RPF","RPM","RFK","RPN","RPR","RFM","RPP","RFW","RFF","RFA","RFO","RFD","RFP","RFT","RFN"};
-
-            foreach (string s in cmds)
-            {
-                Send_Command(s);
-                WindControlLib.CDelay.Delay_ms(50);
-            }
-        }*/
 
         public int GetWaveform()
         {

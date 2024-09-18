@@ -57,7 +57,6 @@ namespace Insight_Manufacturing5_net8
             gbFY6900 = new GroupBox();
             btSetAmplitude = new Button();
             btArtifECG_005 = new Button();
-            ucComPortSelector1 = new UCComPortSelector();
             btArtifECG_004 = new Button();
             cToggleButton_COM = new CToggleButton();
             btArtifECG_003 = new Button();
@@ -91,6 +90,7 @@ namespace Insight_Manufacturing5_net8
             dgv_SWChannelInfo = new DataGridView();
             tmrGui = new System.Windows.Forms.Timer(components);
             cFlowChartDX1 = new FeedbackDataLib_GUI.ucFlowChartDX_NM();
+            cbComPortSelector = new ComboBox();
             tabMeasurements.SuspendLayout();
             tabProgNeuroModul.SuspendLayout();
             gbModuleSelection.SuspendLayout();
@@ -358,9 +358,9 @@ namespace Insight_Manufacturing5_net8
             // gbFY6900
             // 
             gbFY6900.BackColor = Color.WhiteSmoke;
+            gbFY6900.Controls.Add(cbComPortSelector);
             gbFY6900.Controls.Add(btSetAmplitude);
             gbFY6900.Controls.Add(btArtifECG_005);
-            gbFY6900.Controls.Add(ucComPortSelector1);
             gbFY6900.Controls.Add(btArtifECG_004);
             gbFY6900.Controls.Add(cToggleButton_COM);
             gbFY6900.Controls.Add(btArtifECG_003);
@@ -400,15 +400,6 @@ namespace Insight_Manufacturing5_net8
             btArtifECG_005.UseVisualStyleBackColor = true;
             btArtifECG_005.Click += btArtifECG_005_Click;
             // 
-            // ucComPortSelector1
-            // 
-            ucComPortSelector1.FormattingEnabled = true;
-            ucComPortSelector1.Location = new Point(297, 75);
-            ucComPortSelector1.Margin = new Padding(4, 5, 4, 5);
-            ucComPortSelector1.Name = "ucComPortSelector1";
-            ucComPortSelector1.Size = new Size(139, 28);
-            ucComPortSelector1.TabIndex = 1;
-            // 
             // btArtifECG_004
             // 
             btArtifECG_004.Location = new Point(464, 25);
@@ -435,7 +426,7 @@ namespace Insight_Manufacturing5_net8
             cToggleButton_COM.TextState1 = "Open COM";
             cToggleButton_COM.TextState2 = "Close COM";
             cToggleButton_COM.UseVisualStyleBackColor = false;
-            cToggleButton_COM.ToState2 += cToggleButton_COM_ToState2;
+            cToggleButton_COM.ToState2 += CToggleButton_COM_ToState2;
             cToggleButton_COM.ToState1 += cToggleButton_COM_ToState1;
             // 
             // btArtifECG_003
@@ -785,6 +776,14 @@ namespace Insight_Manufacturing5_net8
             cFlowChartDX1.Size = new Size(728, 479);
             cFlowChartDX1.TabIndex = 175;
             // 
+            // cbComPortSelector
+            // 
+            cbComPortSelector.FormattingEnabled = true;
+            cbComPortSelector.Location = new Point(297, 78);
+            cbComPortSelector.Name = "cbComPortSelector";
+            cbComPortSelector.Size = new Size(140, 28);
+            cbComPortSelector.TabIndex = 18;
+            // 
             // frmInsight_Manufacturing5
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -847,7 +846,6 @@ namespace Insight_Manufacturing5_net8
         private System.Windows.Forms.DataGridViewCheckBoxColumn Measurement_done;
         private System.Windows.Forms.DataGridViewTextBoxColumn Measurement_Duration;
         private System.Windows.Forms.TabPage tabFY6900;
-        private ComponentsLib_GUI.UCComPortSelector ucComPortSelector1;
         private ComponentsLib_GUI.CToggleButton cToggleButton_COM;
         private FeedbackDataLib_GUI.ucFlowChartDX_NM cFlowChartDX1;
         private System.Windows.Forms.NumericUpDown numericUpDownAmplitude;
@@ -882,5 +880,6 @@ namespace Insight_Manufacturing5_net8
         private System.Windows.Forms.Button btCalValstoDB;
         private System.Windows.Forms.CheckBox cbIgnoreSerialNumberCheck;
         private BindingSource cMeasurementsBindingSource;
+        private ComboBox cbComPortSelector;
     }
 }

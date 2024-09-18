@@ -251,7 +251,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         public bool SetGenerator(CFY6900 fY6900)
         {
             bool ret = false;
-            if (fY6900.isOpen)
+            if (fY6900.IsOpen)
             {
                 if (fY6900.SetOutput_Off(true))
                 {
