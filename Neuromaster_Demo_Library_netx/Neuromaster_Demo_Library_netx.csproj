@@ -23,29 +23,38 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BMTCommunication">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\BMTCommunication.dll</HintPath>
+    <Reference Include="BMTCommunicationLib">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\BMTCommunicationLib.dll</HintPath>
     </Reference>
     <Reference Include="ComponentsLib_GUI">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\ComponentsLib_GUI.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\ComponentsLib_GUI.dll</HintPath>
     </Reference>
     <Reference Include="FeedbackDataLib">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\FeedbackDataLib.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\FeedbackDataLib.dll</HintPath>
     </Reference>
     <Reference Include="FeedbackDataLib_GUI">
-      <HintPath>..\dlls_netx\Release\net8.0-windows\FeedbackDataLib_GUI.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\FeedbackDataLib_GUI.dll</HintPath>
     </Reference>
     <Reference Include="FilteringLibrary">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\FilteringLibrary.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\FilteringLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Filtering">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\MathNet.Filtering.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\MathNet.Numerics.dll</HintPath>
     </Reference>
     <Reference Include="Math_Net_nuget">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\Math_Net_nuget.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\Math_Net_nuget.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\System.Management.dll</HintPath>
     </Reference>
     <Reference Include="WindControlLib">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\WindControlLib.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\WindControlLib.dll</HintPath>
     </Reference>
     <Reference Include="XBeeLib">
-      <HintPath>..\dlls_netx\Release\net8.0-windows7.0\XBeeLib.dll</HintPath>
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\Neuromaster_Demo_Library_netx\dlls\XBeeLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 
