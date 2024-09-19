@@ -97,7 +97,8 @@ namespace Insight_Manufacturing5_net8
             if (p is not null)
             {
                 cbComPortSelector.Items.AddRange(p.ToArray());
-                cbComPortSelector.SelectedIndex = 0;
+                if (cbComPortSelector.Items.Count >0)
+                    cbComPortSelector.SelectedIndex = 0;
             }
             else
                 txtStatus.AddStatusString("No COM Ports found");
