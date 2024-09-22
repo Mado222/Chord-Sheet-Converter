@@ -55,6 +55,7 @@
             btGetModuleSpecific = new Button();
             btSetModuleSpecific = new Button();
             btOpenTCP = new Button();
+            btNMInfo = new Button();
             pnControls.SuspendLayout();
             gbConnectivitie.SuspendLayout();
             gbClock.SuspendLayout();
@@ -345,11 +346,23 @@
             btOpenTCP.UseVisualStyleBackColor = true;
             btOpenTCP.Click += btOpenTCP_Click;
             // 
+            // btNMInfo
+            // 
+            btNMInfo.Location = new Point(1440, 735);
+            btNMInfo.Margin = new Padding(4, 5, 4, 5);
+            btNMInfo.Name = "btNMInfo";
+            btNMInfo.Size = new Size(207, 43);
+            btNMInfo.TabIndex = 172;
+            btNMInfo.Text = "Get Neuromaster Info";
+            btNMInfo.UseVisualStyleBackColor = true;
+            btNMInfo.Click += btNMInfo_Click;
+            // 
             // Neuromaster_Demo_Library
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1704, 1078);
+            Controls.Add(btNMInfo);
             Controls.Add(btOpenTCP);
             Controls.Add(btGetModuleSpecific);
             Controls.Add(btSetModuleSpecific);
@@ -402,5 +415,6 @@
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private Button btOpenTCP;
+        private Button btNMInfo;
     }
 }

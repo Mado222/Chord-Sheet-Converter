@@ -257,7 +257,7 @@ namespace BMTCommunication
                 UInt32 ftdiDeviceCount = 0;
                 FTDI.FT_STATUS ftStatustemp = FTDI.FT_STATUS.FT_OK;
                 ftStatus = FTDI.FT_STATUS.FT_OK;
-                ftdiDeviceList = new FTDI.FT_DEVICE_INFO_NODE[0];
+                ftdiDeviceList = [];
 
                 // Determine the number of FTDI devices connected to the machine
 #if DEBUG

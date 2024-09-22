@@ -19,7 +19,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Converter for Device clock
         /// </summary>
-        protected CCDateTime _DeviceClock;
+        protected CCDateTime _DeviceClock = new();
 
         /// <summary>
         /// TimeOut [ms] in WaitCommandResponse
@@ -29,13 +29,13 @@ namespace FeedbackDataLib
         /// <summary>
         /// RS232Receiver
         /// </summary>
-        public CRS232Receiver2 RS232Receiver;
+        public CRS232Receiver2? RS232Receiver;
 
         /// <summary>
         /// All Information about 8 Channel Device
         /// </summary>
         /// <remarks>Zugriff: [0,1,...]</remarks>
-        public C8KanalDevice2 Device;       //Fasst die verfügbaren Kanäle zusammen
+        public C8KanalDevice2? Device;       //Fasst die verfügbaren Kanäle zusammen
 
         /// <summary>
         /// NM Battery Status in %
@@ -75,7 +75,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// NM sends in this Interval the SYNC Signal
         /// </summary>
-        public TimeSpan SyncInterval = new TimeSpan(0, 0, 0, 0, SyncInterval_ms);
+        public TimeSpan SyncInterval = new(0, 0, 0, 0, SyncInterval_ms);
 
         /// <summary>
         /// Minimum hex Value of SCL Measurement - to Calculate Min and Max
@@ -85,7 +85,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Calculation of the Battery percentage
         /// </summary>
-        private readonly CBatteryVoltage BatteryVoltage;
+        private readonly CBatteryVoltage BatteryVoltage = new();
 
 
         /// <summary>
@@ -93,8 +93,20 @@ namespace FeedbackDataLib
         /// </summary>
         public bool EnableDataReadyEvent
         {
-            get { return RS232Receiver.EnableDataReadyEvent; }
-            set { RS232Receiver.EnableDataReadyEvent = value; }
+            get {
+                if (RS232Receiver != null)
+                {
+                    return RS232Receiver.EnableDataReadyEvent;
+                }
+                return false;
+            }
+            set
+            {
+                if (RS232Receiver != null)
+                {
+                    RS232Receiver.EnableDataReadyEvent = value;
+                }
+            }
         }
 
         //Events
@@ -109,11 +121,11 @@ namespace FeedbackDataLib
         /// 0xFFFF ... input amplifier is pos saturated
         /// if output stage is saturated, 0x0001 and 0xFFFE
         /// </remarks>
-        public event BMTCommunication.DataReadyEventHandler DataReady;
+        public event DataReadyEventHandler DataReady;
         protected virtual void OnDataReady(List<CDataIn> DataIn)
         {
             //Add Virtual ID / added Dec. 2013
-            if (Device.ModuleInfos != null)
+            if (Device?.ModuleInfos != null)
             {
                 foreach (CDataIn cdi in DataIn)
                 {
@@ -176,7 +188,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Buffer of the Device is full, it stops sampling, has to be reinitialised
         /// </summary>
-        public event DeviceToPC_BufferFullEventHAndler DeviceToPC_BufferFull;
+        public event DeviceToPC_BufferFullEventHAndler? DeviceToPC_BufferFull;
         protected virtual void OnDeviceToPC_BufferFull()
         {
             DeviceToPC_BufferFull?.Invoke();
@@ -186,7 +198,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Buffer of the Device is full, it stops sampling, has to be reinitialised
         /// </summary>
-        public event DeviceToPC_ModuleErrorEventHandler DeviceToPC_ModuleError;
+        public event DeviceToPC_ModuleErrorEventHandler? DeviceToPC_ModuleError;
         protected virtual void OnDeviceToPC_ModuleError(byte HW_cn)
         {
             DeviceToPC_ModuleError?.Invoke(HW_cn);
@@ -196,7 +208,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Neuromaster sends battery status
         /// </summary>
-        public event DeviceToPC_BatteryStatusEventHandler DeviceToPC_BatteryStatus;
+        public event DeviceToPC_BatteryStatusEventHandler? DeviceToPC_BatteryStatus;
         /// <summary>
         /// Battery Status
         /// </summary>
@@ -389,6 +401,7 @@ namespace FeedbackDataLib
         /// </returns>
         public double GetScaledValue(CDataIn DataIn)
         {
+            if (Device == null) return 0;
             int hwcn = DataIn.HW_cn;// & 0xf0) >> 4;
             //int swcn = (DataIn.HWChannelNumber & 0x0f);
             int swcn = DataIn.SW_cn;
@@ -420,6 +433,10 @@ namespace FeedbackDataLib
 
             int idx_latestEndTime = 0;
             DateTime latestEndTime = data_in[0][data_in[0].Count - 1].DT_absolute;
+
+            data_value_scaled = [];
+            data_time = [];
+            if (Device is null) return;
 
             for (int i = 0; i < data_in.Count; i++)
             {
@@ -469,6 +486,7 @@ namespace FeedbackDataLib
                     }
                 }
             }
+
 
             //Find nearest time reference point in the channel with the lowest sample rate
             int refIndex = 0; //This point is set as starting point
@@ -559,9 +577,10 @@ namespace FeedbackDataLib
             else
             {
                 //data_in not have a common starting point
-                data_time = null;
-                data_value_scaled = null;
+                data_time = [];
+                data_value_scaled = [];
             }
+
         }
 
 
@@ -589,13 +608,16 @@ namespace FeedbackDataLib
             return _ModuleCommand(HWChannelNumber, ModuleCommand, ByteOut, ref ByteIn, C8KanalReceiverCommandCodes.cWrRdModuleCommand);
         }
 
-        private bool _ModuleCommand(byte HWChannelNumber, byte ModuleCommand, byte[] ByteOut, ref byte[] ByteIn, byte CommandCode)
+        private bool _ModuleCommand(byte HWChannelNumber, byte ModuleCommand, byte[]? ByteOut, ref byte[]? ByteIn, byte CommandCode)
         {
             int l = 0;
             if (ByteOut != null) l = ByteOut.Length;
 
             int m = 0;
-            if (ByteIn != null) m = ByteIn.Length;
+            if (ByteIn != null)
+                m = ByteIn.Length;
+            else
+                ByteIn = [];
 
 
             byte[] OutBuf = new byte[l + 4];
@@ -603,9 +625,8 @@ namespace FeedbackDataLib
             OutBuf[1] = (byte)(l + 1);
             OutBuf[2] = (byte)m;
             OutBuf[3] = ModuleCommand;
-            if (l != 0)
+            if (ByteOut != null)
             {
-                //Array.Copy(ByteOut, 0, OutBuf, 3, l);
                 Buffer.BlockCopy(ByteOut, 0, OutBuf, 4, l);
             }
             //Anzahl der bytes die zu lesen sind
@@ -613,11 +634,6 @@ namespace FeedbackDataLib
             return SendGetCheckData(CommandCode, OutBuf, ref ByteIn);
         }
 
-
-#if  VASOCHECKERACTIVE
-        public int Vaso_Hw_cn = -1;
-        Timer Vaso_Checker;
-#endif
 
         /// <summary>
         /// Gets ConfigModules and puts result into Device
@@ -628,12 +644,6 @@ namespace FeedbackDataLib
             byte[] InData = null;
             byte[] AddData = new byte[1];
             List<byte> AllData = [];
-
-#if VASOCHECKERACTIVE
-            if (Vaso_Checker != null) Vaso_Checker.Enabled = false;
-            Vaso_Hw_cn = -1;
-#endif
-
 
             //Get Info Module by  Module
             for (int hw_cn = 0; hw_cn < max_num_HWChannels; hw_cn++)
@@ -661,32 +671,16 @@ namespace FeedbackDataLib
                 }
             }
 
-            if (ret == true)
+            if (ret)
             {
                 try
                 {
                     if (Device == null) Device = new C8KanalDevice2();
-                    Device.UbpdateModuleInfoFrom_ByteArray(AllData.ToArray());
-                    Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
-
-#if VASOCHECKERACTIVE
-                    //Check if there is a Vasosensor connected
-                    foreach (CModuleInfo swc in Device.ModuleInfos)
+                    ret = Device.UbpdateModuleInfoFrom_ByteArray(AllData.ToArray());
+                    if (ret)
                     {
-                        if (swc.ModuleType == enumModuleType.cModuleVaso || swc.ModuleType == .enumModuleType.cModuleVasoIRDig)
-                        {
-                            Vaso_Hw_cn = swc.HW_cn;
-                            if (Vaso_Checker == null)
-                            {
-                                Vaso_Checker = new Timer();
-                                Vaso_Checker.Tick += Vaso_Checker_Tick;
-                                Vaso_Checker.Interval = 2000;
-                            }
-                            Vaso_Checker.Enabled = true;
-                        }
+                        Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
                     }
-#endif
-                    ret = true;
                 }
                 catch (Exception e)
                 {
@@ -699,56 +693,6 @@ namespace FeedbackDataLib
             return ret;
         }
 
-#if  VASOCHECKERACTIVE
-        private void Vaso_Checker_Tick(object sender, EventArgs e)
-        {
-            this.GetModuleInfoSpecific(Vaso_Hw_cn, true);
-            OnVaso_InfoSpecific_Updated();
-        }
-#endif
-
-        /*
-        /// <summary>
-        /// Gets Channel Configuration from device
-        /// </summary>
-        /// <param name="HW_cn">HW channel number</param>
-        /// <param name="SW_cn">SW channel number</param>
-        /// <param name="UpdateModuleInfo">if set to <c>true</c> ModuleInfos[HW_cn].SWChannels[SW_cn].SWConfigChannel is updated with new vals</param>
-        /// <returns></returns>
-        public CSWConfigChannel GetConfigChannel(int HW_cn, int SW_cn, bool UpdateModuleInfo)
-        {
-            CSWConfigChannel ConfigChannel = new CSWConfigChannel();
-
-            byte[] buf = new byte[2];
-            buf[0] = (byte)HW_cn;
-            buf[1] = (byte)SW_cn;
-            byte[] InData = new byte[4];
-
-            if (SendGetCheckData(C8KanalReceiverCommandCodes.cGetChannelConfig, buf, ref InData))
-            {
-                //Daten kommen wie sie in struct sConfigChannel stehen
-                try
-                {
-                    ConfigChannel.UpdateFrom_ByteArray(InData, 0);
-                    if (UpdateModuleInfo)
-                    {
-                        Device.ModuleInfos[HW_cn].SWChannels[SW_cn].configVals = (CSWConfigChannel)ConfigChannel.Clone();
-                        //UpdateVirtual(HW_cn);
-                    }
-                }
-                catch
-                {
-                    ConfigChannel = null;
-                }
-            }
-            else
-            {
-                //Error
-            }
-            return ConfigChannel;
-        }*/
-
-
         /// <summary>
         /// Sets configuration of a specific channel
         /// according to Device.ModuleInfos[HW_cn].SWChannels[SW_cn].SWConfigChannel
@@ -758,6 +702,7 @@ namespace FeedbackDataLib
         {
             bool ret;
             byte[] InData = [];
+            if (Device is null) return false;
             ret = SendGetCheckData(C8KanalReceiverCommandCodes.cSetModuleConfig,
                 Device.ModuleInfos[HW_cn].Get_SWConfigChannelsByteArray(),
                 ref InData);
@@ -774,7 +719,7 @@ namespace FeedbackDataLib
         {
             bool ret = true;
             //Check if Module is connected
-            if (HW_cn != 0xff)
+            if (HW_cn != 0xff && Device is not null)
             {
                 if (Device.ModuleInfos[HW_cn].ModuleType != enumModuleType.cModuleTypeEmpty)
                 {
@@ -796,6 +741,9 @@ namespace FeedbackDataLib
         public bool SetConfigChannel()
         {
             bool ret = true;
+
+            if (Device is null)
+                return false;
 
             for (int HW_cn = 0; HW_cn < Device.ModuleInfos.Count; HW_cn++)
             {
@@ -821,7 +769,7 @@ namespace FeedbackDataLib
         public bool GetElectrodeInfo(ref CADS1294x_ElectrodeImp ElectrodeImp, int HW_cn)
         {
             bool ret = true;
-            if (Device.ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
+            if (Device?.ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
             {
                 if (SetModuleInfoSpecific(HW_cn, 128)) //Kanalnummer muss nur >= 128 sein
                 {
@@ -851,18 +799,22 @@ namespace FeedbackDataLib
             bool ret = false;
             byte[] InData = new byte[1];
 
-            if (Device.ModuleInfos[HW_cn].ModuleType == enumModuleType.cModuleTypeEmpty)
+            if (Device?.ModuleInfos[HW_cn].ModuleType == enumModuleType.cModuleTypeEmpty)
                 return ret;
 
-            byte[] Data = Device.ModuleInfos[HW_cn].GetModuleSpecific();
-
-            if (get_Imp_chan_x >= 0)
+            if (Device is not null)
             {
-                Data[0] = (byte) get_Imp_chan_x;
-            }
+                byte[] Data = Device.ModuleInfos[HW_cn].GetModuleSpecific();
 
-            Data[Data.Length - 1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
-            ret = ModuleCommand((byte)HW_cn, C8KanalReceiverCommandCodes.cModule_SetSpecific, Data, ref InData);
+                if (get_Imp_chan_x >= 0)
+                {
+                    Data[0] = (byte)get_Imp_chan_x;
+                }
+
+                //Data[Data.Length - 1] = ...
+                Data[^1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
+                ret = ModuleCommand((byte)HW_cn, C8KanalReceiverCommandCodes.cModule_SetSpecific, Data, ref InData);
+            }
             return ret;
         }
 
@@ -874,7 +826,7 @@ namespace FeedbackDataLib
             byte[] ByteOut = new byte[1];
             //byte[] ByteIn = new byte[18]; //12.11.2020 Startet mit 0x44 0x00 ... dann erst kommen Daten ... warum?
             byte[] ByteIn = new byte[17];
-            byte[] btin = null;
+            byte[] btin = [];
 
             ByteOut[0] = (byte)HW_cn;
             if (ModuleCommand((byte)HW_cn, C8KanalReceiverCommandCodes.cModule_GetSpecific, ByteOut, ref ByteIn))
@@ -896,7 +848,7 @@ namespace FeedbackDataLib
 
 
 
-                    if (UpdateModuleInfo)
+                    if (Device is not null && UpdateModuleInfo)
                         Device.ModuleInfos[HW_cn].SetModuleSpecific(btin);
                 }
 
@@ -918,8 +870,8 @@ namespace FeedbackDataLib
         /// </remarks>
         public virtual bool ScanModules()
         {
-            byte[] buf = new byte[0];
-            byte[] InData = new byte[0];
+            byte[] buf = [];
+            byte[] InData = [];
             return SendGetCheckData(C8KanalReceiverCommandCodes.cScanModules, buf, ref InData);
         }
 
@@ -954,7 +906,6 @@ namespace FeedbackDataLib
             if (AdditionalDataToSend.Length > 250)
             {
                 throw new Exception("Size of Additional Data <= 250");
-                //return false;
             }
 
             const int overhead = 4; //CommandCode, Command, Length, CRC
@@ -1069,8 +1020,8 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public bool SendCloseConnection()
         {
-            byte[] InData = new byte[0];
-            byte[] outbuf = new byte[0];
+            byte[] InData = [];
+            byte[] outbuf = [];
 
             if (!SendGetCheckData(C8KanalReceiverCommandCodes.cSetConnectionClosed, outbuf, ref InData))
             {
@@ -1087,9 +1038,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public virtual bool SetClock(DateTime dt)
         {
-            byte[] InData = new byte[0];
+            byte[] InData = [];
             _DeviceClock.dt = dt;
-            byte[] outbuf = null;
+            byte[] outbuf = [];
             _DeviceClock.GetByteArray(ref outbuf, 0);
 
             if (!SendGetCheckData(C8KanalReceiverCommandCodes.cSetClock, outbuf, ref InData))
@@ -1108,7 +1059,7 @@ namespace FeedbackDataLib
         public bool GetClock(ref DateTime dt)
         {
             byte[] buf = new byte[1];
-            byte[] badd = new byte[0];
+            byte[] badd = [];
 
             if (SendGetCheckData(C8KanalReceiverCommandCodes.cGetClock, badd, ref buf))
             {
@@ -1131,7 +1082,7 @@ namespace FeedbackDataLib
         {
             bool ret = true;
             byte[] buf = new byte[20];
-            byte[] badd = new byte[0];
+            byte[] badd = [];
 
             if (SendGetCheckData(C8KanalReceiverCommandCodes.cGetFirmwareVersion, badd, ref buf))
             {
@@ -1153,7 +1104,7 @@ namespace FeedbackDataLib
         {
             bool ret = true;
             byte[] buf = new byte[2];
-            byte[] badd = new byte[0];
+            byte[] badd = [];
 
             if (SendGetCheckData(C8KanalReceiverCommandCodes.cGetSDCardInfo, badd, ref buf))
             {

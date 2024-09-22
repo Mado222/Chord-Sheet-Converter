@@ -47,16 +47,16 @@ namespace FeedbackDataLib
         #endregion
 
         #region properties
-        private C8KanalReceiverV2_RS232 _8KanalReceiverV2_RS232;
-        private C8KanalReceiverV2_XBee _8KanalReceiverV2_XBee;
-        private C8KanalReceiverV2_SDCard _8KanalReceiverV2_SDCard;
+        private C8KanalReceiverV2_RS232? _8KanalReceiverV2_RS232;
+        private C8KanalReceiverV2_XBee? _8KanalReceiverV2_XBee;
+        private C8KanalReceiverV2_SDCard? _8KanalReceiverV2_SDCard;
         
         /// <summary>
         /// FTDI driver class
         /// </summary>
-        public CFTDI_D2xx FTDI_D2xx;
+        public CFTDI_D2xx? FTDI_D2xx;
 
-        public CSDCardConnection SDCardConnection;
+        public CSDCardConnection? SDCardConnection;
 
         /// <summary>
         /// Signal Strength [%]
@@ -82,7 +82,7 @@ namespace FeedbackDataLib
         /// <value>
         /// The neurolink serial number.
         /// </value>
-        public string NeurolinkSerialNumber { get; private set; }
+        public string NeurolinkSerialNumber { get; private set; } = "";
 
         /// <summary>
         /// FTDI Product ID (PID)
@@ -93,14 +93,16 @@ namespace FeedbackDataLib
             {
                 if (_ComPortInfo != null)
                 {
-                    CVID_PID pv = new CVID_PID
+                    CVID_PID pv = new()
                     {
                         VID_PID = _ComPortInfo.VID_PID
                     };
                     return pv.PID;
                 }
                 else
+                {   if (FTDI_D2xx == null) return "";
                     return FTDI_D2xx.PID(FTDI_D2xx.IndexOfDeviceToOpen);
+                }
             }
         }
 
@@ -120,7 +122,10 @@ namespace FeedbackDataLib
                     return pv.VID;
                 }
                 else
+                {
+                    if (FTDI_D2xx == null) return "";
                     return FTDI_D2xx.VID(FTDI_D2xx.IndexOfDeviceToOpen);
+                }
             }
         }
 
@@ -138,7 +143,7 @@ namespace FeedbackDataLib
                     return _ComPortInfo.VID_PID;
                 else
                 {
-                    CVID_PID pv = new CVID_PID
+                    CVID_PID pv = new ()
                     {
                         PID = PID,
                         VID = VID
@@ -161,10 +166,12 @@ namespace FeedbackDataLib
                 {
                     case enumNeuromasterConnectionType.XBeeConnection:
                         {
+                            if (_8KanalReceiverV2_XBee is null) return "";
                             return _8KanalReceiverV2_XBee.XBeeConnection.PortName;
                         }
                     case enumNeuromasterConnectionType.RS232Connection:
                         {
+                            if (_8KanalReceiverV2_RS232 is null) return "";
                             return _8KanalReceiverV2_RS232.SerialPort.PortName;
                         }
                     default:
@@ -178,7 +185,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// THE connection to the Neuromaster
         /// </summary>
-        public C8KanalReceiverV2_CommBase Connection
+        public C8KanalReceiverV2_CommBase? Connection
         {
             get
             {
@@ -211,12 +218,17 @@ namespace FeedbackDataLib
         /// </summary>
         public enumConnectionStatus ConnectionStatus
         {
-            get {
+            get
+            {
                 if (_ConnectionStatus == enumConnectionStatus.USB_disconnected ||
                     _ConnectionStatus == enumConnectionStatus.USB_reconnected)
                     return _ConnectionStatus;
                 else
-                return Connection.GetConnectionStatus(); }
+                {
+                    if (Connection is null) return enumConnectionStatus.Not_Connected;
+                    return Connection.GetConnectionStatus();
+                }
+            }
         }
 
 
@@ -229,8 +241,14 @@ namespace FeedbackDataLib
         /// </value>
         public bool EnableDataReadyEvent
         {
-            get { return Connection.RS232Receiver.EnableDataReadyEvent; }
-            set { Connection.RS232Receiver.EnableDataReadyEvent = value; }
+            get {  
+                if (Connection?.RS232Receiver is null) return false;
+                return Connection.RS232Receiver.EnableDataReadyEvent; }
+            set {
+
+                if (Connection?.RS232Receiver is not null) 
+                    Connection.RS232Receiver.EnableDataReadyEvent = value; 
+            }
         }
 
 
@@ -309,10 +327,16 @@ namespace FeedbackDataLib
                 FTDI_D2xx = new CFTDI_D2xx();
             int numDevices = FTDI_D2xx.CheckForConnectedDevices();  //fast
 
-            List<string> descriptionContains = ["Neurolink"];
+            List<string> descriptionContains = [];
+
             if (DescriptionContains != null)
             {
                 descriptionContains.AddRange(DescriptionContains);
+            }
+            else
+            {
+                descriptionContains.Add("Neurolink");
+                descriptionContains.Add("Serial Converter");
             }
 
             if (numDevices != 0)
@@ -361,13 +385,12 @@ namespace FeedbackDataLib
                     //First look for RS232 because it is faster
                     //Open the related Port
                     ConnectionType = enumNeuromasterConnectionType.RS232Connection;
-                    if (this._8KanalReceiverV2_RS232 == null) 
-                        this._8KanalReceiverV2_RS232 = new C8KanalReceiverV2_RS232(FTDI_D2xx);
+                    if (_8KanalReceiverV2_RS232 == null) _8KanalReceiverV2_RS232 = new C8KanalReceiverV2_RS232(FTDI_D2xx);
 
                     //FTDI_D2xx.BaudRate = C8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;
-                    FTDI_D2xx.BaudRate = this._8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;     //4.2.2016
+                    FTDI_D2xx.BaudRate = _8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;     //4.2.2016
                     FTDI_D2xx.IndexOfDeviceToOpen = idxRS232Connection;
-                    if (this._8KanalReceiverV2_RS232.RS232Receiver.Check4Neuromaster_RS232())   //fast
+                    if (_8KanalReceiverV2_RS232.RS232Receiver.Check4Neuromaster_RS232())   //fast
                     {
                         //RS232 Connection is OK
                         this.ConnectionType = enumNeuromasterConnectionType.RS232Connection;

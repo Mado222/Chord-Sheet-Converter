@@ -489,7 +489,7 @@ namespace Neuromaster_Demo
         /// </summary>
         private void btGetConfigModules_Click(object sender, EventArgs e)
         {
-             if (DataReceiver.Connection.ScanModules())  //Start a new scanning of Modules
+            if (DataReceiver.Connection.ScanModules())  //Start a new scanning of Modules
             {
                 AddStatusString("ScanModules OK", Color.Green);
 
@@ -861,7 +861,7 @@ namespace Neuromaster_Demo
         cTCP_Interface TCP_Interface;
         private void btOpenTCP_Click(object sender, EventArgs e)
         {
-            TCP_Interface ??= new cTCP_Interface(); 
+            TCP_Interface ??= new cTCP_Interface();
             TCP_Interface.StatusMessage += TCP_Interface_StatusMessage;
             TCP_Interface.Init();
         }
@@ -869,6 +869,17 @@ namespace Neuromaster_Demo
         private void TCP_Interface_StatusMessage(string data, Color color)
         {
             AddStatusString(data, color);
+        }
+
+        private void btNMInfo_Click(object sender, EventArgs e)
+        {
+            CNMFirmwareVersion NMFirmwareVersion = new ();
+            DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
+
+            AddStatusString("NM UID: " + NMFirmwareVersion.uuid, Color.DarkOliveGreen);
+            AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersion_string, Color.DarkOliveGreen);
+            AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersion_string, Color.DarkOliveGreen);
+
         }
     }
 }

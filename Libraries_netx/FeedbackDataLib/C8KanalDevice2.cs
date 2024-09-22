@@ -63,7 +63,7 @@ namespace FeedbackDataLib
         /// Count Modules of same type and Generate/Set Virtual ID
         /// </remarks>
         //public void UbpdateModuleInfoFrom_ByteArray(byte[] InBuf, bool Update_from_xml_File)
-        public void UbpdateModuleInfoFrom_ByteArray(byte[] InBuf)
+        public bool UbpdateModuleInfoFrom_ByteArray(byte[] InBuf)
         {
             uint[] cntTypes = new uint[Enum.GetNames(typeof(enumModuleType)).Length];
 
@@ -83,6 +83,9 @@ namespace FeedbackDataLib
                     mi.SetHW_cn(cnt_Channels);
                 }
                 cnt_Channels++;
+
+                if (mi.HW_cn < 0 || mi.HW_cn >= ModuleInfos.Count)
+                    return false;
 
                 switch (mi.ModuleType)
                 {
@@ -138,6 +141,7 @@ namespace FeedbackDataLib
                     }
                 }
             }
+            return true;
         }
 
         /// <summary>
