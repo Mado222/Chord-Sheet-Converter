@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ComponentsLib_GUI">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\ComponentsLib_GUI.dll</HintPath>
+    </Reference>
+    <Reference Include="FeedbackDataLib">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\FeedbackDataLib.dll</HintPath>
+    </Reference>
+    <Reference Include="WindControlLib">
+      <HintPath>F:\Daten\Visual Studio 23_net8\VS8_Insight\dlls_netx\Release\net8.0-windows\WindControlLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
