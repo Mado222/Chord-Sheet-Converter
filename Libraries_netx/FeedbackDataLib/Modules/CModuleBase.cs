@@ -305,8 +305,14 @@ namespace FeedbackDataLib.Modules
             int ptr = Update_UID_ModuleType_From_ByteArray(InBuf, Pointer_To_Array_Start);
             sWChannels_Module = [];
 
-            //for (uint i = 0; i < C8KanalReceiverV2_CommBase.num_SWChannels_sent_by_HW; i++)
-            for (uint i = 0; i < num_SWChannels_sent_by_HW; i++)
+            /* 30.9.2024
+             * alte Module senden immer alle 4 SW Kanäle, Neu haben unterschiedliche Anzahl
+             */
+            int numswchan = C8KanalReceiverV2_CommBase.num_SWChannels_sent_by_HW;
+            if (ModuleTypeNumber >= (int)enumModuleType.cModuleExGADS94)
+                numswchan = num_SWChannels_sent_by_HW;
+
+            for (uint i = 0; i < numswchan; i++)
             {
                 CSWChannel swc = new();
                 ptr = swc.UpdateFrom_ByteArray(InBuf, ptr);
