@@ -68,8 +68,8 @@ namespace FeedbackDataLib.Modules
         {
             _num_raw_Channels = 4;
 
-            sumVals = new long[num_raw_Channels];
-            numVals = new int[num_raw_Channels];
+            sumVals = new long[numRawChannels];
+            numVals = new int[numRawChannels];
 
             ModuleColor = Color.LightBlue;
             ModuleName = "ExGADS1294";
@@ -90,11 +90,11 @@ namespace FeedbackDataLib.Modules
                 enumSWChannelType.cSWChannelTypeExGADS3
             ];
 
-            extraDatas = new ExtraData<EnTypeExtradat_ADS>[num_raw_Channels][];
+            extraDatas = new ExtraData<EnTypeExtradat_ADS>[numRawChannels][];
             int innerSize = Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length;
-            ElectrodeDatas = new CEEGElectrodeData[num_raw_Channels];
+            ElectrodeDatas = new CEEGElectrodeData[numRawChannels];
 
-            for (int i = 0; i < num_raw_Channels; i++)
+            for (int i = 0; i < numRawChannels; i++)
             {
                 ElectrodeDatas[i] = new CEEGElectrodeData();
                 extraDatas[i] = new ExtraData<EnTypeExtradat_ADS>[innerSize];
@@ -167,7 +167,7 @@ namespace FeedbackDataLib.Modules
             var chan = (CDataIn)dataIn.Clone();
             int d = dataIn.Value;
 
-            if (dataIn.SW_cn < num_raw_Channels)
+            if (dataIn.SW_cn < numRawChannels)
             {
                 //ExecAutorange(dataIn); //debug weg
 
@@ -262,13 +262,13 @@ namespace FeedbackDataLib.Modules
         public byte[] Get_SWConfigChannelsByteArray2()
         {
             bool[] buSend = new bool[SWChannels.Count];
-            for (int i = num_raw_Channels; i < SWChannels.Count; i++)
+            for (int i = numRawChannels; i < SWChannels.Count; i++)
             {
                 buSend[i] = SWChannels[i].SendChannel;
             }
             byte [] ret = base.Get_SWConfigChannelsByteArray(SWChannels);
 
-            for (int i = num_raw_Channels; i < SWChannels.Count; i++)
+            for (int i = numRawChannels; i < SWChannels.Count; i++)
             {
                 SWChannels[i].SendChannel = buSend[i];
             }

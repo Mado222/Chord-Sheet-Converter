@@ -1669,7 +1669,7 @@ namespace Neuromaster_V5
                     {
                         if (num_raw_EEG_Channels < 0)
                         {
-                            num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].num_raw_Channels;
+                            num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].numRawChannels;
 
                         }
 

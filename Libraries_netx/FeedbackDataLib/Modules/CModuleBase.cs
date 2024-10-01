@@ -13,7 +13,7 @@ namespace FeedbackDataLib.Modules
     {
 
         protected int _num_raw_Channels = 4;
-        public int num_raw_Channels { get => _num_raw_Channels; }
+        public int numRawChannels { get => _num_raw_Channels; }
 
         public const int ModuleSpecific_sizeof = 16;
         protected byte[] ModuleSpecific = new byte[ModuleSpecific_sizeof];

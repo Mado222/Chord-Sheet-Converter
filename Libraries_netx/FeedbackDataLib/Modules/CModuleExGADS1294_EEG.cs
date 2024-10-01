@@ -75,14 +75,14 @@ namespace FeedbackDataLib.Modules
         {
             _ModuleType_Unmodified = enumModuleType.cModuleExGADS94;
             _ModuleType = enumModuleType.cModuleEEG;
-            dtNextSpectrumUpdate = new DateTime[num_raw_Channels];
-            tsSpectrumUpdateInterval_ms = new TimeSpan[num_raw_Channels];
-            for (int i = 0; i < num_raw_Channels; i++)
+            dtNextSpectrumUpdate = new DateTime[numRawChannels];
+            tsSpectrumUpdateInterval_ms = new TimeSpan[numRawChannels];
+            for (int i = 0; i < numRawChannels; i++)
             {
                 dtNextSpectrumUpdate[i] = DateTime.Now;
                 tsSpectrumUpdateInterval_ms[i] = default_SpectrumUpdateInterval_ms;
             }
-            FFT_Channels_List = new List<CActiveFFTChannel>[num_raw_Channels];
+            FFT_Channels_List = new List<CActiveFFTChannel>[numRawChannels];
             for (int i = 0; i< FFT_Channels_List.Length; i++)
             {
                 FFT_Channels_List[i] = new List<CActiveFFTChannel>();
@@ -95,16 +95,16 @@ namespace FeedbackDataLib.Modules
             base.Init ();
             ModuleName = "EEG";
             ModuleColor = Color.Yellow;
-            dtNextSpectrumUpdate = new DateTime[num_raw_Channels];
+            dtNextSpectrumUpdate = new DateTime[numRawChannels];
 
             //Setup new Software channel names
             cSWChannelNames.Clear();
-            for (int i = 0; i < num_raw_Channels; i++)
+            for (int i = 0; i < numRawChannels; i++)
             {
                 dtNextSpectrumUpdate[i] = DateTime.Now + tsSpectrumUpdateInterval_ms[i];
                 cSWChannelNames.Add("EEG ch " + i.ToString());
             }
-            for (int i = 0; i < num_raw_Channels; i++)
+            for (int i = 0; i < numRawChannels; i++)
             {
                 string[] longnames = new CEEGCalcChannels().Get_longNamesArray();
                 for (int j = 0; j < longnames.Length; j++)
@@ -124,10 +124,10 @@ namespace FeedbackDataLib.Modules
 
             if (FFT_Channels_List != null)
             {
-                for (int rawch = 0; rawch < num_raw_Channels; rawch++)
+                for (int rawch = 0; rawch < numRawChannels; rawch++)
                 {
                     FFT_Channels_List[rawch].Clear();
-                    for (int i = num_raw_Channels; i < SWChannels.Count; i++)
+                    for (int i = numRawChannels; i < SWChannels.Count; i++)
                     {
                         if (SWChannels[i].SendChannel && Char.GetNumericValue(SWChannels[i].SWChannelName[0]) == rawch)
                         {
@@ -160,7 +160,7 @@ namespace FeedbackDataLib.Modules
             //Die GUI Kanäle erst umprogrammieren wenn sie nach SWChannels_Module kopiert wurden
 
             //In the beginning are the raw channels
-            int i = num_raw_Channels;
+            int i = numRawChannels;
             while (i < cSWChannelNames.Count)
             {
                 int related_raw_chanNo = int.Parse(cSWChannelNames[i][0].ToString());
@@ -178,7 +178,7 @@ namespace FeedbackDataLib.Modules
             //Prepare sample Intervals for EEG Prozessor
             if (EEGProcessor == null || EEGProcessor.Length == 0)
             {
-                EEGProcessor = new CEEGProcessor[num_raw_Channels];
+                EEGProcessor = new CEEGProcessor[numRawChannels];
                 for (i = 0; i < EEGProcessor.Length; i++)
                 {
                     CEEGCalcChannels eegc = new();
@@ -255,7 +255,7 @@ namespace FeedbackDataLib.Modules
 
             //protected List<CDataIn> ProcessDataEEG_Basic(CDataIn originalData, List<CDataIn> processedData)
             //{
-            if (originalData.SW_cn < num_raw_Channels)
+            if (originalData.SW_cn < numRawChannels)
             {
                 int swcn = originalData.SW_cn;
                 if (sWChannels_Module[swcn].SendChannel)
@@ -291,7 +291,7 @@ namespace FeedbackDataLib.Modules
         {
             if (IsModuleActive())
             {
-                for (int i=0; i< num_raw_Channels; i++)
+                for (int i=0; i< numRawChannels; i++)
                 {
                     SWChannels_Module[i].SWChannelConfig= SWChannels[i].SWChannelConfig; //Raw signals channels are in the beginning
                 }

@@ -676,7 +676,7 @@ namespace FeedbackDataLib
                 try
                 {
                     Device ??= new C8KanalDevice2();
-                     ret = Device.UbpdateModuleInfoFrom_ByteArray([.. AllData]);
+                    ret = Device.UbpdateModuleInfoFrom_ByteArray([.. AllData]);
                     if (ret)
                     {
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
