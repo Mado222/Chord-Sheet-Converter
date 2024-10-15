@@ -1,0 +1,106 @@
+﻿<Window x:Class="ChordSheetConverter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChordSheetConverter"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1200" Width="1200"
+        Loaded="Window_Loaded">
+    <Grid x:Name="GridMain">
+        <!-- Grid Layout -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="10*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.4*" />
+            <ColumnDefinition Width="0.2*"/>
+            <ColumnDefinition Width="0.4*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Main content area filling available space -->
+        <Label x:Name="lblSource" Grid.Column="0" Grid.Row="0" Content="Source:" FontSize="14" FontWeight="Bold"/>
+        <Label x:Name="lblTarget" Grid.Column="2" Grid.Row="0" Content="Target:" FontSize="14" FontWeight="Bold"/>
+
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Height="Auto" Background="Gray">
+            <GroupBox x:Name="gbSource" Height="Auto" Header="Source Type:"/>
+            <GroupBox x:Name="gbTarget" Height="Auto" Header="Target Type:"/>
+            <Button x:Name="btConvert" Content="-&gt; Convert -&gt;" Height="50" Click="btConvert_Click" Margin="0,20,0,10"/>
+            <StackPanel Width="Auto" Height="Auto" Background="Beige" Margin="0,10,0,0">
+                <GroupBox x:Name="grNashville" Height="Auto" Header="Nashville / Key:">
+                    <StackPanel x:Name="stpNashville">
+                        <CheckBox x:Name="cbNashvilleActive" Content="Active" Margin="5" Checked="cbNashvilleActive_Checked"/>
+                        <ComboBox x:Name="cbScaleType"  HorizontalAlignment="Stretch" Margin="5"/>
+                        <ComboBox x:Name="cbKey" HorizontalAlignment="Stretch" Margin="5"/>
+
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Text in  -->
+        <local:MyRichTextBox x:Name="txtIn" Height="Auto" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="Text in"/>
+                </Paragraph>
+            </FlowDocument>
+        </local:MyRichTextBox>
+        <!-- Text out  -->
+        <local:MyRichTextBox x:Name="txtOut" Height="Auto" Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <FlowDocument>
+                <Paragraph>
+                    <Run Text="Text out"/>
+                </Paragraph>
+            </FlowDocument>
+        </local:MyRichTextBox>
+
+        <!-- Batch processing  -->
+        <StackPanel Grid.Row="2" Grid.Column="0" Width="Auto" Background="Beige" Grid.ColumnSpan="3">
+            <Label x:Name="lblBatchProcessing" Content="Batch Processing:" FontSize="14" FontWeight="Bold"/>
+            <Label x:Name="lblDrag" Content="Drag/Drop below" Margin="5"/>
+        </StackPanel>
+
+        <DataGrid x:Name="dgvFiles" Grid.Row="3" Grid.ColumnSpan="2" Height="Auto" AutoGenerateColumns="False" Drop="dgvFiles_Drop" ItemsSource="{Binding FileItems}">
+            <!-- Manually defined columns -->
+            <DataGrid.Columns>
+                <!-- Bind to FileNamePath property -->
+                <DataGridTextColumn Header="File Name" Binding="{Binding fileNamePath}" Width=".8*"/>
+                <!-- Bind to ProcessStatus property -->
+                <DataGridTextColumn Header="Status" Binding="{Binding processStatus}" Width=".2*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid x:Name="grBatch" Grid.Column="2" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <GroupBox Header="Save to:" Grid.Column="0" Grid.Row="0">
+                <StackPanel x:Name="gbSaveTo">
+                    <RadioButton x:Name="rbOriginal" Content="Source Directory" HorizontalAlignment="Left" Margin="5" IsChecked="True" Checked="rbOriginal_Checked"/>
+                    <RadioButton x:Name="rbSelected" Content="Select Directory" HorizontalAlignment="Left" Margin="5" ToggleButton.Checked="rbSelected_Checked"/>
+                </StackPanel>
+            </GroupBox>
+            <StackPanel Grid.Column="1" Grid.Row="0">
+                <TextBox x:Name="txtSavingPath" TextWrapping="Wrap" 
+                         Text="Path"
+                         Width="Auto"
+                         AcceptsReturn="True"
+                         Margin="10"/>
+                <Image x:Name="pbSaveTo" Height="50" Width="50" Source="/Save-icon.png" Margin="10" MouseUp="pbSaveTo_MouseUp"/>
+            </StackPanel>
+            <Button x:Name="btBatchConvert" Grid.Column="0" Grid.Row="1" Content="Batch Convert" Height="50" Margin="5,5,5,5" Click="btBatchConvert_Click"/>
+            <Button x:Name="btClear" Grid.Column="1" Grid.Row="1" Content="Clear List" Height="50" Margin="5,5,5,5" Click="btClear_Click"/>
+        </Grid>
+    </Grid>
+</Window>
