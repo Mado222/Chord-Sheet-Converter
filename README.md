@@ -1,4 +1,4 @@
-======= Work in progress Software works basically lots of improvements oopen ;-) ====================
+==================== Work in progress - software works basically - lots of improvements open ;-) ====================
 <h1>Chord Sheet Converter</h1>
 <h2>Overview</h2>
 <p>The <strong>Chord Sheet Converter</strong> is a flexible tool designed to convert chord sheet files from popular formats like <a target="_blank" rel="noopener noreferrer" href="https://opensong.org/"><strong>OpenSong</strong></a>, <a target="_blank" rel="noopener noreferrer" href="https://www.ultimate-guitar.com/"><strong>UltimateGuitar</strong></a>, and <a target="_blank" rel="noopener noreferrer" href="https://www.chordpro.org/"><strong>ChordPro</strong> </a>into a richly formatted <strong>DOCX</strong> document. The tool allows you to generate highly customizable chord sheets, utilizing tags and styles to ensure a professional and polished output suitable for printing or sharing.</p>
