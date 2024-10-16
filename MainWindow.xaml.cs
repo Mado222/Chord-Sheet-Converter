@@ -7,6 +7,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using static ChordSheetConverter.CScales;
 using static ChordSheetConverter.UltimateGuitarToChordpro;
+using static ChordSheetConverter.CDocxFormatter;
+using DocumentFormat.OpenXml.ExtendedProperties;
 
 namespace ChordSheetConverter
 {
@@ -58,7 +60,7 @@ namespace ChordSheetConverter
             UltimateGuitar,
             OpenSong,
             ChordPro,
-            RTF
+            DOCX
         }
 
         // Dictionary mapping FileFormatTypes to their respective file extensions
@@ -174,6 +176,10 @@ namespace ChordSheetConverter
         {
             if (txtIn.text is not null)
             {
+                Dictionary<string, string> xmlContent = [];
+                List<(string tag, string text)> fullLyrics = [];
+
+
                 string[] lines = txtIn.text.Split(line_separators, StringSplitOptions.None);
                 string? key = null;
                 if ((bool)cbNashvilleActive.IsChecked)
@@ -198,7 +204,7 @@ namespace ChordSheetConverter
                                 converted = ConvertUGToChordPro(lines, songtitle, key);
                                 txtOut.text = string.Join(Environment.NewLine, converted);
                                 break;
-                            case FileFormatTypes.RTF:
+                            case FileFormatTypes.DOCX:
 
                                 break;
                         }
@@ -212,10 +218,11 @@ namespace ChordSheetConverter
                                 txtOut.text = txtIn.text;
                                 break;
                             case FileFormatTypes.ChordPro:
-                                //txtOut.Text = OpenSongToChordPro.ConvertSong(txtIn.Text);
-                                txtOut.text = ConvertOpenSongToChordPro(@"d:\OneDrive\Banjo and more\opensong\Songs\Dirty old Town");
+                                (xmlContent, string lyrics) = ConvertOpenSong.convertToChordPro(txtIn.text);
+                                txtOut.text = lyrics;
                                 break;
-                            case FileFormatTypes.RTF:
+                            case FileFormatTypes.DOCX:
+                                OpenSongToDOCX();
                                 break;
                         }
                         break;
@@ -225,19 +232,45 @@ namespace ChordSheetConverter
                             case FileFormatTypes.UltimateGuitar:
                                 break;
                             case FileFormatTypes.OpenSong:
-
+                                ChordProToDOCX(txtIn.text);
                                 break;
                             case FileFormatTypes.ChordPro:
                                 txtOut.text = txtIn.text;
                                 break;
-                            case FileFormatTypes.RTF:
-                                CFont ft = new(new FontFamily("Consolas"), 14.0, FontWeights.Normal, FontStyles.Normal, Colors.Black);
-                                txtOut.rtfText = CMusicSheetToRTF.ConvertToRTF(lines);
+                            case FileFormatTypes.DOCX:
                                 break;
                         }
                         break;
                 }
             }
+        }
+
+        private void OpenSongToDOCX()
+        {
+            Dictionary<string, string> xmlContent = [];
+            List<(string tag, string text)> fullLyrics = [];
+
+            (xmlContent, fullLyrics) = ConvertOpenSong.convertToDocx(txtIn.text);
+            txtOut.text = string.Join(Environment.NewLine, fullLyrics.Select(tuple => $"{tuple.tag}: {tuple.text}"));
+            string inP = @"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Template1.docx";
+            string outP = @"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Out.docx";
+            xmlContent.Remove("song");
+            string ret = ReplaceInTemplate(inP, outP, xmlContent, fullLyrics);
+            if (ret != "")
+                txtOut.text = ret;
+
+        }
+        private void ChordProToDOCX (string text)
+        {
+            CFont ft = new(new FontFamily("Consolas"), 14.0, FontWeights.Normal, FontStyles.Normal, Colors.Black);
+            var replacements = new Dictionary<string, string>
+                                {
+                                    { "{Title}", "Paradise" },
+                                    { "{Composer}", "John Prine" }
+                                };
+            //replaceTagsInDocx(@"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Template1.docx", replacements);
+
+            txtOut.rtfText = CMusicSheetToRTF.ConvertToRTF(CBasicConverter.stringToLines(text));
         }
 
         #region RadioButtons_FileFormatTypes
@@ -418,14 +451,8 @@ namespace ChordSheetConverter
                 }
             }
         }
-        private void DoEvents()
-        {
-            Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
-        }
+        private void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
 
-        private void btClear_Click(object sender, RoutedEventArgs e)
-        {
-            FileItems.Clear();
-        }
+        private void btClear_Click(object sender, RoutedEventArgs e) => FileItems.Clear();
     }
 }

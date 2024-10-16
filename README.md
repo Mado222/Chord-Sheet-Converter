@@ -1,9 +1,9 @@
 <h1>Chord Sheet Converter</h1>
 <h2>Overview</h2>
-<p>The <strong>Chord Sheet Converter</strong> is a flexible tool designed to convert chord sheet files from popular formats like <strong>OpenSong</strong>, <strong>UltimateGuitar</strong>, and <strong>ChordPro</strong> into a richly formatted <strong>DOCX</strong> document. The tool allows you to generate highly customizable chord sheets, utilizing tags and styles to ensure a professional and polished output suitable for printing or sharing.</p>
+<p>The <strong>Chord Sheet Converter</strong> is a flexible tool designed to convert chord sheet files from popular formats like <a target="_blank" rel="noopener noreferrer" href="https://opensong.org/"><strong>OpenSong</strong></a>, <a target="_blank" rel="noopener noreferrer" href="https://www.ultimate-guitar.com/"><strong>UltimateGuitar</strong></a>, and <a target="_blank" rel="noopener noreferrer" href="https://www.chordpro.org/"><strong>ChordPro</strong> </a>into a richly formatted <strong>DOCX</strong> document. The tool allows you to generate highly customizable chord sheets, utilizing tags and styles to ensure a professional and polished output suitable for printing or sharing.</p>
 <h2>Features</h2>
 <ul>
-    <li><strong>Multi-Format Support</strong>: Import chord sheet files from OpenSong, UltimateGuitar, and ChordPro.</li>
+    <li><strong>Multi-Format Support</strong>: Import chord sheet files from <a target="_blank" rel="noopener noreferrer" href="https://opensong.org/">OpenSong</a>, <a target="_blank" rel="noopener noreferrer" href="https://www.ultimate-guitar.com">UltimateGuitar</a>, and <a target="_blank" rel="noopener noreferrer" href="https://www.chordpro.org/">ChordPro</a>.</li>
     <li><strong>DOCX Export</strong>: Converts your chord sheets into a Microsoft Word document (DOCX) with professional formatting.</li>
     <li><strong>Tag-based Formatting</strong>: Use tags to apply various styles and formatting options, making the output highly customizable.</li>
     <li><strong>Flexible Styling</strong>: Define custom fonts, colors, and other style elements to ensure the generated chord sheet matches your needs.</li>
@@ -51,6 +51,7 @@ cd chord-sheet-converter
   &lt;title&gt;Amazing Grace&lt;/title&gt;
   &lt;author&gt;&lt;/author&gt;
   &lt;copyright&gt;&lt;/copyright&gt;
+
   &lt;lyrics&gt;
  
  ;Comment
@@ -63,26 +64,61 @@ cd chord-sheet-converter
  I once was lost, but now am found,
 .     Em        D7     G   C/D
  was blind, but now I see.
-&lt;/lyrics&gt;
+  &lt;/lyrics&gt;
   &lt;key&gt;&lt;/key&gt;
-  &lt;aka&gt;&lt;/aka&gt;
   &lt;key_line&gt;&lt;/key_line&gt;
-  &lt;linked_songs/&gt;
-  &lt;time_sig&gt;&lt;/time_sig&gt;
-  &lt;backgrounds resize="screen" keep_aspect="false" link="false" background_as_text="false"/&gt;
 &lt;/song&gt;
+</code></pre>
+<p>ChordPro:</p>
+<pre><code class="language-plaintext">{title: Paradise}
+When [C]I was a child my [F]family would [C]travel,
+down to Western Kentucky where my [G7]parents were [C]born
+And there's a backwards old town that's [F]often re[C]membered,
+so many times that my [G7]memories are [C]worn.</code></pre>
+<p>UltimateGuitar:</p>
+<pre><code class="language-plaintext">[Verse 1]
+     F              Bb/F       F
+Amazing Grace, how sweet the sound,
+                         C7
+that saved a wretch like me.
+     F      F7        Bb      F
+I once was lost, but now am found,
+     Dm        C7     F   Bb/C
+was blind, but now I see.
+
+[Verse 2]
+       F                    Bb       F
+'Twas grace that taught my heart to fear,
+                      C7
+and grace my fears relieved.
+       F     F7        Bb      F
+How precious did that grace appear, 
+    Dm      C7     F      D7
+the hour I first believed.
 </code></pre>
 <p>After processing, the output will be a neatly styled DOCX file, with chords and lyrics formatted according to the tags and style definitions.</p>
 <h2>Customization</h2>
-<p>You can modify the default styles by adjusting the tags within the input files. The following tags are supported:</p>
+<p>Design your Template DOCX completely to your needs - <strong>see Template1.docx</strong>. (One column, 2 columns …. etc)</p>
+<p>Use tags to specify the place where song information comes in.</p>
 <ul>
-    <li><code>{title}</code>: Specifies the song title.</li>
-    <li><code>{artist}</code>: Specifies the artist.</li>
-    <li><code>{define}</code>: Defines chords.</li>
-    <li><code>[chord]</code>: Wraps the chord to be displayed in the document.</li>
-    <li><code>[section]</code>: Marks sections like verse, chorus, etc.</li>
+    <li><code>{SongTitle}</code>: Specifies the song title.</li>
+    <li><code>{SongAuthor}</code>: Specifies the artist/composer/….</li>
+    <li><code>{SongBody}</code>: Section with Lytics and Chords</li>
+    <li>
+        <p><code>{SongComment}</code>: Whatever you like</p>
+        <p>&nbsp;</p>
+    </li>
 </ul>
-<p>For advanced styling, refer to the project’s documentation.</p>
+<p>Create styles with the following names:</p>
+<ul>
+    <li><code>SongTitle</code>: Style for {SongTitle}</li>
+    <li><code>SongAuthor</code>: Style for {SongAuthor}</li>
+    <li><code>SongComment</code>: Style for {<code>SongComment</code>}</li>
+    <li><code>SongChords</code>: Style for lines with chords</li>
+    <li><code>SongText</code>: Style for lyric lines</li>
+    <li><code>SongSection</code>: Style for section labels like “Vers 1”, “Chorus”, …</li>
+</ul>
+<p>&nbsp;</p>
 <h2>Contributing</h2>
 <p>We welcome contributions to improve this tool! If you have suggestions, feature requests, or bug reports, feel free to open an issue or submit a pull request.</p>
 <h2>License</h2>
