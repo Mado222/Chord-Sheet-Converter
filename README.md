@@ -30,7 +30,7 @@
 <ol>
     <li>
         <p>Clone the repository:</p>
-        <pre><code class="language-plaintext">git clone https://github.com/yourusername/chord-sheet-converter.git
+        <pre><code class="language-plaintext">git clone https://github.com/Mado222/chord-sheet-converter.git
 cd chord-sheet-converter
 </code></pre>
     </li>
