@@ -9,6 +9,7 @@ using static ChordSheetConverter.CScales;
 using static ChordSheetConverter.UltimateGuitarToChordpro;
 using static ChordSheetConverter.CDocxFormatter;
 using DocumentFormat.OpenXml.ExtendedProperties;
+using System.Windows.Xps.Packaging;
 
 namespace ChordSheetConverter
 {
@@ -19,9 +20,21 @@ namespace ChordSheetConverter
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
     public partial class MainWindow : Window
     {
+        private enum FileFormatTypes
+        {
+            UltimateGuitar,
+            OpenSong,
+            ChordPro,
+            DOCX
+        }
+
         private static readonly string[] line_separators = ["\r\n", "\n"];
         private FileFormatTypes FileFormatTypeSource;
         private FileFormatTypes FileFormatTypeTarget;
+        CustomSettings customSettings = new();
+
+        private string LoadedSourceFile = "";
+        private string SavedTargetFile = "";
 
         // ObservableCollection to hold the list of songs
         public ObservableCollection<CFileItem> FileItems { get; set; }
@@ -44,8 +57,8 @@ namespace ChordSheetConverter
         {
             dgvFiles.AllowDrop = true;
 
-            CreateRadioButtonsFromEnum(gbSource, FileFormatTypeSource, RadioButton_CheckedChanged_Source);
-            CreateRadioButtonsFromEnum(gbTarget, FileFormatTypeTarget, RadioButton_CheckedChanged_Target);
+            CreateRadioButtonsFromEnum(gbSource, FileFormatTypeSource, RadioButton_CheckedChanged_Source, [FileFormatTypes.DOCX]);
+            CreateRadioButtonsFromEnum(gbTarget, FileFormatTypeTarget, RadioButton_CheckedChanged_Target, [FileFormatTypes.UltimateGuitar]);
 
             cbKey.Items.Clear();
             cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
@@ -53,14 +66,11 @@ namespace ChordSheetConverter
             cbScaleType.SelectedIndex = 0;
             cbKey.Visibility = Visibility.Hidden;
             cbScaleType.Visibility = Visibility.Hidden;
-        }
 
-        enum FileFormatTypes
-        {
-            UltimateGuitar,
-            OpenSong,
-            ChordPro,
-            DOCX
+            customSettings.loadSettings();
+            loadTemplatesToComboBox(cbTemplates, customSettings);
+            ShowHideTemplate(Visibility.Collapsed);
+            ShowHideNashville(Visibility.Collapsed);
         }
 
         // Dictionary mapping FileFormatTypes to their respective file extensions
@@ -70,21 +80,6 @@ namespace ChordSheetConverter
         { FileFormatTypes.OpenSong, new[] { ".", ".xml" } },
         { FileFormatTypes.ChordPro, new[] { ".cho", ".chopro" } }
     };
-
-        private void UpdateSourceTarge()
-        {
-            FileFormatTypes? ffts = GetSelectedFileFormatType(gbSource);
-            if (ffts is not null)
-            {
-                FileFormatTypeSource = (FileFormatTypes)ffts;
-            }
-
-            ffts = GetSelectedFileFormatType(gbTarget);
-            if (ffts is not null)
-            {
-                FileFormatTypeTarget = (FileFormatTypes)ffts;
-            }
-        }
 
         private static FileFormatTypes? GetSelectedFileFormatType(GroupBox groupBox)
         {
@@ -169,7 +164,21 @@ namespace ChordSheetConverter
 
         private void btConvert_Click(object sender, RoutedEventArgs e)
         {
-            ConvertLefttoRight("Test");
+            //ConvertLefttoRight("Test");
+            DocxToPdfConverter docxToXpsConverter = new();
+            string docxFilePath = "d:\\OneDrive\\Daten\\Visual Studio\\SongConverterWPF_net8\\Out.docx";
+            string pdfOutputPath = "d:\\OneDrive\\Daten\\Visual Studio\\SongConverterWPF_net8\\Out.pdf";
+            // Convert DOCX to XPS
+            docxToXpsConverter.convertDocxToPdf(docxFilePath, pdfOutputPath);
+
+            // Create and show the Document Viewer Window
+            DocViewerWindow docViewerWindow = new();
+
+            // Load the pdf file
+            docViewerWindow.webBrowserPdf.Navigate(new Uri(pdfOutputPath));
+
+            // Show the window
+            docViewerWindow.Show();
         }
 
         private void ConvertLefttoRight(string songtitle)
@@ -260,7 +269,7 @@ namespace ChordSheetConverter
                 txtOut.text = ret;
 
         }
-        private void ChordProToDOCX (string text)
+        private void ChordProToDOCX(string text)
         {
             CFont ft = new(new FontFamily("Consolas"), 14.0, FontWeights.Normal, FontStyles.Normal, Colors.Black);
             var replacements = new Dictionary<string, string>
@@ -275,7 +284,7 @@ namespace ChordSheetConverter
 
         #region RadioButtons_FileFormatTypes
         // Assuming you have a Panel or GroupBox named panelRadioButtons in your form
-        public static void CreateRadioButtonsFromEnum<T>(GroupBox groupBox, T selectedValue, RoutedEventHandler onCheckedChanged) where T : Enum
+        public static void CreateRadioButtonsFromEnum<T>(GroupBox groupBox, T selectedValue, RoutedEventHandler onCheckedChanged, T[] excludedValues) where T : Enum
         {
             // Create a StackPanel to hold the RadioButtons (WPF equivalent of Windows Forms control container)
             StackPanel stackPanel = new()
@@ -290,8 +299,16 @@ namespace ChordSheetConverter
             // Get all the values from the enum
             var enumValues = Enum.GetValues(typeof(T));
 
+            RadioButton firstRadioButton = null; // Keep track of the first radio button
+
             foreach (var value in enumValues)
             {
+                // Skip the value if it's in the excludedValues array
+                if (excludedValues != null && Array.Exists(excludedValues, excluded => excluded.Equals(value)))
+                {
+                    continue; // Skip this value if it's in the exclusion list
+                }
+
                 // Create a new RadioButton
                 RadioButton radioButton = new()
                 {
@@ -304,13 +321,26 @@ namespace ChordSheetConverter
                 // Attach the event handler for Checked
                 radioButton.Checked += onCheckedChanged;
 
+                // Keep track of the first RadioButton
+                if (firstRadioButton == null)
+                {
+                    firstRadioButton = radioButton;
+                }
+
                 // Add the RadioButton to the StackPanel
                 stackPanel.Children.Add(radioButton);
             }
 
             // Set the StackPanel as the content of the GroupBox
             groupBox.Content = stackPanel;
+
+            // If no RadioButton is checked, check the first one
+            if (firstRadioButton != null && !stackPanel.Children.OfType<RadioButton>().Any(rb => rb.IsChecked == true))
+            {
+                firstRadioButton.IsChecked = true;
+            }
         }
+
 
         private static RadioButton? GetSelectedRadioButtonInGroupBox(GroupBox groupBox)
         {
@@ -327,12 +357,34 @@ namespace ChordSheetConverter
         // Event handler that triggers when any radio button's checked state changes
         private void RadioButton_CheckedChanged_Source(object sender, EventArgs e)
         {
-            UpdateSourceTarge();
+            FileFormatTypes? ffts = GetSelectedFileFormatType(gbSource);
+            if (ffts is not null)
+            {
+                FileFormatTypeSource = (FileFormatTypes)ffts;
+                CreateRadioButtonsFromEnum(gbTarget, FileFormatTypeTarget, RadioButton_CheckedChanged_Target, [(FileFormatTypes)ffts]);
+            }
         }
 
         private void RadioButton_CheckedChanged_Target(object sender, EventArgs e)
         {
-            UpdateSourceTarge();
+
+            FileFormatTypes? ffts = GetSelectedFileFormatType(gbTarget);
+            if (ffts is not null)
+            {
+                FileFormatTypeTarget = (FileFormatTypes)ffts;
+                if (ffts == FileFormatTypes.DOCX)
+                {
+                    ShowHideTemplate(Visibility.Visible);
+                }
+                else
+                    ShowHideTemplate(Visibility.Collapsed);
+            }
+        }
+
+        private void ShowHideTemplate(Visibility v)
+        {
+            lblTemplate.Visibility = v;
+            cbTemplates.Visibility = v;
         }
         #endregion
 
@@ -348,18 +400,23 @@ namespace ChordSheetConverter
 
         private void cbNashvilleActive_Checked(object sender, RoutedEventArgs e)
         {
-            EnDisBatchConverting(!(bool)cbNashvilleActive.IsChecked);
+            cbNashvilleCheckedchanged(true);
+        }
 
-            Visibility vis = Visibility.Hidden;
-            if ((bool)cbNashvilleActive.IsChecked)
+        private void cbNashvilleActive_Unchecked(object sender, RoutedEventArgs e)
+        {
+            cbNashvilleCheckedchanged(false);
+        }
+
+        private void cbNashvilleCheckedchanged(bool ischecked)
+        {
+            EnDisBatchConverting(ischecked);
+
+            Visibility vis = Visibility.Collapsed;
+            if (ischecked)
             {
                 vis = Visibility.Visible;
-            }
-            cbKey.Visibility = vis;
-            cbScaleType.Visibility = vis;
-            if ((bool)cbNashvilleActive.IsChecked)
-            {
-                cbKey.ItemsSource = CScales.chromaticScale;  // Equivalent to cbKey.Items.AddRange
+                cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
                 string? chord = GuessKey();
                 if (chord != null)
                 {
@@ -367,7 +424,15 @@ namespace ChordSheetConverter
                 }
                 else { cbKey.SelectedIndex = 0; }
             }
+            ShowHideNashville(vis);
         }
+
+        private void ShowHideNashville(Visibility v)
+        {
+            cbScaleType.Visibility = v;
+            cbKey.Visibility = v;
+        }
+
 
         private string? GuessKey()
         {
@@ -454,5 +519,77 @@ namespace ChordSheetConverter
         private void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
 
         private void btClear_Click(object sender, RoutedEventArgs e) => FileItems.Clear();
+
+        private void btCopyTargetToSource_Click(object sender, RoutedEventArgs e) => txtIn.text = txtOut.text;
+
+        private void btCopySourceToTarget_Click(object sender, RoutedEventArgs e) => txtOut.text = txtIn.text;
+
+        private void btLoadSource_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btSaveSource_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btLoadTarget_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void btSaveTarget_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        public void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
+        {
+            // Get the template directory from settings
+            string templateDirectory = settings.defaultTemplateDirectory;
+
+            // Ensure the template directory exists
+            if (!Directory.Exists(templateDirectory))
+            {
+                Directory.CreateDirectory(templateDirectory);
+            }
+
+            // Get all .docx files in the template directory
+            string[] templateFiles = Directory.GetFiles(templateDirectory, "*.docx");
+
+            // If no templates found, copy default Template1.docx from the application directory
+            if (templateFiles.Length == 0)
+            {
+                string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                string defaultTemplatePath = Path.Combine(appDirectory, "Template1.docx");
+                string targetTemplatePath = Path.Combine(templateDirectory, "Template1.docx");
+
+                // Copy the default template if it doesn't already exist
+                if (File.Exists(defaultTemplatePath))
+                {
+                    File.Copy(defaultTemplatePath, targetTemplatePath, true);
+                    templateFiles = new[] { targetTemplatePath };
+                }
+                else
+                {
+                    throw new FileNotFoundException("Default template 'Template1.docx' not found in the application directory.");
+                }
+            }
+
+            // Clear the ComboBox before populating
+            comboBox.Items.Clear();
+
+            // Add each template file to the ComboBox (just the file names, without the path)
+            foreach (var file in templateFiles)
+            {
+                comboBox.Items.Add(Path.GetFileName(file));
+            }
+
+            // Optionally set the first template as selected
+            if (comboBox.Items.Count > 0)
+            {
+                comboBox.SelectedIndex = 0;
+            }
+        }
     }
 }
