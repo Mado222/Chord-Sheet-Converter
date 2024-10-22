@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ChordSheetConverter
@@ -109,5 +110,11 @@ namespace ChordSheetConverter
 
             return transposedScale;
         }
+        public static bool isValidChord(string chord)
+        {
+            string chordPattern = @"^[A-G][#b]?m?(maj|sus|dim|aug)?[0-9]?(add[0-9])?(/[A-G][#b]?)?$";
+            return Regex.IsMatch(chord, chordPattern);
+        }
+
     }
 }

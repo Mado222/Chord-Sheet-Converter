@@ -22,6 +22,13 @@ namespace ChordSheetConverter
             _settingsFile = Path.Combine(appDataPath, "settings.json");
         }
 
+        public string getFullPathFromTemplateFileName (string fileName)
+        {
+            string p = defaultTemplateDirectory + @"\" + fileName;
+            p=p.Replace(@"\\", @"\");
+            return p;
+        }
+
         // Load settings from the JSON file and apply them to this instance
         public void loadSettings()
         {

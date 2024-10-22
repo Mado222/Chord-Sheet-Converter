@@ -1,7 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using Microsoft.Office.Interop.Word;
+using System.Reflection;
 
 namespace ChordSheetConverter
 {
@@ -50,12 +49,30 @@ namespace ChordSheetConverter
         // Method to convert DOCX to PDF using Microsoft Word
         private static void convertDocxToPdfUsingWord(string docxFilePath, string pdfOutputPath)
         {
-            Application wordApp = new Application();
+            Type wordType = Type.GetTypeFromProgID("Word.Application");
+            if (wordType == null)
+            {
+                throw new Exception("Microsoft Word is not installed on this machine.");
+            }
+
+            object wordApp = Activator.CreateInstance(wordType);
+
             try
             {
-                Document wordDoc = wordApp.Documents.Open(docxFilePath);
-                wordDoc.SaveAs2(pdfOutputPath, WdSaveFormat.wdFormatPDF);
-                wordDoc.Close();
+                // Set the application to be invisible (background task)
+                 wordType.InvokeMember("Visible", BindingFlags.SetProperty, null, wordApp, new object[] { false });
+
+                // Get the Documents collection
+                object documents = wordType.InvokeMember("Documents", BindingFlags.GetProperty, null, wordApp, null);
+
+                // Open the DOCX file
+                object wordDoc = wordType.InvokeMember("Open", BindingFlags.InvokeMethod, null, documents, [docxFilePath]);
+
+                // Get the method to save as PDF (SaveAs2)
+                wordDoc.GetType().InvokeMember("SaveAs2", BindingFlags.InvokeMethod, null, wordDoc, new object[] { pdfOutputPath, 17 /* WdSaveFormat.wdFormatPDF */ });
+
+                // Close the Word document
+                wordDoc.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, wordDoc, null);
             }
             catch (Exception ex)
             {
@@ -63,7 +80,8 @@ namespace ChordSheetConverter
             }
             finally
             {
-                wordApp.Quit();
+                // Quit Word application
+                wordType.InvokeMember("Quit", BindingFlags.InvokeMethod, null, wordApp, null);
             }
         }
 

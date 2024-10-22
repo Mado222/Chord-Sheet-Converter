@@ -1,4 +1,6 @@
-﻿using Ookii.Dialogs.Wpf;
+﻿using Microsoft.Office.Interop.Word;
+using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -6,10 +8,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using static ChordSheetConverter.CScales;
-using static ChordSheetConverter.UltimateGuitarToChordpro;
-using static ChordSheetConverter.CDocxFormatter;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using System.Windows.Xps.Packaging;
+using static ChordSheetConverter.CUltimateGuitar;
+using FileFormatTypes = ChordSheetConverter.CAllConverters.FileFormatTypes;
 
 namespace ChordSheetConverter
 {
@@ -18,26 +18,21 @@ namespace ChordSheetConverter
     /// </summary>
     /// 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>")]
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
-        private enum FileFormatTypes
-        {
-            UltimateGuitar,
-            OpenSong,
-            ChordPro,
-            DOCX
-        }
 
-        private static readonly string[] line_separators = ["\r\n", "\n"];
-        private FileFormatTypes FileFormatTypeSource;
-        private FileFormatTypes FileFormatTypeTarget;
-        CustomSettings customSettings = new();
+        private readonly CustomSettings customSettings = new();
 
-        private string LoadedSourceFile = "";
-        private string SavedTargetFile = "";
+        private string SourceFileLoaded = "";
+        private string TargetFileSaved = "";
 
         // ObservableCollection to hold the list of songs
         public ObservableCollection<CFileItem> FileItems { get; set; }
+        private FileFormatTypes SourceFileFormatType { get => GetSelectedEnumValue<FileFormatTypes>(gbSource) ?? FileFormatTypes.ChordPro; set => SetSelectedRadioButton(gbSource, value); }
+        private FileFormatTypes TargetFileFormatType { get => GetSelectedEnumValue<FileFormatTypes>(gbTarget) ?? FileFormatTypes.ChordPro; set => SetSelectedRadioButton(gbTarget, value); }
+
+        private readonly CAllConverters allConverters = new ();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -50,15 +45,17 @@ namespace ChordSheetConverter
         ];
 
             // Set DataContext to this MainWindow
-            this.DataContext = this; // If binding to a DataGrid in XAML
+            DataContext = this; // If binding to a DataGrid in XAML
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             dgvFiles.AllowDrop = true;
 
-            CreateRadioButtonsFromEnum(gbSource, FileFormatTypeSource, RadioButton_CheckedChanged_Source, [FileFormatTypes.DOCX]);
-            CreateRadioButtonsFromEnum(gbTarget, FileFormatTypeTarget, RadioButton_CheckedChanged_Target, [FileFormatTypes.UltimateGuitar]);
+            CreateRadioButtonsFromEnum(gbSource, FileFormatTypes.ChordPro, RadioButton_CheckedChanged_Source, [FileFormatTypes.DOCX]);
+            CreateRadioButtonsFromEnum(gbTarget, FileFormatTypes.DOCX, RadioButton_CheckedChanged_Target, [FileFormatTypes.DOCX]);
+            SetTargetRB(FileFormatTypes.ChordPro);
+
 
             cbKey.Items.Clear();
             cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
@@ -73,14 +70,8 @@ namespace ChordSheetConverter
             ShowHideNashville(Visibility.Collapsed);
         }
 
-        // Dictionary mapping FileFormatTypes to their respective file extensions
-        private static readonly Dictionary<FileFormatTypes, string[]> fileExtensions = new()
-    {
-        { FileFormatTypes.UltimateGuitar, new[] { ".txt" } },
-        { FileFormatTypes.OpenSong, new[] { ".", ".xml" } },
-        { FileFormatTypes.ChordPro, new[] { ".cho", ".chopro" } }
-    };
 
+        #region RadioButtons_FileFormatTypes
         private static FileFormatTypes? GetSelectedFileFormatType(GroupBox groupBox)
         {
             // Use a recursive helper function to find RadioButtons
@@ -92,6 +83,19 @@ namespace ChordSheetConverter
                 }
             }
             return null;
+        }
+
+        private static void SetSelectedFileFormatType(GroupBox groupBox, FileFormatTypes fileFormatType)
+        {
+            // Use a recursive helper function to find RadioButtons
+            foreach (var element in FindVisualChildren<RadioButton>(groupBox))
+            {
+                if ((FileFormatTypes)element.Tag == fileFormatType)
+                {
+                    element.IsChecked = true;
+                    break;
+                }
+            }
         }
 
         // Helper method to recursively find children of a specific type (e.g., RadioButton)
@@ -141,148 +145,7 @@ namespace ChordSheetConverter
             }
         }
 
-        private static string GetSavePath(string startPath)
-        {
-            // Use Ookii Dialogs FolderBrowserDialog
-            VistaFolderBrowserDialog fb = new();
 
-            if (Directory.Exists(startPath))
-                fb.SelectedPath = startPath;
-            else
-                fb.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-            // Show the dialog
-            fb.ShowDialog();
-
-            return fb.SelectedPath;
-        }
-
-        private void pbSaveTo_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            txtSavingPath.Text = GetSavePath(txtSavingPath.Text);
-        }
-
-        private void btConvert_Click(object sender, RoutedEventArgs e)
-        {
-            //ConvertLefttoRight("Test");
-            DocxToPdfConverter docxToXpsConverter = new();
-            string docxFilePath = "d:\\OneDrive\\Daten\\Visual Studio\\SongConverterWPF_net8\\Out.docx";
-            string pdfOutputPath = "d:\\OneDrive\\Daten\\Visual Studio\\SongConverterWPF_net8\\Out.pdf";
-            // Convert DOCX to XPS
-            docxToXpsConverter.convertDocxToPdf(docxFilePath, pdfOutputPath);
-
-            // Create and show the Document Viewer Window
-            DocViewerWindow docViewerWindow = new();
-
-            // Load the pdf file
-            docViewerWindow.webBrowserPdf.Navigate(new Uri(pdfOutputPath));
-
-            // Show the window
-            docViewerWindow.Show();
-        }
-
-        private void ConvertLefttoRight(string songtitle)
-        {
-            if (txtIn.text is not null)
-            {
-                Dictionary<string, string> xmlContent = [];
-                List<(string tag, string text)> fullLyrics = [];
-
-
-                string[] lines = txtIn.text.Split(line_separators, StringSplitOptions.None);
-                string? key = null;
-                if ((bool)cbNashvilleActive.IsChecked)
-                {
-                    key = cbKey.Text;
-                }
-                string[] converted = [];
-
-                switch (FileFormatTypeSource)
-                {
-                    case FileFormatTypes.UltimateGuitar:
-                        switch (FileFormatTypeTarget)
-                        {
-                            case FileFormatTypes.UltimateGuitar:
-                                txtOut.text = txtIn.text;
-                                break;
-                            case FileFormatTypes.OpenSong:
-                                converted = ConvertUGToOpenSong(lines, songtitle, key);
-                                txtOut.text = string.Join(Environment.NewLine, converted);
-                                break;
-                            case FileFormatTypes.ChordPro:
-                                converted = ConvertUGToChordPro(lines, songtitle, key);
-                                txtOut.text = string.Join(Environment.NewLine, converted);
-                                break;
-                            case FileFormatTypes.DOCX:
-
-                                break;
-                        }
-                        break;
-                    case FileFormatTypes.OpenSong:
-                        switch (FileFormatTypeTarget)
-                        {
-                            case FileFormatTypes.UltimateGuitar:
-                                break;
-                            case FileFormatTypes.OpenSong:
-                                txtOut.text = txtIn.text;
-                                break;
-                            case FileFormatTypes.ChordPro:
-                                (xmlContent, string lyrics) = ConvertOpenSong.convertToChordPro(txtIn.text);
-                                txtOut.text = lyrics;
-                                break;
-                            case FileFormatTypes.DOCX:
-                                OpenSongToDOCX();
-                                break;
-                        }
-                        break;
-                    case FileFormatTypes.ChordPro:
-                        switch (FileFormatTypeTarget)
-                        {
-                            case FileFormatTypes.UltimateGuitar:
-                                break;
-                            case FileFormatTypes.OpenSong:
-                                ChordProToDOCX(txtIn.text);
-                                break;
-                            case FileFormatTypes.ChordPro:
-                                txtOut.text = txtIn.text;
-                                break;
-                            case FileFormatTypes.DOCX:
-                                break;
-                        }
-                        break;
-                }
-            }
-        }
-
-        private void OpenSongToDOCX()
-        {
-            Dictionary<string, string> xmlContent = [];
-            List<(string tag, string text)> fullLyrics = [];
-
-            (xmlContent, fullLyrics) = ConvertOpenSong.convertToDocx(txtIn.text);
-            txtOut.text = string.Join(Environment.NewLine, fullLyrics.Select(tuple => $"{tuple.tag}: {tuple.text}"));
-            string inP = @"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Template1.docx";
-            string outP = @"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Out.docx";
-            xmlContent.Remove("song");
-            string ret = ReplaceInTemplate(inP, outP, xmlContent, fullLyrics);
-            if (ret != "")
-                txtOut.text = ret;
-
-        }
-        private void ChordProToDOCX(string text)
-        {
-            CFont ft = new(new FontFamily("Consolas"), 14.0, FontWeights.Normal, FontStyles.Normal, Colors.Black);
-            var replacements = new Dictionary<string, string>
-                                {
-                                    { "{Title}", "Paradise" },
-                                    { "{Composer}", "John Prine" }
-                                };
-            //replaceTagsInDocx(@"d:\OneDrive\Daten\Visual Studio\SongConverterWPF_net8\Template1.docx", replacements);
-
-            txtOut.rtfText = CMusicSheetToRTF.ConvertToRTF(CBasicConverter.stringToLines(text));
-        }
-
-        #region RadioButtons_FileFormatTypes
         // Assuming you have a Panel or GroupBox named panelRadioButtons in your form
         public static void CreateRadioButtonsFromEnum<T>(GroupBox groupBox, T selectedValue, RoutedEventHandler onCheckedChanged, T[] excludedValues) where T : Enum
         {
@@ -299,7 +162,7 @@ namespace ChordSheetConverter
             // Get all the values from the enum
             var enumValues = Enum.GetValues(typeof(T));
 
-            RadioButton firstRadioButton = null; // Keep track of the first radio button
+            RadioButton? firstRadioButton = null; // Keep track of the first radio button
 
             foreach (var value in enumValues)
             {
@@ -322,10 +185,7 @@ namespace ChordSheetConverter
                 radioButton.Checked += onCheckedChanged;
 
                 // Keep track of the first RadioButton
-                if (firstRadioButton == null)
-                {
-                    firstRadioButton = radioButton;
-                }
+                firstRadioButton ??= radioButton;
 
                 // Add the RadioButton to the StackPanel
                 stackPanel.Children.Add(radioButton);
@@ -342,17 +202,37 @@ namespace ChordSheetConverter
         }
 
 
-        private static RadioButton? GetSelectedRadioButtonInGroupBox(GroupBox groupBox)
+        public static void SetSelectedRadioButton<T>(GroupBox groupBox, T selectedValue) where T : Enum
         {
-            foreach (var element in LogicalTreeHelper.GetChildren(groupBox))
+            if (groupBox.Content is StackPanel stackPanel)
             {
-                if (element is RadioButton radioButton && radioButton.IsChecked == true)
+                foreach (var child in stackPanel.Children.OfType<RadioButton>())
                 {
-                    return radioButton;
+                    if (child.Tag.Equals(selectedValue))
+                    {
+                        child.IsChecked = true;
+                        break;
+                    }
                 }
             }
-            return null;
         }
+
+        public static T? GetSelectedEnumValue<T>(GroupBox groupBox) where T : struct, Enum
+        {
+            if (groupBox.Content is StackPanel stackPanel)
+            {
+                foreach (var child in stackPanel.Children.OfType<RadioButton>())
+                {
+                    if (child.IsChecked == true)
+                    {
+                        return (T)child.Tag;
+                    }
+                }
+            }
+
+            return null; // Return null if no radio button is selected
+        }
+
 
         // Event handler that triggers when any radio button's checked state changes
         private void RadioButton_CheckedChanged_Source(object sender, EventArgs e)
@@ -360,9 +240,30 @@ namespace ChordSheetConverter
             FileFormatTypes? ffts = GetSelectedFileFormatType(gbSource);
             if (ffts is not null)
             {
-                FileFormatTypeSource = (FileFormatTypes)ffts;
-                CreateRadioButtonsFromEnum(gbTarget, FileFormatTypeTarget, RadioButton_CheckedChanged_Target, [(FileFormatTypes)ffts]);
+                SetTargetRB((FileFormatTypes)ffts);
+                txtIn.Text = "";
             }
+        }
+
+        private void SetTargetRB(FileFormatTypes ffts)
+        {
+            List<FileFormatTypes> excludedValues = [ffts];
+            switch (ffts)
+            {
+                case FileFormatTypes.UltimateGuitar:
+                    excludedValues.Add(FileFormatTypes.DOCX);
+                    excludedValues.Add(FileFormatTypes.ChordPro);
+                    break;
+                case FileFormatTypes.OpenSong:
+                    excludedValues.Add(FileFormatTypes.UltimateGuitar);
+                    //excludedValues.Add(FileFormatTypes.DOCX);
+                    break;
+                case FileFormatTypes.ChordPro:
+                    excludedValues.Add(FileFormatTypes.UltimateGuitar);
+                    excludedValues.Add(FileFormatTypes.OpenSong);
+                    break;
+            }
+            CreateRadioButtonsFromEnum(gbTarget, FileFormatTypes.OpenSong, RadioButton_CheckedChanged_Target, [.. excludedValues]); //Target does not care
         }
 
         private void RadioButton_CheckedChanged_Target(object sender, EventArgs e)
@@ -371,7 +272,6 @@ namespace ChordSheetConverter
             FileFormatTypes? ffts = GetSelectedFileFormatType(gbTarget);
             if (ffts is not null)
             {
-                FileFormatTypeTarget = (FileFormatTypes)ffts;
                 if (ffts == FileFormatTypes.DOCX)
                 {
                     ShowHideTemplate(Visibility.Visible);
@@ -380,22 +280,23 @@ namespace ChordSheetConverter
                     ShowHideTemplate(Visibility.Collapsed);
             }
         }
-
-        private void ShowHideTemplate(Visibility v)
-        {
-            lblTemplate.Visibility = v;
-            cbTemplates.Visibility = v;
-        }
         #endregion
 
-        private void EnDisBatchConverting(bool EnDis)
+        #region GUI_CallBacks
+        private void pbSaveTo_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            dgvFiles.IsEnabled = EnDis;
-            gbSaveTo.IsEnabled = EnDis;
-            txtSavingPath.IsEnabled = EnDis;
-            pbSaveTo.IsEnabled = EnDis;
-            btBatchConvert.IsEnabled = EnDis;
-            btClear.IsEnabled = EnDis;
+            txtSavingPath.Text = GetSavePath(txtSavingPath.Text);
+        }
+
+        private void btConvert_Click(object sender, RoutedEventArgs e)
+        {
+            string txt = "";
+            (txt, List<CChordSheetLine> chordSheetLines) = allConverters.convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
+            txtOut.Text = txt;
+            if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
+            {
+                buildDocx(chordSheetLines);
+            }
         }
 
         private void cbNashvilleActive_Checked(object sender, RoutedEventArgs e)
@@ -434,32 +335,6 @@ namespace ChordSheetConverter
         }
 
 
-        private string? GuessKey()
-        {
-            List<string[]> chords = ExtractChords(txtIn.text.Split(line_separators, StringSplitOptions.None));
-            if (chords.Count > 0)
-                if (chords[^1].Length > 0)
-                    return chords[^1][^1];
-            return null;
-        }
-
-        public static List<string[]> ExtractChords(string[] inputLines)
-        {
-            List<string[]> ret = [];
-            foreach (string line in inputLines)
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    var chordInfo = UltimateGuitarToChordpro.DetectChordsOrText(line);
-                    if (chordInfo != null)
-                    {
-                        ret.Add([.. chordInfo.Value.chords]);
-                    }
-                }
-            }
-            return ret;
-        }
-
         private void dgvFiles_Drop(object sender, DragEventArgs e)
         {
             if (e is not null && e.Data is not null)
@@ -470,7 +345,7 @@ namespace ChordSheetConverter
                     FileItems.Clear();
                     foreach (string file in files)
                     {
-                        if (fileExtensions[FileFormatTypeSource].Contains(Path.GetExtension(file)))
+                        if (CAllConverters.fileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
                         {
                             FileItems.Add(new CFileItem(file, "Not processed"));
                         }
@@ -496,13 +371,12 @@ namespace ChordSheetConverter
                     }
                     if (Directory.Exists(SavingPath))
                     {
-                        txtIn.text = text;
-                        string songtitle = Path.GetFileNameWithoutExtension(fi.fileNamePath);
-                        ConvertLefttoRight(songtitle);
+                        txtIn.Text = text;
+                        (txtOut.Text, _) = allConverters.convert(SourceFileFormatType, TargetFileFormatType, text);
                         File.WriteAllText(SavingPath + @"\" +
-                            songtitle +
-                            fileExtensions[FileFormatTypeTarget][0],
-                            txtOut.text);
+                            Path.GetFileNameWithoutExtension(fi.fileNamePath) +
+                            CAllConverters.fileExtensions[TargetFileFormatType][0],
+                            txtOut.Text);
                         fi.processStatus = "OK";
                         dgvFiles.Items.Refresh();
                         DoEvents();
@@ -516,34 +390,182 @@ namespace ChordSheetConverter
                 }
             }
         }
-        private void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
-
         private void btClear_Click(object sender, RoutedEventArgs e) => FileItems.Clear();
 
-        private void btCopyTargetToSource_Click(object sender, RoutedEventArgs e) => txtIn.text = txtOut.text;
+        private void btMoveTargetToSource_Click(object sender, RoutedEventArgs e)
+        {
+            SetSelectedFileFormatType(gbSource, SourceFileFormatType);
+            txtIn.Text = txtOut.Text;
+            txtOut.Text = "";
+        }
 
-        private void btCopySourceToTarget_Click(object sender, RoutedEventArgs e) => txtOut.text = txtIn.text;
+        private void btCopySourceToTarget_Click(object sender, RoutedEventArgs e) => txtOut.Text = txtIn.Text;
+
+        
 
         private void btLoadSource_Click(object sender, RoutedEventArgs e)
         {
+            // Open a file dialog with specified extensions and load content into TextBox
+            string ret = getFilePathLoading(SourceFileFormatType, "");
+            string[] lines = [];
 
+            // Open the dialog and check if the user selected a file
+            if (ret != "")
+            {
+                // Load the selected file content into the TextBox
+                string fileContent = File.ReadAllText(ret);
+                fileContent = fileContent.Replace("<lyrics>", "<lyrics>" + Environment.NewLine);
+                fileContent = fileContent.Replace("</lyrics>", Environment.NewLine + "</lyrics>");
+                lines = CBasicConverter.stringToLines(fileContent);
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].StartsWith(' '))
+                    {
+                        // Replace the first space with a non-breaking space
+                        lines[i] = string.Concat(CChordSheetLine.nonBreakingSpace, lines[i].AsSpan(1));
+                    }
+                }
+                txtIn.Text = CBasicConverter.linesToString(lines);  // Load the file content as plain text
+            }
+
+            txtOut.Text = "";
+            allConverters.replaceConverterWithNewObject(SourceFileFormatType);  //Start from scratch with this object
+            //loadedChordSheetLines = allConverters.analyze(SourceFileFormatType, lines);
+        }
+
+        private void btAddInfo_Click(object sender, RoutedEventArgs e)
+        {
+            txtIn.Text = allConverters.updateTags(SourceFileFormatType, txtIn.Text);
         }
 
         private void btSaveSource_Click(object sender, RoutedEventArgs e)
         {
-
+            SourceFileLoaded = SaveFileFromTextBox(SourceFileFormatType, txtIn, SourceFileLoaded);
         }
 
         private void btLoadTarget_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void btSaveTarget_Click(object sender, RoutedEventArgs e)
         {
+            if (CAllConverters.fileExtensions.TryGetValue(TargetFileFormatType, out string[]? value))
+            {
+                string[] extensions = value;
+                TargetFileSaved = Path.ChangeExtension(SourceFileLoaded, extensions[0]);
+            }
+            TargetFileSaved = SaveFileFromTextBox(TargetFileFormatType, txtOut, TargetFileSaved);
+        }
+        #endregion
+
+        #region HelperFunctions
+
+        public void buildDocx(List<CChordSheetLine> chordSheetLines)
+        {
+            string fileName = allConverters.getConverter(FileFormatTypes.DOCX).title;
+            string docxFilePath = customSettings.defaultOutputDirectory + @"\" + fileName + ".docx";
+            docxFilePath = docxFilePath.Replace(@"\\", @"\");
+            docxFilePath = getFilePathSaving(fileFormatType: TargetFileFormatType, docxFilePath);
+
+            if (docxFilePath != "") //User pressed Cancel?
+            {
+                string templateFilePath = customSettings.defaultTemplateDirectory + @"\" + cbTemplates.Text;
+                templateFilePath = templateFilePath.Replace(@"\\", @"\");
+
+                string ret = CDocxFormatter.replaceInTemplate(templateFilePath, docxFilePath, allConverters.getConverter(FileFormatTypes.DOCX), chordSheetLines);
+                if (ret == "")
+                    DocxToPdf(docxFilePath);
+                else
+                {
+                    txtOut.Text = ret;
+                }
+            }
         }
 
-        public void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
+        private static void DocxToPdf(string docxFilePath)
+        {
+            DocxToPdfConverter docxToXpsConverter = new();
+
+            // Convert DOCX to PDF
+            string pdfOutputPath = Path.ChangeExtension(docxFilePath, "pdf");
+            docxToXpsConverter.convertDocxToPdf(docxFilePath, pdfOutputPath);
+
+            // Create and show the Document Viewer Window
+            DocViewerWindow docViewerWindow = new();
+
+            // Load the pdf file
+            docViewerWindow.webBrowserPdf.Navigate(new Uri(pdfOutputPath));
+
+            // Show the window
+            docViewerWindow.Show();
+        }
+
+        private string? GuessKey()
+        {
+            /*
+            List<string[]> chords = ExtractChords(txtIn.Text.Split(line_separators, StringSplitOptions.None));
+            if (chords.Count > 0)
+                if (chords[^1].Length > 0)
+                    return chords[^1][^1];*/
+            return null;
+        }
+
+        /*
+        public static List<string[]> ExtractChords(string[] inputLines)
+        {
+            List<string[]> ret = [];
+            foreach (string line in inputLines)
+            {
+                if (!string.IsNullOrEmpty(line))
+                {
+                    var chordInfo = CUltimateGuitarConverter.isChordLine(line);
+                    if (chordInfo != null)
+                    {
+                        ret.Add([.. chordInfo.Value.chords]);
+                    }
+                }
+            }
+            return ret;
+        }*/
+
+        private void EnDisBatchConverting(bool EnDis)
+        {
+            dgvFiles.IsEnabled = EnDis;
+            gbSaveTo.IsEnabled = EnDis;
+            txtSavingPath.IsEnabled = EnDis;
+            pbSaveTo.IsEnabled = EnDis;
+            btBatchConvert.IsEnabled = EnDis;
+            btClear.IsEnabled = EnDis;
+        }
+
+        private void ShowHideTemplate(Visibility v)
+        {
+            lblTemplate.Visibility = v;
+            cbTemplates.Visibility = v;
+        }
+
+
+        private void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
+        #endregion
+
+        #region Loading_Saving
+
+        private static string GetSavePath(string startPath)
+        {
+            // Use Ookii Dialogs FolderBrowserDialog
+            VistaFolderBrowserDialog fb = new();
+
+            if (Directory.Exists(startPath))
+                fb.SelectedPath = startPath;
+            else
+                fb.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+            // Show the dialog
+            fb.ShowDialog();
+
+            return fb.SelectedPath;
+        }
+        public static void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
         {
             // Get the template directory from settings
             string templateDirectory = settings.defaultTemplateDirectory;
@@ -568,7 +590,7 @@ namespace ChordSheetConverter
                 if (File.Exists(defaultTemplatePath))
                 {
                     File.Copy(defaultTemplatePath, targetTemplatePath, true);
-                    templateFiles = new[] { targetTemplatePath };
+                    templateFiles = [targetTemplatePath];
                 }
                 else
                 {
@@ -591,5 +613,135 @@ namespace ChordSheetConverter
                 comboBox.SelectedIndex = 0;
             }
         }
+
+
+        private static string getFilePathSaving(FileFormatTypes fileFormatType, string defaultFilePath = "")
+        {
+            // Create the SaveFileDialog
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                OverwritePrompt = true, // Let the system handle the overwrite prompt
+                Filter = GenerateFileDialogFilter(fileFormatType)
+            };
+
+            // Set the initial directory and file name if provided
+            if (!string.IsNullOrEmpty(defaultFilePath))
+            {
+                string directory = Path.GetDirectoryName(defaultFilePath);  // Get directory
+                string fileName = Path.GetFileName(defaultFilePath);        // Get just the file name
+
+                if (!string.IsNullOrEmpty(directory))
+                {
+                    saveFileDialog.InitialDirectory = directory;  // Set initial directory
+                }
+
+                if (!string.IsNullOrEmpty(fileName))
+                {
+                    saveFileDialog.FileName = fileName;  // Set file name
+                }
+            }
+
+            // Open the save file dialog and check if the user selected a file
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                // Return the file path used for saving
+                return saveFileDialog.FileName;
+            }
+
+            // If the user cancels or no file is selected, return an empty string
+            return "";
+        }
+
+
+        private static string getFilePathLoading(FileFormatTypes fileFormatType, string startPath)
+        {
+            string ret = "";
+            // Create the OpenFileDialog
+            OpenFileDialog openFileDialog = new()
+            {
+                // Set the filter based on the file format type
+                Filter = GenerateFileDialogFilter(fileFormatType),
+                FileName = startPath
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // Load the selected file content into the TextBox
+                ret = openFileDialog.FileName;
+            }
+            return ret;
+        }
+
+
+
+        // Helper method to generate the filter string for OpenFileDialog based on FileFormatTypes
+        private static string GenerateFileDialogFilter(FileFormatTypes fileFormatType)
+        {
+            if (CAllConverters.fileExtensions.ContainsKey(fileFormatType))
+            {
+                string[] extensions = CAllConverters.fileExtensions[fileFormatType];
+
+                // Create a filter string in the format: "FileType (*.ext1;*.ext2)|*.ext1;*.ext2"
+                string filter = $"{fileFormatType} Files ({string.Join(";", Array.ConvertAll(extensions, ext => $"*{ext}"))})|{string.Join(";", Array.ConvertAll(extensions, ext => $"*{ext}"))}";
+
+                return filter;
+            }
+
+            return "All Files (*.*)|*.*"; // Default filter if no matching extensions are found
+        }
+
+
+        // Method to save the contents of the TextBox to a file, using the system's overwrite prompt, with a default file path
+        private static string SaveFileFromTextBox(FileFormatTypes fileFormatType, TextBox txtIn, string defaultFilePath = "")
+        {
+            string path = getFilePathSaving(fileFormatType, defaultFilePath);
+
+            // Write the content of the TextBox to the selected file
+            if (path != "")
+                File.WriteAllText(path, txtIn.Text);
+            return path;
+        }
+            
+        
+
+
+        // Method to open a file dialog and manually filter files with or without an extension, and return the chosen file path
+        public static string LoadOpenSongFileToTextBox(TextBox txtIn)
+        {
+            // Create the OpenFileDialog
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Files without extension|*|All files (*)|*.*", //"OpenSong and XML Files (*.xml;*)|*.xml;*", // Allow .xml and all files
+                Multiselect = true  // For single file selection
+            };
+
+            // Open the dialog and check if the user selected a file
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string selectedFilePath = openFileDialog.FileName;
+
+                // Filter: Include files with no extension or with ".xml" extension
+                string fileExtension = Path.GetExtension(selectedFilePath);
+                if (string.IsNullOrEmpty(fileExtension) || fileExtension.Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Load the selected file content into the TextBox
+                    string fileContent = File.ReadAllText(selectedFilePath);
+                    txtIn.Text = fileContent;
+
+                    // Return the file path of the selected file
+                    return selectedFilePath;
+                }
+                else
+                {
+                    // Handle the case where the file has an invalid extension
+                    System.Windows.MessageBox.Show("Please select a valid OpenSong or XML file (either no extension or .xml).", "Invalid File", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                }
+            }
+
+            // Return null if no valid file was selected
+            return "";
+        }
+        #endregion
+
     }
 }
+

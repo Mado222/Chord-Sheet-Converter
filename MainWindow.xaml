@@ -28,8 +28,17 @@
         </Grid.ColumnDefinitions>
 
         <!-- Main content area filling available space -->
-        <Label x:Name="lblSource" Grid.Column="0" Grid.Row="0" Content="Source:" FontSize="14" FontWeight="Bold" Background="{StaticResource SourceColor}"/>
-        <Label x:Name="lblTarget" Grid.Column="2" Grid.Row="0" Content="Target:" FontSize="14" FontWeight="Bold" Background="{StaticResource TargetColor}"/>
+
+        <StackPanel Grid.Row="0" Grid.Column="0"  Orientation="Horizontal" Background="White">
+            <Label x:Name="lblSource" Content="Source (copy/paste):" FontSize="14" FontWeight="Bold" Background="{StaticResource SourceColor}"/>
+            <Button x:Name="btLoadSource" Width="50" Content="Load" Background="{StaticResource SourceColor}" Margin="10,0,0,0" Click="btLoadSource_Click"/>
+            <Button x:Name="btSaveSource" Width="50" Content="Save " Background="{StaticResource SourceColor}" Margin="10,0,0,0" Click="btSaveSource_Click"/>
+            <Button x:Name="btAddInfo" Width="Auto" Content="Add Song Info " Background="{StaticResource SourceColor}" Margin="10,0,0,0" Click="btAddInfo_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="2"  Orientation="Horizontal" Background="White">
+            <Label x:Name="lblTarget" Content="Target:" FontSize="14" FontWeight="Bold" Background="{StaticResource TargetColor}"/>
+            <Button x:Name="btSaveTarget" Width="50" Content="Save" Background="{StaticResource TargetColor}" Margin="10,0,0,0" Click="btSaveTarget_Click"/>
+        </StackPanel>
 
 
         <StackPanel Grid.Row="1" Grid.Column="1" Height="800" Background="White">
@@ -38,7 +47,7 @@
             <GroupBox x:Name="gbTarget" Height="Auto" Header="Target Type:" Background="{StaticResource TargetColor}"/>
 
             <!-- Convert Button -->
-            <Button x:Name="btConvert" Content="-&gt; Convert -&gt;" Height="50" Click="btConvert_Click" Margin="0,20,0,10"/>
+            <Button x:Name="btConvert" Content="→→→ Convert →→→" Height="50" Click="btConvert_Click" Margin="0,20,0,10"/>
             <Label x:Name="lblTemplate" Content="Template (*.docx):" />
             <ComboBox x:Name="cbTemplates" Width="Auto" Margin="0,5,0,20"/>
 
@@ -46,44 +55,26 @@
             <ComboBox x:Name="cbScaleType"  HorizontalAlignment="Stretch" Margin="5"/>
             <ComboBox x:Name="cbKey" HorizontalAlignment="Stretch" Margin="5"/>
 
-            <Grid Height="Auto">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0"  Grid.Column="0" Height="Auto" >
-                    <Button x:Name="btLoadSource" Content="Load Source" Background="{StaticResource SourceColor}" Margin="0,10,0,0" Click="btLoadSource_Click"/>
-                    <Button x:Name="btSaveSource" Content="Save Source" Background="{StaticResource SourceColor}" Margin="0,10,0,0" Click="btSaveSource_Click"/>
-                </StackPanel>
-                <StackPanel Grid.Row="0"  Grid.Column="1" Height="Auto">
-                    <Button x:Name="btLoadTarget" Content="Load Target" Background="{StaticResource TargetColor}" Margin="0,10,0,0" Click="btLoadTarget_Click" Visibility="Hidden"/>
-                    <Button x:Name="btSaveTarget" Content="Save Target" Background="{StaticResource TargetColor}" Margin="0,10,0,0" Click="btSaveTarget_Click"/>
-                </StackPanel>
-            </Grid>
-            <Button x:Name="btCopyTargetToSource" Content="←←← Copy ←←←" Height="50" Margin="0,10,0,0" Click="btCopyTargetToSource_Click"/>
-            <Button x:Name="btCopySourceToTarget" Content="→→→ Copy →→→" Height="50" Margin="0,10,0,0" Click="btCopySourceToTarget_Click"/>
+            <Button x:Name="btMoveTargetToSource" Content="←←← Move ←←←" Height="50" Margin="0,10,0,0" Click="btMoveTargetToSource_Click"/>
 
         </StackPanel>
 
         <!-- Text in  -->
-        <local:MyRichTextBox x:Name="txtIn" Height="Auto" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text=""/>
-                </Paragraph>
-            </FlowDocument>
-        </local:MyRichTextBox>
+        <TextBox x:Name="txtIn"
+                 Grid.Column="0" Grid.Row="1" 
+                 AcceptsReturn="True" 
+                 VerticalScrollBarVisibility="Auto" 
+                 HorizontalScrollBarVisibility="Auto" 
+                 FontFamily="Consolas" 
+                 FontSize="12"/>
         <!-- Text out  -->
-        <local:MyRichTextBox x:Name="txtOut" Height="Auto" Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <FlowDocument>
-                <Paragraph>
-                    <Run Text=""/>
-                </Paragraph>
-            </FlowDocument>
-        </local:MyRichTextBox>
+        <TextBox x:Name="txtOut" 
+                 Grid.Column="2" Grid.Row="1" 
+                 AcceptsReturn="True" 
+                 VerticalScrollBarVisibility="Auto" 
+                 HorizontalScrollBarVisibility="Auto" 
+                 FontFamily="Consolas" 
+                 FontSize="12"/>
 
         <!-- Batch processing  -->
         <StackPanel Grid.Row="2" Grid.Column="0" Width="Auto" Background="Beige" Grid.ColumnSpan="3">
