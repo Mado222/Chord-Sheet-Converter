@@ -93,24 +93,24 @@ namespace ChordSheetConverter
                     {
                         // It is a property
                         SetPropertyByName(propertyName, tagValue);
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.xmlElement, line));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.xmlElement, line));
                         continue;
                     }
                     //Any other tag
                     if (line.Contains("{start_of_", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.SectionBegin, tagValue));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionBegin, tagValue));
                         lastSectionStart = tagValue;
                         continue;
                     }
                     if (line.Contains("{comment", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.CommentLine, tagValue));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.CommentLine, tagValue));
                         continue;
                     }
                     else
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.xmlElement, line));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.xmlElement, line));
                         continue;
                     }
                 }
@@ -120,7 +120,7 @@ namespace ChordSheetConverter
                     if (line.Contains("{end_of_", StringComparison.CurrentCultureIgnoreCase) ||
                         line.Contains("{eo", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.SectionEnd, lastSectionStart));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionEnd, "End "+ lastSectionStart));
                         lastSectionStart = "";
                         continue;
                     }
@@ -134,17 +134,17 @@ namespace ChordSheetConverter
                     string textLine = RemoveChords(line);     // Get the corresponding text line
 
                     // Add ChordLine and TextLine separately
-                    chordSheetLines.Add(new CChordSheetLine(enLineType.ChordLine, chordLine));
+                    chordSheetLines.Add(new CChordSheetLine(EnLineType.ChordLine, chordLine));
                     if (!string.IsNullOrEmpty(textLine))
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.TextLine, textLine));
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.TextLine, textLine));
                     continue;
                 }
                 if (line == "")
                 {
-                    chordSheetLines.Add(new CChordSheetLine(enLineType.EmptyLine, ""));
+                    chordSheetLines.Add(new CChordSheetLine(EnLineType.EmptyLine, ""));
                     continue;
                 }
-                chordSheetLines.Add(new CChordSheetLine(enLineType.Unknown, line));
+                chordSheetLines.Add(new CChordSheetLine(EnLineType.Unknown, line));
             }
             return chordSheetLines;
         }
@@ -225,18 +225,18 @@ namespace ChordSheetConverter
             int idx = 0;
             while (idx < CBasicConverter.ChordSheetLines.Count)
             {
-                enLineType thisLineType = chordSheetLines[idx].lineType;
+                EnLineType thisLineType = chordSheetLines[idx].LineType;
 
                 if (idx < chordSheetLines.Count - 1)
                 {
-                    if ((thisLineType == enLineType.ChordLine) &&
-                        chordSheetLines[idx + 1].lineType == enLineType.TextLine)
+                    if ((thisLineType == EnLineType.ChordLine) &&
+                        chordSheetLines[idx + 1].LineType == EnLineType.TextLine)
                     {
                         //Combine lines
                         //It is a chord line + lyrics combination
-                        string chords = chordSheetLines[idx].line;
+                        string chords = chordSheetLines[idx].Line;
 
-                        string lyric = chordSheetLines[idx + 1].line.Trim();
+                        string lyric = chordSheetLines[idx + 1].Line.Trim();
                         string chord = "";
                         int offset = 0;
                         for (int i = 0; i < chords.Length; i++)
@@ -269,8 +269,8 @@ namespace ChordSheetConverter
 
 
                 //Isolated Line
-                string line = chordSheetLines[idx].line.Trim();
-                if (thisLineType == enLineType.ChordLine)
+                string line = chordSheetLines[idx].Line.Trim();
+                if (thisLineType == EnLineType.ChordLine)
                 {
                     //Chorus without following text line = isolated chord line
 
@@ -287,7 +287,7 @@ namespace ChordSheetConverter
                     }
                     ns.Add(allchords);
                 }
-                else if (thisLineType == enLineType.SectionBegin)
+                else if (thisLineType == EnLineType.SectionBegin)
                 {
                     if (line.Contains('V'))
                     {
@@ -309,7 +309,7 @@ namespace ChordSheetConverter
                         inBridge = true;
                     }
                 }
-                else if (thisLineType == enLineType.CommentLine)
+                else if (thisLineType == EnLineType.CommentLine)
                 {
                     //Comment
                     if (line.Length > 0)
@@ -317,17 +317,17 @@ namespace ChordSheetConverter
                         AddMakeCommentString(ref ns, line);
                     }
                 }
-                else if (thisLineType == enLineType.ColumnBreak)
+                else if (thisLineType == EnLineType.ColumnBreak)
                 {
                     //New Column
                     ns.Add("{column_break}");
                 }
-                else if (thisLineType == enLineType.PageBreak)
+                else if (thisLineType == EnLineType.PageBreak)
                 {
                     //New Page
                     ns.Add("{new_page}");
                 }
-                else if (thisLineType == enLineType.EmptyLine)
+                else if (thisLineType == EnLineType.EmptyLine)
                 {
                     //Line break = empty line
                     endsections();

@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
+
 
 namespace ChordSheetConverter
 {
@@ -51,23 +53,23 @@ namespace ChordSheetConverter
         {
             Type wordType = Type.GetTypeFromProgID("Word.Application") ?? throw new Exception("Microsoft Word is not installed on this machine.");
             object wordApp = Activator.CreateInstance(wordType);
+            object? wordDoc = null;
 
             try
             {
-                // Set the application to be invisible (background task)
-                wordType.InvokeMember("Visible", BindingFlags.SetProperty, null, wordApp, [false]);
-
-                // Get the Documents collection
-                object documents = wordType.InvokeMember("Documents", BindingFlags.GetProperty, null, wordApp, null);
+                // Set the Word application to be invisible
+                wordType.InvokeMember("Visible", BindingFlags.SetProperty, null, wordApp, new object[] { false });
 
                 // Open the DOCX file
-                object wordDoc = wordType.InvokeMember("Open", invokeAttr: BindingFlags.InvokeMethod, null, documents, [docxFilePath]);
+                object documents = wordType.InvokeMember("Documents", BindingFlags.GetProperty, null, wordApp, null);
+                wordDoc = documents.GetType().InvokeMember("Open", BindingFlags.InvokeMethod, null, documents, new object[] { docxFilePath });
 
-                // Get the method to save as PDF (SaveAs2)
-                wordDoc.GetType().InvokeMember("SaveAs2", BindingFlags.InvokeMethod, null, wordDoc, [pdfOutputPath, 17 /* WdSaveFormat.wdFormatPDF */]);
+                // Save the document as PDF
+                object[] saveAsArgs = { pdfOutputPath, 17 /* WdSaveFormat.wdFormatPDF */ };
+                wordDoc.GetType().InvokeMember("SaveAs2", BindingFlags.InvokeMethod, null, wordDoc, saveAsArgs);
 
                 // Close the Word document
-                wordDoc.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, wordDoc, null);
+                wordDoc.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, wordDoc, new object[] { false });
             }
             catch (Exception ex)
             {
@@ -75,8 +77,44 @@ namespace ChordSheetConverter
             }
             finally
             {
-                // Quit Word application
-                wordType.InvokeMember("Quit", BindingFlags.InvokeMethod, null, wordApp, null);
+                // Release COM objects to prevent memory leaks
+                if (wordDoc != null)
+                {
+                    Marshal.ReleaseComObject(wordDoc);
+                }
+
+                if (wordApp != null)
+                {
+                    wordType.InvokeMember("Quit", BindingFlags.InvokeMethod, null, wordApp, null);
+                    Marshal.ReleaseComObject(wordApp);
+                    wordApp = null;
+                }
+
+                // Ensure all Word processes are terminated
+                KillWinWordProcesses();
+            }
+
+            // Force garbage collection twice to release any remaining COM references
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        // Helper to kill lingering Word processes
+        private static void KillWinWordProcesses()
+        {
+            foreach (var process in Process.GetProcessesByName("WINWORD"))
+            {
+                try
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                catch
+                {
+                    // Ignore errors for processes that cannot be killed
+                }
             }
         }
 
@@ -88,7 +126,7 @@ namespace ChordSheetConverter
             try
             {
                 // Step 1: Convert DOCX to PDF using LibreOffice
-                ProcessStartInfo libreOfficeProcess = new ()
+                ProcessStartInfo libreOfficeProcess = new()
                 {
                     FileName = _libreOfficePath,
                     Arguments = $"--headless --convert-to pdf \"{docxFilePath}\" --outdir \"{outputDirectory}\"",

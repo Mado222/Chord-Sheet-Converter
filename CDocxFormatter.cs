@@ -11,19 +11,19 @@ namespace ChordSheetConverter
     public partial class CDocxFormatter : CBasicConverter
     {
 
-        public static readonly Dictionary<enLineType, string> LineTypeToStyleMap = new()
+        public static readonly Dictionary<EnLineType, string> LineTypeToStyleMap = new()
         {
-        { enLineType.Unknown, "Standard" },        // Default or fallback style
-        { enLineType.ChordLine, "songChords" },    // Style for Chord lines
-        { enLineType.TextLine, "songText" },      // Style for Text lines
-        { enLineType.EmptyLine, "Standard" },    // Style for Empty lines
-        { enLineType.CommentLine, "songComment" },// Style for Comment lines
-        { enLineType.xmlElement, "Standard" },  // Style for XML elements
-        { enLineType.xmlTagOpenTag, "Standard" },// Style for opening XML tags
-        { enLineType.xmlTagClosingTag, "Standard" },// Style for closing XML tags
-        { enLineType.SectionBegin, "songSection" },// Style for section begins
-        { enLineType.ColumnBreak, "Standard" },// Style for column breaks
-        { enLineType.PageBreak, "Standard" }     // Style for page breaks
+        { EnLineType.Unknown, "Standard" },        // Default or fallback style
+        { EnLineType.ChordLine, "songChords" },    // Style for Chord lines
+        { EnLineType.TextLine, "songText" },      // Style for Text lines
+        { EnLineType.EmptyLine, "Standard" },    // Style for Empty lines
+        { EnLineType.CommentLine, "songComment" },// Style for Comment lines
+        { EnLineType.xmlElement, "Standard" },  // Style for XML elements
+        { EnLineType.xmlTagOpenTag, "Standard" },// Style for opening XML tags
+        { EnLineType.xmlTagClosingTag, "Standard" },// Style for closing XML tags
+        { EnLineType.SectionBegin, "songSection" },// Style for section begins
+        { EnLineType.ColumnBreak, "Standard" },// Style for column breaks
+        { EnLineType.PageBreak, "Standard" }     // Style for page breaks
     };
 
 
@@ -77,7 +77,7 @@ namespace ChordSheetConverter
                         // Insert the new paragraphs at the position where {Body} tag was
                         foreach (var newParagraph in newParagraphs)
                         {
-                            body.AppendChild(newParagraph);  // Appends the new paragraph to the body
+                            _ = body.AppendChild(newParagraph);  // Appends the new paragraph to the body
                         }
                     }
 
@@ -87,15 +87,15 @@ namespace ChordSheetConverter
                     // Step 4: Replace placeholders in headers
                     foreach (var headerPart in documentPart.HeaderParts)
                     {
-                        //                        ReplacePlaceholdersInPart(headerPart, xmlContent); // Ensure the headers are processed too
-                        //ReplacePropertiesInDocument(classInstance, headerPart.RootElement); // Process class properties in headers
+                        //ReplacePlaceholdersInPart(headerPart, xmlContent); // Ensure the headers are processed too
+                        ReplacePropertiesInDocument(classInstance, wordDoc, headerPart.RootElement); // Process class properties in headers
                     }
 
                     // Step 5: Replace placeholders in footers
                     foreach (var footerPart in documentPart.FooterParts)
                     {
                         //ReplacePlaceholdersInPart(footerPart, xmlContent); // Ensure the footers are processed too
-                        //ReplacePropertiesInDocument(classInstance, footerPart.RootElement); // Process class properties in footers
+                        ReplacePropertiesInDocument(classInstance, wordDoc, footerPart.RootElement); // Process class properties in footers
                     }
 
                     // Save the changes to the document
@@ -110,49 +110,48 @@ namespace ChordSheetConverter
             var paragraphs = new List<Paragraph>();
             foreach (CChordSheetLine csl in textBlock)
             {
-                enLineType tag = csl.lineType;
-                string text = csl.line;
+                EnLineType tag = csl.LineType;
+                string text = csl.Line;
 
+                // Determine the style ID based on the line type
                 string styleID = "Standard";
                 if (LineTypeToStyleMap.TryGetValue(tag, out string? value))
                     styleID = value;
 
-                if (tag == enLineType.EmptyLine)
+                if (tag == EnLineType.EmptyLine)
                 {
                     // Add an empty line
                     paragraphs.Add(new Paragraph(new Run()));
                 }
-                else if (tag == enLineType.PageBreak)
+                else if (tag == EnLineType.PageBreak)
                 {
                     // Add a page break
                     paragraphs.Add(CreatePageBreak());
                 }
-                else if (tag == enLineType.ColumnBreak)
+                else if (tag == EnLineType.ColumnBreak)
                 {
                     // Add a column break
                     paragraphs.Add(CreateColumnBreak());
                 }
-                else
+                else if (tag == EnLineType.ChordLine)
                 {
-                    // Create a new paragraph with formatted text
-                    //var paragraph = CreateFormattedParagraph(tag, text);
-                    Paragraph? paragraph = null;
-
-                    if (tag == enLineType.ChordLine)
-                    {
-                        paragraph = CreateStyledChordLine(text, styleID);
-                    }
-                    if (tag == enLineType.CommentLine || tag == enLineType.TextLine)
-                    {
-                        paragraph = CreateStyledParagraph(text, styleID);
-                    }
+                    // Create a styled paragraph specifically for chord lines
+                    var paragraph = CreateStyledChordLine(text, styleID);
                     if (paragraph is not null)
-                        paragraphs.Add((Paragraph)paragraph);
+                        paragraphs.Add(paragraph);
+                }
+                else if (tag == EnLineType.CommentLine || tag == EnLineType.TextLine)
+                {
+                    // Create a styled paragraph for comment or text lines
+                    var paragraph = CreateStyledParagraph(text, styleID);
+                    if (paragraph is not null)
+                        paragraphs.Add(paragraph);
                 }
             }
 
             return paragraphs;
         }
+
 
         // Helper method to create a page break
         private static Paragraph CreatePageBreak()
@@ -338,7 +337,7 @@ namespace ChordSheetConverter
                     else
                     {
                         // If no replacement was done, add the unmodified combined text
-                        parentElement.AppendChild(new Run(new Text(combinedText)));
+                        // parentElement.AppendChild(new Run(new Text(combinedText)));
                     }
                 }
             }
@@ -357,172 +356,26 @@ namespace ChordSheetConverter
             var stylesPart = wordDoc.MainDocumentPart.StyleDefinitionsPart;
             if (stylesPart == null) return;
 
-            // Find the original style in styles.xml
-            var style = stylesPart.Styles.Elements<Style>().FirstOrDefault(s => s.StyleId == styleId);
+            // Append "Zchn" to use the character style variant
+            styleId += "Zchn";
 
-            if (style != null && style.Type == StyleValues.Paragraph)
+            // Find the character style in styles.xml
+            Style? style = stylesPart.Styles.Elements<Style>().FirstOrDefault(s => s.StyleId == styleId);
+
+            // Fallback to "Standard" if style not found
+            if (style == null)
             {
-                // Generate a unique character style ID and name
-                string charStyleId = styleId + "Char";
-                string charStyleName = "Character style for " + styleId;
-
-                // Check if the character style already exists to avoid duplication
-                var charStyle = stylesPart.Styles.Elements<Style>().FirstOrDefault(s => s.StyleId == charStyleId);
-                if (charStyle == null)
-                {
-                    // Create a new character style
-                    charStyle = new Style()
-                    {
-                        Type = StyleValues.Character,
-                        StyleId = charStyleId,
-                        CustomStyle = true
-                    };
-
-                    // Add style name and custom attributes for visibility in the styles pane
-                    charStyle.Append(new StyleName() { Val = charStyleName });
-                    charStyle.SetAttribute(new OpenXmlAttribute("w", "stylePaneSortKey", "http://schemas.openxmlformats.org/wordprocessingml/2006/main", "99"));
-                    charStyle.SetAttribute(new OpenXmlAttribute("w", "stylePaneSortValue", "http://schemas.openxmlformats.org/wordprocessingml/2006/main", "Normal"));
-
-                    // Get font-related run properties from the style hierarchy
-                    StyleRunProperties? fontProperties = GetFontPropertiesFromStyleHierarchy(stylesPart, style) ?? GetDocumentDefaultFontProperties(stylesPart);
-
-                    // Append the font properties to the character style
-                    if (fontProperties != null)
-                    {
-                        charStyle.Append(fontProperties);
-                    }
-                    else
-                    {
-                        // Apply default font settings if none were found in the hierarchy
-                        fontProperties = new StyleRunProperties();
-                        fontProperties.Append(new RunFonts() { Ascii = "Arial", HighAnsi = "Arial" });
-                        fontProperties.Append(new FontSize() { Val = "24" }); // 24 half-points = 12 pt font size
-                        charStyle.Append(fontProperties);
-                    }
-
-                    // Append the new character style to the styles part
-                    stylesPart.Styles.Append(charStyle);
-                    stylesPart.Styles.Save();
-                }
-
-                // Apply the character style to the run
-                RunProperties runPropertiesToApply = run.GetFirstChild<RunProperties>() ?? new RunProperties();
-                runPropertiesToApply.Append(new RunStyle() { Val = charStyleId });
-
-                if (!run.Elements<RunProperties>().Any())
-                {
-                    run.PrependChild(runPropertiesToApply);
-                }
+                styleId = "Standard";
             }
-            else
-            {
-                // Directly apply existing character style if available
-                RunProperties runProperties = run.GetFirstChild<RunProperties>() ?? new RunProperties();
-                runProperties.Append(new RunStyle() { Val = styleId });
 
-                if (!run.Elements<RunProperties>().Any())
-                {
-                    run.PrependChild(runProperties);
-                }
+            // Apply the character style directly to the run
+            RunProperties runProperties = run.GetFirstChild<RunProperties>() ?? new RunProperties();
+            runProperties.Append(new RunStyle() { Val = styleId });
+
+            if (!run.Elements<RunProperties>().Any())
+            {
+                run.PrependChild(runProperties);
             }
         }
-
-
-
-        private static StyleRunProperties GetFontPropertiesFromStyleHierarchy(StyleDefinitionsPart stylesPart, Style style)
-        {
-            while (style != null)
-            {
-                var runProperties = style.GetFirstChild<StyleRunProperties>();
-                if (runProperties != null && runProperties.HasChildren)
-                {
-                    // Clone run properties and add color and frame if present
-                    var fontProperties = (StyleRunProperties)runProperties.CloneNode(true);
-
-                    // Include color if defined
-                    var color = runProperties.GetFirstChild<Color>();
-                    if (color != null)
-                    {
-                        fontProperties.Append(color.CloneNode(true));
-                    }
-
-                    // Include border properties if defined
-                    AppendBorderProperties(runProperties, fontProperties);
-
-                    return fontProperties;
-                }
-
-                // Check if the style is based on another style and follow the chain
-                var basedOnStyleId = style.BasedOn?.Val;
-                if (basedOnStyleId == null) break;
-
-                style = stylesPart.Styles.Elements<Style>().FirstOrDefault(s => s.StyleId == basedOnStyleId);
-            }
-            return null;
-        }
-
-
-        // Helper to retrieve default font properties from document defaults
-        private static StyleRunProperties GetDocumentDefaultFontProperties(StyleDefinitionsPart stylesPart)
-        {
-            var docDefaults = stylesPart.Styles.ChildElements
-                .FirstOrDefault(e => e.LocalName == "docDefaults");
-
-            if (docDefaults != null)
-            {
-                var runPropertiesDefault = docDefaults.Descendants<RunPropertiesDefault>().FirstOrDefault();
-                if (runPropertiesDefault != null)
-                {
-                    var fontProperties = (StyleRunProperties)runPropertiesDefault.RunPropertiesBaseStyle.CloneNode(true);
-
-                    // Include color if defined in document defaults
-                    var color = runPropertiesDefault.RunPropertiesBaseStyle.GetFirstChild<Color>();
-                    if (color != null)
-                    {
-                        fontProperties.Append(color.CloneNode(true));
-                    }
-
-                    // Include border properties from document defaults
-                    AppendBorderProperties(runPropertiesDefault.RunPropertiesBaseStyle, fontProperties);
-
-                    return fontProperties;
-                }
-            }
-            return null;
-        }
-
-
-        private static void AppendBorderProperties(OpenXmlElement sourceProperties, StyleRunProperties targetProperties)
-        {
-            // Check for each border type and clone if present
-            var topBorder = sourceProperties.GetFirstChild<TopBorder>();
-            if (topBorder != null)
-            {
-                targetProperties.Append(topBorder.CloneNode(true));
-            }
-
-            var bottomBorder = sourceProperties.GetFirstChild<BottomBorder>();
-            if (bottomBorder != null)
-            {
-                targetProperties.Append(bottomBorder.CloneNode(true));
-            }
-
-            var leftBorder = sourceProperties.GetFirstChild<LeftBorder>();
-            if (leftBorder != null)
-            {
-                targetProperties.Append(leftBorder.CloneNode(true));
-            }
-
-            var rightBorder = sourceProperties.GetFirstChild<RightBorder>();
-            if (rightBorder != null)
-            {
-                targetProperties.Append(rightBorder.CloneNode(true));
-            }
-        }
-
-
-
-
-
     }
 }

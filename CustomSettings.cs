@@ -1,13 +1,12 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.IO;
 
 namespace ChordSheetConverter
 {
     public class CustomSettings
     {
-        public string defaultTemplateDirectory { get; set; } = "";
-        public string defaultOutputDirectory { get; set; } = "";
+        public string DefaultTemplateDirectory { get; set; } = "";
+        public string DefaultOutputDirectory { get; set; } = "";
 
         private readonly string _settingsFile;
 
@@ -22,15 +21,15 @@ namespace ChordSheetConverter
             _settingsFile = Path.Combine(appDataPath, "settings.json");
         }
 
-        public string getFullPathFromTemplateFileName (string fileName)
+        public string GetFullPathFromTemplateFileName(string fileName)
         {
-            string p = defaultTemplateDirectory + @"\" + fileName;
+            string p = DefaultTemplateDirectory + @"\" + fileName;
             p=p.Replace(@"\\", @"\");
             return p;
         }
 
         // Load settings from the JSON file and apply them to this instance
-        public void loadSettings()
+        public void LoadSettings()
         {
             if (File.Exists(_settingsFile))
             {
@@ -40,37 +39,46 @@ namespace ChordSheetConverter
             else
             {
                 // If no settings file exists, use default values
-                setDefaults();
+                SetDefaults();
             }
         }
 
         // Save current settings (all properties) to the JSON file
-        public void saveSettings()
+        public void SaveSettings()
         {
             var json = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(_settingsFile, json);
         }
 
         // Set default values for properties
-        public void setDefaults()
+        public void SetDefaults()
         {
             string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-            defaultTemplateDirectory = Path.Combine(documentsPath, "ChordSheetConverter", "Templates");
-            defaultOutputDirectory = Path.Combine(documentsPath, "ChordSheetConverter");
+            DefaultTemplateDirectory = Path.Combine(documentsPath, "ChordSheetConverter", "Templates");
+            DefaultOutputDirectory = Path.Combine(documentsPath, "ChordSheetConverter");
 
             // Ensure the directories exist
-            if (!Directory.Exists(defaultTemplateDirectory))
+            if (!Directory.Exists(DefaultTemplateDirectory))
             {
-                Directory.CreateDirectory(defaultTemplateDirectory);
+                Directory.CreateDirectory(DefaultTemplateDirectory);
             }
-            if (!Directory.Exists(defaultOutputDirectory))
+            if (!Directory.Exists(DefaultOutputDirectory))
             {
-                Directory.CreateDirectory(defaultOutputDirectory);
+                Directory.CreateDirectory(DefaultOutputDirectory);
             }
 
             // Save the default settings
-            saveSettings();
+            SaveSettings();
+        }
+
+        public void GetSettings()
+        {
+            var settingsWindow = new SettingsWindow(this);
+            if (settingsWindow.ShowDialog() == true)
+            {
+                SaveSettings(); // Save the updated settings
+            }
         }
     }
 }

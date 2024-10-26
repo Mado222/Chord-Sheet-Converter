@@ -84,7 +84,7 @@ namespace ChordSheetConverter
             string ret = "";
             foreach (CChordSheetLine line in csLines)
             {
-                ret += line.line + CChordSheetLine.line_separators[0];
+                ret += line.Line + CChordSheetLine.line_separators[0];
             }
             return ret;
         }

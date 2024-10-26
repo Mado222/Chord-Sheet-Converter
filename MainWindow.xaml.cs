@@ -31,6 +31,8 @@ namespace ChordSheetConverter
 
         private readonly CAllConverters allConverters = new ();
 
+        private MyPdfViewer? docViewerWindow = null;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -68,13 +70,17 @@ namespace ChordSheetConverter
             //cbKey.Visibility = Visibility.Hidden;
             //cbScaleType.Visibility = Visibility.Hidden;
 
-            customSettings.loadSettings();
+            customSettings.LoadSettings();
             loadTemplatesToComboBox(cbTemplates, customSettings);
             ShowHideTemplate(Visibility.Collapsed);
             ShowHideNashville(Visibility.Collapsed);
             ShowHideTranspose(Visibility.Collapsed);
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            docViewerWindow?.Close();
+        }
 
         #region RadioButtons_FileFormatTypes
         private static FileFormatTypes? GetSelectedFileFormatType(GroupBox groupBox)
@@ -296,6 +302,7 @@ namespace ChordSheetConverter
                 cbNashvilleActive.IsEnabled = false;
             }
             ShowHideTranspose(Visibility.Collapsed);
+            docViewerWindow?.Hide();
         }
         #endregion
 
@@ -322,6 +329,7 @@ namespace ChordSheetConverter
                 if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
                 {
                     buildDocx(chordSheetLines);
+                    //buildRtf(chordSheetLines);
                 }
             }
         }
@@ -501,13 +509,13 @@ namespace ChordSheetConverter
         public void buildDocx(List<CChordSheetLine> chordSheetLines)
         {
             string fileName = allConverters.GetConverter(FileFormatTypes.DOCX).Title;
-            string docxFilePath = customSettings.defaultOutputDirectory + @"\" + fileName + ".docx";
+            string docxFilePath = customSettings.DefaultOutputDirectory + @"\" + fileName + ".docx";
             docxFilePath = docxFilePath.Replace(@"\\", @"\");
             docxFilePath = getFilePathSaving(fileFormatType: TargetFileFormatType, docxFilePath);
 
             if (docxFilePath != "") //User pressed Cancel?
             {
-                string templateFilePath = customSettings.defaultTemplateDirectory + @"\" + cbTemplates.Text;
+                string templateFilePath = customSettings.DefaultTemplateDirectory + @"\" + cbTemplates.Text;
                 templateFilePath = templateFilePath.Replace(@"\\", @"\");
 
                 string ret = CDocxFormatter.ReplaceInTemplate(templateFilePath, docxFilePath, allConverters.GetConverter(FileFormatTypes.DOCX), chordSheetLines);
@@ -520,7 +528,8 @@ namespace ChordSheetConverter
             }
         }
 
-        private static void DocxToPdf(string docxFilePath)
+
+        private void DocxToPdf(string docxFilePath)
         {
             DocxToPdfConverter docxToXpsConverter = new();
 
@@ -528,11 +537,11 @@ namespace ChordSheetConverter
             string pdfOutputPath = Path.ChangeExtension(docxFilePath, "pdf");
             docxToXpsConverter.ConvertDocxToPdf(docxFilePath, pdfOutputPath);
 
-            // Create and show the Document Viewer Window
-            DocViewerWindow docViewerWindow = new();
+            // Create Document Viewer Window
+            docViewerWindow ??= new();
 
             // Load the pdf file
-            docViewerWindow.webBrowserPdf.Navigate(new Uri(pdfOutputPath));
+            docViewerWindow.DisplayPdf(pdfOutputPath);
 
             // Show the window
             docViewerWindow.Show();
@@ -620,7 +629,7 @@ namespace ChordSheetConverter
         public static void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
         {
             // Get the template directory from settings
-            string templateDirectory = settings.defaultTemplateDirectory;
+            string templateDirectory = settings.DefaultTemplateDirectory;
 
             // Ensure the template directory exists
             if (!Directory.Exists(templateDirectory))
@@ -791,7 +800,17 @@ namespace ChordSheetConverter
             // Return null if no valid file was selected
             return "";
         }
+
         #endregion
+
+        private void btSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow(customSettings);
+            if (settingsWindow.ShowDialog() == true)
+            {
+                customSettings.SaveSettings(); // Save the updated settings
+            }
+        }
     }
 }
 

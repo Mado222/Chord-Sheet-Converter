@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using enLineType = ChordSheetConverter.CChordSheetLine.enLineType;
+using EnLineType = ChordSheetConverter.CChordSheetLine.EnLineType;
 
 namespace ChordSheetConverter
 {
@@ -130,34 +130,34 @@ namespace ChordSheetConverter
             {
                 if (line == "")
                 {
-                    ChordSheetLines.Add(new CChordSheetLine(enLineType.EmptyLine, ""));
+                    ChordSheetLines.Add(new CChordSheetLine(EnLineType.EmptyLine, ""));
                 }
                 else
                 {
                     char firstChar = line[0];
                     if (firstChar == '.')
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.ChordLine, line[1..]));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.ChordLine, line[1..]));
                     }
                     else if (firstChar == ' ' || firstChar == CChordSheetLine.nonBreakingSpaceChar)
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.TextLine, line[1..]));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.TextLine, line[1..]));
                     }
                     else if (firstChar == '[')
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.SectionBegin, checkSectionTag(line)));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.SectionBegin, checkSectionTag(line)));
                     }
                     else if (firstChar == ';')
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.CommentLine, line[1..]));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.CommentLine, line[1..]));
                     }
                     else if (line.StartsWith("---"))
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.ColumnBreak, ""));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.ColumnBreak, ""));
                     }
                     else if (line.StartsWith("-!!"))
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(enLineType.PageBreak, ""));
+                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.PageBreak, ""));
                     }
                 }
             }
@@ -169,7 +169,7 @@ namespace ChordSheetConverter
             for (int i = 0; i < ChordSheetLines.Count; i++)
             {
                 foreach (string s in CChordSheetLine.line_separators)
-                    ChordSheetLines[i].line = ChordSheetLines[i].line.Replace(s, "");
+                    ChordSheetLines[i].Line = ChordSheetLines[i].Line.Replace(s, "");
             }
 
             return ChordSheetLines;
@@ -188,29 +188,29 @@ namespace ChordSheetConverter
 
             for (int i = 0; i < chordSheetLines.Count; i++)
             {
-                string line = chordSheetLines[i].line;
-                enLineType thisLineType = chordSheetLines[i].lineType;
+                string line = chordSheetLines[i].Line;
+                EnLineType thisLineType = chordSheetLines[i].LineType;
 
-                if (thisLineType == enLineType.ChordLine)
+                if (thisLineType == EnLineType.ChordLine)
                 {
                     //chord line
                     res.Add("." + line.Trim());
                 }
-                else if (thisLineType == enLineType.EmptyLine)
+                else if (thisLineType == EnLineType.EmptyLine)
                 {
                     //Empty line
                     res.Add("");
                 }
-                else if (thisLineType == enLineType.TextLine)
+                else if (thisLineType == EnLineType.TextLine)
                 {
                     res.Add(' ' + line.Trim());
                 }
-                else if (thisLineType == enLineType.CommentLine)
+                else if (thisLineType == EnLineType.CommentLine)
                 {
                     //Any other textline
                     res.Add(";" + line.Trim());
                 }
-                else if (thisLineType == enLineType.SectionBegin)
+                else if (thisLineType == EnLineType.SectionBegin)
                 {
                     if (line.Contains("Ver"))
                     {
@@ -227,16 +227,16 @@ namespace ChordSheetConverter
                         res.Add("[B]");
                     }
                 }
-                else if (thisLineType == enLineType.SectionEnd)
+                else if (thisLineType == EnLineType.SectionEnd)
                 {
                     if (line != "")
                         res.Add("; End " + line);
                 }
-                else if (thisLineType == enLineType.PageBreak)
+                else if (thisLineType == EnLineType.PageBreak)
                 {
                     res.Add("-!!");
                 }
-                else if (thisLineType == enLineType.ColumnBreak)
+                else if (thisLineType == EnLineType.ColumnBreak)
                 {
                     res.Add("---");
                 }

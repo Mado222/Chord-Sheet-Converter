@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using static ChordSheetConverter.CScales;
-using enLineType = ChordSheetConverter.CChordSheetLine.enLineType;
+using EnLineType = ChordSheetConverter.CChordSheetLine.EnLineType;
 
 namespace ChordSheetConverter
 {
@@ -16,11 +16,11 @@ namespace ChordSheetConverter
                 if (res is not null)
                 {
                     //Chord line
-                    ret.Add(new CChordSheetLine(enLineType.ChordLine, l));
+                    ret.Add(new CChordSheetLine(EnLineType.ChordLine, l));
                 }
                 else
                 {
-                    ret.Add(new CChordSheetLine(enLineType.TextLine, l));
+                    ret.Add(new CChordSheetLine(EnLineType.TextLine, l));
                 }
             }
             return ret;

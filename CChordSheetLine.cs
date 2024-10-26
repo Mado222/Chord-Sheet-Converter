@@ -9,19 +9,19 @@
         public static readonly char nonBreakingSpaceChar = ' ';
 
 
-        public CChordSheetLine(enLineType lineType, string line)
+        public CChordSheetLine(EnLineType lineType, string line)
         {
-            this.lineType = lineType;
-            this.line = line;
+            this.LineType = lineType;
+            this.Line = line;
         }
 
         public CChordSheetLine(string line)
         {
-            this.line = line;
-            lineType = getLineType(line);
+            this.Line = line;
+            LineType = GetLineType(line);
         }
 
-        public enum enLineType
+        public enum EnLineType
         {
             Unknown,
             ChordLine,
@@ -37,32 +37,32 @@
             PageBreak,
         }
 
-        public enLineType lineType { get; set; }
-        public string line { get; set; }
+        public EnLineType LineType { get; set; }
+        public string Line { get; set; }
 
-        public static enLineType getLineType(string line)
+        public static EnLineType GetLineType(string line)
         {
             if (CBasicConverter.IsChordLine(line) != null)
-                return enLineType.ChordLine;
+                return EnLineType.ChordLine;
 
             //"<title>Blabla</title>"
             if (line.Contains('<') && line.Contains("/<"))
-                return enLineType.xmlElement;
+                return EnLineType.xmlElement;
 
             if (line.Contains("/<"))
-                return enLineType.xmlTagClosingTag;
+                return EnLineType.xmlTagClosingTag;
 
             if (line.Contains('<'))
-                return enLineType.xmlTagOpenTag;
+                return EnLineType.xmlTagOpenTag;
 
-            int printableChars = countPrintableCharacters(line);
+            int printableChars = CountPrintableCharacters(line);
             if (printableChars > 0)
-                return enLineType.TextLine;
+                return EnLineType.TextLine;
 
-            return enLineType.EmptyLine;
+            return EnLineType.EmptyLine;
         }
 
-        private static int countPrintableCharacters(string input)
+        private static int CountPrintableCharacters(string input)
         {
             // Initialize the count to 0
             int printableCharCount = 0;
