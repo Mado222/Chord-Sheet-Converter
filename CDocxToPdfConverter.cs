@@ -6,7 +6,7 @@ namespace ChordSheetConverter
 {
     public class DocxToPdfConverter
     {
-        private string _libreOfficePath = @"C:\Program Files\LibreOffice\program\soffice.exe"; // Adjust this if LibreOffice is installed elsewhere
+        private readonly string _libreOfficePath = @"C:\Program Files\LibreOffice\program\soffice.exe"; // Adjust this if LibreOffice is installed elsewhere
 
         // Method to check if Microsoft Word is installed
         public bool IsWordInstalled()
@@ -30,15 +30,15 @@ namespace ChordSheetConverter
         }
 
         // Main method to convert DOCX to PDF using Word or LibreOffice
-        public void convertDocxToPdf(string docxFilePath, string pdfOutputPath)
+        public void ConvertDocxToPdf(string docxFilePath, string pdfOutputPath)
         {
             if (IsWordInstalled())
             {
-                convertDocxToPdfUsingWord(docxFilePath, pdfOutputPath);
+                ConvertDocxToPdfUsingWord(docxFilePath, pdfOutputPath);
             }
             else if (IsLibreOfficeInstalled())
             {
-                convertDocxToPdfUsingLibreOffice(docxFilePath, pdfOutputPath);
+                ConvertDocxToPdfUsingLibreOffice(docxFilePath, pdfOutputPath);
             }
             else
             {
@@ -47,29 +47,24 @@ namespace ChordSheetConverter
         }
 
         // Method to convert DOCX to PDF using Microsoft Word
-        private static void convertDocxToPdfUsingWord(string docxFilePath, string pdfOutputPath)
+        private static void ConvertDocxToPdfUsingWord(string docxFilePath, string pdfOutputPath)
         {
-            Type wordType = Type.GetTypeFromProgID("Word.Application");
-            if (wordType == null)
-            {
-                throw new Exception("Microsoft Word is not installed on this machine.");
-            }
-
+            Type wordType = Type.GetTypeFromProgID("Word.Application") ?? throw new Exception("Microsoft Word is not installed on this machine.");
             object wordApp = Activator.CreateInstance(wordType);
 
             try
             {
                 // Set the application to be invisible (background task)
-                 wordType.InvokeMember("Visible", BindingFlags.SetProperty, null, wordApp, new object[] { false });
+                wordType.InvokeMember("Visible", BindingFlags.SetProperty, null, wordApp, [false]);
 
                 // Get the Documents collection
                 object documents = wordType.InvokeMember("Documents", BindingFlags.GetProperty, null, wordApp, null);
 
                 // Open the DOCX file
-                object wordDoc = wordType.InvokeMember("Open", BindingFlags.InvokeMethod, null, documents, [docxFilePath]);
+                object wordDoc = wordType.InvokeMember("Open", invokeAttr: BindingFlags.InvokeMethod, null, documents, [docxFilePath]);
 
                 // Get the method to save as PDF (SaveAs2)
-                wordDoc.GetType().InvokeMember("SaveAs2", BindingFlags.InvokeMethod, null, wordDoc, new object[] { pdfOutputPath, 17 /* WdSaveFormat.wdFormatPDF */ });
+                wordDoc.GetType().InvokeMember("SaveAs2", BindingFlags.InvokeMethod, null, wordDoc, [pdfOutputPath, 17 /* WdSaveFormat.wdFormatPDF */]);
 
                 // Close the Word document
                 wordDoc.GetType().InvokeMember("Close", BindingFlags.InvokeMethod, null, wordDoc, null);
@@ -86,14 +81,14 @@ namespace ChordSheetConverter
         }
 
         // Method to convert DOCX to PDF using LibreOffice
-        private void convertDocxToPdfUsingLibreOffice(string docxFilePath, string pdfOutputPath)
+        private void ConvertDocxToPdfUsingLibreOffice(string docxFilePath, string pdfOutputPath)
         {
             string outputDirectory = Path.GetDirectoryName(pdfOutputPath);
 
             try
             {
                 // Step 1: Convert DOCX to PDF using LibreOffice
-                ProcessStartInfo libreOfficeProcess = new ProcessStartInfo
+                ProcessStartInfo libreOfficeProcess = new ()
                 {
                     FileName = _libreOfficePath,
                     Arguments = $"--headless --convert-to pdf \"{docxFilePath}\" --outdir \"{outputDirectory}\"",

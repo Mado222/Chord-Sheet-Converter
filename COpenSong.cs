@@ -1,15 +1,11 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using static ChordSheetConverter.CAllConverters;
 using enLineType = ChordSheetConverter.CChordSheetLine.enLineType;
 
 namespace ChordSheetConverter
 {
-    public class COpenSong : CBasicConverter, IChordSheetAnalyzer
+    public partial class COpenSong : CBasicConverter
     {
         private static readonly Dictionary<string, string> ChordProSectionTags = new()
 {
@@ -29,13 +25,13 @@ namespace ChordSheetConverter
     { "tempo", "tempo" },
     { "capo", "capo" } };
 
-        public Dictionary<string, string> propertyMapTags { get; } = openSongMapTags;
+        public override Dictionary<string, string> PropertyMapTags { get; } = openSongMapTags;
 
-        public List<string> getOpenSongTags()
+        public List<string> GetOpenSongTags()
         {
             var xmlElements = new List<string>();
 
-            foreach (var property in propertyMapTags)
+            foreach (var property in PropertyMapTags)
             {
                 var propInfo = this.GetType().GetProperty(property.Key);
 
@@ -55,18 +51,21 @@ namespace ChordSheetConverter
         }
 
 
-        public override List<CChordSheetLine> analyze(string[] lines) //returns chordSheetLines
+        public override List<CChordSheetLine> Analyze(string[] lines) //returns chordSheetLines
         {
-            return analyze(linesToString(lines));
+            return Analyze(LinesToString(lines));
         }
 
-        public override List<CChordSheetLine> analyze(string text) // Returns chordSheetLines
+        [GeneratedRegex(@"^\[(\w)(\d*)\]")]
+        private static partial Regex RegexAnalyze();
+
+        public override List<CChordSheetLine> Analyze(string text) // Returns chordSheetLines
         {
             // Method to check the section tag and return the corresponding name
-            string checkSectionTag(string line)
+            static string checkSectionTag(string line)
             {
                 // Use a regex to match patterns like [V], [V1], [C], [C2], etc.
-                var match = Regex.Match(line, @"^\[(\w)(\d*)\]");
+                var match = RegexAnalyze().Match(line);
 
                 if (match.Success)
                 {
@@ -96,7 +95,7 @@ namespace ChordSheetConverter
 
             // DeEscape
             text = WebUtility.HtmlDecode(text);
-            Dictionary<string, string> xmlContent = getXmlElementContent(text);
+            Dictionary<string, string> xmlContent = GetXmlElementContent(text);
             Type currentType = GetType();
 
             // Reverse mapping: Map XML tag (second value) to property name (first value)
@@ -124,41 +123,41 @@ namespace ChordSheetConverter
             }
 
             // Process lyrics and other lines
-            List<string> lyricsLines = new(stringToLines(xmlContent["lyrics"]));
-            chordSheetLines.Clear();
+            List<string> lyricsLines = new(StringToLines(xmlContent["lyrics"]));
+            ChordSheetLines.Clear();
 
             foreach (string line in lyricsLines)
             {
                 if (line == "")
                 {
-                    chordSheetLines.Add(new CChordSheetLine(enLineType.EmptyLine, ""));
+                    ChordSheetLines.Add(new CChordSheetLine(enLineType.EmptyLine, ""));
                 }
                 else
                 {
                     char firstChar = line[0];
                     if (firstChar == '.')
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.ChordLine, line.Substring(1)));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.ChordLine, line[1..]));
                     }
                     else if (firstChar == ' ' || firstChar == CChordSheetLine.nonBreakingSpaceChar)
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.TextLine, line.Substring(1)));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.TextLine, line[1..]));
                     }
                     else if (firstChar == '[')
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.SectionBegin, checkSectionTag(line)));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.SectionBegin, checkSectionTag(line)));
                     }
                     else if (firstChar == ';')
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.CommentLine, line.Substring(1)));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.CommentLine, line[1..]));
                     }
                     else if (line.StartsWith("---"))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.ColumnBreak, ""));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.ColumnBreak, ""));
                     }
                     else if (line.StartsWith("-!!"))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(enLineType.PageBreak, ""));
+                        ChordSheetLines.Add(new CChordSheetLine(enLineType.PageBreak, ""));
                     }
                 }
             }
@@ -167,24 +166,24 @@ namespace ChordSheetConverter
             xmlContent.Remove("lyrics");
 
             // Clean up separators
-            for (int i = 0; i < chordSheetLines.Count; i++)
+            for (int i = 0; i < ChordSheetLines.Count; i++)
             {
                 foreach (string s in CChordSheetLine.line_separators)
-                    chordSheetLines[i].line = chordSheetLines[i].line.Replace(s, "");
+                    ChordSheetLines[i].line = ChordSheetLines[i].line.Replace(s, "");
             }
 
-            return chordSheetLines;
+            return ChordSheetLines;
         }
 
 
-        public override string build(List<CChordSheetLine> chordSheetLines)
+        public override string Build(List<CChordSheetLine> chordSheetLines)
         {
             List<string> res = [];
 
             res.Clear();
             res.Add("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             res.Add("<song>");
-            res.Add($"<title>{title}</title>");
+            res.Add($"<title>{Title}</title>");
             res.Add("<lyrics>");
 
             for (int i = 0; i < chordSheetLines.Count; i++)
@@ -200,7 +199,7 @@ namespace ChordSheetConverter
                 else if (thisLineType == enLineType.EmptyLine)
                 {
                     //Empty line
-                    res.Add(';' + line.Trim());
+                    res.Add("");
                 }
                 else if (thisLineType == enLineType.TextLine)
                 {
@@ -246,14 +245,15 @@ namespace ChordSheetConverter
             //close xml tags
             res.Add("</lyrics >");
             
-            foreach (string s in getOpenSongTags())
+            foreach (string s in GetOpenSongTags())
             {
                 if (!s.Contains("<title>"))
                     res.Add(s);
             }
             res.Add("</song >");
 
-            return linesToString ([..res]);
+            return LinesToString ([..res]);
         }
+
     }
 }

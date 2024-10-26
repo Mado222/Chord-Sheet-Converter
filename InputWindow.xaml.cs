@@ -6,19 +6,19 @@ namespace ChordSheetConverter
 {
     public partial class InputWindow : Window
     {
-        private IChordSheetAnalyzer _targetObject;
+        private readonly IChordSheetAnalyzer _targetObject;
 
         public InputWindow(IChordSheetAnalyzer targetObject)
         {
             InitializeComponent();
             _targetObject = targetObject;
-            generateInputFields();
+            GenerateInputFields();
         }
 
-        private void generateInputFields()
+        private void GenerateInputFields()
         {
             // Get the properties to be displayed from propertyMapTags (only the first values)
-            var propertiesToDisplay = _targetObject.propertyMapTags.Select(kvp => kvp.Key).ToHashSet();
+            var propertiesToDisplay = _targetObject.PropertyMapTags.Select(kvp => kvp.Key).ToHashSet();
 
             Type targetType = _targetObject.GetType();
 
@@ -29,7 +29,7 @@ namespace ChordSheetConverter
                 if (propertiesToDisplay.Contains(property.Name))
                 {
                     // Get the display name from propertyMapDisplayNames if it exists, otherwise use the property name
-                    string displayName = _targetObject.propertyMapDisplayNames.TryGetValue(property.Name, out string displayValue) ? displayValue : property.Name;
+                    string displayName = _targetObject.PropertyMapDisplayNames.TryGetValue(property.Name, out string displayValue) ? displayValue : property.Name;
 
                     var label = new Label { Content = displayName };
                     var textBox = new TextBox
@@ -45,7 +45,7 @@ namespace ChordSheetConverter
             }
         }
 
-        private void save_Click(object sender, RoutedEventArgs e)
+        private void Save_Click(object sender, RoutedEventArgs e)
         {
             Type targetType = _targetObject.GetType();
 

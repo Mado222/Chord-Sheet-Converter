@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChordSheetConverter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1200" Width="1200"
+        Title="MainWindow" Height="800" Width="1200"
         Loaded="Window_Loaded">
 
     <Window.Resources>
@@ -17,9 +17,9 @@
         <!-- Grid Layout -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="10*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="10*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.4*" />
@@ -41,7 +41,7 @@
         </StackPanel>
 
 
-        <StackPanel Grid.Row="1" Grid.Column="1" Height="800" Background="White">
+        <StackPanel Grid.Row="1" Grid.Column="1" Height="Auto" Background="White">
             <!-- RadioButtons come in at Runtime -->
             <GroupBox x:Name="gbSource" Height="Auto" Header="Source Type:" Background="{StaticResource SourceColor}"/>
             <GroupBox x:Name="gbTarget" Height="Auto" Header="Target Type:" Background="{StaticResource TargetColor}"/>
@@ -51,12 +51,43 @@
             <Label x:Name="lblTemplate" Content="Template (*.docx):" />
             <ComboBox x:Name="cbTemplates" Width="Auto" Margin="0,5,0,20"/>
 
-            <CheckBox x:Name="cbNashvilleActive" Content="Nashville Notation" Margin="5" Checked="cbNashvilleActive_Checked" Unchecked="cbNashvilleActive_Unchecked"/>
-            <ComboBox x:Name="cbScaleType"  HorizontalAlignment="Stretch" Margin="5"/>
-            <ComboBox x:Name="cbKey" HorizontalAlignment="Stretch" Margin="5"/>
-
             <Button x:Name="btMoveTargetToSource" Content="←←← Move ←←←" Height="50" Margin="0,10,0,0" Click="btMoveTargetToSource_Click"/>
 
+            <GroupBox x:Name="gbTranspose" Header="Transpose (ChordPro only):" Margin="0">
+                <StackPanel Margin="5">
+                    <CheckBox x:Name="cbTranspose" Content="Transpose" Margin="5" Checked="cbTranspose_Checked" Unchecked="cbTranspose_Unchecked" />
+                    <Grid x:Name="GridTranspose" Margin="10,5">
+                        <!-- Grid Layout -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*" />
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label x:Name="lblTranspose" Grid.Row="0" Grid.Column="0" Content="Half-Steps" VerticalAlignment="Center" Margin="0,5"/>
+                        <ComboBox x:Name="cbTransposeSteps"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,5"/>
+                    </Grid>
+                    <CheckBox x:Name="cbNashvilleActive" Content="Nashville Notation" Margin="5" Checked="cbNashvilleActive_Checked" Unchecked="cbNashvilleActive_Unchecked"/>
+
+                    <Grid x:Name="GridNashville" Margin="10,5">
+                        <!-- Grid Layout -->
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.5*" />
+                            <ColumnDefinition Width="0.5*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label x:Name="lblScaleType" Grid.Row="0" Grid.Column="0" Content="Scale type" VerticalAlignment="Center" Margin="0,5"/>
+                        <ComboBox x:Name="cbScaleType"  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,5"/>
+
+                        <Label x:Name="lblKey" Grid.Row="1" Grid.Column="0" Content="Key" VerticalAlignment="Center" Margin="0,5"/>
+                        <ComboBox x:Name="cbKey" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,5" />
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
         </StackPanel>
 
         <!-- Text in  -->

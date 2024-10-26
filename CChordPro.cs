@@ -1,14 +1,12 @@
-﻿using DocumentFormat.OpenXml.Drawing;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using static ChordSheetConverter.CAllConverters;
 using static ChordSheetConverter.CChordSheetLine;
+using static ChordSheetConverter.CScales;
 
 namespace ChordSheetConverter
 {
-    public class CChordPro : CBasicConverter, IChordSheetAnalyzer
-    {
+    public partial class CChordPro : CBasicConverter    {
 
         // property / tag
         public static readonly Dictionary<string, string> chordProMapTags = new()
@@ -27,36 +25,11 @@ namespace ChordSheetConverter
     { "capo", "capo" }
 };
 
-        public Dictionary<string, string> propertyMapTags { get; } = chordProMapTags;
+        public override Dictionary<string, string> PropertyMapTags { get; } = chordProMapTags;
 
-        private (string tagName, string tagValue) getTags(string line)
+        public string GetFirstValueFromSecondIn_propertyMapTags(string secondValue)
         {
-            if (line.StartsWith("{") && line.EndsWith('}'))
-            {
-                line = line.Trim('{', '}');
-                var parts = line.Split(':');
-                string tagName = parts[0].Trim();
-                string tagValue = "";
-
-                if (parts.Length > 1)
-                {
-                    tagValue = parts[1].Trim();
-                    if (tagValue.Contains("label="))
-                    {
-                        int labelIndex = tagValue.IndexOf("label=") + 6;
-                        tagValue = tagValue.Substring(labelIndex).Trim('"');
-                    }
-                }
-
-                return (tagName, tagValue);
-            }
-
-            return ("", "");
-        }
-
-        public string getFirstValueFromSecondIn_propertyMapTags(string secondValue)
-        {
-            foreach (var kvp in propertyMapTags)
+            foreach (var kvp in PropertyMapTags)
             {
                 if (kvp.Value == secondValue)
                 {
@@ -67,13 +40,13 @@ namespace ChordSheetConverter
         }
 
         // Method to return the tags with their content as a formatted string, only for non-empty properties
-        public string getChordProTags()
+        public string GetChordProTags()
         {
             // Create a StringBuilder to accumulate the tag strings
             StringBuilder tags = new();
 
             // Get the properties listed in propertyMapTags (first value of the dictionary)
-            var propertiesToExtract = propertyMapTags.Select(kvp => kvp.Key).ToHashSet();
+            var propertiesToExtract = PropertyMapTags.Select(kvp => kvp.Key).ToHashSet();
 
             // Get all the properties of this class
             PropertyInfo[] properties = this.GetType().GetProperties();
@@ -99,12 +72,12 @@ namespace ChordSheetConverter
             return tags.ToString();
         }
 
-        public List<CChordSheetLine> analyze(string text)
+        public override List<CChordSheetLine> Analyze(string text)
         {
-            return analyze(stringToLines(text));
+            return Analyze(StringToLines(text));
         }
 
-        public List<CChordSheetLine> analyze(string[] lines)
+        public override List<CChordSheetLine> Analyze(string[] lines)
         {
             List<CChordSheetLine> chordSheetLines = [];
             string lastSectionStart = "";
@@ -114,12 +87,12 @@ namespace ChordSheetConverter
             {
                 if (line.Contains('{') && line.Contains(':') && line.Contains('}'))
                 {
-                    (string tagName, string tagValue) = getTags(line);
-                    string propertyName = getFirstValueFromSecondIn_propertyMapTags(tagName);
+                    (string tagName, string tagValue) = GetTags(line);
+                    string propertyName = GetFirstValueFromSecondIn_propertyMapTags(tagName);
                     if (propertyName != "")
                     {
                         // It is a property
-                        setPropertyByName(propertyName, tagValue);
+                        SetPropertyByName(propertyName, tagValue);
                         chordSheetLines.Add(new CChordSheetLine(enLineType.xmlElement, line));
                         continue;
                     }
@@ -157,8 +130,8 @@ namespace ChordSheetConverter
                 if (line.Contains('[') && line.Contains(']'))
                 {
                     // Extract the chords and lyrics
-                    string chordLine = extractChords(line);   // Get the chord line
-                    string textLine = removeChords(line);     // Get the corresponding text line
+                    string chordLine = ExtractChords(line);   // Get the chord line
+                    string textLine = RemoveChords(line);     // Get the corresponding text line
 
                     // Add ChordLine and TextLine separately
                     chordSheetLines.Add(new CChordSheetLine(enLineType.ChordLine, chordLine));
@@ -176,8 +149,11 @@ namespace ChordSheetConverter
             return chordSheetLines;
         }
 
+        [GeneratedRegex(@"\[([A-G][#b]?m?\d*)\]")]
+        private static partial Regex RegexExtractChords();
+
         // Helper method to extract chords from a line
-        private static string extractChords(string line)
+        private static string ExtractChords(string line)
         {
             var result = new char[line.Length]; // Create a character array the size of the input line
             for (int i = 0; i < result.Length; i++)
@@ -186,7 +162,7 @@ namespace ChordSheetConverter
             }
 
             // Match all chords in the format [C], [G], etc.
-            var matches = Regex.Matches(line, @"\[([A-G][#b]?m?\d*)\]");
+            var matches = RegexExtractChords().Matches(line);
 
             foreach (Match match in matches)
             {
@@ -202,13 +178,20 @@ namespace ChordSheetConverter
 
             return new string(result); // Convert the character array back to a string
         }
+
+        [GeneratedRegex(@"\[([A-G][#b]?m?\d*)\]")]
+        private static partial Regex RegexRemoveChords();
+
         // Helper method to remove chords from a line
-        private static string removeChords(string line)
+        private static string RemoveChords(string line)
         {
-            return Regex.Replace(line, @"\[([A-G][#b]?m?\d*)\]", "").Trim();
+            return RegexRemoveChords().Replace(line, "").Trim();
         }
 
-        public override string build(List<CChordSheetLine> chordSheetLines)
+        [GeneratedRegex(@"\s+")]
+        private static partial Regex RegexBuild();
+
+        public override string Build(List<CChordSheetLine> chordSheetLines)
         {
             List<string> ns = []; //new song
             bool inChorus = false;
@@ -237,10 +220,10 @@ namespace ChordSheetConverter
 
 
             ns.Add("{ns}");
-            ns.Add(getChordProTags());
+            ns.Add(GetChordProTags());
 
             int idx = 0;
-            while (idx < CBasicConverter.chordSheetLines.Count)
+            while (idx < CBasicConverter.ChordSheetLines.Count)
             {
                 enLineType thisLineType = chordSheetLines[idx].lineType;
 
@@ -291,7 +274,7 @@ namespace ChordSheetConverter
                 {
                     //Chorus without following text line = isolated chord line
 
-                    line = Regex.Replace(line, @"\s+", " "); // Use Regex to replace multiple spaces with a single space
+                    line = RegexBuild().Replace(line, " "); // Use Regex to replace multiple spaces with a single space
                     string[] ss = line.Split(' ');
                     string allchords = "";
                     for (int k = 0; k < ss.Length; k++)
@@ -331,7 +314,7 @@ namespace ChordSheetConverter
                     //Comment
                     if (line.Length > 0)
                     {
-                        addMakeCommentString(ref ns, line);
+                        AddMakeCommentString(ref ns, line);
                     }
                 }
                 else if (thisLineType == enLineType.ColumnBreak)
@@ -352,21 +335,133 @@ namespace ChordSheetConverter
                 }
                 else
                 {
-                    addMakeCommentString(ref ns, line);
+                    AddMakeCommentString(ref ns, line);
                 }
                 idx++;
 
             }
-            return linesToString([.. ns]);
+            return LinesToString([.. ns]);
 
         }
 
-        private static void addMakeCommentString(ref List<string> destination, string comment)
+        private static void AddMakeCommentString(ref List<string> destination, string comment)
         {
             if (comment != "")
             {
                 destination.Add("{comment:" + comment + "}");
             }
         }
+
+        //Transpose Letter or Nashville
+        public static string TransposeChordPro(string textIn, int steps, string key="", ScaleType scaleType = ScaleType.Major)
+        {
+            return LinesToString(TransposeChordPro(StringToLines(textIn), steps, key, scaleType));
+        }
+
+        //Transpose Letter or Nashville
+        public static string[] TransposeChordPro(string[] linesIn, int steps, string key="", ScaleType scaleType = ScaleType.Major)
+        {
+            List<string> transposedLines = [];
+
+            foreach (string line in linesIn)
+            {
+                if (line.Contains('[') && line.Contains(']'))
+                {
+                    if (!string.IsNullOrEmpty(key))
+                        transposedLines.Add(TransposeChordProLineNashville(line, steps, key, scaleType));
+                    else
+                        transposedLines.Add(TransposeChordProLine(line, steps));
+                }
+                else
+                {
+                    transposedLines.Add(line);  // No chords in the line, add it unchanged
+                }
+            }
+
+            return [.. transposedLines];
+        }
+
+        //One letter line
+        private static string TransposeChordProLine(string lineIn, int steps)
+        {
+            // Pattern to match chords within square brackets, e.g. [C], [F#], [G#m]
+            string chordPattern = @"\[([A-G][#b]?m?(maj|sus|dim|aug)?[0-9]?(add[0-9])?)\]";
+
+            return Regex.Replace(lineIn, chordPattern, match =>
+            {
+                // Extract the chord inside the brackets (without the brackets)
+                string chord = match.Groups[1].Value;
+
+                // Transpose the chord
+                string transposedChord = CScales.Transpose(chord, steps);
+
+                // Return the transposed chord wrapped in brackets
+                return $"[{transposedChord}]";
+            });
+        }
+
+        //One Nashville line
+        private static string TransposeChordProLineNashville(string line, int steps, string key, ScaleType scaleType)
+        {
+            // Pattern to match chords within square brackets, e.g., [1], [4m], [5maj7]
+            string chordPattern = @"\[([1-7](m|maj|sus|dim|aug|7|add[0-9]*)?)\]";
+
+            // Replace each Nashville chord in the line
+            return Regex.Replace(line, chordPattern, match =>
+            {
+                // Extract the Nashville chord (without brackets)
+                string nashvilleChord = match.Groups[1].Value;
+
+                // Transpose the Nashville chord
+                string transposedChord = CScales.TransposeNashville(nashvilleChord, steps);
+
+                // Return the transposed Nashville chord wrapped in brackets
+                return $"[{transposedChord}]";
+            });
+        }
+
+
+        public static string ConvertChordProToNashville(string textIn, string key, ScaleType scaleType = ScaleType.Major)
+        {
+            return LinesToString(ConvertChordProToNashville(StringToLines(textIn), key,scaleType));
+        }
+        public static string[] ConvertChordProToNashville(string[] linesIn, string key, ScaleType scaleType = ScaleType.Major)
+        {
+            List<string> nashvilleLines = [];
+
+            foreach (string line in linesIn)
+            {
+                if (line.Contains('[') && line.Contains(']'))
+                {
+                    nashvilleLines.Add(ConvertChordProLineToNashville(line, key, scaleType));
+                }
+                else
+                {
+                    nashvilleLines.Add(line);  // No chords in the line, add it unchanged
+                }
+            }
+
+            return [.. nashvilleLines];
+        }
+
+        private static string ConvertChordProLineToNashville(string line, string key, ScaleType scaleType)
+        {
+            // Pattern to match letter chords within square brackets, e.g., [C], [G#m7]
+            string chordPattern = @"\[([A-G][#b]?m?(maj|sus|dim|aug)?[0-9]?(add[0-9])?)\]";
+
+            // Replace each letter chord in the line
+            return Regex.Replace(line, chordPattern, match =>
+            {
+                // Extract the letter chord (without brackets)
+                string letterChord = match.Groups[1].Value;
+
+                // Convert the letter chord to Nashville notation
+                string nashvilleChord = CScales.ConvertChordToNashville(letterChord, key, scaleType);
+
+                // Return the Nashville chord wrapped in brackets
+                return $"[{nashvilleChord}]";
+            });
+        }
     }
 }
+

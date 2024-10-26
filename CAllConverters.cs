@@ -26,11 +26,11 @@ namespace ChordSheetConverter
         { FileFormatTypes.DOCX, new[] { ".docx"}}
     };
 
-        public static Dictionary<FileFormatTypes, string[]> fileExtensions => _fileExtensions;
+        public static Dictionary<FileFormatTypes, string[]> FileExtensions => _fileExtensions;
 
 
-        private Dictionary<FileFormatTypes, IChordSheetAnalyzer> AllFormats = new Dictionary<FileFormatTypes, IChordSheetAnalyzer>
-{
+        private readonly Dictionary<FileFormatTypes, IChordSheetAnalyzer> AllFormats = new()
+        {
     { FileFormatTypes.UltimateGuitar, new CUltimateGuitar() },
     { FileFormatTypes.OpenSong, new COpenSong() },
     { FileFormatTypes.ChordPro, new CChordPro() },
@@ -39,69 +39,55 @@ namespace ChordSheetConverter
 };
 
         // Function to replace an object in the dictionary with a new instance based on formatType
-        public void replaceConverterWithNewObject(FileFormatTypes formatType)
+        public void ReplaceConverterWithNewObject(FileFormatTypes formatType)
         {
             // Replace the object in the dictionary with a new instance based on the formatType
-            switch (formatType)
+            AllFormats[formatType] = formatType switch
             {
-                case FileFormatTypes.UltimateGuitar:
-                    AllFormats[formatType] = new CUltimateGuitar();
-                    break;
-
-                case FileFormatTypes.OpenSong:
-                    AllFormats[formatType] = new COpenSong();
-                    break;
-
-                case FileFormatTypes.ChordPro:
-                    AllFormats[formatType] = new CChordPro();
-                    break;
-
-                case FileFormatTypes.DOCX:
-                    AllFormats[formatType] = new CDocxFormatter();
-                    break;
-
-                default:
-                    throw new ArgumentException("Invalid FileFormatType");
-            }
-
+                FileFormatTypes.UltimateGuitar => new CUltimateGuitar(),
+                FileFormatTypes.OpenSong => new COpenSong(),
+                FileFormatTypes.ChordPro => new CChordPro(),
+                FileFormatTypes.DOCX => new CDocxFormatter(),
+                _ => throw new ArgumentException("Invalid FileFormatType"),
+            };
             Console.WriteLine($"Replaced converter for {formatType} with a new object.");
         }
 
-        public IChordSheetAnalyzer getConverter(FileFormatTypes format) 
+        public IChordSheetAnalyzer GetConverter(FileFormatTypes format)
         { 
             return AllFormats[format];
         }
-        public List<CChordSheetLine> analyze(FileFormatTypes formatType, string text)
+        public List<CChordSheetLine> Analyze(FileFormatTypes formatType, string text)
         {
-            var res = AllFormats[formatType].analyze(text);
+            var res = AllFormats[formatType].Analyze(text);
             return res;
         }
 
-        public List<CChordSheetLine> analyze(FileFormatTypes formatType, string[] lines)
+        public List<CChordSheetLine> Analyze(FileFormatTypes formatType, string[] lines)
         {
-            return AllFormats[formatType].analyze(lines);
+            return AllFormats[formatType].Analyze(lines);
         }
 
-        public string build(FileFormatTypes formatType, List<CChordSheetLine> chordSheetLines)
+        public string Build(FileFormatTypes formatType, List<CChordSheetLine> chordSheetLines)
         {
-            return AllFormats[formatType].build (chordSheetLines);
+            return AllFormats[formatType].Build (chordSheetLines);
         }
 
-        public (string newSong, List<CChordSheetLine> chordSheetLines) convert(FileFormatTypes sourceFormatType, FileFormatTypes targetFormatType, string text)
+        public (string newSong, List<CChordSheetLine> chordSheetLines) Convert(FileFormatTypes sourceFormatType, FileFormatTypes targetFormatType, string text)
         {
-            List<CChordSheetLine> chordSheetLines  = AllFormats[sourceFormatType].analyze(text);
-            replaceConverterWithNewObject(targetFormatType);
-            AllFormats[targetFormatType].copyPropertiesFrom(getConverter(sourceFormatType));
-            string newSong = AllFormats[targetFormatType].build(chordSheetLines);
+            List<CChordSheetLine> chordSheetLines  = AllFormats[sourceFormatType].Analyze(text);
+            ReplaceConverterWithNewObject(targetFormatType);
+            AllFormats[targetFormatType].CopyPropertiesFrom(GetConverter(sourceFormatType));
+            string newSong = AllFormats[targetFormatType].Build(chordSheetLines);
             return (newSong, chordSheetLines);
         }
 
-        public void copyPropertiesFrom<TSource>(FileFormatTypes targetFormatType, TSource source)
+        public void CopyPropertiesFrom<TSource>(FileFormatTypes targetFormatType, TSource source)
         {
-            AllFormats[targetFormatType].copyPropertiesFrom(source);
+            AllFormats[targetFormatType].CopyPropertiesFrom(source);
         }
 
-        public string updateTags(FileFormatTypes sourceFormatType, string textIn, bool showInputWindow = true)
+        public string UpdateTags(FileFormatTypes sourceFormatType, string textIn, bool showInputWindow = true)
         {
             if (showInputWindow)
             {
@@ -111,7 +97,7 @@ namespace ChordSheetConverter
                     // The docxFormatter object now contains the updated values from the input window.
                 }
             }
-            return AllFormats[sourceFormatType].updateTags(textIn);
+            return AllFormats[sourceFormatType].UpdateTags(textIn);
         }
     }
 }

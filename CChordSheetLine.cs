@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using System.Text.RegularExpressions;
-
-namespace ChordSheetConverter
+﻿namespace ChordSheetConverter
 {
     public class CChordSheetLine
     {
@@ -40,12 +37,12 @@ namespace ChordSheetConverter
             PageBreak,
         }
 
-        public  enLineType lineType { get; set; }
-        public string line {  get; set; }
+        public enLineType lineType { get; set; }
+        public string line { get; set; }
 
         public static enLineType getLineType(string line)
         {
-            if (CBasicConverter.isChordLine(line) != null)
+            if (CBasicConverter.IsChordLine(line) != null)
                 return enLineType.ChordLine;
 
             //"<title>Blabla</title>"

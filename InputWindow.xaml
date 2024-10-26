@@ -6,6 +6,6 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Name="InputStackPanel" Margin="10"/>
         </ScrollViewer>
-        <Button Content="Save" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Click="save_Click"/>
+        <Button Content="Save" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" Click="Save_Click"/>
     </Grid>
 </Window>

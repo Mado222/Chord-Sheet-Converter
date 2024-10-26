@@ -8,84 +8,78 @@ using static ChordSheetConverter.CAllConverters;
 
 namespace ChordSheetConverter
 {
-    public interface IChordSheetAnalyzer
-    {
-         string title { get; set; } 
-         string composer { get; set; } 
-         string copyright { get; set; } 
-         string capo { get; set; } 
-         string tempo { get; set; } 
-         string time { get; set; } 
-         string key { get; set; } 
-
-        // Properties for ChordPro
-         //string sortTitle { get; set; } 
-         string subTitle { get; set; } 
-         string artist { get; set; } 
-         string lyricist { get; set; } 
-         string album { get; set; } 
-         string year { get; set; } 
-         string duration { get; set; } 
-
-        List<CChordSheetLine> analyze(string text);
-        List<CChordSheetLine> analyze(string[] lines);
-        string build(List<CChordSheetLine> chordSheetLines);
-        void copyPropertiesFrom<TSource>(TSource source);
-        string updateTags(string textIn);
-
-        Dictionary<string, string> propertyMapDisplayNames { get; }
-        Dictionary<string, string> propertyMapTags { get; }
-    }
-
-    public class CBasicConverter
+    public partial class CBasicConverter: IChordSheetAnalyzer
     {
         //Common properties
-        public string title { get; set; } = "";
-        public string composer { get; set; } = "";
-        public string copyright { get; set; } = "";
-        public string capo { get; set; } = "";
-        public string tempo { get; set; } = "";
-        public string time { get; set; } = "";
-        public string key { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Composer { get; set; } = "";
+        public string Copyright { get; set; } = "";
+        public string Capo { get; set; } = "";
+        public string Tempo { get; set; } = "";
+        public string Time { get; set; } = "";
+        public string Key { get; set; } = "";
 
         // Properties for ChordPro
         //public string sortTitle { get; set; } = "";
-        public string subTitle { get; set; } = "";
-        public string artist { get; set; } = "";
-        public string lyricist { get; set; } = "";
-        public string album { get; set; } = "";
-        public string year { get; set; } = "";
-        public string duration { get; set; } = "";
+        public string SubTitle { get; set; } = "";
+        public string Artist { get; set; } = "";
+        public string Lyricist { get; set; } = "";
+        public string Album { get; set; } = "";
+        public string Year { get; set; } = "";
+        public string Duration { get; set; } = "";
+
+        public void FillPropertiesWithDefaults()
+        {
+            if (string.IsNullOrEmpty(Title)) Title = "Untitled";
+            if (string.IsNullOrEmpty(Composer)) Composer = "Unknown Composer";
+            if (string.IsNullOrEmpty(Copyright)) Copyright = "No Copyright Info";
+            if (string.IsNullOrEmpty(Capo)) Capo = "None";
+            if (string.IsNullOrEmpty(Tempo)) Tempo = "120";  // Default tempo
+            if (string.IsNullOrEmpty(Time)) Time = "4/4";  // Default time signature
+            if (string.IsNullOrEmpty(Key)) Key = "C";  // Default key
+
+            // For ChordPro properties
+            if (string.IsNullOrEmpty(SubTitle)) SubTitle = "No Subtitle";
+            if (string.IsNullOrEmpty(Artist)) Artist = "Unknown Artist";
+            if (string.IsNullOrEmpty(Lyricist)) Lyricist = "Unknown Lyricist";
+            if (string.IsNullOrEmpty(Album)) Album = "Unknown Album";
+            if (string.IsNullOrEmpty(Year)) Year = "Unknown Year";
+            if (string.IsNullOrEmpty(Duration)) Duration = "Unknown Duration";
+        }
+
 
         public static readonly Dictionary<string, string> _propertyMapDisplayNames = new()
         {
-    { "title", "Song Title" },
-    { "author", "Author Name" },
-    { "subTitle", "Subtitle" },
-    { "composer", "Composer" },
-    { "lyricist", "Lyricist" },
-    { "copyright", "Copyright" },
-    { "year", "Year (Released, Written ...)" },
-    { "key", "Key" },
-    { "time", "Time Signature" },
-    { "tempo", "Tempo" },
-    { "capo", "Capo" }
+    { "Title", "Song Title" },
+    { "Author", "Author Name" },
+    { "SubTitle", "Subtitle" },
+    { "Composer", "Composer" },
+    { "Lyricist", "Lyricist" },
+    { "Copyright", "Copyright" },
+    { "Year", "Year (Released, Written ...)" },
+    { "Key", "Key" },
+    { "Time", "Time Signature" },
+    { "Tempo", "Tempo" },
+    { "Capo", "Capo" }
         };
 
-        public Dictionary<string, string> propertyMapDisplayNames { get;  } = _propertyMapDisplayNames;
+        public Dictionary<string, string> PropertyMapDisplayNames { get; } = _propertyMapDisplayNames;
+
+        public virtual Dictionary<string, string> PropertyMapTags => throw new NotImplementedException();
 
         private static List<CChordSheetLine> _chordSheetLines = [];
 
-        public static List<CChordSheetLine> chordSheetLines
+        public static List<CChordSheetLine> ChordSheetLines
         {
             get { return _chordSheetLines; }
             set { _chordSheetLines = value ?? []; }  // Null-check
         }
 
-        public static string[] stringToLines(string text) => text.Split(CChordSheetLine.line_separators, StringSplitOptions.None);
-        public static string linesToString(string[] lines) => string.Join(Environment.NewLine, lines);
+        
+        public static string[] StringToLines(string text) => text.Split(CChordSheetLine.line_separators, StringSplitOptions.None);
+        public static string LinesToString(string[] lines) => string.Join(Environment.NewLine, lines);
 
-        public static string getLines(List<CChordSheetLine> csLines)
+        public static string GetLines(List<CChordSheetLine> csLines)
         {
             string ret = "";
             foreach (CChordSheetLine line in csLines)
@@ -96,9 +90,9 @@ namespace ChordSheetConverter
         }
 
         // Helper method to convert WPF Color to hex string
-        public static string convertColorToHex(Color color) => $"{color.R:X2}{color.G:X2}{color.B:X2}";
+        public static string ConvertColorToHex(Color color) => $"{color.R:X2}{color.G:X2}{color.B:X2}";
 
-        public static Dictionary<string, string> getXmlElementContent(string xmlText)
+        public static Dictionary<string, string> GetXmlElementContent(string xmlText)
         {
             // Load the XML into an XDocument
             XDocument doc = XDocument.Parse(xmlText);
@@ -119,16 +113,16 @@ namespace ChordSheetConverter
             return elementContents;
         }
 
-        public static Dictionary<string, string> replaceKeys(Dictionary<string, string> original, Dictionary<string, string> replacement)
+        public static Dictionary<string, string> ReplaceKeys(Dictionary<string, string> original, Dictionary<string, string> replacement)
         {
             var updatedOriginal = new Dictionary<string, string>();
 
             foreach (var kvp in original)
             {
-                if (replacement.ContainsKey(kvp.Key))
+                if (replacement.TryGetValue(kvp.Key, out string? value))
                 {
                     // Use the value from dict2 as the new key
-                    string newKey = replacement[kvp.Key];
+                    string newKey = value;
                     updatedOriginal[newKey] = kvp.Value;
                 }
                 else
@@ -141,12 +135,12 @@ namespace ChordSheetConverter
             return updatedOriginal;
         }
 
-        public static bool isFileInUse(string filePath)
+        public static bool IsFileInUse(string filePath)
         {
             try
             {
                 // Try to open the file with exclusive access
-                using FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+                using FileStream stream = new(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
                 stream.Close(); // If no exception, file is not in use
             }
             catch (IOException)
@@ -159,13 +153,16 @@ namespace ChordSheetConverter
             return false;
         }
 
-        public static (List<string> chords, List<int> positions) extractChordsWithPositions(string inputString)
+        [GeneratedRegex(@"\S+")]
+        private static partial Regex RegExExtractChordsWithPositions();
+
+        public static (List<string> chords, List<int> positions) ExtractChordsWithPositions(string inputString)
         {
             List<string> chords = [];
             List<int> positions = [];
 
             // Regex to match non-whitespace sequences in the input string
-            Regex regex = new(@"\S+");
+            Regex regex = RegExExtractChordsWithPositions();
             MatchCollection matches = regex.Matches(inputString);
 
             // Loop through each match and capture the group and its position
@@ -178,16 +175,16 @@ namespace ChordSheetConverter
             return (chords, positions);  // Return both the chords and positions as a tuple
         }
 
-        public static (List<string> chords, List<int> positions)? isChordLine(string inputString)
+        public static (List<string> chords, List<int> positions)? IsChordLine(string inputString)
         {
-            var res = CBasicConverter.extractChordsWithPositions(inputString);
+            var res = CBasicConverter.ExtractChordsWithPositions(inputString);
 
             if (res.chords.Count == 0)
                 return null;
 
             foreach (var group in res.chords)
             {
-                if (!CScales.isValidChord(group))
+                if (!CScales.IsValidChord(group))
                 {
                     return null; // Return null if any group is not a valid chord
                 }
@@ -195,7 +192,7 @@ namespace ChordSheetConverter
             return res; // Return chords and positions if all are valid chords
         }
 
-        public void copyPropertiesFrom<TSource>(TSource source)
+        public void CopyPropertiesFrom<TSource>(TSource source)
         {
             if (source == null)
             {
@@ -224,26 +221,26 @@ namespace ChordSheetConverter
             }
         }
 
-        public virtual string updateTags(string textIn)
+        public virtual string UpdateTags(string textIn)
         {
             return textIn;
         }
 
-        public virtual string build(List<CChordSheetLine> chordSheetLines)
+        public virtual string Build(List<CChordSheetLine> chordSheetLines)
         {
             return "";
         }
 
-        public virtual List<CChordSheetLine> analyze(string text)
+        public virtual List<CChordSheetLine> Analyze(string text)
         {
             return [];
         }
-        public virtual List<CChordSheetLine> analyze(string[] lines)
+        public virtual List<CChordSheetLine> Analyze(string[] lines)
         {
             return [];
         }
 
-    public string getPropertyValueByName(string propertyName)
+        public string GetPropertyValueByName(string propertyName)
         {
 
             // Get the type of the object
@@ -253,10 +250,10 @@ namespace ChordSheetConverter
             PropertyInfo propInfo = objType.GetProperty(propertyName) ?? throw new ArgumentException($"The property '{propertyName}' was not found on object of type '{objType.Name}'.");
 
             // Get the value of the property from the object
-            return (string) propInfo.GetValue(this);
+            return (string)propInfo.GetValue(this);
         }
 
-        public void setPropertyByName(string propertyName, string value)
+        public void SetPropertyByName(string propertyName, string value)
         {
             var property = this.GetType().GetProperty(propertyName);
 
@@ -267,7 +264,30 @@ namespace ChordSheetConverter
             }
         }
 
+        protected static (string tagName, string tagValue) GetTags(string line)
+        {
+            if (line.StartsWith('{') && line.EndsWith('}'))
+            {
+                line = line.Trim('{', '}');
+                var parts = line.Split(':');
+                string tagName = parts[0].Trim();
+                string tagValue = "";
 
+                if (parts.Length > 1)
+                {
+                    tagValue = parts[1].Trim();
+                    if (tagValue.Contains("label="))
+                    {
+                        int labelIndex = tagValue.IndexOf("label=") + 6;
+                        tagValue = tagValue[labelIndex..].Trim('"');
+                    }
+                }
+
+                return (tagName, tagValue);
+            }
+
+            return ("", "");
+        }
 
 
     }

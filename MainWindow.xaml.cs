@@ -1,5 +1,4 @@
-﻿using Microsoft.Office.Interop.Word;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Ookii.Dialogs.Wpf;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -8,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using static ChordSheetConverter.CScales;
-using static ChordSheetConverter.CUltimateGuitar;
 using FileFormatTypes = ChordSheetConverter.CAllConverters.FileFormatTypes;
 
 namespace ChordSheetConverter
@@ -55,19 +53,26 @@ namespace ChordSheetConverter
             CreateRadioButtonsFromEnum(gbSource, FileFormatTypes.ChordPro, RadioButton_CheckedChanged_Source, [FileFormatTypes.DOCX]);
             CreateRadioButtonsFromEnum(gbTarget, FileFormatTypes.DOCX, RadioButton_CheckedChanged_Target, [FileFormatTypes.DOCX]);
             SetTargetRB(FileFormatTypes.ChordPro);
-
+            
+            for (int i = 11; i >= -11; i--)
+            {
+                cbTransposeSteps.Items.Add(i);
+            }
+            cbTranspose.IsEnabled = false;
+            cbNashvilleActive.IsEnabled = false;
 
             cbKey.Items.Clear();
             cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
             cbScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
             cbScaleType.SelectedIndex = 0;
-            cbKey.Visibility = Visibility.Hidden;
-            cbScaleType.Visibility = Visibility.Hidden;
+            //cbKey.Visibility = Visibility.Hidden;
+            //cbScaleType.Visibility = Visibility.Hidden;
 
             customSettings.loadSettings();
             loadTemplatesToComboBox(cbTemplates, customSettings);
             ShowHideTemplate(Visibility.Collapsed);
             ShowHideNashville(Visibility.Collapsed);
+            ShowHideTranspose(Visibility.Collapsed);
         }
 
 
@@ -106,19 +111,21 @@ namespace ChordSheetConverter
                 for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
                 {
                     DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                    if (child != null && child is T)
+                    if (child != null && child is T t)
                     {
-                        yield return (T)child;
+                        yield return t;
                     }
 
-                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                    if (child is not null)
                     {
-                        yield return childOfChild;
+                        foreach (T childOfChild in FindVisualChildren<T>(child))
+                        {
+                            yield return childOfChild;
+                        }
                     }
                 }
             }
         }
-
 
         private void rbOriginal_Checked(object sender, RoutedEventArgs e)
         {
@@ -251,16 +258,15 @@ namespace ChordSheetConverter
             switch (ffts)
             {
                 case FileFormatTypes.UltimateGuitar:
-                    excludedValues.Add(FileFormatTypes.DOCX);
+                            excludedValues.Add(FileFormatTypes.DOCX);
                     excludedValues.Add(FileFormatTypes.ChordPro);
                     break;
                 case FileFormatTypes.OpenSong:
                     excludedValues.Add(FileFormatTypes.UltimateGuitar);
-                    //excludedValues.Add(FileFormatTypes.DOCX);
                     break;
                 case FileFormatTypes.ChordPro:
+                    excludedValues.Clear();
                     excludedValues.Add(FileFormatTypes.UltimateGuitar);
-                    excludedValues.Add(FileFormatTypes.OpenSong);
                     break;
             }
             CreateRadioButtonsFromEnum(gbTarget, FileFormatTypes.OpenSong, RadioButton_CheckedChanged_Target, [.. excludedValues]); //Target does not care
@@ -268,7 +274,6 @@ namespace ChordSheetConverter
 
         private void RadioButton_CheckedChanged_Target(object sender, EventArgs e)
         {
-
             FileFormatTypes? ffts = GetSelectedFileFormatType(gbTarget);
             if (ffts is not null)
             {
@@ -279,6 +284,18 @@ namespace ChordSheetConverter
                 else
                     ShowHideTemplate(Visibility.Collapsed);
             }
+            if (SourceFileFormatType == FileFormatTypes.ChordPro && TargetFileFormatType == FileFormatTypes.ChordPro)
+            {
+                cbTranspose.IsEnabled = true;
+                cbNashvilleActive.IsEnabled = true;
+                return;
+            }
+            else
+            {
+                cbTranspose.IsEnabled = false;
+                cbNashvilleActive.IsEnabled = false;
+            }
+            ShowHideTranspose(Visibility.Collapsed);
         }
         #endregion
 
@@ -290,12 +307,22 @@ namespace ChordSheetConverter
 
         private void btConvert_Click(object sender, RoutedEventArgs e)
         {
-            string txt = "";
-            (txt, List<CChordSheetLine> chordSheetLines) = allConverters.convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
-            txtOut.Text = txt;
-            if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
+            if (cbTranspose.IsChecked == true && SourceFileFormatType == FileFormatTypes.ChordPro)
             {
-                buildDocx(chordSheetLines);
+                txtOut.Text = CChordPro.TransposeChordPro(txtIn.Text, Convert.ToInt16(cbTransposeSteps.Text));
+            }
+            else if (cbNashvilleActive.IsChecked == true)
+            {
+                txtOut.Text = CChordPro.ConvertChordProToNashville(txtIn.Text, cbKey.Text, (ScaleType)cbScaleType.SelectedItem);
+            }
+            else
+            {
+                (string txt, List<CChordSheetLine> chordSheetLines) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
+                txtOut.Text = txt;
+                if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
+                {
+                    buildDocx(chordSheetLines);
+                }
             }
         }
 
@@ -309,8 +336,21 @@ namespace ChordSheetConverter
             cbNashvilleCheckedchanged(false);
         }
 
+        private void cbTranspose_Checked(object sender, RoutedEventArgs e)
+        {
+            ShowHideTranspose(Visibility.Visible);
+        }
+
+        private void cbTranspose_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ShowHideTranspose(Visibility.Collapsed);
+        }
+
+
         private void cbNashvilleCheckedchanged(bool ischecked)
         {
+            ShowHideNashville(ischecked ? Visibility.Visible : Visibility.Collapsed);
+
             EnDisBatchConverting(ischecked);
 
             Visibility vis = Visibility.Collapsed;
@@ -330,8 +370,7 @@ namespace ChordSheetConverter
 
         private void ShowHideNashville(Visibility v)
         {
-            cbScaleType.Visibility = v;
-            cbKey.Visibility = v;
+            GridNashville.Visibility = v;
         }
 
 
@@ -345,7 +384,7 @@ namespace ChordSheetConverter
                     FileItems.Clear();
                     foreach (string file in files)
                     {
-                        if (CAllConverters.fileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
+                        if (CAllConverters.FileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
                         {
                             FileItems.Add(new CFileItem(file, "Not processed"));
                         }
@@ -372,10 +411,10 @@ namespace ChordSheetConverter
                     if (Directory.Exists(SavingPath))
                     {
                         txtIn.Text = text;
-                        (txtOut.Text, _) = allConverters.convert(SourceFileFormatType, TargetFileFormatType, text);
+                        (txtOut.Text, _) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, text);
                         File.WriteAllText(SavingPath + @"\" +
                             Path.GetFileNameWithoutExtension(fi.fileNamePath) +
-                            CAllConverters.fileExtensions[TargetFileFormatType][0],
+                            CAllConverters.FileExtensions[TargetFileFormatType][0],
                             txtOut.Text);
                         fi.processStatus = "OK";
                         dgvFiles.Items.Refresh();
@@ -407,7 +446,6 @@ namespace ChordSheetConverter
         {
             // Open a file dialog with specified extensions and load content into TextBox
             string ret = getFilePathLoading(SourceFileFormatType, "");
-            string[] lines = [];
 
             // Open the dialog and check if the user selected a file
             if (ret != "")
@@ -416,7 +454,7 @@ namespace ChordSheetConverter
                 string fileContent = File.ReadAllText(ret);
                 fileContent = fileContent.Replace("<lyrics>", "<lyrics>" + Environment.NewLine);
                 fileContent = fileContent.Replace("</lyrics>", Environment.NewLine + "</lyrics>");
-                lines = CBasicConverter.stringToLines(fileContent);
+                string[] lines = CBasicConverter.StringToLines(fileContent);
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].StartsWith(' '))
@@ -425,17 +463,17 @@ namespace ChordSheetConverter
                         lines[i] = string.Concat(CChordSheetLine.nonBreakingSpace, lines[i].AsSpan(1));
                     }
                 }
-                txtIn.Text = CBasicConverter.linesToString(lines);  // Load the file content as plain text
+                txtIn.Text = CBasicConverter.LinesToString(lines);  // Load the file content as plain text
             }
 
             txtOut.Text = "";
-            allConverters.replaceConverterWithNewObject(SourceFileFormatType);  //Start from scratch with this object
+            allConverters.ReplaceConverterWithNewObject(SourceFileFormatType);  //Start from scratch with this object
             //loadedChordSheetLines = allConverters.analyze(SourceFileFormatType, lines);
         }
 
         private void btAddInfo_Click(object sender, RoutedEventArgs e)
         {
-            txtIn.Text = allConverters.updateTags(SourceFileFormatType, txtIn.Text);
+            txtIn.Text = allConverters.UpdateTags(SourceFileFormatType, txtIn.Text);
         }
 
         private void btSaveSource_Click(object sender, RoutedEventArgs e)
@@ -449,7 +487,7 @@ namespace ChordSheetConverter
 
         private void btSaveTarget_Click(object sender, RoutedEventArgs e)
         {
-            if (CAllConverters.fileExtensions.TryGetValue(TargetFileFormatType, out string[]? value))
+            if (CAllConverters.FileExtensions.TryGetValue(TargetFileFormatType, out string[]? value))
             {
                 string[] extensions = value;
                 TargetFileSaved = Path.ChangeExtension(SourceFileLoaded, extensions[0]);
@@ -462,7 +500,7 @@ namespace ChordSheetConverter
 
         public void buildDocx(List<CChordSheetLine> chordSheetLines)
         {
-            string fileName = allConverters.getConverter(FileFormatTypes.DOCX).title;
+            string fileName = allConverters.GetConverter(FileFormatTypes.DOCX).Title;
             string docxFilePath = customSettings.defaultOutputDirectory + @"\" + fileName + ".docx";
             docxFilePath = docxFilePath.Replace(@"\\", @"\");
             docxFilePath = getFilePathSaving(fileFormatType: TargetFileFormatType, docxFilePath);
@@ -472,7 +510,7 @@ namespace ChordSheetConverter
                 string templateFilePath = customSettings.defaultTemplateDirectory + @"\" + cbTemplates.Text;
                 templateFilePath = templateFilePath.Replace(@"\\", @"\");
 
-                string ret = CDocxFormatter.replaceInTemplate(templateFilePath, docxFilePath, allConverters.getConverter(FileFormatTypes.DOCX), chordSheetLines);
+                string ret = CDocxFormatter.ReplaceInTemplate(templateFilePath, docxFilePath, allConverters.GetConverter(FileFormatTypes.DOCX), chordSheetLines);
                 if (ret == "")
                     DocxToPdf(docxFilePath);
                 else
@@ -488,7 +526,7 @@ namespace ChordSheetConverter
 
             // Convert DOCX to PDF
             string pdfOutputPath = Path.ChangeExtension(docxFilePath, "pdf");
-            docxToXpsConverter.convertDocxToPdf(docxFilePath, pdfOutputPath);
+            docxToXpsConverter.ConvertDocxToPdf(docxFilePath, pdfOutputPath);
 
             // Create and show the Document Viewer Window
             DocViewerWindow docViewerWindow = new();
@@ -538,14 +576,28 @@ namespace ChordSheetConverter
             btClear.IsEnabled = EnDis;
         }
 
+        /*
+        private void EnDisTranspose(bool EnDis)
+        {
+            gbTranspose.IsAncestorOf(this);
+            cbTranspose.IsEnabled = EnDis;
+            cbTransposeSteps.IsEnabled = EnDis;
+            lblTranspose.IsEnabled = EnDis;
+        }*/
+
         private void ShowHideTemplate(Visibility v)
         {
             lblTemplate.Visibility = v;
             cbTemplates.Visibility = v;
         }
 
+        private void ShowHideTranspose(Visibility v)
+        {
+            GridTranspose.Visibility = v;
+        }
 
-        private void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(delegate { }));
+
+        private static void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(static delegate { }));
         #endregion
 
         #region Loading_Saving
@@ -614,11 +666,10 @@ namespace ChordSheetConverter
             }
         }
 
-
         private static string getFilePathSaving(FileFormatTypes fileFormatType, string defaultFilePath = "")
         {
             // Create the SaveFileDialog
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            SaveFileDialog saveFileDialog = new()
             {
                 OverwritePrompt = true, // Let the system handle the overwrite prompt
                 Filter = GenerateFileDialogFilter(fileFormatType)
@@ -676,9 +727,9 @@ namespace ChordSheetConverter
         // Helper method to generate the filter string for OpenFileDialog based on FileFormatTypes
         private static string GenerateFileDialogFilter(FileFormatTypes fileFormatType)
         {
-            if (CAllConverters.fileExtensions.ContainsKey(fileFormatType))
+            if (CAllConverters.FileExtensions.TryGetValue(fileFormatType, out string[]? value))
             {
-                string[] extensions = CAllConverters.fileExtensions[fileFormatType];
+                string[] extensions = value;
 
                 // Create a filter string in the format: "FileType (*.ext1;*.ext2)|*.ext1;*.ext2"
                 string filter = $"{fileFormatType} Files ({string.Join(";", Array.ConvertAll(extensions, ext => $"*{ext}"))})|{string.Join(";", Array.ConvertAll(extensions, ext => $"*{ext}"))}";
@@ -708,7 +759,7 @@ namespace ChordSheetConverter
         public static string LoadOpenSongFileToTextBox(TextBox txtIn)
         {
             // Create the OpenFileDialog
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            OpenFileDialog openFileDialog = new()
             {
                 Filter = "Files without extension|*|All files (*)|*.*", //"OpenSong and XML Files (*.xml;*)|*.xml;*", // Allow .xml and all files
                 Multiselect = true  // For single file selection
@@ -741,7 +792,6 @@ namespace ChordSheetConverter
             return "";
         }
         #endregion
-
     }
 }
 
