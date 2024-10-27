@@ -1,6 +1,9 @@
-﻿using System.Reflection;
+﻿using DocumentFormat.OpenXml.Drawing;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows;
 using static ChordSheetConverter.CChordSheetLine;
 using static ChordSheetConverter.CScales;
 
@@ -130,8 +133,8 @@ namespace ChordSheetConverter
                 if (line.Contains('[') && line.Contains(']'))
                 {
                     // Extract the chords and lyrics
-                    string chordLine = ExtractChords(line);   // Get the chord line
-                    string textLine = RemoveChords(line);     // Get the corresponding text line
+                    (CChordCollection chords, string textLine)= ExtractChords(line);   // Get the chord and text line
+                    string chordLine = chords.GetWellSpacedChordLine();
 
                     // Add ChordLine and TextLine separately
                     chordSheetLines.Add(new CChordSheetLine(EnLineType.ChordLine, chordLine));
@@ -152,32 +155,50 @@ namespace ChordSheetConverter
         [GeneratedRegex(@"\[([A-G][#b]?m?\d*)\]")]
         private static partial Regex RegexExtractChords();
 
+
+
         // Helper method to extract chords from a line
-        private static string ExtractChords(string line)
+        private static (CChordCollection chords, string lyrics) ExtractChords(string line)
         {
-            var result = new char[line.Length]; // Create a character array the size of the input line
-            for (int i = 0; i < result.Length; i++)
+            var chords = new CChordCollection();
+            var lyricsBuilder = new StringBuilder();
+            var chordBuilder = new StringBuilder();
+            int pos = 0;
+            bool inChord = false;
+
+            for (int i = 0; i < line.Length; i++)
             {
-                result[i] = ' '; // Initialize the array with spaces
-            }
-
-            // Match all chords in the format [C], [G], etc.
-            var matches = RegexExtractChords().Matches(line);
-
-            foreach (Match match in matches)
-            {
-                string chord = match.Groups[1].Value; // Extract the chord name
-                int index = match.Index; // Get the position of the chord in the original string
-
-                // Replace the space in the result array with the chord at the exact position
-                for (int i = 0; i < chord.Length; i++)
+                if (line[i] == '[')
                 {
-                    result[index + 1 + i] = chord[i]; // +1 to skip the opening '['
+                    // Start of chord
+                    inChord = true;
+                    chordBuilder.Clear(); // Reset the chord builder for a new chord
+                }
+                else if (line[i] == ']')
+                {
+                    // End of chord
+                    if (inChord && chordBuilder.Length > 0)
+                    {
+                        chords.AddChord(new CChord(chordBuilder.ToString(), pos));
+                    }
+                    inChord = false;
+                }
+                else if (inChord)
+                {
+                    // Inside a chord, build the chord text
+                    chordBuilder.Append(line[i]);
+                }
+                else
+                {
+                    // Outside of chord, build lyrics and increment position
+                    lyricsBuilder.Append(line[i]);
+                    pos++;
                 }
             }
 
-            return new string(result); // Convert the character array back to a string
+            return (chords, lyricsBuilder.ToString());
         }
+
 
         [GeneratedRegex(@"\[([A-G][#b]?m?\d*)\]")]
         private static partial Regex RegexRemoveChords();

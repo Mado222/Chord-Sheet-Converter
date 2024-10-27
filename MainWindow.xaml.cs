@@ -67,8 +67,6 @@ namespace ChordSheetConverter
             cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
             cbScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
             cbScaleType.SelectedIndex = 0;
-            //cbKey.Visibility = Visibility.Hidden;
-            //cbScaleType.Visibility = Visibility.Hidden;
 
             customSettings.LoadSettings();
             loadTemplatesToComboBox(cbTemplates, customSettings);
@@ -166,7 +164,6 @@ namespace ChordSheetConverter
         }
 
 
-        // Assuming you have a Panel or GroupBox named panelRadioButtons in your form
         public static void CreateRadioButtonsFromEnum<T>(GroupBox groupBox, T selectedValue, RoutedEventHandler onCheckedChanged, T[] excludedValues) where T : Enum
         {
             // Create a StackPanel to hold the RadioButtons (WPF equivalent of Windows Forms control container)

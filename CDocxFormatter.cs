@@ -168,9 +168,42 @@ namespace ChordSheetConverter
             return paragraphs;
         }
 
+        private static List<CChord> ExtractChords(string line)
+        {
+            List<CChord> ret = [];
+            string chord = "";
+            int pos = 0;
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] != ' ' && line[i] != nonBreakingSpaceChar)
+                {
+                    if (chord != "")
+                    {
+                        ret.Add(new CChord(chord, pos));
+                        chord = "";
+                        pos = 0;
+                    }
+                }
+                else
+                {
+                    if (chord == "")
+                    {
+                        //First letter og chord
+                        pos = i;
+                    }
+                    chord += line[i];
+                }
+            }
+            if (chord != "")
+            {
+                ret.Add(new CChord(chord, pos));
+            }
+            return ret;
+        }
 
-        // Helper method to create a page break
-        private static Paragraph CreatePageBreak()
+
+            // Helper method to create a page break
+            private static Paragraph CreatePageBreak()
         {
             var run = new Run(new Break { Type = BreakValues.Page });
             return new Paragraph(run);
