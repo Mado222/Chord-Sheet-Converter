@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Interop.Word;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Office.Interop.Word;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,8 @@ namespace ChordSheetConverter
         public (string newSong, List<CChordSheetLine> chordSheetLines) Convert(FileFormatTypes sourceFormatType, FileFormatTypes targetFormatType, string text)
         {
             List<CChordSheetLine> chordSheetLines  = AllFormats[sourceFormatType].Analyze(text);
-            ReplaceConverterWithNewObject(targetFormatType);
+            if (sourceFormatType != targetFormatType)
+                ReplaceConverterWithNewObject(targetFormatType);
             AllFormats[targetFormatType].CopyPropertiesFrom(GetConverter(sourceFormatType));
             string newSong = AllFormats[targetFormatType].Build(chordSheetLines);
             return (newSong, chordSheetLines);

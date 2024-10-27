@@ -21,9 +21,10 @@ namespace ChordSheetConverter
         { EnLineType.xmlElement, "Standard" },  // Style for XML elements
         { EnLineType.xmlTagOpenTag, "Standard" },// Style for opening XML tags
         { EnLineType.xmlTagClosingTag, "Standard" },// Style for closing XML tags
-        { EnLineType.SectionBegin, "songSection" },// Style for section begins
+        { EnLineType.SectionBegin, "songSectionBegin" },// Style for section begins
         { EnLineType.ColumnBreak, "Standard" },// Style for column breaks
-        { EnLineType.PageBreak, "Standard" }     // Style for page breaks
+        { EnLineType.PageBreak, "Standard" },     // Style for page breaks
+        { EnLineType.SectionEnd, "songSectionEnd" },     //Style for section ends
     };
 
 
@@ -105,9 +106,11 @@ namespace ChordSheetConverter
             return ret;
         }
 
-        public static List<Paragraph> BuildTextBlock(List<CChordSheetLine> textBlock)
+        public static List<Paragraph>? BuildTextBlock(List<CChordSheetLine> textBlock)
         {
             var paragraphs = new List<Paragraph>();
+            string inSection = "";
+
             foreach (CChordSheetLine csl in textBlock)
             {
                 EnLineType tag = csl.LineType;
@@ -121,34 +124,47 @@ namespace ChordSheetConverter
                 if (tag == EnLineType.EmptyLine)
                 {
                     // Add an empty line
-                    paragraphs.Add(new Paragraph(new Run()));
+                    paragraphs?.Add(new Paragraph(new Run()));
                 }
                 else if (tag == EnLineType.PageBreak)
                 {
                     // Add a page break
-                    paragraphs.Add(CreatePageBreak());
+                    paragraphs?.Add(CreatePageBreak());
                 }
                 else if (tag == EnLineType.ColumnBreak)
                 {
                     // Add a column break
-                    paragraphs.Add(CreateColumnBreak());
+                    paragraphs?.Add(CreateColumnBreak());
                 }
                 else if (tag == EnLineType.ChordLine)
                 {
                     // Create a styled paragraph specifically for chord lines
-                    var paragraph = CreateStyledChordLine(text, styleID);
-                    if (paragraph is not null)
-                        paragraphs.Add(paragraph);
+                    paragraphs?.Add(CreateStyledChordLine(text, styleID));
+                }
+                else if (tag == EnLineType.SectionBegin)
+                {
+                    if (inSection.Length > 0)
+                    {
+                        string sid = "Standard";
+                        if (LineTypeToStyleMap.TryGetValue(EnLineType.SectionEnd, out string? se))
+                            sid = se;
+                        paragraphs?.Add(CreateStyledParagraph("End + ", sid));
+                        inSection = "";
+                    }
+                    inSection = text;
+                    paragraphs?.Add(CreateStyledParagraph(text, styleID));
+                }
+                else if (tag == EnLineType.SectionEnd)
+                {
+                    paragraphs?.Add(CreateStyledParagraph(text, "songSectionEnd"));
+                    inSection = "";
                 }
                 else if (tag == EnLineType.CommentLine || tag == EnLineType.TextLine)
                 {
                     // Create a styled paragraph for comment or text lines
-                    var paragraph = CreateStyledParagraph(text, styleID);
-                    if (paragraph is not null)
-                        paragraphs.Add(paragraph);
+                    paragraphs?.Add(CreateStyledParagraph(text, styleID));
                 }
             }
-
             return paragraphs;
         }
 
@@ -272,7 +288,7 @@ namespace ChordSheetConverter
         public override string Build(List<CChordSheetLine> chordSheetLines)
         {
 #if DEBUG
-            FillPropertiesWithDefaults();
+            //FillPropertiesWithDefaults();
 #endif
             return GetLines(chordSheetLines);
         }

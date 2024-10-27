@@ -11,18 +11,18 @@ namespace ChordSheetConverter
         // property / tag
         public static readonly Dictionary<string, string> chordProMapTags = new()
         {
-    { "title", "title" },
-    { "subTitle", "subTitle" },
-    { "composer", "composer" },
-    { "lyricist", "lyricist" },
-    { "copyright", "copyright" },
-    { "album", "album" },
-    { "year", "year" },
-    { "key", "key" },
-    { "time", "time" },
-    { "tempo", "tempo" },
-    { "duration", "duration" },
-    { "capo", "capo" }
+    { "Title", "title" },
+    { "SubTitle", "subTitle" },
+    { "Composer", "composer" },
+    { "Lyricist", "lyricist" },
+    { "Copyright", "copyright" },
+    { "Album", "album" },
+    { "Year", "year" },
+    { "Key", "key" },
+    { "Time", "time" },
+    { "Tempo", "tempo" },
+    { "Duration", "duration" },
+    { "Capo", "capo" }
 };
 
         public override Dictionary<string, string> PropertyMapTags { get; } = chordProMapTags;
@@ -223,7 +223,7 @@ namespace ChordSheetConverter
             ns.Add(GetChordProTags());
 
             int idx = 0;
-            while (idx < CBasicConverter.ChordSheetLines.Count)
+            while (idx < chordSheetLines.Count)
             {
                 EnLineType thisLineType = chordSheetLines[idx].LineType;
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using Ookii.Dialogs.Wpf;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -8,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using static ChordSheetConverter.CScales;
 using FileFormatTypes = ChordSheetConverter.CAllConverters.FileFormatTypes;
+
 
 namespace ChordSheetConverter
 {
@@ -40,8 +40,7 @@ namespace ChordSheetConverter
             //Just samples
             FileItems =
         [
-            new () { fileNamePath = @"C:\Temp\Song1.txt", processStatus = "Not processed" },
-            new () { fileNamePath = @"C:\Temp\Song2.txt", processStatus = "Not processed" }
+            new () { fileNamePath = @"Drag / Drop here", processStatus = "" }
         ];
 
             // Set DataContext to this MainWindow
@@ -62,6 +61,7 @@ namespace ChordSheetConverter
             }
             cbTranspose.IsEnabled = false;
             cbNashvilleActive.IsEnabled = false;
+            cbTransposeSteps.SelectedItem = 0;
 
             cbKey.Items.Clear();
             cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
@@ -75,6 +75,9 @@ namespace ChordSheetConverter
             ShowHideTemplate(Visibility.Collapsed);
             ShowHideNashville(Visibility.Collapsed);
             ShowHideTranspose(Visibility.Collapsed);
+
+            txtSavingPath.Text = customSettings.DefaultOutputDirectory;
+            spSavePath.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -141,6 +144,8 @@ namespace ChordSheetConverter
                     txtSavingPath.IsEnabled = false;
                 if (pbSaveTo is not null)
                     pbSaveTo.IsEnabled = false;
+                if (spSavePath is not null)
+                    spSavePath.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -155,6 +160,8 @@ namespace ChordSheetConverter
                 {
                     txtSavingPath.Text = GetSavePath(txtSavingPath.Text);
                 }
+                if (spSavePath is not null)
+                    spSavePath.Visibility = Visibility.Visible;
             }
         }
 
@@ -175,7 +182,7 @@ namespace ChordSheetConverter
             // Get all the values from the enum
             var enumValues = Enum.GetValues(typeof(T));
 
-            RadioButton? firstRadioButton = null; // Keep track of the first radio button
+            RadioButton ? firstRadioButton = null; // Keep track of the first radio button
 
             foreach (var value in enumValues)
             {
@@ -329,7 +336,6 @@ namespace ChordSheetConverter
                 if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
                 {
                     buildDocx(chordSheetLines);
-                    //buildRtf(chordSheetLines);
                 }
             }
         }
@@ -392,51 +398,117 @@ namespace ChordSheetConverter
                     FileItems.Clear();
                     foreach (string file in files)
                     {
-                        if (CAllConverters.FileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
+                        if ((SourceFileFormatType == FileFormatTypes.OpenSong &&
+                            string.IsNullOrEmpty(Path.GetExtension(file))) ||
+                            CAllConverters.FileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
                         {
                             FileItems.Add(new CFileItem(file, "Not processed"));
                         }
+                        dgvFiles.ItemsSource = FileItems;
                     }
-                    dgvFiles.ItemsSource = FileItems;
                 }
             }
         }
-
 
         private void btBatchConvert_Click(object sender, EventArgs e)
         {
-            foreach (CFileItem fi in FileItems)
-            {
-                try
-                {
-                    string text = File.ReadAllText(fi.fileNamePath);
-                    string? SavingPath = Path.GetDirectoryName(fi.fileNamePath);
-
-                    if (rbSelected.IsChecked == true)
-                    {
-                        SavingPath = txtSavingPath.Text; ;
-                    }
-                    if (Directory.Exists(SavingPath))
-                    {
-                        txtIn.Text = text;
-                        (txtOut.Text, _) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, text);
-                        File.WriteAllText(SavingPath + @"\" +
-                            Path.GetFileNameWithoutExtension(fi.fileNamePath) +
-                            CAllConverters.FileExtensions[TargetFileFormatType][0],
-                            txtOut.Text);
-                        fi.processStatus = "OK";
-                        dgvFiles.Items.Refresh();
-                        DoEvents();
-                    }
-                    else
-                    { fi.processStatus = "Failed: Saving path does nor exist"; }
-                }
-                catch (Exception ee)
-                {
-                    fi.processStatus = "Failed:" + ee.ToString();
-                }
-            }
+            StartBatchProcess();
         }
+
+        private async void StartBatchProcess()
+        {
+            pbBatchConvert.Maximum = FileItems.Count;
+            pbBatchConvert.Minimum = 0;
+            pbBatchConvert.Width = 300;
+            pbBatchConvert.Visibility = Visibility.Visible;
+
+            // Create a progress reporter to handle updates to the progress bar
+            var progress = new Progress<int>(value =>
+            {
+                pbBatchConvert.Value = value;
+            });
+
+            await Task.Run(() =>
+            {
+                int i = 0;
+
+                foreach (CFileItem fi in FileItems)
+                {
+                    try
+                    {
+                        string text = File.ReadAllText(fi.fileNamePath);
+                        string? SavingPath = Path.GetDirectoryName(fi.fileNamePath);
+
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (rbSelected.IsChecked == true)
+                            {
+                                SavingPath = txtSavingPath.Text;
+                            }
+                        });
+
+                        if (Directory.Exists(SavingPath))
+                        {
+                            // Update text input from file
+                            Dispatcher.Invoke(() => txtIn.Text = text);
+
+                            // Handle conversion based on settings in the UI
+                            Dispatcher.Invoke(() =>
+                            {
+                                if (cbTranspose.IsChecked == true && SourceFileFormatType == FileFormatTypes.ChordPro)
+                                {
+                                    txtOut.Text = CChordPro.TransposeChordPro(txtIn.Text, Convert.ToInt16(cbTransposeSteps.Text));
+                                }
+                                else if (cbNashvilleActive.IsChecked == true)
+                                {
+                                    txtOut.Text = CChordPro.ConvertChordProToNashville(txtIn.Text, cbKey.Text, (ScaleType)cbScaleType.SelectedItem);
+                                }
+                                else
+                                {
+                                    (string txt, List<CChordSheetLine> chordSheetLines) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
+                                    txtOut.Text = txt;
+
+                                    if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
+                                    {
+                                        buildDocx(chordSheetLines, SavingPath + @"\", displayPdf: false);
+                                    }
+                                    else
+                                    {
+                                        File.WriteAllText(SavingPath + @"\" +
+                                            Path.GetFileNameWithoutExtension(fi.fileNamePath) +
+                                            CAllConverters.FileExtensions[TargetFileFormatType][0],
+                                            txtOut.Text);
+                                    }
+                                }
+                            });
+
+                            Dispatcher.Invoke(() =>
+                            {
+                                fi.processStatus = "OK";
+                                dgvFiles.Items.Refresh();
+                            });
+                        }
+                        else
+                        {
+                            Dispatcher.Invoke(() => fi.processStatus = "Failed: Saving path does not exist");
+                        }
+                    }
+                    catch (Exception ee)
+                    {
+                        Dispatcher.Invoke(() => fi.processStatus = "Failed: " + ee.ToString());
+                    }
+
+                    i++;
+                    ((IProgress<int>)progress).Report(i); // Report progress here
+                    DoEvents();
+                }
+            });
+
+            pbBatchConvert.Value = 0;
+            pbBatchConvert.Visibility = Visibility.Collapsed;
+        }
+
+
         private void btClear_Click(object sender, RoutedEventArgs e) => FileItems.Clear();
 
         private void btMoveTargetToSource_Click(object sender, RoutedEventArgs e)
@@ -453,13 +525,13 @@ namespace ChordSheetConverter
         private void btLoadSource_Click(object sender, RoutedEventArgs e)
         {
             // Open a file dialog with specified extensions and load content into TextBox
-            string ret = getFilePathLoading(SourceFileFormatType, "");
+            SourceFileLoaded = getFilePathLoading(SourceFileFormatType, "");
 
             // Open the dialog and check if the user selected a file
-            if (ret != "")
+            if (SourceFileLoaded != "")
             {
                 // Load the selected file content into the TextBox
-                string fileContent = File.ReadAllText(ret);
+                string fileContent = File.ReadAllText(SourceFileLoaded);
                 fileContent = fileContent.Replace("<lyrics>", "<lyrics>" + Environment.NewLine);
                 fileContent = fileContent.Replace("</lyrics>", Environment.NewLine + "</lyrics>");
                 string[] lines = CBasicConverter.StringToLines(fileContent);
@@ -506,12 +578,20 @@ namespace ChordSheetConverter
 
         #region HelperFunctions
 
-        public void buildDocx(List<CChordSheetLine> chordSheetLines)
+        public void buildDocx(List<CChordSheetLine> chordSheetLines, string outputPath = "", bool displayPdf = true)
         {
+            string docxFilePath = outputPath;
             string fileName = allConverters.GetConverter(FileFormatTypes.DOCX).Title;
-            string docxFilePath = customSettings.DefaultOutputDirectory + @"\" + fileName + ".docx";
+            
+            if (string.IsNullOrEmpty(outputPath))
+            {
+                docxFilePath = customSettings.DefaultOutputDirectory;
+            }
+            docxFilePath += @"\" + fileName + ".docx";
             docxFilePath = docxFilePath.Replace(@"\\", @"\");
-            docxFilePath = getFilePathSaving(fileFormatType: TargetFileFormatType, docxFilePath);
+            
+            if (File.Exists(docxFilePath) || String.IsNullOrEmpty(fileName))
+                docxFilePath = getFilePathSaving(fileFormatType: TargetFileFormatType, docxFilePath);
 
             if (docxFilePath != "") //User pressed Cancel?
             {
@@ -520,7 +600,7 @@ namespace ChordSheetConverter
 
                 string ret = CDocxFormatter.ReplaceInTemplate(templateFilePath, docxFilePath, allConverters.GetConverter(FileFormatTypes.DOCX), chordSheetLines);
                 if (ret == "")
-                    DocxToPdf(docxFilePath);
+                    DocxToPdf(docxFilePath, displayPdf);
                 else
                 {
                     txtOut.Text = ret;
@@ -528,8 +608,7 @@ namespace ChordSheetConverter
             }
         }
 
-
-        private void DocxToPdf(string docxFilePath)
+        private void DocxToPdf(string docxFilePath, bool displayPdf = true )
         {
             DocxToPdfConverter docxToXpsConverter = new();
 
@@ -537,17 +616,20 @@ namespace ChordSheetConverter
             string pdfOutputPath = Path.ChangeExtension(docxFilePath, "pdf");
             docxToXpsConverter.ConvertDocxToPdf(docxFilePath, pdfOutputPath);
 
-            // Create Document Viewer Window
-            docViewerWindow ??= new();
+            if (displayPdf)
+            {
+                // Create Document Viewer Window
+                docViewerWindow ??= new();
 
-            // Load the pdf file
-            docViewerWindow.DisplayPdf(pdfOutputPath);
+                // Load the pdf file
+                docViewerWindow.DisplayPdf(pdfOutputPath);
 
-            // Show the window
-            docViewerWindow.Show();
+                // Show the window
+                docViewerWindow.Show();
+            }
         }
 
-        private string? GuessKey()
+        private static string? GuessKey()
         {
             /*
             List<string[]> chords = ExtractChords(txtIn.Text.Split(line_separators, StringSplitOptions.None));
@@ -585,15 +667,6 @@ namespace ChordSheetConverter
             btClear.IsEnabled = EnDis;
         }
 
-        /*
-        private void EnDisTranspose(bool EnDis)
-        {
-            gbTranspose.IsAncestorOf(this);
-            cbTranspose.IsEnabled = EnDis;
-            cbTransposeSteps.IsEnabled = EnDis;
-            lblTranspose.IsEnabled = EnDis;
-        }*/
-
         private void ShowHideTemplate(Visibility v)
         {
             lblTemplate.Visibility = v;
@@ -611,22 +684,29 @@ namespace ChordSheetConverter
 
         #region Loading_Saving
 
-        private static string GetSavePath(string startPath)
+        private string GetSavePath(string startPath)
         {
-            // Use Ookii Dialogs FolderBrowserDialog
-            VistaFolderBrowserDialog fb = new();
+            using (var dialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                dialog.InitialDirectory = Directory.Exists(startPath) ? startPath : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                dialog.Filter = "Folder|*.none"; // Set a filter that doesn’t match any real files
+                dialog.CheckFileExists = false;
+                dialog.CheckPathExists = true;
+                dialog.FileName = "Select Folder"; // Text shown in the File name field
 
-            if (Directory.Exists(startPath))
-                fb.SelectedPath = startPath;
-            else
-                fb.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    // Use the directory path from the selected "file"
+                    return Path.GetDirectoryName(dialog.FileName) ?? startPath;
+                }
+            }
 
-            // Show the dialog
-            fb.ShowDialog();
-
-            return fb.SelectedPath;
+            return startPath; // Return the original path if the dialog was canceled
         }
-        public static void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
+
+
+
+    public static void loadTemplatesToComboBox(ComboBox comboBox, CustomSettings settings)
         {
             // Get the template directory from settings
             string templateDirectory = settings.DefaultTemplateDirectory;
@@ -793,7 +873,7 @@ namespace ChordSheetConverter
                 else
                 {
                     // Handle the case where the file has an invalid extension
-                    System.Windows.MessageBox.Show("Please select a valid OpenSong or XML file (either no extension or .xml).", "Invalid File", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    MessageBox.Show("Please select a valid OpenSong or XML file (either no extension or .xml).", "Invalid File", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
                 }
             }
 
@@ -809,6 +889,7 @@ namespace ChordSheetConverter
             if (settingsWindow.ShowDialog() == true)
             {
                 customSettings.SaveSettings(); // Save the updated settings
+                txtSavingPath.Text=customSettings.DefaultOutputDirectory;
             }
         }
     }

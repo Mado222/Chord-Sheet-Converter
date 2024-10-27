@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChordSheetConverter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1200"
+        Title="MainWindow" Height="800" Width="1300"
         Loaded="Window_Loaded" Closing="Window_Closing">
 
     <Window.Resources>
@@ -111,10 +111,15 @@
                  Height="500"/>
 
         <!-- Batch processing  -->
-        <StackPanel Grid.Row="2" Grid.Column="0" Width="Auto" Background="Beige" Grid.ColumnSpan="3">
-            <Label x:Name="lblBatchProcessing" Content="Batch Processing:" FontSize="14" FontWeight="Bold"/>
-            <Label x:Name="lblDrag" Content="Drag/Drop below" Margin="5"/>
+        <StackPanel Grid.Row="2" Grid.Column="0" Width="Auto" Background="Beige" Grid.ColumnSpan="2"  Orientation="Horizontal">
+            <Label x:Name="lblBatchProcessing" Content="Batch Processing:" FontSize="14" FontWeight="Bold" VerticalContentAlignment="Center"/>
+            <Label x:Name="lblDrag" Content="Drag/Drop below" Margin="5" VerticalAlignment="Center"/>
         </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="2" Background="Beige" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Stretch">
+            <ProgressBar x:Name="pbBatchConvert" Height="20" HorizontalAlignment="Stretch" VerticalAlignment="Center" Value="10" Visibility="Collapsed"/>
+        </StackPanel>
+
 
         <DataGrid x:Name="dgvFiles" Grid.Row="3" Grid.ColumnSpan="2" Height="Auto" AutoGenerateColumns="False" Drop="dgvFiles_Drop" ItemsSource="{Binding FileItems}">
             <!-- Manually defined columns -->
@@ -128,30 +133,34 @@
 
         <Grid x:Name="grBatch" Grid.Column="2" Grid.Row="3">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="49*"/>
+                <ColumnDefinition Width="211*"/>
+                <ColumnDefinition Width="260*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <GroupBox Header="Save to:" Grid.Column="0" Grid.Row="0">
-                <StackPanel x:Name="gbSaveTo">
-                    <RadioButton x:Name="rbOriginal" Content="Source Directory" HorizontalAlignment="Left" Margin="5" IsChecked="True" Checked="rbOriginal_Checked"/>
-                    <RadioButton x:Name="rbSelected" Content="Select Directory" HorizontalAlignment="Left" Margin="5" ToggleButton.Checked="rbSelected_Checked"/>
-                </StackPanel>
-            </GroupBox>
-            <StackPanel Grid.Column="1" Grid.Row="0">
+            <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" >
+                <GroupBox Header="Save to:" Margin="0,0,0,10" Grid.RowSpan="2">
+                    <StackPanel x:Name="gbSaveTo">
+                        <RadioButton x:Name="rbOriginal" Content="Source Directory" HorizontalAlignment="Left" Margin="5" IsChecked="True" Checked="rbOriginal_Checked"/>
+                        <RadioButton x:Name="rbSelected" Content="Select Directory" HorizontalAlignment="Left" Margin="5" ToggleButton.Checked="rbSelected_Checked"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+            <Button x:Name="btBatchConvert" Grid.Column="0" Grid.Row="1" Content="Batch Convert" Height="50" Margin="5,5,5,5" Click="btBatchConvert_Click" Grid.ColumnSpan="2"/>
+
+            <StackPanel x:Name="spSavePath" Grid.Column="2" Grid.Row="0" Margin="0,0,0,60" Grid.RowSpan="2">
                 <TextBox x:Name="txtSavingPath" TextWrapping="Wrap" 
                          Text="Path"
                          Width="Auto"
                          AcceptsReturn="True"
                          Margin="10"/>
-                <Image x:Name="pbSaveTo" Height="50" Width="50" Source="/Save-icon.png" Margin="10" MouseUp="pbSaveTo_MouseUp"/>
+                <Image x:Name="pbSaveTo" Height="50" Width="50" Margin="10" MouseUp="pbSaveTo_MouseUp" Source="/folder-files-and-folders-svgrepo-com.png"/>
             </StackPanel>
-            <Button x:Name="btBatchConvert" Grid.Column="0" Grid.Row="1" Content="Batch Convert" Height="50" Margin="5,5,5,5" Click="btBatchConvert_Click"/>
-            <Button x:Name="btClear" Grid.Column="1" Grid.Row="1" Content="Clear List" Height="50" Margin="5,5,5,5" Click="btClear_Click"/>
+            <Button x:Name="btClear" Grid.Column="2" Grid.Row="1" Content="Clear List" Height="50" Margin="5,5,5,5" Click="btClear_Click"/>
         </Grid>
     </Grid>
 </Window>
