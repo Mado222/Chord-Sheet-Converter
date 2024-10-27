@@ -36,6 +36,10 @@
     <li>Open the solution in <strong>Visual Studio</strong>.</li>
     <li>Build the project to restore dependencies and compile the application.</li>
 </ol>
+<h5><br>Alternatively:</h5>
+<ul>
+    <li>Download from the recent build setup.7z, unzip it and run setup.exe<br>&nbsp;</li>
+</ul>
 <h3>Usage</h3>
 <ol>
     <li>Prepare your chord sheet files from OpenSong, UltimateGuitar, or ChordPro.</li>
