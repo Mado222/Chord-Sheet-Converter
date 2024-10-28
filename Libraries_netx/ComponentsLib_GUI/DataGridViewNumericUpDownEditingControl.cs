@@ -5,6 +5,8 @@ using System.Diagnostics;
 
 namespace ComponentsLib_GUI
 {
+
+
     /// <summary>
     /// Defines the editing control for the DataGridViewNumericUpDownCell custom cell type.
     /// </summary>
@@ -27,7 +29,7 @@ namespace ComponentsLib_GUI
         public DataGridViewNumericUpDownEditingControl()
         {
             // The editing control must not be part of the tabbing loop
-            this.TabStop = false;
+            TabStop = false;
         }
 
         // Beginning of the IDataGridViewEditingControl interface implementation
@@ -37,14 +39,8 @@ namespace ComponentsLib_GUI
         /// </summary>
         public virtual DataGridView EditingControlDataGridView
         {
-            get
-            {
-                return this.dataGridView;
-            }
-            set
-            {
-                this.dataGridView = value;
-            }
+            get => dataGridView;
+            set => dataGridView = value;
         }
 
         /// <summary>
@@ -58,7 +54,7 @@ namespace ComponentsLib_GUI
             }
             set
             {
-                this.Text = (string) value;
+                Text = (string) value;
             }
         }
 
@@ -69,11 +65,11 @@ namespace ComponentsLib_GUI
         {
             get
             {
-                return this.rowIndex;
+                return rowIndex;
             }
             set
             {
-                this.rowIndex = value;
+                rowIndex = value;
             }
         }
 
@@ -84,11 +80,11 @@ namespace ComponentsLib_GUI
         {
             get
             {
-                return this.valueChanged;
+                return valueChanged;
             }
             set
             {
-                this.valueChanged = value;
+                valueChanged = value;
             }
         }
 
@@ -122,20 +118,20 @@ namespace ComponentsLib_GUI
         /// </summary>
         public virtual void ApplyCellStyleToEditingControl(DataGridViewCellStyle dataGridViewCellStyle)
         {
-            this.Font = dataGridViewCellStyle.Font;
+            Font = dataGridViewCellStyle.Font;
             if (dataGridViewCellStyle.BackColor.A < 255)
             {
                 // The NumericUpDown control does not support transparent back colors
                 Color opaqueBackColor = Color.FromArgb(255, dataGridViewCellStyle.BackColor);
-                this.BackColor = opaqueBackColor;
-                this.dataGridView.EditingPanel.BackColor = opaqueBackColor;
+                BackColor = opaqueBackColor;
+                dataGridView.EditingPanel.BackColor = opaqueBackColor;
             }
             else
             {
-                this.BackColor = dataGridViewCellStyle.BackColor;
+                BackColor = dataGridViewCellStyle.BackColor;
             }
-            this.ForeColor = dataGridViewCellStyle.ForeColor;
-            this.TextAlign = DataGridViewNumericUpDownCell.TranslateAlignment(dataGridViewCellStyle.Alignment);
+            ForeColor = dataGridViewCellStyle.ForeColor;
+            TextAlign = DataGridViewNumericUpDownCell.TranslateAlignment(dataGridViewCellStyle.Alignment);
         }
 
         /// <summary>
@@ -148,41 +144,39 @@ namespace ComponentsLib_GUI
             {
                 case Keys.Right:
                 {
-                    TextBox textBox = this.Controls[1] as TextBox;
-                    if (textBox != null)
-                    {
-                        // If the end of the selection is at the end of the string,
-                        // let the DataGridView treat the key message
-                        if ((this.RightToLeft == RightToLeft.No && !(textBox.SelectionLength == 0 && textBox.SelectionStart == textBox.Text.Length)) ||
-                            (this.RightToLeft == RightToLeft.Yes && !(textBox.SelectionLength == 0 && textBox.SelectionStart == 0)))
+                        if (Controls[1] is TextBox textBox)
                         {
-                            return true;
+                            // If the end of the selection is at the end of the string,
+                            // let the DataGridView treat the key message
+                            if ((RightToLeft == RightToLeft.No && !(textBox.SelectionLength == 0 && textBox.SelectionStart == textBox.Text.Length)) ||
+                                (RightToLeft == RightToLeft.Yes && !(textBox.SelectionLength == 0 && textBox.SelectionStart == 0)))
+                            {
+                                return true;
+                            }
                         }
-                    }
-                    break;
+                        break;
                 }
 
                 case Keys.Left:
                 {
-                    TextBox textBox = this.Controls[1] as TextBox;
-                    if (textBox != null)
-                    {
-                        // If the end of the selection is at the begining of the string
-                        // or if the entire text is selected and we did not start editing,
-                        // send this character to the dataGridView, else process the key message
-                        if ((this.RightToLeft == RightToLeft.No && !(textBox.SelectionLength == 0 && textBox.SelectionStart == 0)) ||
-                            (this.RightToLeft == RightToLeft.Yes && !(textBox.SelectionLength == 0 && textBox.SelectionStart == textBox.Text.Length)))
+                        if (Controls[1] is TextBox textBox)
                         {
-                            return true;
+                            // If the end of the selection is at the begining of the string
+                            // or if the entire text is selected and we did not start editing,
+                            // send this character to the dataGridView, else process the key message
+                            if ((RightToLeft == RightToLeft.No && !(textBox.SelectionLength == 0 && textBox.SelectionStart == 0)) ||
+                                (RightToLeft == RightToLeft.Yes && !(textBox.SelectionLength == 0 && textBox.SelectionStart == textBox.Text.Length)))
+                            {
+                                return true;
+                            }
                         }
-                    }
-                    break;
+                        break;
                 }
 
                 case Keys.Down:
                     // If the current value hasn't reached its minimum yet, handle the key. Otherwise let
                     // the grid handle it.
-                    if (this.Value > this.Minimum)
+                    if (Value > Minimum)
                     {
                         return true;
                     }
@@ -191,7 +185,7 @@ namespace ComponentsLib_GUI
                 case Keys.Up:
                     // If the current value hasn't reached its maximum yet, handle the key. Otherwise let
                     // the grid handle it.
-                    if (this.Value < this.Maximum)
+                    if (Value < Maximum)
                     {
                         return true;
                     }
@@ -200,31 +194,26 @@ namespace ComponentsLib_GUI
                 case Keys.Home:
                 case Keys.End:
                 {
-                    // Let the grid handle the key if the entire text is selected.
-                    TextBox textBox = this.Controls[1] as TextBox;
-                    if (textBox != null)
-                    {
-                        if (textBox.SelectionLength != textBox.Text.Length)
+                        // Let the grid handle the key if the entire text is selected.
+                        if (Controls[1] is TextBox textBox)
                         {
-                            return true;
+                            if (textBox.SelectionLength != textBox.Text.Length)
+                            {
+                                return true;
+                            }
                         }
-                    }
-                    break;
+                        break;
                 }
 
                 case Keys.Delete:
                 {
-                    // Let the grid handle the key if the carret is at the end of the text.
-                    TextBox textBox = this.Controls[1] as TextBox;
-                    if (textBox != null)
-                    {
-                        if (textBox.SelectionLength > 0 ||
-                            textBox.SelectionStart < textBox.Text.Length)
+                        // Let the grid handle the key if the carret is at the end of the text.
+                        if (Controls[1] is TextBox textBox && (textBox.SelectionLength > 0 ||
+                                textBox.SelectionStart < textBox.Text.Length))
                         {
                             return true;
                         }
-                    }
-                    break;
+                        break;
                 }
             }
             return !dataGridViewWantsInputKey;
@@ -235,16 +224,17 @@ namespace ComponentsLib_GUI
         /// </summary>
         public virtual object GetEditingControlFormattedValue(DataGridViewDataErrorContexts context)
         {
-            bool userEdit = this.UserEdit;
+
+            bool userEdit = UserEdit;
             try
             {   
                 // Prevent the Value from being set to Maximum or Minimum when the cell is being painted.
-                this.UserEdit = (context & DataGridViewDataErrorContexts.Display) == 0;
-                return this.Value.ToString((this.ThousandsSeparator ? "N" : "F") + this.DecimalPlaces.ToString());
+                UserEdit = (context & DataGridViewDataErrorContexts.Display) == 0;
+                return Value.ToString((ThousandsSeparator ? "N" : "F") + DecimalPlaces.ToString());
             }
             finally
             {
-                this.UserEdit = userEdit;
+                UserEdit = userEdit;
             }
         }
 
@@ -254,8 +244,7 @@ namespace ComponentsLib_GUI
         /// </summary>
         public virtual void PrepareEditingControlForEdit(bool selectAll)
         {
-            TextBox textBox = this.Controls[1] as TextBox;
-            if (textBox != null)
+            if (Controls[1] is TextBox textBox)
             {
                 if (selectAll)
                 {
@@ -278,10 +267,10 @@ namespace ComponentsLib_GUI
         /// </summary>
         private void NotifyDataGridViewOfValueChange()
         {
-            if (!this.valueChanged)
+            if (!valueChanged)
             {
-                this.valueChanged = true;
-                this.dataGridView.NotifyCurrentCellDirty(true);
+                valueChanged = true;
+                dataGridView.NotifyCurrentCellDirty(true);
             }
         }
 
@@ -333,7 +322,7 @@ namespace ComponentsLib_GUI
         protected override void OnValueChanged(EventArgs e)
         {
             base.OnValueChanged(e);
-            if (this.Focused)
+            if (Focused)
             {
                 // Let the DataGridView know about the value change
                 NotifyDataGridViewOfValueChange();
@@ -346,10 +335,9 @@ namespace ComponentsLib_GUI
         /// </summary>
         protected override bool ProcessKeyEventArgs(ref Message m)
         {
-            TextBox textBox = this.Controls[1] as TextBox;
-            if (textBox != null)
+            if (Controls[1] is TextBox textBox)
             {
-                SendMessage(textBox.Handle, m.Msg, m.WParam, m.LParam);
+                _ = SendMessage(textBox.Handle, m.Msg, m.WParam, m.LParam);
                 return true;
             }
             else

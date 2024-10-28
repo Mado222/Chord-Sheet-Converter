@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using WindControlLib;
-using BMTCommunication;
+using BMTCommunicationLib;
 
 
 /* ModuleCommand noch nicht getestet - O.K. 18.7.2006

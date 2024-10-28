@@ -10,17 +10,17 @@ namespace XBeeLib
             APID = CXBAPICommands.TXRequest64bitAddress;
         }
 
-        public CTXRequest64(UInt64 DestinationAddress64)
+        public CTXRequest64(ulong DestinationAddress64)
         {
             this.DestinationAddress64 = DestinationAddress64;
             APID = CXBAPICommands.TXRequest64bitAddress;
         }
 
-        private UInt64 _DestinationAddress64 = 0;
+        private ulong _DestinationAddress64 = 0;
         /// <summary>
         /// "SH, SL" = Serial number of the Remote device
         /// </summary>
-        public UInt64 DestinationAddress64
+        public ulong DestinationAddress64
         {
             get { return _DestinationAddress64; }
             set { _DestinationAddress64 = value; }

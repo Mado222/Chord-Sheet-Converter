@@ -311,17 +311,17 @@ namespace WindControlLib
             if (_ValMax_Abs_norm < 1)
             {
                 //2 Nachkommastellen
-                ret = String.Format("{0:0.00}", Value);
+                ret = string.Format("{0:0.00}", Value);
             }
             else if (_ValMax_Abs_norm < 10)
             {
                 //1 Nachkommastelle
-                ret = String.Format("{0:0.0}", Value);
+                ret = string.Format("{0:0.0}", Value);
             }
             else
             {
                 //Keine Nachkommastelle
-                ret = String.Format("{0:#}", Value);
+                ret = string.Format("{0:#}", Value);
             }
 
             ret += prefix;

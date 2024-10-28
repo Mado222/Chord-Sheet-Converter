@@ -13,12 +13,12 @@ namespace XBeeLib
     public class CRemoteATCommandRequest : CATCommand
     {
 
-        private UInt64 _DestinationAddress64 = 0;
+        private ulong _DestinationAddress64 = 0;
         /// <summary>
         /// destination address (64bit) 
         /// </summary>
         /// <remarks>Serial number of the remote device</remarks>
-        public UInt64 DestinationAddress64
+        public ulong DestinationAddress64
         {
             get { return _DestinationAddress64; }
             set
@@ -31,12 +31,12 @@ namespace XBeeLib
             }
         }
 
-        private UInt16 _DestinationAddress16 = CXBAPICommands.Default16BitAddress;
+        private ushort _DestinationAddress16 = CXBAPICommands.Default16BitAddress;
         /// <summary>
         /// destination address (16bit)
         /// </summary>
         /// <remarks>MY-Address of the Remote Device</remarks>
-        public UInt16 DestinationAddress16
+        public ushort DestinationAddress16
         {
             get { return _DestinationAddress16; }
             set { _DestinationAddress16 = value; }
@@ -68,7 +68,7 @@ namespace XBeeLib
         /// <param name="ATCommandResponse">wheter the remote should send an response</param>
         /// <param name="DestinationAddress64">serial number (64bit) of the remote device</param>
         /// <param name="ATCommand">command in AT format</param>
-        public CRemoteATCommandRequest(bool ApplyChangesOnRemote, bool ATCommandResponse, ulong DestinationAddress64, String ATCommand) : this()
+        public CRemoteATCommandRequest(bool ApplyChangesOnRemote, bool ATCommandResponse, ulong DestinationAddress64, string ATCommand) : this()
         {
             this.ApplyChangesOnRemote = ApplyChangesOnRemote;
             this.ATCommandResponse = ATCommandResponse;
@@ -83,7 +83,7 @@ namespace XBeeLib
         /// <param name="ATCommandResponse">wheter the remote should send an response</param>
         /// <param name="DestinationAddress16">MY address (16bit) of the remote device</param>
         /// <param name="ATCommand">command in AT format</param>
-        public CRemoteATCommandRequest(bool ApplyChangesOnRemote, bool ATCommandResponse, ushort DestinationAddress16, String ATCommand) : this()
+        public CRemoteATCommandRequest(bool ApplyChangesOnRemote, bool ATCommandResponse, ushort DestinationAddress16, string ATCommand) : this()
         {
             this.ApplyChangesOnRemote = ApplyChangesOnRemote;
             this.ATCommandResponse = ATCommandResponse;

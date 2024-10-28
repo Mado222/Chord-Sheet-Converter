@@ -62,7 +62,7 @@ namespace XBeeLib
             };
 
             //API Command Byte 1: Length MSB, Byte 2: Length LSB
-            byte[] be = BitConverter.GetBytes((UInt16)FrameData.Count);
+            byte[] be = BitConverter.GetBytes((ushort)FrameData.Count);
             for (int i = 1; i >= 0; i--)
             {
                 if (ApiMode == XBAPIMode.Enabled_w_Escape_Control_Chars &&

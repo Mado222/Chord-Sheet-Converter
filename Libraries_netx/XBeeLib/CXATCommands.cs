@@ -145,7 +145,7 @@ namespace XBeeLib
         /// <returns></returns>
         public static string XBAT_SetNodeIdentifier(string nodeId)
         {
-            if (nodeId == String.Empty)
+            if (nodeId == string.Empty)
             {
                 return "ATNI \r";
             }
@@ -279,7 +279,7 @@ namespace XBeeLib
 
         //AES Encryption Key
         public static string XBAT_GetAESEncryptionKey = "ATKY\r";
-        public static string XBAT_SetAESEncryptionKey(UInt64 bitfieldH, UInt64 bitfieldL)
+        public static string XBAT_SetAESEncryptionKey(ulong bitfieldH, ulong bitfieldL)
         {
             return "ATKY " + bitfieldH.ToString("X8") + bitfieldL.ToString("X8") + "\r";
         }

@@ -25,7 +25,7 @@ namespace XBeeLib
         public const byte RXPacket16bit = 0x81;
 
         public const byte StartDelimiter = 0x7E;
-        public const UInt16 Default16BitAddress = 0xFFFE;
+        public const ushort Default16BitAddress = 0xFFFE;
        
     }
 

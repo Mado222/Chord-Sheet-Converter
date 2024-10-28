@@ -13,6 +13,9 @@ namespace WindControlLib
     //}
 
     //https://www.rhyous.com/2011/01/24/how-read-the-64-bit-registry-from-a-32-bit-application-or-vice-versa/
+
+#pragma warning disable CA1416 // Validate platform compatibility
+
     public static class CRegistryAccess_64_32
     {
         public static string[] Read_Subkeys_64bitRegistryFrom32bitApp(string RegKey)
@@ -66,4 +69,6 @@ namespace WindControlLib
         }
 
     }
+#pragma warning restore CA1416 // Validate platform compatibility
+
 }

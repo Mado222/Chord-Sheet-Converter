@@ -105,7 +105,7 @@ namespace Neuromaster_V5
             ucSignalAnalyser1 = new Math_Net_nuget.ucSignalAnalyser();
             openFileDialog_nmc = new OpenFileDialog();
             panel1 = new Panel();
-            cFlowChartDX1 = new ucFlowChartDX_NM();
+            cFlowChartDX1 = new UcFlowChartDX_NM();
             pnControls.SuspendLayout();
             gbClock.SuspendLayout();
             gbConnectivitie.SuspendLayout();
@@ -702,7 +702,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.Button btGetElectrodeInfo;
         private System.Windows.Forms.ToolStripMenuItem convertToTxtToolStripMenuItem;
         private Panel panel1;
-        private ucFlowChartDX_NM cFlowChartDX1;
+        private UcFlowChartDX_NM cFlowChartDX1;
     }
 }
 

@@ -32,7 +32,7 @@ namespace XBeeLib
         /// <summary>
         /// returns the error message corresponding to the error number
         /// </summary>
-        public String LastError_String
+        public string LastError_String
         {
             get
             {

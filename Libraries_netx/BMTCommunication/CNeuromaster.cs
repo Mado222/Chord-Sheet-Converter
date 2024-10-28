@@ -1,5 +1,4 @@
-﻿using BMTCommunication;
-using WindControlLib;
+﻿using WindControlLib;
 using static BMTCommunicationLib.CInsightDataEnDecoder;
 
 namespace BMTCommunicationLib

@@ -12,11 +12,11 @@ namespace XBeeLib
 
         /// <summary>
         /// </summary>
-        private UInt16 _DestinationAddress16 = CXBAPICommands.Default16BitAddress;
+        private ushort _DestinationAddress16 = CXBAPICommands.Default16BitAddress;
         /// <summary>
         /// "MY" Address of the Remote Device
         /// </summary>
-        public UInt16 DestinationAddress16
+        public ushort DestinationAddress16
         {
             get { return _DestinationAddress16; }
             set { _DestinationAddress16 = value; }

@@ -78,17 +78,16 @@ namespace FeedbackDataLib_GUI
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             //Variables for progress report
-            long ten_percent_filelength = 0;
             long cnt_progress = 0;
             long cnt_runs = 0;
                         
             //To measure execution time
-            Stopwatch stopw = new Stopwatch();
+            Stopwatch stopw = new ();
 
             try
             {
                 stopw.Start();  //Start Stopwatch
-                ten_percent_filelength = SDCardImporter.DataFileLength / 10;    //Steps to report progress
+                long ten_percent_filelength = SDCardImporter.DataFileLength / 10;    //Steps to report progress
 
                 //Schreibfile öffnen
                 if (OpenFile())
@@ -150,10 +149,9 @@ namespace FeedbackDataLib_GUI
                 stopw.Stop();
 
                 //Perfomance report
-                string report = "";
                 double d = stopw.ElapsedMilliseconds;
-                d = d / 1000;
-                report = SDCardImporter.DataFileLength.ToString() + " byte processed in " + d.ToString("F2") + " seconds";
+                d /= 1000;
+                string report = SDCardImporter.DataFileLength.ToString() + " byte processed in " + d.ToString("F2") + " seconds";
                 //report = d.ToString("F2") + " seconds";
                 AddStatusString(report, Color.Green);
             }
@@ -179,16 +177,10 @@ namespace FeedbackDataLib_GUI
             StatusMessages.Push(tc);
         }
 
-        private class CTextCol
+        private class CTextCol(string text, Color Col)
         {
-            public string text = "";
-            public Color col = Color.Black;
-
-            public CTextCol(string text, Color Col)
-            {
-                this.text = text;
-                this.col = Col;
-            }
+            public string text = text;
+            public Color col = Col;
         }
 
         private void tmrStatusMessages_Tick(object sender, EventArgs e)
@@ -198,7 +190,7 @@ namespace FeedbackDataLib_GUI
                 /*
                 if (txtStatus.Lines.Length == 12)
                     txtStatus.Clear();*/
-                CTextCol tc = (CTextCol)StatusMessages.Pop();
+                CTextCol tc = StatusMessages.Pop() as CTextCol;
 
                 txtStatus.AppendText(Environment.NewLine);
                 txtStatus.SelectionColor = tc.col;
@@ -298,5 +290,4 @@ namespace FeedbackDataLib_GUI
 
 
    }
-
 }

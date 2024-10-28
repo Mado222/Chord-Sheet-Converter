@@ -8,6 +8,7 @@ using System.ComponentModel;
 
 namespace ComponentsLib_GUI
 {
+
     /// <summary>
     /// Defines a NumericUpDown cell type for the System.Windows.Forms.DataGridView control
     /// </summary>
@@ -32,18 +33,18 @@ namespace ComponentsLib_GUI
         // Default value of the DecimalPlaces property
         internal const int DATAGRIDVIEWNUMERICUPDOWNCELL_defaultDecimalPlaces = 0;
         // Default value of the Increment property
-        internal const Decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultIncrement = Decimal.One;
+        internal const decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultIncrement = decimal.One;
         // Default value of the Maximum property
-        internal const Decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultMaximum = (Decimal)100.0;
+        internal const decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultMaximum = (decimal)100.0;
         // Default value of the Minimum property
-        internal const Decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultMinimum = Decimal.Zero;
+        internal const decimal DATAGRIDVIEWNUMERICUPDOWNCELL_defaultMinimum = decimal.Zero;
         // Default value of the ThousandsSeparator property
         internal const bool DATAGRIDVIEWNUMERICUPDOWNCELL_defaultThousandsSeparator = false;
 
         // Type of this cell's editing control
         private static readonly Type defaultEditType = typeof(DataGridViewNumericUpDownEditingControl);
         // Type of this cell's value. The formatted value type is string, the same as the base class DataGridViewTextBoxCell
-        private static readonly Type defaultValueType = typeof(System.Decimal);
+        private static readonly Type defaultValueType = typeof(decimal);
 
         // The bitmap used to paint the non-edited cells via a call to NumericUpDown.DrawToBitmap
         [ThreadStatic]
@@ -54,9 +55,9 @@ namespace ComponentsLib_GUI
         private static NumericUpDown paintingNumericUpDown;
 
         private int decimalPlaces;       // Caches the value of the DecimalPlaces property
-        private Decimal increment;       // Caches the value of the Increment property
-        private Decimal minimum;         // Caches the value of the Minimum property
-        private Decimal maximum;         // Caches the value of the Maximum property
+        private decimal increment;       // Caches the value of the Increment property
+        private decimal minimum;         // Caches the value of the Minimum property
+        private decimal maximum;         // Caches the value of the Maximum property
         private bool thousandsSeparator; // Caches the value of the ThousandsSeparator property
 
         /// <summary>
@@ -65,22 +66,16 @@ namespace ComponentsLib_GUI
         public DataGridViewNumericUpDownCell()
         {
             // Create a thread specific bitmap used for the painting of the non-edited cells
-            if (renderingBitmap == null)
-            {
-                renderingBitmap = new Bitmap(DATAGRIDVIEWNUMERICUPDOWNCELL_defaultRenderingBitmapWidth, DATAGRIDVIEWNUMERICUPDOWNCELL_defaultRenderingBitmapHeight);
-            }
+            renderingBitmap ??= new Bitmap(DATAGRIDVIEWNUMERICUPDOWNCELL_defaultRenderingBitmapWidth, DATAGRIDVIEWNUMERICUPDOWNCELL_defaultRenderingBitmapHeight);
 
             // Create a thread specific NumericUpDown control used for the painting of the non-edited cells
-            if (paintingNumericUpDown == null)
-            {
-                paintingNumericUpDown = new NumericUpDown
+            paintingNumericUpDown ??= new NumericUpDown
                 {
                     // Some properties only need to be set once for the lifetime of the control:
                     BorderStyle = BorderStyle.None,
-                    Maximum = Decimal.MaxValue / 10,
-                    Minimum = Decimal.MinValue / 10
+                    Maximum = decimal.MaxValue / 10,
+                    Minimum = decimal.MinValue / 10
                 };
-            }
 
             // Set the default values of the properties:
             this.decimalPlaces = DATAGRIDVIEWNUMERICUPDOWNCELL_defaultDecimalPlaces;
@@ -143,7 +138,7 @@ namespace ComponentsLib_GUI
         /// <summary>
         /// The Increment property replicates the one from the NumericUpDown control
         /// </summary>
-        public Decimal Increment
+        public decimal Increment
         {
 
             get
@@ -153,7 +148,7 @@ namespace ComponentsLib_GUI
 
             set
             {
-                if (value < (Decimal) 0.0)
+                if (value < (decimal) 0.0)
                 {
                     throw new ArgumentOutOfRangeException("The Increment property cannot be smaller than 0.");
                 }
@@ -165,7 +160,7 @@ namespace ComponentsLib_GUI
         /// <summary>
         /// The Maximum property replicates the one from the NumericUpDown control
         /// </summary>
-        public Decimal Maximum
+        public decimal Maximum
         {
 
             get
@@ -186,7 +181,7 @@ namespace ComponentsLib_GUI
         /// <summary>
         /// The Minimum property replicates the one from the NumericUpDown control
         /// </summary>
-        public Decimal Minimum
+        public decimal Minimum
         {
 
             get
@@ -264,7 +259,7 @@ namespace ComponentsLib_GUI
         /// <summary>
         /// Returns the provided value constrained to be within the min and max. 
         /// </summary>
-        private Decimal Constrain(Decimal value)
+        private decimal Constrain(decimal value)
         {
             Debug.Assert(this.minimum <= this.maximum);
             if (value < this.minimum)
@@ -375,8 +370,8 @@ namespace ComponentsLib_GUI
             string formattedNumber = formattedValue as string;
             if (!string.IsNullOrEmpty(formattedNumber) && value != null)
             {
-                Decimal unformattedDecimal = System.Convert.ToDecimal(value);
-                Decimal formattedDecimal = System.Convert.ToDecimal(formattedNumber);
+                decimal unformattedDecimal = System.Convert.ToDecimal(value);
+                decimal formattedDecimal = System.Convert.ToDecimal(formattedNumber);
                 if (unformattedDecimal == formattedDecimal)
                 {
                     // The base implementation of GetFormattedValue (which triggers the CellFormatting event) did nothing else than 
@@ -425,7 +420,7 @@ namespace ComponentsLib_GUI
                 numericUpDown.Maximum = this.Maximum;
                 numericUpDown.Minimum = this.Minimum;
                 numericUpDown.ThousandsSeparator = this.ThousandsSeparator;
-                if (!(initialFormattedValue is string initialFormattedValueStr))
+                if (initialFormattedValue is not string initialFormattedValueStr)
                 {
                     numericUpDown.Text = string.Empty;
                 }
@@ -672,9 +667,9 @@ namespace ComponentsLib_GUI
         /// Utility function that sets a new value for the Increment property of the cell. This function is used by
         /// the cell and column Increment property. A row index needs to be provided as a parameter because
         /// this cell may be shared among multiple rows.
-        internal void SetIncrement(int rowIndex, Decimal value)
+        internal void SetIncrement(int rowIndex, decimal value)
         {
-            Debug.Assert(value >= (Decimal)0.0);
+            Debug.Assert(value >= (decimal)0.0);
             this.increment = value;
             if (OwnsEditingNumericUpDown(rowIndex))
             {
@@ -687,7 +682,7 @@ namespace ComponentsLib_GUI
         /// property for performance reasons. This way the column can invalidate the entire column at once instead of 
         /// invalidating each cell of the column individually. A row index needs to be provided as a parameter because
         /// this cell may be shared among multiple rows.
-        internal void SetMaximum(int rowIndex, Decimal value)
+        internal void SetMaximum(int rowIndex, decimal value)
         {
             this.maximum = value;
             if (this.minimum > this.maximum)
@@ -697,8 +692,8 @@ namespace ComponentsLib_GUI
             object cellValue = GetValue(rowIndex);
             if (cellValue != null)
             {
-                Decimal currentValue = System.Convert.ToDecimal(cellValue);
-                Decimal constrainedValue = Constrain(currentValue);
+                decimal currentValue = System.Convert.ToDecimal(cellValue);
+                decimal constrainedValue = Constrain(currentValue);
                 if (constrainedValue != currentValue)
                 {
                     SetValue(rowIndex, constrainedValue);
@@ -716,7 +711,7 @@ namespace ComponentsLib_GUI
         /// property for performance reasons. This way the column can invalidate the entire column at once instead of 
         /// invalidating each cell of the column individually. A row index needs to be provided as a parameter because
         /// this cell may be shared among multiple rows.
-        internal void SetMinimum(int rowIndex, Decimal value)
+        internal void SetMinimum(int rowIndex, decimal value)
         {
             this.minimum = value;
             if (this.minimum > this.maximum)
@@ -726,8 +721,8 @@ namespace ComponentsLib_GUI
             object cellValue = GetValue(rowIndex);
             if (cellValue != null)
             {
-                Decimal currentValue = System.Convert.ToDecimal(cellValue);
-                Decimal constrainedValue = Constrain(currentValue);
+                decimal currentValue = System.Convert.ToDecimal(cellValue);
+                decimal constrainedValue = Constrain(currentValue);
                 if (constrainedValue != currentValue)
                 {
                     SetValue(rowIndex, constrainedValue);

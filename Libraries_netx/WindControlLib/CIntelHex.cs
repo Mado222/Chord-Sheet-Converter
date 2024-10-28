@@ -449,15 +449,15 @@ namespace WindControlLib
             //Walk through memory in Blocks of 16
             List<byte> line = new List<byte>();
 
-            UInt16 ExtendedAdress = 0;
-            UInt16 LastExtendedAdress = 0;
+            ushort ExtendedAdress = 0;
+            ushort LastExtendedAdress = 0;
             OutFile.WriteLine(Make_Extended_Address_Line(ExtendedAdress));   //Set extended Adress
 
             //Lesen in 16er Blocks
             for (int i = 0; i < HexMemoryMirror.value.Length - 16; i += 16)
             {
                 //Check if Extended Adress has to be set
-                ExtendedAdress = (UInt16)(i >> 16);
+                ExtendedAdress = (ushort)(i >> 16);
                 if (ExtendedAdress != LastExtendedAdress)
                 {
                     OutFile.WriteLine(Make_Extended_Address_Line(ExtendedAdress));
@@ -467,7 +467,7 @@ namespace WindControlLib
 
                 List<byte[]> accessedBlocks = new List<byte[]>();
                 List<byte> acessedblock = null;
-                List<UInt16> accessedBlocks_startAdresses = new List<UInt16>();
+                List<ushort> accessedBlocks_startAdresses = new List<ushort>();
 
 
                 for (int ptrBlock = 0; ptrBlock < 16; ptrBlock++)
@@ -477,7 +477,7 @@ namespace WindControlLib
                         if (acessedblock == null)
                         {
                             acessedblock = new List<byte>();
-                            accessedBlocks_startAdresses.Add((UInt16)(i + ptrBlock));
+                            accessedBlocks_startAdresses.Add((ushort)(i + ptrBlock));
                         }
                         acessedblock.Add(HexMemoryMirror.value[i + ptrBlock]);
                     }
@@ -507,7 +507,7 @@ namespace WindControlLib
                         {
                             line.Clear();
                             line.Add((byte)barr.Length);   //number of bytes
-                            byte[] adr = BitConverter.GetBytes((UInt16)accessedBlocks_startAdresses[cntBlocks]);
+                            byte[] adr = BitConverter.GetBytes((ushort)accessedBlocks_startAdresses[cntBlocks]);
                             line.Add(adr[1]);   //Big Endian
                             line.Add(adr[0]);
                             line.Add(0);   //Record Type Data
@@ -526,7 +526,7 @@ namespace WindControlLib
             OutFile.Close();
         }
 
-        private string Make_Extended_Address_Line (UInt16 HigherByte)
+        private string Make_Extended_Address_Line (ushort HigherByte)
         {
             //OutFile.WriteLine(":02 0000 04 0000 fa");
 

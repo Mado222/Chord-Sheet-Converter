@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using WindControlLib;
 using XBeeLib;
-using BMTCommunication;
+using BMTCommunicationLib;
 
 
 namespace BMTCommunication
@@ -112,7 +112,7 @@ namespace BMTCommunication
         /// returns the enter command mode string (default: +++)
         /// </summary>
         /// <returns>enter command mode string</returns>
-        private String XBGetEnterCommandModeString()
+        private string XBGetEnterCommandModeString()
         {
             return _CommonSequenceCharacter.ToString() +
                 _CommonSequenceCharacter.ToString() +
@@ -142,7 +142,7 @@ namespace BMTCommunication
         /// sets the CC, GT, NT to default values
         /// </remarks>
         /// <param name="SerialPort">serial port</param>
-        public CXBeeSeries1(BMTCommunication.ISerialPort SerialPort)
+        public CXBeeSeries1(ISerialPort SerialPort)
         {
             this.Seriell32 = SerialPort;
             //BaudRate_Default = (uint) SerialPort.BaudRate;
@@ -401,7 +401,7 @@ namespace BMTCommunication
         private string? XBGetString(int Timeout_ms)
         {
             //if (logger.IsInfoEnabled) logger.Info("Getting the string through serial port...");
-            string s = String.Empty;
+            string s = string.Empty;
             
             List<byte> bt = new List<byte>();
             byte[] inBuf = new byte[1];
@@ -592,7 +592,7 @@ namespace BMTCommunication
         /// MY-Address (in 64bit-format) of Node: if MY-Address of wanted node is set lower than 0xFFFF
         /// UInt64.MaxValue, if an error occurs or node with given Node-Identifier not found
         /// </returns>
-        public ulong XBGetSerialNumberOfNode(String NodeIdentifier) 
+        public ulong XBGetSerialNumberOfNode(string NodeIdentifier) 
         {
             string s;
             if (XBCheckCommandMode(true) > 0)
@@ -623,7 +623,7 @@ namespace BMTCommunication
                 }
             }
             //if (logger.IsInfoEnabled) logger.Info("Getting serial number of node with knowing node-identifier not successfully finished");
-            return UInt64.MaxValue;
+            return ulong.MaxValue;
         }
 
         /// <summary>
@@ -937,9 +937,9 @@ namespace BMTCommunication
         /// value of the requested register
         /// null: if an error occurs
         /// </returns>
-        public String XBSendGetCommand2LocalDevice(String ATCommand)
+        public string XBSendGetCommand2LocalDevice(string ATCommand)
         {
-            String s;
+            string s;
             //if (logger.IsInfoEnabled) logger.Info("Getting a register on local device in command-mode...");
             if (XBCheckCommandMode(true) > 0)
             {
@@ -1043,7 +1043,7 @@ namespace BMTCommunication
                                                             LocalDevice.SO_SleepOption = Convert.ToByte(s, 16);
 
                                                             //DH, DL
-                                                            UInt64 dhdl;
+                                                            ulong dhdl;
                                                             XBSendString(CXBATCommands.XBAT_GetDestinationAddressHigh);
                                                             s = XBGetString(1000);
                                                             if (s != null)
@@ -1091,7 +1091,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetMyAddress2LocalDevice(ushort MyAddress)
         {
-            String ATCommand = CXBATCommands.XBAT_SetMyAddress(MyAddress);
+            string ATCommand = CXBATCommands.XBAT_SetMyAddress(MyAddress);
 
             //if (logger.IsInfoEnabled) logger.Info("Set MY-Address to local device...");
             int res;
@@ -1125,7 +1125,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetCoordinatorEnable2LocalDevice(byte CE)
         {
-            String ATCommand = CXBATCommands.XBAT_SetCoordinatorEnable(CE);
+            string ATCommand = CXBATCommands.XBAT_SetCoordinatorEnable(CE);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting CE-Register of local device...");
             int res;
@@ -1159,7 +1159,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetCoordinatorAssociation2LocalDevice(byte A2)
         {
-            String ATCommand = CXBATCommands.XBAT_SetCoordinatorAssociation(A2);
+            string ATCommand = CXBATCommands.XBAT_SetCoordinatorAssociation(A2);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting the A2-Register of local device...");
             int res;
@@ -1214,11 +1214,11 @@ namespace BMTCommunication
         /// 1: register successfully set
         /// -1: an error occurs
         /// </returns>
-        public int XBSetNodeIdentifier2LocalDevice(String newNodeIdentifier)
+        public int XBSetNodeIdentifier2LocalDevice(string newNodeIdentifier)
         {
             if (XBCheckNodeIdentifierString(newNodeIdentifier))
             {
-                String ATCommand = CXBATCommands.XBAT_SetNodeIdentifier(newNodeIdentifier);
+                string ATCommand = CXBATCommands.XBAT_SetNodeIdentifier(newNodeIdentifier);
 
                 //if (logger.IsInfoEnabled) logger.Info("Setting the NI-Register of local device...");
                 int res;
@@ -1254,7 +1254,7 @@ namespace BMTCommunication
         /// 1: register successfully set
         /// -1: an error occurs
         /// </returns>
-        public int XBSendSetCommand2LocalDevice(String ATCommand)
+        public int XBSendSetCommand2LocalDevice(string ATCommand)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting a register of local deviced...");
             int res;
@@ -1283,7 +1283,7 @@ namespace BMTCommunication
         /// 1: if register successfully set
         /// -1: an error occurs
         /// </returns>
-        private int XBSendSetCommand2LocalDeviceAPIMode(String ATCommand)
+        private int XBSendSetCommand2LocalDeviceAPIMode(string ATCommand)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting a register on local device in API-mode...");
             CATCommand request = new CATCommand
@@ -1335,7 +1335,7 @@ namespace BMTCommunication
         /// 1: if register successfully set
         /// -1: an error occurs
         /// </returns>
-        private int XBSendSetCommand2LocalDeviceCMDMode(String ATCommand)
+        private int XBSendSetCommand2LocalDeviceCMDMode(string ATCommand)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting a register on local device in command-mode...");
             if (XBCheckCommandMode(true)>0)
@@ -1377,7 +1377,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetCommonSequenceCharacter2LocalDevice(char newCharacter)
         {
-            String ATCommand = CXBATCommands.XBAT_SetCommandSequenceCharacter((byte)newCharacter);
+            string ATCommand = CXBATCommands.XBAT_SetCommandSequenceCharacter((byte)newCharacter);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting the CC (Command Sequence Character) of local device...");
             int res;
@@ -1411,7 +1411,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetGuardTimes2LocalDevice(ushort newGuardTimes)
         {
-            String ATCommand = CXBATCommands.XBAT_SetGuardTimes(newGuardTimes);
+            string ATCommand = CXBATCommands.XBAT_SetGuardTimes(newGuardTimes);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting the GT (Guard Times) of local device...");
             int res;
@@ -1448,7 +1448,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetNodeDiscoverTime2LocalDevice(byte newNodeDiscoverTime)
         {
-            String ATCommand = CXBATCommands.XBAT_SetNodeDiscoverTime(newNodeDiscoverTime);
+            string ATCommand = CXBATCommands.XBAT_SetNodeDiscoverTime(newNodeDiscoverTime);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting the NT (Node Discover Time) of local device...");
             int res;
@@ -1483,7 +1483,7 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetAPIMode2LocalDevice(XBAPIMode APIMode)
         {
-            String ATCommand = CXBATCommands.XBAT_SetAPIMode(APIMode);
+            string ATCommand = CXBATCommands.XBAT_SetAPIMode(APIMode);
 
             //if (logger.IsInfoEnabled) logger.Info("Setting the API-Mode of local device...");
             int res;
@@ -1904,7 +1904,7 @@ namespace BMTCommunication
                                                                 }
 
                                                                 //DH, DL
-                                                                UInt64 dhdl = 0;
+                                                                ulong dhdl = 0;
                                                                 remoteCommand.ATCommand = CXBATCommands.XBAT_GetDestinationAddressHigh;
                                                                 response = (CRemoteCommandResponse)XBSendRequest(remoteCommand, 500);
                                                                 if (response != null && response.status == RXCommandResponseStatus.OK)
@@ -2270,7 +2270,7 @@ namespace BMTCommunication
             else if (NodeInfos.Count == 1)
             {
                 //one device is discovered
-                UInt64 DestinationAddress64 = NodeInfos[0].SerialNumber;
+                ulong DestinationAddress64 = NodeInfos[0].SerialNumber;
 
                 //Only One remote device in Range, configure it
                 CRemoteATCommandRequest remoteCommand = new CRemoteATCommandRequest

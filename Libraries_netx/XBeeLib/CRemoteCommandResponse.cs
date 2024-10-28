@@ -21,21 +21,21 @@ namespace XBeeLib
             APID = CXBAPICommands.RemoteCommandResponse;
         }
 
-        private UInt16 _ResponderAddress16 = 0;
+        private ushort _ResponderAddress16 = 0;
         /// <summary>
         /// responder address (16bit)
         /// </summary>
-        virtual public UInt16 ResponderAddress16
+        virtual public ushort ResponderAddress16
         {
             get { return _ResponderAddress16; }
             set { _ResponderAddress16 = value; }
         }
 
-        private UInt64 _ResponderAddress64 = 0;
+        private ulong _ResponderAddress64 = 0;
         /// <summary>
         /// responder address (64bit)
         /// </summary>
-        virtual public UInt64 ResponderAddress64
+        virtual public ulong ResponderAddress64
         {
             get { return _ResponderAddress64; }
             set { _ResponderAddress64 = value; }

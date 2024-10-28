@@ -129,7 +129,7 @@ namespace FeedbackDataLib.Modules
                     FFT_Channels_List[rawch].Clear();
                     for (int i = numRawChannels; i < SWChannels.Count; i++)
                     {
-                        if (SWChannels[i].SendChannel && Char.GetNumericValue(SWChannels[i].SWChannelName[0]) == rawch)
+                        if (SWChannels[i].SendChannel && char.GetNumericValue(SWChannels[i].SWChannelName[0]) == rawch)
                         {
                             FFT_Channels_List[rawch].Add(new CActiveFFTChannel(i, SWChannels[i].EEG_related_swcn));
                             SWChannels[rawch].SendChannel = true;   //Sicherheitshalber den zugehörigen raw channel auch setzen

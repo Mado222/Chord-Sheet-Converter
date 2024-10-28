@@ -1,4 +1,5 @@
-﻿using FTD2XX_NET;
+﻿using BMTCommunicationLib;
+using FTD2XX_NET;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 
@@ -100,10 +101,10 @@ namespace BMTCommunication
         {
             string ComPort="";
             //FTDI.FT_STATUS stat= myFtdiDevice.GetCOMPort(out ComPort);
-            List<CComPortInfo> ComPortInfo = CGetComPorts.GetComPortInfo(String.Empty, String.Empty, ftdiDeviceList[idx].SerialNumber);
+            List<CComPortInfo> ComPortInfo = CGetComPorts.GetComPortInfo(string.Empty, string.Empty, ftdiDeviceList[idx].SerialNumber);
 
             //Remove not active Ports from the List
-            List<string> ActiveComPorts = BMTCommunication.CGetComPorts.GetActiveComPorts(String.Empty);
+            List<string> ActiveComPorts = BMTCommunication.CGetComPorts.GetActiveComPorts(string.Empty);
             for (int i = ComPortInfo.Count - 1; i >= 0; i--)
             {
                 bool isActife=false;
@@ -254,7 +255,7 @@ namespace BMTCommunication
             //lock (FTDISettingsLock)
             lock (FTDILock)
             {
-                UInt32 ftdiDeviceCount = 0;
+                uint ftdiDeviceCount = 0;
                 FTDI.FT_STATUS ftStatustemp = FTDI.FT_STATUS.FT_OK;
                 ftStatus = FTDI.FT_STATUS.FT_OK;
                 ftdiDeviceList = [];
@@ -930,7 +931,7 @@ namespace BMTCommunication
         }
 
         public event System.IO.Ports.SerialDataReceivedEventHandler SerialDataReceivedEvent;
-        protected virtual void OnSerialDataReceived(Object sender, SerialDataReceivedEventArgs e)
+        protected virtual void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialDataReceivedEvent?.Invoke(this, e);
         }

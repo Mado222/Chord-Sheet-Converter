@@ -19,12 +19,12 @@ namespace XBeeLib
             APID = CXBAPICommands.RXPacket64bit;
         }
 
-        private UInt64 _SourceAddress64 = 0;
+        private ulong _SourceAddress64 = 0;
         /// <summary>
         /// source address (64bit)
         /// </summary>
         /// <remarks>serial number of remote device</remarks>
-        virtual public UInt64 SourceAddress64
+        virtual public ulong SourceAddress64
         {
             get { return _SourceAddress64; }
             set { _SourceAddress64 = value; }

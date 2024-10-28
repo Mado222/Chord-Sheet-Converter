@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Management;
 
-
+#pragma warning disable CA1416 // Validate platform compatibility
 namespace BMTCommunication
 {
     /*
@@ -45,15 +45,15 @@ vergebenen ids gibt, weiss ich nicht.
 
         public CComPortInfo()
         {
-            this._ComName = String.Empty;
-            this._Driver = String.Empty;
-            this._DriverDesc = String.Empty;
-            this._FriendlyName = String.Empty;
-            this._HardwareID = String.Empty;
-            this._Manufacturer = String.Empty;
-            this._MatchingDeviceId = String.Empty;
-            this._Service = String.Empty;
-            this._FTDIBusKeyName = String.Empty;
+            this._ComName = string.Empty;
+            this._Driver = string.Empty;
+            this._DriverDesc = string.Empty;
+            this._FriendlyName = string.Empty;
+            this._HardwareID = string.Empty;
+            this._Manufacturer = string.Empty;
+            this._MatchingDeviceId = string.Empty;
+            this._Service = string.Empty;
+            this._FTDIBusKeyName = string.Empty;
         }
         
         #region Properties
@@ -137,18 +137,15 @@ vergebenen ids gibt, weiss ich nicht.
         public int Compare(CComPortInfo x, CComPortInfo y)
         {
             //return ((new CaseInsensitiveComparer()).Compare(x.EventName, y.EventName));
-            if (String.Equals(x.MatchingDeviceId, y.MatchingDeviceId))
+            if (string.Equals(x.MatchingDeviceId, y.MatchingDeviceId))
                 return 0;
-            return String.Compare(x.MatchingDeviceId, y.MatchingDeviceId);
+            return string.Compare(x.MatchingDeviceId, y.MatchingDeviceId);
         }
         #endregion
 
         #region IComparer Members
 
-        public int Compare(object x, object y)
-        {
-            return Compare((CComPortInfo)x, (CComPortInfo)y);
-        }
+        public int Compare(object? x, object? y) => Compare(x, y);
 
         #endregion
 
@@ -179,9 +176,9 @@ vergebenen ids gibt, weiss ich nicht.
         /// search string is not case-sensitive
         /// </remarks>
         /// <returns>list of available COM Ports, which meet the search string</returns>
-        public static List<CComPortInfo> GetComPortInfo(String Driver_Device_Description_SearchString)
+        public static List<CComPortInfo> GetComPortInfo(string Driver_Device_Description_SearchString)
         {
-            return GetComPortInfo(Driver_Device_Description_SearchString, String.Empty, String.Empty);
+            return GetComPortInfo(Driver_Device_Description_SearchString, string.Empty, string.Empty);
         }
 
         /// <summary>
@@ -198,7 +195,7 @@ vergebenen ids gibt, weiss ich nicht.
         /// to get all COM-Ports please set Search String to String.Empty,
         /// search string is not case-sensitive
         /// </remarks>
-        public static List<CComPortInfo> GetComPortInfo(String Driver_Device_Description_SearchString, String PID_VID_SerachString, String CurrentControlSet_SearchString)
+        public static List<CComPortInfo> GetComPortInfo(string Driver_Device_Description_SearchString, string PID_VID_SerachString, string CurrentControlSet_SearchString)
         {
             List<CComPortInfo> temp = new List<CComPortInfo>();
             List<CComPortInfo> ret = new List<CComPortInfo>();
@@ -287,7 +284,7 @@ vergebenen ids gibt, weiss ich nicht.
                         }
                         else
                         {
-                            mainDir = MatchingDeviceId.Substring(0, indexOfBackslash);
+                            mainDir = MatchingDeviceId[..indexOfBackslash];
                         }
 
                         if (MatchingDeviceId[0] == '*')
@@ -418,7 +415,7 @@ vergebenen ids gibt, weiss ich nicht.
         /// search string is not case-sensitive
         /// </remarks>
         /// <returns>list of available COM Ports, containing the search string</returns>
-        public static List<string> GetActiveComPorts(String SearchString)
+        public static List<string> GetActiveComPorts(string SearchString)
         {
             List<string> ret = new List<string>();
             try
@@ -439,8 +436,8 @@ vergebenen ids gibt, weiss ich nicht.
                         {
                             //Com Nummer (Bezeichnung) herausholen
                             // .... (COMxx)
-                            int klammer_auf_idx = s.IndexOf("(");
-                            int klammer_zu_idx = s.IndexOf(")");
+                            int klammer_auf_idx = s.IndexOf('(');
+                            int klammer_zu_idx = s.IndexOf(')');
                             string sub = s.Substring(klammer_auf_idx + 1, klammer_zu_idx - klammer_auf_idx - 1);
                             ret.Add(sub);
                         }
@@ -539,6 +536,7 @@ vergebenen ids gibt, weiss ich nicht.
                         WithinInterval = new TimeSpan(0, 0, 1),
                         Condition = @"TargetInstance ISA 'Win32_USBHub' AND TargetInstance.DeviceID LIKE 'USB\\" + pid_vid + "%'"
                     };
+
                     w_in = new ManagementEventWatcher(scope, q_in);
                     w_in.EventArrived += new EventArrivedEventHandler(USBDisConnected);
                 }
@@ -638,3 +636,4 @@ vergebenen ids gibt, weiss ich nicht.
         }
     }
 }
+#pragma warning restore CA1416 // Validate platform compatibility

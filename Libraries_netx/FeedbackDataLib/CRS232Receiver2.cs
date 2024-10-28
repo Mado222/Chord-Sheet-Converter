@@ -331,19 +331,13 @@ namespace FeedbackDataLib
             Data = new List<CDataIn>(this.Data.PopAll());
         }
 
-        public void InitReceiverBuffer(int ReceiverTimerInterval, int Dummy, int BytetoRead, int Dummy2)
-        {
-            InitBuffer();
-        }
+        public void InitReceiverBuffer(int ReceiverTimerInterval, int Dummy, int BytetoRead, int Dummy2) => InitBuffer();
 
-        public int ReceiverTimerInterval
-        {
-            get { return 0; }
-        }
+        public int ReceiverTimerInterval => 0;
 
         public bool EnableDataReadyEvent { set; get; } = false;
 
-        public byte[] GetCommand => RPCommand.Pop();
+        public byte[] GetCommand => RPCommand.Pop() ?? [];
 
 
         //Die dieses Interface implementierende Komponente empfängt keine Daten!
@@ -374,11 +368,13 @@ namespace FeedbackDataLib
         }
         /// <summary>
         /// Liest direkt von System.IO.Ports.SerialPort
-        /// </summary>
         public int GetByteData(ref byte[] DataIn, int NumData, int Offset)
         {
+            if (Seriell32 == null) return 0; // Return 0 if Seriell32 is null
+
             return Seriell32.Read(ref DataIn, Offset, NumData);
         }
+
         /// <summary>
         /// Setzt vorher ReadTimeout von System.IO.Ports.SerialPort
         /// </summary>

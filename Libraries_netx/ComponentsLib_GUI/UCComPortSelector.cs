@@ -1,9 +1,12 @@
 using BMTCommunication;
 using Microsoft.Win32;
 using System.Collections;
+using System.Diagnostics;
 
 namespace ComponentsLib_GUI
 {
+
+
     /// <summary>
     /// Summary description for UCComPortSelector.
     /// </summary>
@@ -12,48 +15,56 @@ namespace ComponentsLib_GUI
 		/// <summary> 
 		/// Required designer variable.
 		/// </summary>
-		private System.ComponentModel.Container components = null;
-		private ArrayList _ComNo;
-        private static string RegKey = "Software\\" + Application.CompanyName + "\\" + Application.ProductName + "\\";
+		private System.ComponentModel.Container? components = null;
+		private ArrayList _ComNo = [];
+        private static readonly string RegKey = "Software\\" + Application.CompanyName + "\\" + Application.ProductName + "\\";
         private const int _NumberofComPortstoInvestigate = 16;
 
-        private string DefaultCom;
+        private string DefaultCom = "";
 
 		public UCComPortSelector()
-		{
+        {
 			// This call is required by the Windows.Forms Form Designer.
 			InitializeComponent();
 		}
 
         public void SavePorttoReg()
         {
+            if (SelectedItem == null) return;
+
             try
             {
-                if (this.SelectedItem != null)
+                string? selectedItemStr = SelectedItem?.ToString();
+
+                // Check if the selected item is different from DefaultCom
+                if (!string.IsNullOrEmpty(selectedItemStr) && selectedItemStr != DefaultCom)
                 {
-                    if (this.SelectedItem.ToString() != DefaultCom)
+                    string regKey = $"{RegKey}{Name}\\";
+
+                    // Open or create the registry key
+                    using RegistryKey? rk = Registry.CurrentUser.OpenSubKey(regKey, true) ??
+                                             Registry.CurrentUser.CreateSubKey(regKey);
+
+                    if (rk != null)
                     {
-                        string regkey = RegKey + this.Name + "\\";
-                        RegistryKey rk = Registry.CurrentUser.OpenSubKey(regkey, true);
-                        DefaultCom = this.SelectedItem.ToString();
-                        if (rk != null)
-                        {
-                            //Key existiert nicht also anlegen
-                            rk = Registry.CurrentUser.OpenSubKey(regkey, true);
-                            rk.SetValue("COMPort", DefaultCom);
-                        }
-                        rk.Close();
+                        // Save the selected COM port to the registry
+                        DefaultCom = selectedItemStr;
+                        rk.SetValue("COMPort", DefaultCom);
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Handle exception if needed (e.g., log error message)
+                Debug.WriteLine($"SavePorttoReg failed: {ex.Message}");
+            }
         }
 
 
-		/// <summary> 
-		/// Clean up any resources being used.
-		/// </summary>
-		protected override void Dispose( bool disposing )
+        /// <summary> 
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose( bool disposing )
 		{
 			if( disposing )
 			{
@@ -135,11 +146,11 @@ namespace ComponentsLib_GUI
                     {
                         if (AllPorts[i].Length > 4)
                         {
-                            if (AllPorts[i].Substring(0, 3) == "COM")
+                            if (AllPorts[i][..3] == "COM")
                             {
-                                string s = AllPorts[i].Substring(0, AllPorts[i].Length - 1);
+                                string s = AllPorts[i][..^1];
                                 ComNames.Add(s);
-                                _ComNo.Add(Convert.ToInt32(s.Substring(3, s.Length - 3)));
+                                _ComNo.Add(Convert.ToInt32(s[3..]));
                             }
                         }
                     }

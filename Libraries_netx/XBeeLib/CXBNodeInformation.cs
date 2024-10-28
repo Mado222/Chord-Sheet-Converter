@@ -18,13 +18,13 @@ namespace XBeeLib
         public const byte default_A2_CoordinatorAssociation = 0x00;
         public const byte default_CE_CoordinatorEnable = 0x00;
         public const byte default_A1_EndDeviceAssociation = 0x00;
-        public const UInt16 default_MY_MyAddress = 0x0000;
+        public const ushort default_MY_MyAddress = 0x0000;
         public const string default_NI_NodeIdentifier = "";
         public const uint default_SH_SerialNumberHigh = 0x0;
         public const uint default_SL_SerialNumberLow = 0x0;
         public const XBSleepMode default_SM_SleepMode = 0;
-        public const UInt16 default_SP_CyclicSleepPeriode = 0;
-        public const UInt16 default_ST_TimeBeforeSleep = 0;
+        public const ushort default_SP_CyclicSleepPeriode = 0;
+        public const ushort default_ST_TimeBeforeSleep = 0;
         public const byte default_SO_SleepOption = 0;
         public const byte default_RO_PacketizationTimeout = 3;
 
@@ -73,11 +73,11 @@ namespace XBeeLib
             if (Updt.R0_PacketizationTimeout != default_RO_PacketizationTimeout) { this.R0_PacketizationTimeout = Updt.R0_PacketizationTimeout; };
         }
 
-        private UInt16 _MY_MyAddress;
+        private ushort _MY_MyAddress;
         /// <summary>
         /// MY Address (16bit)
         /// </summary>
-        public UInt16 MY_MyAddress
+        public ushort MY_MyAddress
         {
             set { _MY_MyAddress = value; }
             get { return _MY_MyAddress; }
@@ -118,16 +118,16 @@ namespace XBeeLib
         /// <summary>
         /// Serial number (SH + SL)
         /// </summary>
-        public UInt64 SerialNumber
+        public ulong SerialNumber
         {
             get
             {
-                return (UInt64)(SL_SerialNumberLow + ((UInt64)SH_SerialNumberHigh << 32));
+                return (ulong)(SL_SerialNumberLow + ((ulong)SH_SerialNumberHigh << 32));
             }
             set
             {
-                SL_SerialNumberLow = (UInt32)(value & 0x00000000FFFFFFFF);
-                SH_SerialNumberHigh = (UInt32)((value >> 32) & 0x00000000FFFFFFFF);
+                SL_SerialNumberLow = (uint)(value & 0x00000000FFFFFFFF);
+                SH_SerialNumberHigh = (uint)((value >> 32) & 0x00000000FFFFFFFF);
             }
         }
 
@@ -202,11 +202,11 @@ namespace XBeeLib
             set { _A1_EndDeviceAssociation = value; }
         }
 
-        private UInt32 _BaudRate;
+        private uint _BaudRate;
         /// <summary>
         /// Baud Rate
         /// </summary>
-        public UInt32 BaudRate
+        public uint BaudRate
         {
             get { return _BaudRate; }
             set { _BaudRate = value; }
@@ -232,39 +232,34 @@ namespace XBeeLib
             set { _SM_SleepMode = value; }
         }
 
-        private UInt16 _ST_TimeBeforeSleep;
+        private ushort _ST_TimeBeforeSleep;
         /// <summary>
         /// ST (Time before Sleep)
         /// </summary>
-        public UInt16 ST_TimeBeforeSleep
+        public ushort ST_TimeBeforeSleep
         {
             get { return _ST_TimeBeforeSleep; }
             set { _ST_TimeBeforeSleep = value; }
         }
 
-        private UInt16 _SP_CyclicSleepPeriode;
+        private ushort _SP_CyclicSleepPeriode;
         /// <summary>
         /// SP (Cyclic Slepp Periode)
         /// </summary>
-        public UInt16 SP_CyclicSleepPeriode
+        public ushort SP_CyclicSleepPeriode
         {
             get { return _SP_CyclicSleepPeriode; }
             set { _SP_CyclicSleepPeriode = value; }
         }
 
-        private UInt64 _DestinationAddress;
         /// <summary>
         /// DH, DL (Destination Address, 64bit)
         /// </summary>
-        public UInt64 DestinationAddress
-        {
-            get { return _DestinationAddress; }
-            set { _DestinationAddress = value; }
-        }
+        public ulong DestinationAddress { get; set; }
 
 
         #region IComparer<CXBNodeInformation> Members
-        public int Compare(CXBNodeInformation x, CXBNodeInformation y)
+        public int Compare(CXBNodeInformation? x, CXBNodeInformation? y)
         {
             //return ((new CaseInsensitiveComparer()).Compare(x.EventName, y.EventName));
             if (x.APIMode == y.APIMode)

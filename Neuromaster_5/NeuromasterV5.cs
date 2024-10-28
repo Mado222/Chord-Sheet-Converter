@@ -1087,14 +1087,14 @@ namespace Neuromaster_V5
  
         private void AllDefaultOn_Click(object sender, EventArgs e)
         {
-            ucFlowChartDX_NM.CDefaultChannels Def = new ucFlowChartDX_NM.CDefaultChannels();
+            UcFlowChartDX_NM.CDefaultChannels Def = new UcFlowChartDX_NM.CDefaultChannels();
             AllChannelsOff();
 
             for (int HW_cn = 0; HW_cn < DataReceiver.Connection.Device.ModuleInfos.Count; HW_cn++)
             {
                 if (DataReceiver.Connection.Device.ModuleInfos[HW_cn].ModuleType != enumModuleType.cModuleTypeEmpty)
                 {
-                    foreach (ucFlowChartDX_NM.CDefaultChannels.CDefChannel dc in Def.DefChannel)
+                    foreach (UcFlowChartDX_NM.CDefaultChannels.CDefChannel dc in Def.DefChannel)
                     {
                         if (dc.ModuleType == DataReceiver.Connection.Device.ModuleInfos[HW_cn].ModuleType)
                         {

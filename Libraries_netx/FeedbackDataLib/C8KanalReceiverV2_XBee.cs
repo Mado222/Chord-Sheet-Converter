@@ -1,4 +1,5 @@
 using BMTCommunication;
+using BMTCommunicationLib;
 using System;
 
 
@@ -42,7 +43,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// XBee Connection
         /// </summary>
-        public CXBeeConnection XBeeConnection;
+        public CXBeeConnection XBeeConnection = new();
 
         /// <summary>
         /// Part of the USB-XBee Driver Name that identifies the Neurolink
@@ -115,6 +116,11 @@ namespace FeedbackDataLib
             Initialise_C8KanalReceiverV2_XBee();
         }
 
+        // Optional: Destructor to release unmanaged resources if Dispose is not called
+        ~C8KanalReceiverV2_XBee()
+        {
+            Close();
+        }
 
         /// <summary>
         /// Function for Constructor
@@ -173,7 +179,7 @@ namespace FeedbackDataLib
         public void Dispose()
         {
             Close();
-            //throw new NotImplementedException();
+            GC.SuppressFinalize(this); // Suppress the finalizer.
         }
 
         #endregion

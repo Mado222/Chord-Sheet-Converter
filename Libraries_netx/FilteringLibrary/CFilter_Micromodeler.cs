@@ -8,18 +8,18 @@ namespace FilteringLibrary
     public class CHPFilter_Micromodeler
     {
 
-        public Int16 ProcessSample(Int16 sval)
+        public short ProcessSample(short sval)
         {
             return round_long_to_short(HP_Butter_2nd_int_red(sval));
         }
 
-        private Int16 round_long_to_short(long l)
+        private short round_long_to_short(long l)
         {
-            if (l > Int16.MaxValue)
-                return Int16.MaxValue;
-            else if (l < Int16.MinValue)
-                return Int16.MinValue;
-            return (Int16)l;
+            if (l > short.MaxValue)
+                return short.MaxValue;
+            else if (l < short.MinValue)
+                return short.MinValue;
+            return (short)l;
         }
 
 
@@ -59,11 +59,11 @@ namespace FilteringLibrary
         private const double HPi_a1 = 32622;
         private const double HPi_a2 = -16239;
 
-        private const Int16 HPi_Feedback_shift = 14;
-        private const Int16 HPi_Output_shift = 14;
+        private const short HPi_Feedback_shift = 14;
+        private const short HPi_Output_shift = 14;
 
-        private const Int16 HPi_InputScale_shift = 15;
-        private const Int16 HPi_OutputScale_shift = 14;
+        private const short HPi_InputScale_shift = 15;
+        private const short HPi_OutputScale_shift = 14;
 
 
 

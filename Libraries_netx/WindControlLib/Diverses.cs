@@ -164,22 +164,22 @@ namespace WindControlLib
 
     public class CMyConvert
     {
-        public static byte Low0(Int32 val)
+        public static byte Low0(int val)
         {
             return Convert.ToByte(val & 0xFF);
         }
 
-        public static byte High0(Int32 val)
+        public static byte High0(int val)
         {
             return Convert.ToByte((val >> 8) & 0xFF);
         }
 
-        public static byte High1(Int32 val)
+        public static byte High1(int val)
         {
             return Convert.ToByte((val >> 16) & 0xFF);
         }
 
-        public static byte High2(Int32 val)
+        public static byte High2(int val)
         {
             return Convert.ToByte((val >> 24) & 0xFF);
         }
@@ -282,10 +282,10 @@ namespace WindControlLib
                 }
             }
 
-            string s = String.Format("{0:X2}", chars[0]);
+            string s = string.Format("{0:X2}", chars[0]);
             for (int i = 1; i < idx; i++)
             {
-                s += separator + String.Format("{0:X2}", chars[i]);
+                s += separator + string.Format("{0:X2}", chars[i]);
             }
             return s;
         }
@@ -330,7 +330,7 @@ namespace WindControlLib
 
         public static int HexStringToInt(string hexString)
         {
-            return Int32.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
+            return int.Parse(hexString, System.Globalization.NumberStyles.HexNumber);
         }
 
         //Fornmat Provider mit wählbarem Dezimaltrennzeichen

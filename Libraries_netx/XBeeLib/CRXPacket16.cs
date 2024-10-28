@@ -18,12 +18,12 @@ namespace XBeeLib
             APID = CXBAPICommands.RXPacket16bit;
         }
 
-        private UInt16 _SourceAddress16;
+        private ushort _SourceAddress16;
         /// <summary>
         /// source address (16bit)
         /// </summary>
         /// <remarks>MY-Address of the remote device</remarks>
-        virtual public UInt16 SourceAddress16
+        virtual public ushort SourceAddress16
         {
             get { return _SourceAddress16; }
             set { _SourceAddress16 = value; }

@@ -600,7 +600,7 @@ namespace BMTCommunication
         /// <param name="CheckXBeeresponse">if set to <c>true</c> succeeded</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool Write(byte[] buffer, int offset, int count, UInt64 EndDevSerialNumber, bool CheckXBeeresponse)
+        public bool Write(byte[] buffer, int offset, int count, ulong EndDevSerialNumber, bool CheckXBeeresponse)
         {
             bool ret = true;
             //LocalNodeInformation is empty

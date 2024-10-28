@@ -100,7 +100,7 @@ namespace ComponentsLib_GUI
             Category("Data"),
             Description("Indicates the amount to increment or decrement on each button click.")
         ]
-        public Decimal Increment
+        public decimal Increment
         {
             get
             {
@@ -148,7 +148,7 @@ namespace ComponentsLib_GUI
             Description("Indicates the maximum value for the numeric up-down cells."),
             RefreshProperties(RefreshProperties.All)
         ]
-        public Decimal Maximum
+        public decimal Maximum
         {
             get
             {
@@ -200,7 +200,7 @@ namespace ComponentsLib_GUI
             Description("Indicates the minimum value for the numeric up-down cells."),
             RefreshProperties(RefreshProperties.All)
         ]
-        public Decimal Minimum
+        public decimal Minimum
         {
             get
             {

@@ -69,7 +69,7 @@ namespace BMTCommunication
         /// <summary>
         /// Non default constructor allowing passing of string for dll handle.
         /// </summary>
-        public FTDI(String path)
+        public FTDI(string path)
         {
             // If nonstandard.DLL is NOT loaded already, load it
             if (path == "")
@@ -183,36 +183,36 @@ namespace BMTCommunication
         #region DELEGATES
         // Definitions for FTD2XX functions
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_CreateDeviceInfoList(ref UInt32 numdevs);
+        private delegate FT_STATUS tFT_CreateDeviceInfoList(ref uint numdevs);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetDeviceInfoDetail(UInt32 index, ref UInt32 flags, ref FT_DEVICE chiptype, ref UInt32 id, ref UInt32 locid, byte[] serialnumber, byte[] description, ref IntPtr ftHandle);
+        private delegate FT_STATUS tFT_GetDeviceInfoDetail(uint index, ref uint flags, ref FT_DEVICE chiptype, ref uint id, ref uint locid, byte[] serialnumber, byte[] description, ref IntPtr ftHandle);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_Open(UInt32 index, ref IntPtr ftHandle);
+        private delegate FT_STATUS tFT_Open(uint index, ref IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_OpenEx(string devstring, UInt32 dwFlags, ref IntPtr ftHandle);
+        private delegate FT_STATUS tFT_OpenEx(string devstring, uint dwFlags, ref IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_OpenExLoc(UInt32 devloc, UInt32 dwFlags, ref IntPtr ftHandle);
+        private delegate FT_STATUS tFT_OpenExLoc(uint devloc, uint dwFlags, ref IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_Close(IntPtr ftHandle);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_Read(IntPtr ftHandle, byte[] lpBuffer, UInt32 dwBytesToRead, ref UInt32 lpdwBytesReturned);
+        private delegate FT_STATUS tFT_Read(IntPtr ftHandle, byte[] lpBuffer, uint dwBytesToRead, ref uint lpdwBytesReturned);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_Write(IntPtr ftHandle, byte[] lpBuffer, UInt32 dwBytesToWrite, ref UInt32 lpdwBytesWritten);
+        private delegate FT_STATUS tFT_Write(IntPtr ftHandle, byte[] lpBuffer, uint dwBytesToWrite, ref uint lpdwBytesWritten);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetQueueStatus(IntPtr ftHandle, ref UInt32 lpdwAmountInRxQueue);
+        private delegate FT_STATUS tFT_GetQueueStatus(IntPtr ftHandle, ref uint lpdwAmountInRxQueue);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetModemStatus(IntPtr ftHandle, ref UInt32 lpdwModemStatus);
+        private delegate FT_STATUS tFT_GetModemStatus(IntPtr ftHandle, ref uint lpdwModemStatus);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetStatus(IntPtr ftHandle, ref UInt32 lpdwAmountInRxQueue, ref UInt32 lpdwAmountInTxQueue, ref UInt32 lpdwEventStatus);
+        private delegate FT_STATUS tFT_GetStatus(IntPtr ftHandle, ref uint lpdwAmountInRxQueue, ref uint lpdwAmountInTxQueue, ref uint lpdwEventStatus);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetBaudRate(IntPtr ftHandle, UInt32 dwBaudRate);
+        private delegate FT_STATUS tFT_SetBaudRate(IntPtr ftHandle, uint dwBaudRate);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetDataCharacteristics(IntPtr ftHandle, byte uWordLength, byte uStopBits, byte uParity);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetFlowControl(IntPtr ftHandle, UInt16 usFlowControl, byte uXon, byte uXoff);
+        private delegate FT_STATUS tFT_SetFlowControl(IntPtr ftHandle, ushort usFlowControl, byte uXon, byte uXoff);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetDtr(IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -230,37 +230,37 @@ namespace BMTCommunication
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_Rescan();
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_Reload(UInt16 wVID, UInt16 wPID);
+        private delegate FT_STATUS tFT_Reload(ushort wVID, ushort wPID);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_Purge(IntPtr ftHandle, UInt32 dwMask);
+        private delegate FT_STATUS tFT_Purge(IntPtr ftHandle, uint dwMask);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetTimeouts(IntPtr ftHandle, UInt32 dwReadTimeout, UInt32 dwWriteTimeout);
+        private delegate FT_STATUS tFT_SetTimeouts(IntPtr ftHandle, uint dwReadTimeout, uint dwWriteTimeout);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetBreakOn(IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetBreakOff(IntPtr ftHandle);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetDeviceInfo(IntPtr ftHandle, ref FT_DEVICE pftType, ref UInt32 lpdwID, byte[] pcSerialNumber, byte[] pcDescription, IntPtr pvDummy);
+        private delegate FT_STATUS tFT_GetDeviceInfo(IntPtr ftHandle, ref FT_DEVICE pftType, ref uint lpdwID, byte[] pcSerialNumber, byte[] pcDescription, IntPtr pvDummy);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetResetPipeRetryCount(IntPtr ftHandle, UInt32 dwCount);
+        private delegate FT_STATUS tFT_SetResetPipeRetryCount(IntPtr ftHandle, uint dwCount);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_StopInTask(IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_RestartInTask(IntPtr ftHandle);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetDriverVersion(IntPtr ftHandle, ref UInt32 lpdwDriverVersion);
+        private delegate FT_STATUS tFT_GetDriverVersion(IntPtr ftHandle, ref uint lpdwDriverVersion);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetLibraryVersion(ref UInt32 lpdwLibraryVersion);
+        private delegate FT_STATUS tFT_GetLibraryVersion(ref uint lpdwLibraryVersion);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetDeadmanTimeout(IntPtr ftHandle, UInt32 dwDeadmanTimeout);
+        private delegate FT_STATUS tFT_SetDeadmanTimeout(IntPtr ftHandle, uint dwDeadmanTimeout);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetChars(IntPtr ftHandle, byte uEventCh, byte uEventChEn, byte uErrorCh, byte uErrorChEn);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetEventNotification(IntPtr ftHandle, UInt32 dwEventMask, SafeHandle hEvent);
+        private delegate FT_STATUS tFT_SetEventNotification(IntPtr ftHandle, uint dwEventMask, SafeHandle hEvent);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_GetComPortNumber(IntPtr ftHandle, ref Int32 dwComPortNumber);
+        private delegate FT_STATUS tFT_GetComPortNumber(IntPtr ftHandle, ref int dwComPortNumber);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_SetLatencyTimer(IntPtr ftHandle, byte ucLatency);
@@ -271,21 +271,21 @@ namespace BMTCommunication
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_GetBitMode(IntPtr ftHandle, ref byte ucMode);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_SetUSBParameters(IntPtr ftHandle, UInt32 dwInTransferSize, UInt32 dwOutTransferSize);
+        private delegate FT_STATUS tFT_SetUSBParameters(IntPtr ftHandle, uint dwInTransferSize, uint dwOutTransferSize);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_ReadEE(IntPtr ftHandle, UInt32 dwWordOffset, ref UInt16 lpwValue);
+        private delegate FT_STATUS tFT_ReadEE(IntPtr ftHandle, uint dwWordOffset, ref ushort lpwValue);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_WriteEE(IntPtr ftHandle, UInt32 dwWordOffset, UInt16 wValue);
+        private delegate FT_STATUS tFT_WriteEE(IntPtr ftHandle, uint dwWordOffset, ushort wValue);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_EraseEE(IntPtr ftHandle);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_EE_UASize(IntPtr ftHandle, ref UInt32 dwSize);
+        private delegate FT_STATUS tFT_EE_UASize(IntPtr ftHandle, ref uint dwSize);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_EE_UARead(IntPtr ftHandle, byte[] pucData, Int32 dwDataLen, ref UInt32 lpdwDataRead);
+        private delegate FT_STATUS tFT_EE_UARead(IntPtr ftHandle, byte[] pucData, int dwDataLen, ref uint lpdwDataRead);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_EE_UAWrite(IntPtr ftHandle, byte[] pucData, Int32 dwDataLen);
+        private delegate FT_STATUS tFT_EE_UAWrite(IntPtr ftHandle, byte[] pucData, int dwDataLen);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate FT_STATUS tFT_EE_Read(IntPtr ftHandle, FT_PROGRAM_DATA pData);
@@ -293,14 +293,14 @@ namespace BMTCommunication
         private delegate FT_STATUS tFT_EE_Program(IntPtr ftHandle, FT_PROGRAM_DATA pData);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_EEPROM_Read(IntPtr ftHandle, IntPtr eepromData, UInt32 eepromDataSize, byte[] manufacturer, byte[] manufacturerID, byte[] description, byte[] serialnumber);
+        private delegate FT_STATUS tFT_EEPROM_Read(IntPtr ftHandle, IntPtr eepromData, uint eepromDataSize, byte[] manufacturer, byte[] manufacturerID, byte[] description, byte[] serialnumber);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_EEPROM_Program(IntPtr ftHandle, IntPtr eepromData, UInt32 eepromDataSize, byte[] manufacturer, byte[] manufacturerID, byte[] description, byte[] serialnumber);
+        private delegate FT_STATUS tFT_EEPROM_Program(IntPtr ftHandle, IntPtr eepromData, uint eepromDataSize, byte[] manufacturer, byte[] manufacturerID, byte[] description, byte[] serialnumber);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_VendorCmdGet(IntPtr ftHandle, UInt16 request, byte[] buf, UInt16 len);
+        private delegate FT_STATUS tFT_VendorCmdGet(IntPtr ftHandle, ushort request, byte[] buf, ushort len);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        private delegate FT_STATUS tFT_VendorCmdSet(IntPtr ftHandle, UInt16 request, byte[] buf, UInt16 len);
+        private delegate FT_STATUS tFT_VendorCmdSet(IntPtr ftHandle, ushort request, byte[] buf, ushort len);
 
         #endregion
 
@@ -398,9 +398,9 @@ namespace BMTCommunication
         };
 
         // Flags for FT_OpenEx
-        private const UInt32 FT_OPEN_BY_SERIAL_NUMBER	= 0x00000001;
-        private const UInt32 FT_OPEN_BY_DESCRIPTION		= 0x00000002;
-        private const UInt32 FT_OPEN_BY_LOCATION		= 0x00000004;
+        private const uint FT_OPEN_BY_SERIAL_NUMBER	= 0x00000001;
+        private const uint FT_OPEN_BY_DESCRIPTION		= 0x00000002;
+        private const uint FT_OPEN_BY_LOCATION		= 0x00000004;
 
         // Word Lengths
         /// <summary>
@@ -471,19 +471,19 @@ namespace BMTCommunication
             /// <summary>
             /// No flow control
             /// </summary>
-            public const UInt16 FT_FLOW_NONE		= 0x0000;
+            public const ushort FT_FLOW_NONE		= 0x0000;
             /// <summary>
             /// RTS/CTS flow control
             /// </summary>
-            public const UInt16 FT_FLOW_RTS_CTS		= 0x0100;
+            public const ushort FT_FLOW_RTS_CTS		= 0x0100;
             /// <summary>
             /// DTR/DSR flow control
             /// </summary>
-            public const UInt16 FT_FLOW_DTR_DSR		= 0x0200;
+            public const ushort FT_FLOW_DTR_DSR		= 0x0200;
             /// <summary>
             /// Xon/Xoff flow control
             /// </summary>
-            public const UInt16 FT_FLOW_XON_XOFF	= 0x0400;
+            public const ushort FT_FLOW_XON_XOFF	= 0x0400;
         }
 
         // Purge Rx and Tx buffers
@@ -559,15 +559,15 @@ namespace BMTCommunication
             /// <summary>
             /// Event on receive character
             /// </summary>
-            public const UInt32 FT_EVENT_RXCHAR			= 0x00000001;
+            public const uint FT_EVENT_RXCHAR			= 0x00000001;
             /// <summary>
             /// Event on modem status change
             /// </summary>
-            public const UInt32 FT_EVENT_MODEM_STATUS	= 0x00000002;
+            public const uint FT_EVENT_MODEM_STATUS	= 0x00000002;
             /// <summary>
             /// Event on line status change
             /// </summary>
-            public const UInt32 FT_EVENT_LINE_STATUS	= 0x00000004;
+            public const uint FT_EVENT_LINE_STATUS	= 0x00000004;
         }
 
         // Bit modes
@@ -833,11 +833,11 @@ namespace BMTCommunication
             /// <summary>
             /// Indicates that the device is open
             /// </summary>
-            public const UInt32 FT_FLAGS_OPENED		= 0x00000001;
+            public const uint FT_FLAGS_OPENED		= 0x00000001;
             /// <summary>
             /// Indicates that the device is enumerated as a hi-speed USB device
             /// </summary>
-            public const UInt32 FT_FLAGS_HISPEED	= 0x00000002;
+            public const uint FT_FLAGS_HISPEED	= 0x00000002;
         }
 
         // Valid drive current values for FT2232H, FT4232H and FT232H devices
@@ -956,7 +956,7 @@ namespace BMTCommunication
             /// <summary>
             /// Indicates device state.  Can be any combination of the following: FT_FLAGS_OPENED, FT_FLAGS_HISPEED
             /// </summary>
-            public UInt32 Flags;
+            public uint Flags;
             /// <summary>
             /// Indicates the device type.  Can be one of the following: FT_DEVICE_232R, FT_DEVICE_2232C, FT_DEVICE_BM, FT_DEVICE_AM, FT_DEVICE_100AX or FT_DEVICE_UNKNOWN
             /// </summary>
@@ -964,11 +964,11 @@ namespace BMTCommunication
             /// <summary>
             /// The Vendor ID and Product ID of the device
             /// </summary>
-            public UInt32 ID;
+            public uint ID;
             /// <summary>
             /// The physical location identifier of the device
             /// </summary>
-            public UInt32 LocId;
+            public uint LocId;
             /// <summary>
             /// The device serial number
             /// </summary>
@@ -991,21 +991,21 @@ namespace BMTCommunication
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         private class FT_PROGRAM_DATA
         {
-            public UInt32 Signature1;
-            public UInt32 Signature2;
-            public UInt32 Version;
-            public UInt16 VendorID;
-            public UInt16 ProductID;
+            public uint Signature1;
+            public uint Signature2;
+            public uint Version;
+            public ushort VendorID;
+            public ushort ProductID;
 
             public IntPtr Manufacturer;
             public IntPtr ManufacturerID;
             public IntPtr Description;
             public IntPtr SerialNumber;
 
-            public UInt16 MaxPower;
-            public UInt16 PnP;
-            public UInt16 SelfPowered;
-            public UInt16 RemoteWakeup;
+            public ushort MaxPower;
+            public ushort PnP;
+            public ushort SelfPowered;
+            public ushort RemoteWakeup;
             // FT232B extensions
             public byte Rev4;
             public byte IsoIn;
@@ -1013,7 +1013,7 @@ namespace BMTCommunication
             public byte PullDownEnable;
             public byte SerNumEnable;
             public byte USBVersionEnable;
-            public UInt16 USBVersion;
+            public ushort USBVersion;
             // FT2232D extensions
             public byte Rev5;
             public byte IsoInA;
@@ -1023,7 +1023,7 @@ namespace BMTCommunication
             public byte PullDownEnable5;
             public byte SerNumEnable5;
             public byte USBVersionEnable5;
-            public UInt16 USBVersion5;
+            public ushort USBVersion5;
             public byte AIsHighCurrent;
             public byte BIsHighCurrent;
             public byte IFAIsFifo;
@@ -1134,13 +1134,13 @@ namespace BMTCommunication
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         struct FT_EEPROM_HEADER
         {
-            public UInt32 deviceType;		// FTxxxx device type to be programmed
+            public uint deviceType;		// FTxxxx device type to be programmed
             // Device descriptor options
-            public UInt16 VendorId;				// 0x0403
-            public UInt16 ProductId;				// 0x6001
+            public ushort VendorId;				// 0x0403
+            public ushort ProductId;				// 0x6001
             public byte SerNumEnable;			// non-zero if serial number to be used
             // Config descriptor options
-            public UInt16 MaxPower;				// 0 < MaxPower <= 500
+            public ushort MaxPower;				// 0 < MaxPower <= 500
             public byte SelfPowered;			// 0 = bus powered, 1 = self powered
             public byte RemoteWakeup;			// 0 = not capable, 1 = capable
             // Hardware options
@@ -1180,8 +1180,8 @@ namespace BMTCommunication
             public byte BCDForceCbusPWREN;	// asserts the power enable signal on CBUS when charging port detected
             public byte BCDDisableSleep;		// forces the device never to go into sleep mode
             // I2C options
-            public UInt16 I2CSlaveAddress;		// I2C slave device address
-            public UInt32 I2CDeviceId;			// I2C device ID
+            public ushort I2CSlaveAddress;		// I2C slave device address
+            public uint I2CDeviceId;			// I2C device ID
             public byte I2CDisableSchmitt;	// Disable I2C Schmitt trigger
             // FT1248 options
             public byte FT1248Cpol;			// FT1248 clock polarity - clock idle high (1) or clock idle low (0)
@@ -1206,11 +1206,11 @@ namespace BMTCommunication
             /// <summary>
             /// Vendor ID as supplied by the USB Implementers Forum
             /// </summary>
-            public UInt16 VendorID = 0x0403;
+            public ushort VendorID = 0x0403;
             /// <summary>
             /// Product ID
             /// </summary>
-            public UInt16 ProductID = 0x6001;
+            public ushort ProductID = 0x6001;
             /// <summary>
             /// Manufacturer name string
             /// </summary>
@@ -1230,7 +1230,7 @@ namespace BMTCommunication
             /// <summary>
             /// Maximum power the device needs
             /// </summary>
-            public UInt16 MaxPower = 0x0090;
+            public ushort MaxPower = 0x0090;
             //private bool PnP                    = true;
             /// <summary>
             /// Indicates if the device has its own power supply (self-powered) or gets power from the USB port (bus-powered)
@@ -1267,7 +1267,7 @@ namespace BMTCommunication
             /// <summary>
             /// The USB version number.  Should be either 0x0110 (USB 1.1) or 0x0200 (USB 2.0)
             /// </summary>
-            public UInt16 USBVersion = 0x0200;
+            public ushort USBVersion = 0x0200;
         }
 
         // EEPROM class for FT2232C, FT2232L and FT2232D
@@ -1297,7 +1297,7 @@ namespace BMTCommunication
             /// <summary>
             /// The USB version number.  Should be either 0x0110 (USB 1.1) or 0x0200 (USB 2.0)
             /// </summary>
-            public UInt16 USBVersion = 0x0200;
+            public ushort USBVersion = 0x0200;
             /// <summary>
             /// Enables high current IOs on channel A
             /// </summary>
@@ -1801,7 +1801,7 @@ namespace BMTCommunication
             /// <summary>
             /// The USB version number: 0x0200 (USB 2.0)
             /// </summary>
-            public UInt16 USBVersion = 0x0200;
+            public ushort USBVersion = 0x0200;
             /// <summary>
             /// Determines if AC pins have a slow slew rate
             /// </summary>
@@ -1933,7 +1933,7 @@ namespace BMTCommunication
             /// <summary>
             /// I2C device ID
             /// </summary>
-            public UInt32 I2CDeviceId;
+            public uint I2CDeviceId;
             /// <summary>
             /// Disable I2C Schmitt trigger.
             /// </summary>
@@ -2070,7 +2070,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_CreateDeviceInfoList in FTD2XX.DLL</returns>
         /// <param name="devcount">The number of FTDI devices available.</param>
-        public FT_STATUS GetNumberOfDevices(ref UInt32 devcount)
+        public FT_STATUS GetNumberOfDevices(ref uint devcount)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2111,7 +2111,7 @@ namespace BMTCommunication
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
             FT_ERROR ftErrorCondition = FT_ERROR.FT_NO_ERROR;
-            Int32 nullIndex = 0;
+            int nullIndex = 0;
 
             // If the DLL hasn't been loaded, just return here
             if (hFTD2XXDLL == IntPtr.Zero)
@@ -2120,7 +2120,7 @@ namespace BMTCommunication
             // Check for our required function pointers being set up
             if ((pFT_CreateDeviceInfoList != IntPtr.Zero) & (pFT_GetDeviceInfoDetail != IntPtr.Zero))
             {
-                UInt32 devcount = 0;
+                uint devcount = 0;
 
                 tFT_CreateDeviceInfoList FT_CreateDeviceInfoList = (tFT_CreateDeviceInfoList)Marshal.GetDelegateForFunctionPointer(pFT_CreateDeviceInfoList, typeof(tFT_CreateDeviceInfoList));
                 tFT_GetDeviceInfoDetail FT_GetDeviceInfoDetail = (tFT_GetDeviceInfoDetail)Marshal.GetDelegateForFunctionPointer(pFT_GetDeviceInfoDetail, typeof(tFT_GetDeviceInfoDetail));
@@ -2145,7 +2145,7 @@ namespace BMTCommunication
                     }
 
                     // Instantiate the array elements as FT_DEVICE_INFO_NODE
-                    for (UInt32 i = 0; i < devcount; i++)
+                    for (uint i = 0; i < devcount; i++)
                     {
                         devicelist[i] = new FT_DEVICE_INFO_NODE();
                         // Call FT_GetDeviceInfoDetail
@@ -2156,10 +2156,10 @@ namespace BMTCommunication
                         // Trim strings to first occurrence of a null terminator character
                         nullIndex = devicelist[i].SerialNumber.IndexOf('\0');
                         if (nullIndex != -1)
-                            devicelist[i].SerialNumber = devicelist[i].SerialNumber.Substring(0, nullIndex);
+                            devicelist[i].SerialNumber = devicelist[i].SerialNumber[..nullIndex];
                         nullIndex = devicelist[i].Description.IndexOf('\0');
                         if (nullIndex != -1)
-                            devicelist[i].Description = devicelist[i].Description.Substring(0, nullIndex);
+                            devicelist[i].Description = devicelist[i].Description[..nullIndex];
                     }
                 }
             }
@@ -2189,7 +2189,7 @@ namespace BMTCommunication
         /// <param name="index">Index of the device to open.
         /// Note that this cannot be guaranteed to open a specific device.</param>
         /// <remarks>Initialises the device to 8 data bits, 1 stop bit, no parity, no flow control and 9600 Baud.</remarks>
-        public FT_STATUS OpenByIndex(UInt32 index)
+        public FT_STATUS OpenByIndex(uint index)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2221,12 +2221,12 @@ namespace BMTCommunication
                     byte Parity = FT_PARITY.FT_PARITY_NONE;
                     ftStatus = FT_SetDataCharacteristics(ftHandle, WordLength, StopBits, Parity);
                     // Initialise to no flow control
-                    UInt16 FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
+                    ushort FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
                     byte Xon = 0x11;
                     byte Xoff = 0x13;
                     ftStatus = FT_SetFlowControl(ftHandle, FlowControl, Xon, Xoff);
                     // Initialise Baud rate
-                    UInt32 BaudRate = 9600;
+                    uint BaudRate = 9600;
                     ftStatus = FT_SetBaudRate(ftHandle, BaudRate);
                 }
             }
@@ -2295,12 +2295,12 @@ namespace BMTCommunication
                     byte Parity = FT_PARITY.FT_PARITY_NONE;
                     ftStatus = FT_SetDataCharacteristics(ftHandle, WordLength, StopBits, Parity);
                     // Initialise to no flow control
-                    UInt16 FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
+                    ushort FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
                     byte Xon = 0x11;
                     byte Xoff = 0x13;
                     ftStatus = FT_SetFlowControl(ftHandle, FlowControl, Xon, Xoff);
                     // Initialise Baud rate
-                    UInt32 BaudRate = 9600;
+                    uint BaudRate = 9600;
                     ftStatus = FT_SetBaudRate(ftHandle, BaudRate);
                 }
             }
@@ -2381,12 +2381,12 @@ namespace BMTCommunication
                     byte Parity = FT_PARITY.FT_PARITY_NONE;
                     ftStatus = FT_SetDataCharacteristics(ftHandle, WordLength, StopBits, Parity);
                     // Initialise to no flow control
-                    UInt16 FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
+                    ushort FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
                     byte Xon = 0x11;
                     byte Xoff = 0x13;
                     ftStatus = FT_SetFlowControl(ftHandle, FlowControl, Xon, Xoff);
                     // Initialise Baud rate
-                    UInt32 BaudRate = 9600;
+                    uint BaudRate = 9600;
                     ftStatus = FT_SetBaudRate(ftHandle, BaudRate);
                 }
             }
@@ -2435,7 +2435,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS value from FT_OpenEx in FTD2XX.DLL</returns>
         /// <param name="location">Location of the device to open.</param>
         /// <remarks>Initialises the device to 8 data bits, 1 stop bit, no parity, no flow control and 9600 Baud.</remarks>
-        public FT_STATUS OpenByLocation(UInt32 location)
+        public FT_STATUS OpenByLocation(uint location)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2467,12 +2467,12 @@ namespace BMTCommunication
                     byte Parity = FT_PARITY.FT_PARITY_NONE;
                     ftStatus = FT_SetDataCharacteristics(ftHandle, WordLength, StopBits, Parity);
                     // Initialise to no flow control
-                    UInt16 FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
+                    ushort FlowControl = FT_FLOW_CONTROL.FT_FLOW_NONE;
                     byte Xon = 0x11;
                     byte Xoff = 0x13;
                     ftStatus = FT_SetFlowControl(ftHandle, FlowControl, Xon, Xoff);
                     // Initialise Baud rate
-                    UInt32 BaudRate = 9600;
+                    uint BaudRate = 9600;
                     ftStatus = FT_SetBaudRate(ftHandle, BaudRate);
                 }
             }
@@ -2566,7 +2566,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">An array of bytes which will be populated with the data read from the device.</param>
         /// <param name="numBytesToRead">The number of bytes requested from the device.</param>
         /// <param name="numBytesRead">The number of bytes actually read.</param>
-        public FT_STATUS Read(byte[] dataBuffer, UInt32 numBytesToRead, ref UInt32 numBytesRead)
+        public FT_STATUS Read(byte[] dataBuffer, uint numBytesToRead, ref uint numBytesRead)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2611,7 +2611,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">A string containing the data read</param>
         /// <param name="numBytesToRead">The number of bytes requested from the device.</param>
         /// <param name="numBytesRead">The number of bytes actually read.</param>
-        public FT_STATUS Read(out string dataBuffer, UInt32 numBytesToRead, ref UInt32 numBytesRead)
+        public FT_STATUS Read(out string dataBuffer, uint numBytesToRead, ref uint numBytesRead)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2638,7 +2638,7 @@ namespace BMTCommunication
                     // Convert ASCII byte array back to Unicode string for passing back
                     dataBuffer = Encoding.ASCII.GetString(byteDataBuffer);
                     // Trim buffer to actual bytes read
-                    dataBuffer = dataBuffer.Substring(0, (int)numBytesRead);
+                    dataBuffer = dataBuffer[..(int)numBytesRead];
                 }
             }
             else
@@ -2662,7 +2662,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">An array of bytes which contains the data to be written to the device.</param>
         /// <param name="numBytesToWrite">The number of bytes to be written to the device.</param>
         /// <param name="numBytesWritten">The number of bytes actually written to the device.</param>
-        public FT_STATUS Write(byte[] dataBuffer, Int32 numBytesToWrite, ref UInt32 numBytesWritten)
+        public FT_STATUS Write(byte[] dataBuffer, int numBytesToWrite, ref uint numBytesWritten)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2679,7 +2679,7 @@ namespace BMTCommunication
                 if (ftHandle != IntPtr.Zero)
                 {
                     // Call FT_Write
-                    ftStatus = FT_Write(ftHandle, dataBuffer, (UInt32)numBytesToWrite, ref numBytesWritten);
+                    ftStatus = FT_Write(ftHandle, dataBuffer, (uint)numBytesToWrite, ref numBytesWritten);
                 }
             }
             else
@@ -2703,7 +2703,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">An array of bytes which contains the data to be written to the device.</param>
         /// <param name="numBytesToWrite">The number of bytes to be written to the device.</param>
         /// <param name="numBytesWritten">The number of bytes actually written to the device.</param>
-        public FT_STATUS Write(byte[] dataBuffer, UInt32 numBytesToWrite, ref UInt32 numBytesWritten)
+        public FT_STATUS Write(byte[] dataBuffer, uint numBytesToWrite, ref uint numBytesWritten)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2744,7 +2744,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">A  string which contains the data to be written to the device.</param>
         /// <param name="numBytesToWrite">The number of bytes to be written to the device.</param>
         /// <param name="numBytesWritten">The number of bytes actually written to the device.</param>
-        public FT_STATUS Write(string dataBuffer, Int32 numBytesToWrite, ref UInt32 numBytesWritten)
+        public FT_STATUS Write(string dataBuffer, int numBytesToWrite, ref uint numBytesWritten)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2764,7 +2764,7 @@ namespace BMTCommunication
                 if (ftHandle != IntPtr.Zero)
                 {
                     // Call FT_Write
-                    ftStatus = FT_Write(ftHandle, byteDataBuffer, (UInt32)numBytesToWrite, ref numBytesWritten);
+                    ftStatus = FT_Write(ftHandle, byteDataBuffer, (uint)numBytesToWrite, ref numBytesWritten);
                 }
             }
             else
@@ -2788,7 +2788,7 @@ namespace BMTCommunication
         /// <param name="dataBuffer">A  string which contains the data to be written to the device.</param>
         /// <param name="numBytesToWrite">The number of bytes to be written to the device.</param>
         /// <param name="numBytesWritten">The number of bytes actually written to the device.</param>
-        public FT_STATUS Write(string dataBuffer, UInt32 numBytesToWrite, ref UInt32 numBytesWritten)
+        public FT_STATUS Write(string dataBuffer, uint numBytesToWrite, ref uint numBytesWritten)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2874,7 +2874,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_Purge in FTD2XX.DLL</returns>
         /// <param name="purgemask">Specifies which buffer(s) to be purged.  Valid values are any combination of the following flags: FT_PURGE_RX, FT_PURGE_TX</param>
-        public FT_STATUS Purge(UInt32 purgemask)
+        public FT_STATUS Purge(uint purgemask)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -2918,7 +2918,7 @@ namespace BMTCommunication
         /// <remarks>After setting event notification, the event can be caught by executing the WaitOne() method of the EventWaitHandle.  If multiple event types are being monitored, the event that fired can be determined from the GetEventType method.</remarks>
         /// <param name="eventmask">The type of events to signal.  Can be any combination of the following: FT_EVENT_RXCHAR, FT_EVENT_MODEM_STATUS, FT_EVENT_LINE_STATUS</param>
         /// <param name="eventhandle">Handle to the event that will receive the notification</param>
-        public FT_STATUS SetEventNotification(UInt32 eventmask, EventWaitHandle eventhandle)
+        public FT_STATUS SetEventNotification(uint eventmask, EventWaitHandle eventhandle)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -3182,7 +3182,7 @@ namespace BMTCommunication
         /// <remarks>If the VID and PID parameters are 0, the drivers for USB root hubs will be reloaded, causing all USB devices connected to reload their drivers</remarks>
         /// <param name="VendorID">Vendor ID of the devices to have the driver reloaded</param>
         /// <param name="ProductID">Product ID of the devices to have the driver reloaded</param>
-        public FT_STATUS Reload(UInt16 VendorID, UInt16 ProductID)
+        public FT_STATUS Reload(ushort VendorID, ushort ProductID)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -3411,7 +3411,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS value from FT_ReadEE in FTD2XX.DLL</returns>
         /// <param name="Address">The EEPROM location to read data from</param>
         /// <param name="EEValue">The WORD value read from the EEPROM location specified in the Address paramter</param>
-        public FT_STATUS ReadEEPROMLocation(UInt32 Address, ref UInt16 EEValue)
+        public FT_STATUS ReadEEPROMLocation(uint Address, ref ushort EEValue)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -3454,7 +3454,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS value from FT_WriteEE in FTD2XX.DLL</returns>
         /// <param name="Address">The EEPROM location to read data from</param>
         /// <param name="EEValue">The WORD value to write to the EEPROM location specified by the Address parameter</param>
-        public FT_STATUS WriteEEPROMLocation(UInt32 Address, UInt16 EEValue)
+        public FT_STATUS WriteEEPROMLocation(uint Address, ushort EEValue)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -4388,13 +4388,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee232b.Manufacturer.Length > 32)
-                        ee232b.Manufacturer = ee232b.Manufacturer.Substring(0, 32);
+                        ee232b.Manufacturer = ee232b.Manufacturer[..32];
                     if (ee232b.ManufacturerID.Length > 16)
-                        ee232b.ManufacturerID = ee232b.ManufacturerID.Substring(0, 16);
+                        ee232b.ManufacturerID = ee232b.ManufacturerID[..16];
                     if (ee232b.Description.Length > 64)
-                        ee232b.Description = ee232b.Description.Substring(0, 64);
+                        ee232b.Description = ee232b.Description[..64];
                     if (ee232b.SerialNumber.Length > 16)
-                        ee232b.SerialNumber = ee232b.SerialNumber.Substring(0, 16);
+                        ee232b.SerialNumber = ee232b.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee232b.Manufacturer);
@@ -4503,13 +4503,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee2232.Manufacturer.Length > 32)
-                        ee2232.Manufacturer = ee2232.Manufacturer.Substring(0, 32);
+                        ee2232.Manufacturer = ee2232.Manufacturer[..32];
                     if (ee2232.ManufacturerID.Length > 16)
-                        ee2232.ManufacturerID = ee2232.ManufacturerID.Substring(0, 16);
+                        ee2232.ManufacturerID = ee2232.ManufacturerID[..16];
                     if (ee2232.Description.Length > 64)
-                        ee2232.Description = ee2232.Description.Substring(0, 64);
+                        ee2232.Description = ee2232.Description[..64];
                     if (ee2232.SerialNumber.Length > 16)
-                        ee2232.SerialNumber = ee2232.SerialNumber.Substring(0, 16);
+                        ee2232.SerialNumber = ee2232.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee2232.Manufacturer);
@@ -4628,13 +4628,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee232r.Manufacturer.Length > 32)
-                        ee232r.Manufacturer = ee232r.Manufacturer.Substring(0, 32);
+                        ee232r.Manufacturer = ee232r.Manufacturer[..32];
                     if (ee232r.ManufacturerID.Length > 16)
-                        ee232r.ManufacturerID = ee232r.ManufacturerID.Substring(0, 16);
+                        ee232r.ManufacturerID = ee232r.ManufacturerID[..16];
                     if (ee232r.Description.Length > 64)
-                        ee232r.Description = ee232r.Description.Substring(0, 64);
+                        ee232r.Description = ee232r.Description[..64];
                     if (ee232r.SerialNumber.Length > 16)
-                        ee232r.SerialNumber = ee232r.SerialNumber.Substring(0, 16);
+                        ee232r.SerialNumber = ee232r.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee232r.Manufacturer);
@@ -4761,13 +4761,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee2232h.Manufacturer.Length > 32)
-                        ee2232h.Manufacturer = ee2232h.Manufacturer.Substring(0, 32);
+                        ee2232h.Manufacturer = ee2232h.Manufacturer[..32];
                     if (ee2232h.ManufacturerID.Length > 16)
-                        ee2232h.ManufacturerID = ee2232h.ManufacturerID.Substring(0, 16);
+                        ee2232h.ManufacturerID = ee2232h.ManufacturerID[..16];
                     if (ee2232h.Description.Length > 64)
-                        ee2232h.Description = ee2232h.Description.Substring(0, 64);
+                        ee2232h.Description = ee2232h.Description[..64];
                     if (ee2232h.SerialNumber.Length > 16)
-                        ee2232h.SerialNumber = ee2232h.SerialNumber.Substring(0, 16);
+                        ee2232h.SerialNumber = ee2232h.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee2232h.Manufacturer);
@@ -4894,13 +4894,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee4232h.Manufacturer.Length > 32)
-                        ee4232h.Manufacturer = ee4232h.Manufacturer.Substring(0, 32);
+                        ee4232h.Manufacturer = ee4232h.Manufacturer[..32];
                     if (ee4232h.ManufacturerID.Length > 16)
-                        ee4232h.ManufacturerID = ee4232h.ManufacturerID.Substring(0, 16);
+                        ee4232h.ManufacturerID = ee4232h.ManufacturerID[..16];
                     if (ee4232h.Description.Length > 64)
-                        ee4232h.Description = ee4232h.Description.Substring(0, 64);
+                        ee4232h.Description = ee4232h.Description[..64];
                     if (ee4232h.SerialNumber.Length > 16)
-                        ee4232h.SerialNumber = ee4232h.SerialNumber.Substring(0, 16);
+                        ee4232h.SerialNumber = ee4232h.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee4232h.Manufacturer);
@@ -5026,13 +5026,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (ee232h.Manufacturer.Length > 32)
-                        ee232h.Manufacturer = ee232h.Manufacturer.Substring(0, 32);
+                        ee232h.Manufacturer = ee232h.Manufacturer[..32];
                     if (ee232h.ManufacturerID.Length > 16)
-                        ee232h.ManufacturerID = ee232h.ManufacturerID.Substring(0, 16);
+                        ee232h.ManufacturerID = ee232h.ManufacturerID[..16];
                     if (ee232h.Description.Length > 64)
-                        ee232h.Description = ee232h.Description.Substring(0, 64);
+                        ee232h.Description = ee232h.Description[..64];
                     if (ee232h.SerialNumber.Length > 16)
-                        ee232h.SerialNumber = ee232h.SerialNumber.Substring(0, 16);
+                        ee232h.SerialNumber = ee232h.SerialNumber[..16];
 
                     // Set string values
                     eedata.Manufacturer = Marshal.StringToHGlobalAnsi(ee232h.Manufacturer);
@@ -5159,13 +5159,13 @@ namespace BMTCommunication
                     // Check lengths of strings to make sure that they are within our limits
                     // If not, trim them to make them our maximum length
                     if (eeX.Manufacturer.Length > 32)
-                        eeX.Manufacturer = eeX.Manufacturer.Substring(0, 32);
+                        eeX.Manufacturer = eeX.Manufacturer[..32];
                     if (eeX.ManufacturerID.Length > 16)
-                        eeX.ManufacturerID = eeX.ManufacturerID.Substring(0, 16);
+                        eeX.ManufacturerID = eeX.ManufacturerID[..16];
                     if (eeX.Description.Length > 64)
-                        eeX.Description = eeX.Description.Substring(0, 64);
+                        eeX.Description = eeX.Description[..64];
                     if (eeX.SerialNumber.Length > 16)
-                        eeX.SerialNumber = eeX.SerialNumber.Substring(0, 16);
+                        eeX.SerialNumber = eeX.SerialNumber[..16];
 
                     // Set string values
                     System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
@@ -5250,7 +5250,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS from FT_UARead in FTD2XX.DLL</returns>
         /// <param name="UserAreaDataBuffer">An array of bytes which will be populated with the data read from the device EEPROM user area.</param>
         /// <param name="numBytesRead">The number of bytes actually read from the EEPROM user area.</param>
-        public FT_STATUS EEReadUserArea(byte[] UserAreaDataBuffer, ref UInt32 numBytesRead)
+        public FT_STATUS EEReadUserArea(byte[] UserAreaDataBuffer, ref uint numBytesRead)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5267,7 +5267,7 @@ namespace BMTCommunication
 
                 if (ftHandle != IntPtr.Zero)
                 {
-                    UInt32 UASize = 0;
+                    uint UASize = 0;
                     // Get size of user area to allocate an array of the correct size.
                     // The application must also get the UA size for its copy
                     ftStatus = FT_EE_UASize(ftHandle, ref UASize);
@@ -5326,7 +5326,7 @@ namespace BMTCommunication
 
                 if (ftHandle != IntPtr.Zero)
                 {
-                    UInt32 UASize = 0;
+                    uint UASize = 0;
                     // Get size of user area to allocate an array of the correct size.
                     // The application must also get the UA size for its copy
                     ftStatus = FT_EE_UASize(ftHandle, ref UASize);
@@ -5382,7 +5382,7 @@ namespace BMTCommunication
             {
                 tFT_GetDeviceInfo FT_GetDeviceInfo = (tFT_GetDeviceInfo)Marshal.GetDelegateForFunctionPointer(pFT_GetDeviceInfo, typeof(tFT_GetDeviceInfo));
 
-                UInt32 DeviceID = 0;
+                uint DeviceID = 0;
                 byte[] sernum = new byte[16];
                 byte[] desc = new byte[64];
 
@@ -5416,7 +5416,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetDeviceInfo in FTD2XX.DLL</returns>
         /// <param name="DeviceID">The device ID (Vendor ID and Product ID) of the current device.</param>
-        public FT_STATUS GetDeviceID(ref UInt32 DeviceID)
+        public FT_STATUS GetDeviceID(ref uint DeviceID)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5467,7 +5467,7 @@ namespace BMTCommunication
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
 
-            Description = String.Empty;
+            Description = string.Empty;
 
             // If the DLL hasn't been loaded, just return here
             if (hFTD2XXDLL == IntPtr.Zero)
@@ -5479,7 +5479,7 @@ namespace BMTCommunication
             {
                 tFT_GetDeviceInfo FT_GetDeviceInfo = (tFT_GetDeviceInfo)Marshal.GetDelegateForFunctionPointer(pFT_GetDeviceInfo, typeof(tFT_GetDeviceInfo));
 
-                UInt32 DeviceID = 0;
+                uint DeviceID = 0;
                 FT_DEVICE DeviceType = FT_DEVICE.FT_DEVICE_UNKNOWN;
                 byte[] sernum = new byte[16];
                 byte[] desc = new byte[64];
@@ -5489,7 +5489,7 @@ namespace BMTCommunication
                     // Call FT_GetDeviceInfo
                     ftStatus = FT_GetDeviceInfo(ftHandle, ref DeviceType, ref DeviceID, sernum, desc, IntPtr.Zero);
                     Description = Encoding.ASCII.GetString(desc);
-                    Description = Description.Substring(0, Description.IndexOf("\0"));
+                    Description = Description[..Description.IndexOf("\0")];
                 }
             }
             else
@@ -5519,7 +5519,7 @@ namespace BMTCommunication
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
 
-            SerialNumber = String.Empty;
+            SerialNumber = string.Empty;
 
             // If the DLL hasn't been loaded, just return here
             if (hFTD2XXDLL == IntPtr.Zero)
@@ -5531,7 +5531,7 @@ namespace BMTCommunication
             {
                 tFT_GetDeviceInfo FT_GetDeviceInfo = (tFT_GetDeviceInfo)Marshal.GetDelegateForFunctionPointer(pFT_GetDeviceInfo, typeof(tFT_GetDeviceInfo));
 
-                UInt32 DeviceID = 0;
+                uint DeviceID = 0;
                 FT_DEVICE DeviceType = FT_DEVICE.FT_DEVICE_UNKNOWN;
                 byte[] sernum = new byte[16];
                 byte[] desc = new byte[64];
@@ -5541,7 +5541,7 @@ namespace BMTCommunication
                     // Call FT_GetDeviceInfo
                     ftStatus = FT_GetDeviceInfo(ftHandle, ref DeviceType, ref DeviceID, sernum, desc, IntPtr.Zero);
                     SerialNumber = Encoding.ASCII.GetString(sernum);
-                    SerialNumber = SerialNumber.Substring(0, SerialNumber.IndexOf("\0"));
+                    SerialNumber = SerialNumber[..SerialNumber.IndexOf('\0')];
                 }
             }
             else
@@ -5566,7 +5566,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetQueueStatus in FTD2XX.DLL</returns>
         /// <param name="RxQueue">The number of bytes available to be read.</param>
-        public FT_STATUS GetRxBytesAvailable(ref UInt32 RxQueue)
+        public FT_STATUS GetRxBytesAvailable(ref uint RxQueue)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5608,7 +5608,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetStatus in FTD2XX.DLL</returns>
         /// <param name="TxQueue">The number of bytes waiting to be sent.</param>
-        public FT_STATUS GetTxBytesWaiting(ref UInt32 TxQueue)
+        public FT_STATUS GetTxBytesWaiting(ref uint TxQueue)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5622,8 +5622,8 @@ namespace BMTCommunication
             {
                 tFT_GetStatus FT_GetStatus = (tFT_GetStatus)Marshal.GetDelegateForFunctionPointer(pFT_GetStatus, typeof(tFT_GetStatus));
 
-                UInt32 RxQueue = 0;
-                UInt32 EventStatus = 0;
+                uint RxQueue = 0;
+                uint EventStatus = 0;
 
                 if (ftHandle != IntPtr.Zero)
                 {
@@ -5653,7 +5653,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetStatus in FTD2XX.DLL</returns>
         /// <param name="EventType">The type of event that has occurred.</param>
-        public FT_STATUS GetEventType(ref UInt32 EventType)
+        public FT_STATUS GetEventType(ref uint EventType)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5667,8 +5667,8 @@ namespace BMTCommunication
             {
                 tFT_GetStatus FT_GetStatus = (tFT_GetStatus)Marshal.GetDelegateForFunctionPointer(pFT_GetStatus, typeof(tFT_GetStatus));
 
-                UInt32 RxQueue = 0;
-                UInt32 TxQueue = 0;
+                uint RxQueue = 0;
+                uint TxQueue = 0;
 
                 if (ftHandle != IntPtr.Zero)
                 {
@@ -5712,7 +5712,7 @@ namespace BMTCommunication
             {
                 tFT_GetModemStatus FT_GetModemStatus = (tFT_GetModemStatus)Marshal.GetDelegateForFunctionPointer(pFT_GetModemStatus, typeof(tFT_GetModemStatus));
 
-                UInt32 ModemLineStatus = 0;
+                uint ModemLineStatus = 0;
 
                 if (ftHandle != IntPtr.Zero)
                 {
@@ -5758,7 +5758,7 @@ namespace BMTCommunication
             {
                 tFT_GetModemStatus FT_GetModemStatus = (tFT_GetModemStatus)Marshal.GetDelegateForFunctionPointer(pFT_GetModemStatus, typeof(tFT_GetModemStatus));
 
-                UInt32 ModemLineStatus = 0;
+                uint ModemLineStatus = 0;
 
                 if (ftHandle != IntPtr.Zero)
                 {
@@ -5789,7 +5789,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_SetBaudRate in FTD2XX.DLL</returns>
         /// <param name="BaudRate">The desired Baud rate for the device.</param>
-        public FT_STATUS SetBaudRate(UInt32 BaudRate)
+        public FT_STATUS SetBaudRate(uint BaudRate)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -5877,7 +5877,7 @@ namespace BMTCommunication
         /// <param name="FlowControl">The type of flow control for the UART.  Valid values are FT_FLOW_CONTROL.FT_FLOW_NONE, FT_FLOW_CONTROL.FT_FLOW_RTS_CTS, FT_FLOW_CONTROL.FT_FLOW_DTR_DSR or FT_FLOW_CONTROL.FT_FLOW_XON_XOFF</param>
         /// <param name="Xon">The Xon character for Xon/Xoff flow control.  Ignored if not using Xon/XOff flow control.</param>
         /// <param name="Xoff">The Xoff character for Xon/Xoff flow control.  Ignored if not using Xon/XOff flow control.</param>
-        public FT_STATUS SetFlowControl(UInt16 FlowControl, byte Xon, byte Xoff)
+        public FT_STATUS SetFlowControl(ushort FlowControl, byte Xon, byte Xoff)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6036,7 +6036,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS value from FT_SetTimeouts in FTD2XX.DLL</returns>
         /// <param name="ReadTimeout">Read timeout value in ms.  A value of 0 indicates an infinite timeout.</param>
         /// <param name="WriteTimeout">Write timeout value in ms.  A value of 0 indicates an infinite timeout.</param>
-        public FT_STATUS SetTimeouts(UInt32 ReadTimeout, UInt32 WriteTimeout)
+        public FT_STATUS SetTimeouts(uint ReadTimeout, uint WriteTimeout)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6137,7 +6137,7 @@ namespace BMTCommunication
         /// <returns>FT_STATUS vlaue from FT_SetResetPipeRetryCount in FTD2XX.DLL</returns>
         /// <param name="ResetPipeRetryCount">The reset pipe retry count.  
         /// Electrically noisy environments may benefit from a larger value.</param>
-        public FT_STATUS SetResetPipeRetryCount(UInt32 ResetPipeRetryCount)
+        public FT_STATUS SetResetPipeRetryCount(uint ResetPipeRetryCount)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6179,7 +6179,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetDriverVersion in FTD2XX.DLL</returns>
         /// <param name="DriverVersion">The current driver version number.</param>
-        public FT_STATUS GetDriverVersion(ref UInt32 DriverVersion)
+        public FT_STATUS GetDriverVersion(ref uint DriverVersion)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6221,7 +6221,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_GetLibraryVersion in FTD2XX.DLL</returns>
         /// <param name="LibraryVersion">The current library version.</param>
-        public FT_STATUS GetLibraryVersion(ref UInt32 LibraryVersion)
+        public FT_STATUS GetLibraryVersion(ref uint LibraryVersion)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6260,7 +6260,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_SetDeadmanTimeout in FTD2XX.DLL</returns>
         /// <param name="DeadmanTimeout">The deadman timeout value in ms.  Default is 5000ms.</param>
-        public FT_STATUS SetDeadmanTimeout(UInt32 DeadmanTimeout)
+        public FT_STATUS SetDeadmanTimeout(uint DeadmanTimeout)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6399,7 +6399,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_SetUSBParameters in FTD2XX.DLL</returns>
         /// <param name="InTransferSize">The USB IN transfer size in bytes.</param>
-        public FT_STATUS InTransferSize(UInt32 InTransferSize)
+        public FT_STATUS InTransferSize(uint InTransferSize)
         // Only support IN transfer sizes at the moment
         //public UInt32 InTransferSize(UInt32 InTransferSize, UInt32 OutTransferSize)
         {
@@ -6415,7 +6415,7 @@ namespace BMTCommunication
             {
                 tFT_SetUSBParameters FT_SetUSBParameters = (tFT_SetUSBParameters)Marshal.GetDelegateForFunctionPointer(pFT_SetUSBParameters, typeof(tFT_SetUSBParameters));
 
-                UInt32 OutTransferSize = InTransferSize;
+                uint OutTransferSize = InTransferSize;
 
                 if (ftHandle != IntPtr.Zero)
                 {
@@ -6490,7 +6490,7 @@ namespace BMTCommunication
         /// </summary>
         /// <returns>FT_STATUS value from FT_EE_UASize in FTD2XX.DLL</returns>
         /// <param name="UASize">The EEPROM user area size in bytes.</param>
-        public FT_STATUS EEUserAreaSize(ref UInt32 UASize)
+        public FT_STATUS EEUserAreaSize(ref uint UASize)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6548,7 +6548,7 @@ namespace BMTCommunication
             {
                 tFT_GetComPortNumber FT_GetComPortNumber = (tFT_GetComPortNumber)Marshal.GetDelegateForFunctionPointer(pFT_GetComPortNumber, typeof(tFT_GetComPortNumber));
 
-                Int32 ComPortNumber = -1;
+                int ComPortNumber = -1;
                 if (ftHandle != IntPtr.Zero)
                 {
                     // Call FT_GetComPortNumber
@@ -6589,7 +6589,7 @@ namespace BMTCommunication
         /// Get data from the FT4222 using the vendor command interface.
         /// </summary>
         /// <returns>FT_STATUS value from FT_VendorCmdSet in FTD2XX.DLL</returns>
-        public FT_STATUS VendorCmdGet(UInt16 request, byte[] buf, UInt16 len)
+        public FT_STATUS VendorCmdGet(ushort request, byte[] buf, ushort len)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6630,7 +6630,7 @@ namespace BMTCommunication
         /// Set data from the FT4222 using the vendor command interface.
         /// </summary>
         /// <returns>FT_STATUS value from FT_VendorCmdSet in FTD2XX.DLL</returns>
-        public FT_STATUS VendorCmdSet(UInt16 request, byte[] buf, UInt16 len)
+        public FT_STATUS VendorCmdSet(ushort request, byte[] buf, ushort len)
         {
             // Initialise ftStatus to something other than FT_OK
             FT_STATUS ftStatus = FT_STATUS.FT_OTHER_ERROR;
@@ -6694,7 +6694,7 @@ namespace BMTCommunication
         {
             get
             {
-                string Identifier = String.Empty;
+                string Identifier = string.Empty;
                 if (IsOpen)
                 {
                     FT_DEVICE deviceType = FT_DEVICE.FT_DEVICE_BM;
@@ -6702,7 +6702,7 @@ namespace BMTCommunication
                     if ((deviceType == FT_DEVICE.FT_DEVICE_2232) | (deviceType == FT_DEVICE.FT_DEVICE_2232H) | (deviceType == FT_DEVICE.FT_DEVICE_4232H))
                     {
                         GetDescription(out string Description);
-                        Identifier = Description.Substring((Description.Length - 1));
+                        Identifier = Description[^1..];
                         return Identifier;
                     }
                 }

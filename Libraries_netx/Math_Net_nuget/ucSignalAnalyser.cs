@@ -5,6 +5,7 @@ using WindControlLib;
 
 namespace Math_Net_nuget
 {
+#pragma warning disable CA1416 // Validate platform compatibility
     public partial class ucSignalAnalyser : UserControl
     {
         private CRingpuffer cache;
@@ -21,7 +22,7 @@ namespace Math_Net_nuget
                 Setup_tlpMeasure();
                 //Extract Unit
                 unit = "_";
-                if (value.Contains("[") && value.Contains("]"))
+                if (value.Contains('[') && value.Contains(']'))
                 {
                     string u = value.Split('[', ']')[1];
                     if (u != "")
@@ -131,6 +132,8 @@ namespace Math_Net_nuget
 
 
     }
+#pragma warning restore CA1416 // Validate platform compatibility
 
 }
+
 

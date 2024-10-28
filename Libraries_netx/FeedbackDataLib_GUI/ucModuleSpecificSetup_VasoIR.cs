@@ -63,7 +63,7 @@ namespace FeedbackDataLib_GUI
             catch
             {
                 txtMovingAVG_Buffersize_asPowerof2.BackColor = Color.Red;
-                ret = Int32.MinValue;
+                ret = int.MinValue;
             }
             return ret;
         }

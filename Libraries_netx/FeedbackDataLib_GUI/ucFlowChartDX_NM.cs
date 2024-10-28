@@ -6,13 +6,13 @@ using WindControlLib;
 
 namespace FeedbackDataLib_GUI
 {
-    public class ucFlowChartDX_NM : ucLCharts2_chart
+    public class UcFlowChartDX_NM : ucLCharts2_chart
     {
-        public CLink_Track_ModuleConfig Link_Track_ModuleConfig = new CLink_Track_ModuleConfig();
+        public CLink_Track_ModuleConfig Link_Track_ModuleConfig = new();
 
         public void AddValue_dt_absolut_notscaled(CDataIn ci)
         {
-            CYvsTimeData c = new CYvsTimeData(1)
+            CYvsTimeData c = new(1)
             {
                 xData = ci.DT_absolute
             };
@@ -72,34 +72,10 @@ namespace FeedbackDataLib_GUI
             }
         }
           
-        
-        /*
-        public void SetupFlowChart_for_RawData(List<CModuleBase> ModuleInfos)
-        {
-            this.Stop();
-            this.Tracks.Clear();
-            Link_Track_ModuleConfig.LinkedValues.Clear();
-
-            for (int i = 0; i < ModuleInfos.Count; i++)
-            {
-                if (ModuleInfos[i].ModuleType != enumModuleType.cModuleTypeEmpty)
-                {
-                    CTRackScaledDX TRackScaledDX = this.GetFlowChartDX1_Track(ModuleInfos[i]);
-                    this.ScaleOneTrack(ref TRackScaledDX, ModuleInfos[i], 0);
-                    this.Tracks.Add(TRackScaledDX);
-
-                    Link_Track_ModuleConfig.LinkedValues.Add(new CLink_Track_ModuleConfig.CLinkedValues(
-                        ModuleInfos[i].HW_cn,
-                        0,
-                        this.Tracks.Count - 1,
-                        i, ""));
-                }
-            }
-        }*/
-
+       
         public void SetupFlowChart_for_Module_Default(List<CModuleBase> ModuleInfos)
         {
-            this.Stop();
+            Stop();
             Link_Track_ModuleConfig.LinkedValues.Clear();
 
             CDefaultChannels Def = new();
@@ -146,28 +122,22 @@ namespace FeedbackDataLib_GUI
             /// <summary>
             /// 
             /// </summary>
-            public class CDefChannel
+            public class CDefChannel(enumModuleType ModuleType, int SW_cn)
             {
                 /// <summary>
                 /// The module type
                 /// </summary>
-                public enumModuleType ModuleType = enumModuleType.cModuleTypeEmpty;
+                public enumModuleType ModuleType = ModuleType;
                 /// <summary>
                 /// The S W_CN
                 /// </summary>
-                public int SW_cn = 0;
-
-                public CDefChannel(enumModuleType ModuleType, int SW_cn)
-                {
-                    this.ModuleType = ModuleType;
-                    this.SW_cn = SW_cn;
-                }
+                public int SW_cn = SW_cn;
             }
 
             /// <summary>
             /// The def channel
             /// </summary>
-            public List<CDefChannel> DefChannel = new List<CDefChannel>();
+            public List<CDefChannel> DefChannel = [];
 
             /// <summary>
             /// Initializes a new instance of the <see cref="CDefaultChannels"/> class.
@@ -190,29 +160,20 @@ namespace FeedbackDataLib_GUI
         /// </summary>
         public class CLink_Track_ModuleConfig
         {
-            public class CLinkedValues
+            public class CLinkedValues(int HW_cn, int SW_cn, int idx_Track, int idx_ModuleInfos, string SWChannelName)
             {
-                public int HW_cn;
-                public int SW_cn;
-                public int idx_Track;
-                public int idx_ModuleInfos;
-                public string SWChannelName;
-
-                public CLinkedValues(int HW_cn, int SW_cn, int idx_Track, int idx_ModuleInfos, string SWChannelName)
-                {
-                    this.HW_cn = HW_cn;
-                    this.SW_cn = SW_cn;
-                    this.idx_Track = idx_Track;
-                    this.idx_ModuleInfos = idx_ModuleInfos;
-                    this.SWChannelName = SWChannelName;
-                }
+                public int HW_cn = HW_cn;
+                public int SW_cn = SW_cn;
+                public int idx_Track = idx_Track;
+                public int idx_ModuleInfos = idx_ModuleInfos;
+                public string SWChannelName = SWChannelName;
             }
 
             public List<CLinkedValues> LinkedValues;
 
             public CLink_Track_ModuleConfig()
             {
-                LinkedValues = new List<CLinkedValues>();
+                LinkedValues = [];
             }
 
             public int Get_idx_Track(int Hw_cn, int Sw_cn)

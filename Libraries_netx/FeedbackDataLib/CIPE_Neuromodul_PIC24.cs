@@ -212,8 +212,8 @@ namespace FeedbackDataLib
         /// <returns></returns>
         private List<byte> Read_byte_from_hexFile(string readHexfilePath, int MemoryLocation, int numbytestoread)
         {
-            WindControlLib.CPIC24_IntelHex cih = new CPIC24_IntelHex();
-            List<byte> b = null;
+            CPIC24_IntelHex cih = new ();
+            List<byte> b = [];
             if (File.Exists(readHexfilePath))
             {
                 if (cih.OpenHexFile(readHexfilePath))
