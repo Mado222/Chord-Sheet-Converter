@@ -2,6 +2,7 @@
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {
@@ -95,8 +96,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             DateTime dt_tested = DateTime.Now;
             try
             {
-                dsManufacturing _dsManufacturing = new dsManufacturing();
-                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter();
+                dsManufacturing _dsManufacturing = new();
+                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new();
 
                 neurodevicesTableAdapter.FillBy_SerialNumber(_dsManufacturing.Neurodevices, SerialNumber);
                 if (_dsManufacturing.Neurodevices.Count == 1)

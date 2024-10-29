@@ -23,7 +23,7 @@ namespace WindControlLib
     /// </summary>
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CRingpuffer
-	{
+    {
         /// <summary>
         /// Puffer
         /// </summary>
@@ -31,15 +31,15 @@ namespace WindControlLib
         /// <summary>
         /// Points to next Reading position
         /// </summary>
-		protected int ReadPtr=0;
+		protected int ReadPtr = 0;
         /// <summary>
         /// Points to next writing position
         /// </summary>
-		protected int WritePtr=0;
+		protected int WritePtr = 0;
         /// <summary>
         /// Number of vurrently stored objects
         /// </summary>
-		public int StoredObjects=0;
+		public int StoredObjects = 0;
         /// <summary>
         /// Buffer size
         /// </summary>
@@ -47,27 +47,27 @@ namespace WindControlLib
         /// <summary>
         /// Data not read can be overwritten
         /// </summary>
-		public bool IgnoreOverflowDuringPush=false;
-        private readonly object CRingpufferLock = new object();
+		public bool IgnoreOverflowDuringPush = false;
+        private readonly object CRingpufferLock = new();
         /// <summary>
         /// Buffer was filled one time
         /// Indicates, that the buffer is full with valid values
         /// </summary>
         private bool BufFilled = false;
-		
-		public CRingpuffer(int size)
-		{
-			buf= new object [size];
-			intsize=size;
-			for (int i=0; i<size;i++)
-			{
-				buf [i]=new object();
-			}
-		}
+
+        public CRingpuffer(int size)
+        {
+            buf = new object[size];
+            intsize = size;
+            for (int i = 0; i < size; i++)
+            {
+                buf[i] = new object();
+            }
+        }
 
         public int Length
         {
-            get { return buf.Length ; }
+            get { return buf.Length; }
         }
 
         public void Clear()
@@ -83,8 +83,8 @@ namespace WindControlLib
         /// </summary>
         /// <param name="obj">The object.</param>
         /// <returns>false: Puffer voll</returns>
-        public virtual bool Push (object obj)
-		{
+        public virtual bool Push(object obj)
+        {
             lock (CRingpufferLock)
             {
                 bool ret = false;
@@ -103,7 +103,7 @@ namespace WindControlLib
                 }
                 return ret;
             }
-		}
+        }
 
         /// <summary>
         /// Pushes the specified object.
@@ -112,8 +112,8 @@ namespace WindControlLib
         /// <param name="Pointer">The pointer.</param>
         /// <param name="NumBytetoStore">The number byteto store.</param>
         /// <returns>false: Puffer voll</returns>
-        public virtual bool Push (object [] obj, int Pointer, int NumBytetoStore)
-		{
+        public virtual bool Push(object[] obj, int Pointer, int NumBytetoStore)
+        {
             lock (CRingpufferLock)
             {
                 bool ret = false;
@@ -121,20 +121,20 @@ namespace WindControlLib
                 {
                     for (int i = 0; i < NumBytetoStore; i++)
                     {
-                        this.Push(obj[Pointer + i]);
+                        Push(obj[Pointer + i]);
                     }
                     ret = true;
                 }
                 return ret;
             }
-		}
+        }
 
         /// <summary>
         /// Pop
         /// </summary>
         /// <returns>null wenn Puffer leer</returns>
-        public virtual object? Pop ()
-		{
+        public virtual object? Pop()
+        {
             lock (CRingpufferLock)
             {
                 object? o = null;
@@ -148,7 +148,7 @@ namespace WindControlLib
                     o = null;
                 return o;
             }
-		}
+        }
 
         /// <summary>
         /// Liest den ganzen Ringpuffer, beginnend mit dem ältestewn Wert aus 
@@ -156,8 +156,8 @@ namespace WindControlLib
         /// Wenn Puffer nicht voll werden nur StoredObjects zurückgegeben
         /// </summary>
         /// <param name="AllData">All data.</param>
-		public virtual void PopAll (ref object [] AllData)
-		{
+		public virtual void PopAll(ref object[] AllData)
+        {
             lock (CRingpufferLock)
             {
                 List<object> _AllData = [];
@@ -177,9 +177,9 @@ namespace WindControlLib
                         _AllData.Add(buf[i]);
                     }
                 }
-                AllData = _AllData.ToArray();
+                AllData = [.. _AllData];
             }
-		}
+        }
 
         /// <summary>
         /// Liest den ganzen Ringpuffer, beginnend mit dem ältestewn Wert aus 
@@ -191,13 +191,13 @@ namespace WindControlLib
         {
             lock (CRingpufferLock)
             {
-                List<double> _AllData = new List<double>();
+                List<double> _AllData = new();
                 if (BufFilled)
                 {
                     int TempReadPtr = WritePtr;
                     for (int i = 0; i < intsize; i++)
                     {
-                        _AllData.Add((double) buf[TempReadPtr]);
+                        _AllData.Add((double)buf[TempReadPtr]);
                         IncrementPointer(ref TempReadPtr);
                     }
                 }
@@ -205,10 +205,10 @@ namespace WindControlLib
                 {
                     for (int i = 0; i < StoredObjects; i++)
                     {
-                        _AllData.Add((double) buf[i]);
+                        _AllData.Add((double)buf[i]);
                     }
                 }
-                AllData = _AllData.ToArray();
+                AllData = [.. _AllData];
             }
         }
 
@@ -286,47 +286,47 @@ namespace WindControlLib
         {
             ptr--;
             if (ptr < 0)
-            { 
-                ptr = intsize-1;
+            {
+                ptr = intsize - 1;
             }
         }
-	}
+    }
 
     /// <summary>
     /// Ringpuffer for bytes
     /// </summary>
     /// <remarks>class should be thread safe; Buffer intehrity is checked and in case not buffer is reset</remarks>
 	public class CByteRingpuffer
-	{
-		public byte[] buf;
-		private int WritePtr;
-		public int StoredBytes;
-		protected int intsize;
-		public bool IgnoreOverflowDuringPush=false;
-        private readonly object CByteRingpufferLock = new object();
+    {
+        public byte[] buf;
+        private int WritePtr;
+        public int StoredBytes;
+        protected int intsize;
+        public bool IgnoreOverflowDuringPush = false;
+        private readonly object CByteRingpufferLock = new();
 
 
         public int EmptySpace
         {
             get { return buf.Length - StoredBytes; }
         }
-        
+
         private int _ReadPtr;
         public int ReadPtr
         {
             get { return _ReadPtr; }
         }
-		
-		public CByteRingpuffer(int size)
-		{
-			buf= new byte [size];
-			intsize=size;
-			for (int i=0; i<size;i++)
-			{
-				buf [i]=new byte();
-			}
+
+        public CByteRingpuffer(int size)
+        {
+            buf = new byte[size];
+            intsize = size;
+            for (int i = 0; i < size; i++)
+            {
+                buf[i] = new byte();
+            }
             Clear();
-		}
+        }
 
         public void Clear()
         {
@@ -344,19 +344,19 @@ namespace WindControlLib
                 }
         }
 
-		
-		//Gibt den ReadPtr zum lesen in buf zurück, berechnet aus dem aktuellen ReadPtr + Offset
-		/*
+
+        //Gibt den ReadPtr zum lesen in buf zurück, berechnet aus dem aktuellen ReadPtr + Offset
+        /*
         public int CalcReadPtr (int Offset)
 		{
 			int rpt= ReadPtr+Offset;
 			if (rpt>=intsize) rpt=rpt-intsize;
 			return rpt;
 		}*/
-		
-		//Return Value = false: Puffer voll
-		public virtual bool Push (byte obj)
-		{
+
+        //Return Value = false: Puffer voll
+        public virtual bool Push(byte obj)
+        {
             lock (CByteRingpufferLock)
             {
                 bool ret = false;
@@ -369,11 +369,11 @@ namespace WindControlLib
                 }
                 return ret;
             }
-		}
+        }
 
-		//Return Value = false: Puffer voll
-		public virtual bool Push (byte [] obj, int Pointer, int NumBytetoStore)
-		{
+        //Return Value = false: Puffer voll
+        public virtual bool Push(byte[] obj, int Pointer, int NumBytetoStore)
+        {
             lock (CByteRingpufferLock)
             {
                 bool ret = false;
@@ -381,7 +381,7 @@ namespace WindControlLib
                 {
                     for (int i = 0; i < NumBytetoStore; i++)
                     {
-                        this.Push(obj[Pointer + i]);
+                        Push(obj[Pointer + i]);
                     }
                     ret = true;
                 }
@@ -392,11 +392,11 @@ namespace WindControlLib
                 CheckBufferIntegrity(); //debug
                 return ret;
             }
-		}
+        }
 
-		//Ergebnis =null wenn Puffer leer
-		public virtual byte? Pop ()
-		{
+        //Ergebnis =null wenn Puffer leer
+        public virtual byte? Pop()
+        {
             lock (CByteRingpufferLock)
             {
 
@@ -413,7 +413,7 @@ namespace WindControlLib
                 //CheckBufferIntegrity(); //debug
                 return o;
             }
-		}
+        }
 
         public virtual byte Pop(ref byte[] obj, int offset, int NumBytetoRead)
         {
@@ -450,7 +450,7 @@ namespace WindControlLib
                 }
             }
         }
-	}		
+    }
 
 
     /// <summary>
@@ -461,7 +461,7 @@ namespace WindControlLib
     {
         public Color DotColor;
 
-        public CYvsTimeDataColor(int ysize): base(ysize)
+        public CYvsTimeDataColor(int ysize) : base(ysize)
         {
         }
 
@@ -499,67 +499,67 @@ namespace WindControlLib
         }
     }
 
-	/// <summary>
-	/// ///////////////////////////////////////////////////////////////////////////
-	/// 
-	/// CYvsTimeRingPuffer:
-	/// 
-	/// Klasse zur Interpolation von y-Zeit Daten
-	/// numyData stellt die Anzahl der y-Werte, die zu einem Zeitwert gehören ein
-	/// 
-	/// ///////////////////////////////////////////////////////////////////////////
-	/// </summary>
+    /// <summary>
+    /// ///////////////////////////////////////////////////////////////////////////
+    /// 
+    /// CYvsTimeRingPuffer:
+    /// 
+    /// Klasse zur Interpolation von y-Zeit Daten
+    /// numyData stellt die Anzahl der y-Werte, die zu einem Zeitwert gehören ein
+    /// 
+    /// ///////////////////////////////////////////////////////////////////////////
+    /// </summary>
 
-	public class CYvsTimeRingPuffer: CRingpuffer
-	{
-		public int numyData=1;
-		public CYvsTimeData? Prev_pop_data;	//Vorletzter aus dem Ringpuffer gelesener Datensatz
-		public CYvsTimeData? Pop_data;		//Zuletzt aus dem Ringpuffer gelesener Datensatz
-		public TimeSpan deltaTimePush;
-		public bool Interpol_out_of_range=false;	//true wenn der x-Wert (Zeit) nicht zwischen den beiden Interpolationsstützpunkten liegt
+    public class CYvsTimeRingPuffer : CRingpuffer
+    {
+        public int numyData = 1;
+        public CYvsTimeData? Prev_pop_data; //Vorletzter aus dem Ringpuffer gelesener Datensatz
+        public CYvsTimeData? Pop_data;      //Zuletzt aus dem Ringpuffer gelesener Datensatz
+        public TimeSpan deltaTimePush;
+        public bool Interpol_out_of_range = false;  //true wenn der x-Wert (Zeit) nicht zwischen den beiden Interpolationsstützpunkten liegt
 
-		
-		public CYvsTimeRingPuffer(int RingPufferSize): base (RingPufferSize)
-		{
-			InitCYvsTimeRingPuffer();
-		}
 
-		protected void InitCYvsTimeRingPuffer()
-		{
-			Prev_pop_data=new CYvsTimeData(numyData);
-			Pop_data=new CYvsTimeData(numyData);
-		}
+        public CYvsTimeRingPuffer(int RingPufferSize) : base(RingPufferSize)
+        {
+            InitCYvsTimeRingPuffer();
+        }
 
-		public override object? Pop ()
-		{
-			//CYvsTimeData pd=new CYvsTimeData(numyData);
-            CYvsTimeData? pd = (CYvsTimeData?) base.Pop();
-			if (pd is not null && Prev_pop_data is not null && Pop_data is not null)
-			{
-				Prev_pop_data.Copy(Pop_data);	//Datensätze aktualisiern
-				Pop_data.Copy(pd);
-			}
-			return pd;
-		}
+        protected void InitCYvsTimeRingPuffer()
+        {
+            Prev_pop_data = new CYvsTimeData(numyData);
+            Pop_data = new CYvsTimeData(numyData);
+        }
 
-		public void Push (double [] yvals, DateTime xval)
-		{
-			CYvsTimeData xydata=new(numyData);
+        public override object? Pop()
+        {
+            //CYvsTimeData pd=new CYvsTimeData(numyData);
+            CYvsTimeData? pd = (CYvsTimeData?)base.Pop();
+            if (pd is not null && Prev_pop_data is not null && Pop_data is not null)
+            {
+                Prev_pop_data.Copy(Pop_data);   //Datensätze aktualisiern
+                Pop_data.Copy(pd);
+            }
+            return pd;
+        }
 
-			for (int i=0; i<numyData; i++)
-			{
-				xydata.yData[i]=yvals[i];
-			}
-			xydata.xData=xval;
-			base.Push(xydata);
-		}
+        public void Push(double[] yvals, DateTime xval)
+        {
+            CYvsTimeData xydata = new(numyData);
+
+            for (int i = 0; i < numyData; i++)
+            {
+                xydata.yData[i] = yvals[i];
+            }
+            xydata.xData = xval;
+            base.Push(xydata);
+        }
 
         public void Push(CYvsTimeData data)
         { base.Push(data); }
 
         public CYvsTimeData? GetInterpolatedData(DateTime dt)
-		{
-			CYvsTimeData? ret=null;
+        {
+            CYvsTimeData? ret = null;
             //Daten holen bis Zeitfenster passt
             if (Pop_data is not null && Prev_pop_data is not null)
             {
@@ -587,7 +587,7 @@ namespace WindControlLib
                         Interpol_out_of_range = false;
                 }
             }
-			return ret;
-		}
+            return ret;
+        }
     }
 }

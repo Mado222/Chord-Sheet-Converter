@@ -36,8 +36,8 @@ namespace WindControlLib
             get
             {
                 QueryPerformanceCounter(out long ticksNow);
-                long ticks = (long) (((double)(ticksNow - startTime) / (double)freq) * 10000000);
-                return _dt.AddTicks((long)ticks); ;
+                long ticks = (long)(((ticksNow - startTime) / (double)freq) * 10000000);
+                return _dt.AddTicks(ticks); ;
             }
         }
     }

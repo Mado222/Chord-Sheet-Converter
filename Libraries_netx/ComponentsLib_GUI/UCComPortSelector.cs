@@ -11,22 +11,22 @@ namespace ComponentsLib_GUI
     /// Summary description for UCComPortSelector.
     /// </summary>
     public class UCComPortSelector : System.Windows.Forms.ComboBox
-	{
-		/// <summary> 
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.Container? components = null;
-		private ArrayList _ComNo = [];
+    {
+        /// <summary> 
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.Container? components = null;
+        private ArrayList _ComNo = [];
         private static readonly string RegKey = "Software\\" + Application.CompanyName + "\\" + Application.ProductName + "\\";
         private const int _NumberofComPortstoInvestigate = 16;
 
         private string DefaultCom = "";
 
-		public UCComPortSelector()
+        public UCComPortSelector()
         {
-			// This call is required by the Windows.Forms Form Designer.
-			InitializeComponent();
-		}
+            // This call is required by the Windows.Forms Form Designer.
+            InitializeComponent();
+        }
 
         public void SavePorttoReg()
         {
@@ -64,29 +64,26 @@ namespace ComponentsLib_GUI
         /// <summary> 
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose( bool disposing )
-		{
-			if( disposing )
-			{
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
                 if (!DesignMode) SavePorttoReg();
-                if(components != null)
-				{
-					components.Dispose();
-				}
-			}
-			base.Dispose( disposing );
-		}
+                components?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Component Designer generated code
-		/// <summary> 
-		/// Required method for Designer support - do not modify 
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
-			components = new System.ComponentModel.Container();
-		}
-		#endregion
+        #region Component Designer generated code
+        /// <summary> 
+        /// Required method for Designer support - do not modify 
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            components = new System.ComponentModel.Container();
+        }
+        #endregion
 
 
         /// <summary>
@@ -95,12 +92,12 @@ namespace ComponentsLib_GUI
         /// <remarks>
         /// Also reads registry to find DefaultCom and sets index accordingly
         /// </remarks>
-		public void Init(string DriverName, WindControlLib.CVID_PID VIDPID = null)
+        public void Init(string DriverName, WindControlLib.CVID_PID VIDPID = null)
         {
             _ComNo = new ArrayList();
 
             //Alten Wert fuer COM aus der Registry holen
-            string regkey = RegKey + this.Name + "\\";
+            string regkey = RegKey + Name + "\\";
             RegistryKey rk = Registry.CurrentUser.OpenSubKey(regkey, true);
             if (rk == null)
             {
@@ -111,7 +108,7 @@ namespace ComponentsLib_GUI
             DefaultCom = (string)rk.GetValue("COMPort", "COM1");
             rk.Close();
             rk = null;
-            
+
             //Get Coms from registry
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Ports
             string key = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Ports";
@@ -136,7 +133,7 @@ namespace ComponentsLib_GUI
             if (rk != null)
             {
                 string[] AllPorts;
-                List<string> ComNames = new List<string>();
+                List<string> ComNames = new();
 
                 if (DriverName == "" && VIDPID == null)
                 {
@@ -179,46 +176,46 @@ namespace ComponentsLib_GUI
                 //Remove Duplicates
                 ComNames = ComNames.Distinct().ToList();
                 ComNames.Sort();
-                this.Items.Clear();
+                Items.Clear();
                 foreach (string s in ComNames)
                 {
-                    this.Items.Add(s);
+                    Items.Add(s);
                     if (s == DefaultCom)
-                        Index = this.Items.Count - 1;
+                        Index = Items.Count - 1;
                 }
 
-                if (this.Items.Count != 0)
-                    this.SelectedIndex = Index;
+                if (Items.Count != 0)
+                    SelectedIndex = Index;
                 rk.Close();
             }
-		}
+        }
 
         public void DisplayCom(int ComNo)
-		{
-			//Find Item
-			for (int i=0; i<this.Items.Count; i++)
-			{
-				if ((string) this.Items[i]=="Com "+Convert.ToString(ComNo))
-				{
-					this.SelectedItem="Com "+Convert.ToString(ComNo);
-					break;
-				}
-			}
-		}
+        {
+            //Find Item
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if ((string)Items[i] == "Com " + Convert.ToString(ComNo))
+                {
+                    SelectedItem = "Com " + Convert.ToString(ComNo);
+                    break;
+                }
+            }
+        }
 
-		public int SelectedComPortNo
-		{
+        public int SelectedComPortNo
+        {
             get
-			{
+            {
                 if (!DesignMode)
                 {
-                    return (int)_ComNo[this.SelectedIndex];
+                    return (int)_ComNo[SelectedIndex];
                 }
                 else
                 {
                     return 0;
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 }

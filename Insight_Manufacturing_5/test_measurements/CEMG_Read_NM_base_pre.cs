@@ -1,5 +1,6 @@
 ﻿using ComponentsLib_GUI;
 using FeedbackDataLib;
+using Insight_Manufacturing5_net8.test_measurements;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 
 namespace Insight_Manufacturing5_net8.tests_measurements

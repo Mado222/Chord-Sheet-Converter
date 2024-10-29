@@ -28,8 +28,8 @@ namespace XBeeLib
         private bool ApplyCommandImmediately
         {
             get { return _ApplyCommandImmediately; }
-            set 
-            { 
+            set
+            {
                 _ApplyCommandImmediately = value;
                 if (value == true)
                     APID = CXBAPICommands.ATCommand;
@@ -45,8 +45,8 @@ namespace XBeeLib
         public bool ATCommandResponse
         {
             get { return _ATCommandResponse; }
-            set 
-            { 
+            set
+            {
                 _ATCommandResponse = value;
                 if (value == true)
                     frameId = 1;
@@ -95,7 +95,7 @@ namespace XBeeLib
         /// <returns>byte array, ready to sent over the serial port</returns>
         override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new List<byte>
+            List<byte> FrameData = new()
             {
                 //Start to build FrameData
                 //FrameData Byte 0
@@ -105,7 +105,7 @@ namespace XBeeLib
             };
 
             FrameData.AddRange(Command2ByteList());
-             
+
             return MakeBasicDataFrame(FrameData, ApiMode);
         }
 
@@ -115,18 +115,18 @@ namespace XBeeLib
         /// <returns>Returns a list of bytes containing the command and parameter of command</returns>
         protected List<byte> Command2ByteList()
         {
-            List<byte> Command = new List<byte>();
+            List<byte> Command = new();
             //FrameData Byte 6-7: Command Name
-            
+
             //Remove all special chars
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             for (int i = 0; i < ATCommand.Length; i++)
             {
                 if (char.IsLetterOrDigit(ATCommand[i])) // e.g. "ATMY 0001\r" --> ATMY0001
                     sb.Append(ATCommand[i]);
             }
             byte[] be = CMyConvert.StringToByteArray(sb.ToString());
-            
+
             //be[0,1]= "AT"
             Command.Add(be[2]); //Command Name 1  e.g. ATMY0001 ---> MY is cut out
             Command.Add(be[3]); //Command Name 2
@@ -175,7 +175,7 @@ namespace XBeeLib
         /// false: if not</returns>
         override public bool checkResponse(CBasicAPIResponse response)
         {
-            bool IsResponseCorrect=false;
+            bool IsResponseCorrect = false;
             switch (response.APID)
             {
                 case (CXBAPICommands.ATCommandResponse):
@@ -183,17 +183,17 @@ namespace XBeeLib
 
                     //if (responseNew.status == RXCommandResponseStatus.OK)
                     //{
-                        if (this.frameId == responseNew.frameId)
+                    if (frameId == responseNew.frameId)
+                    {
+                        if (ATCommand.Substring(2, 2) == responseNew.command)
                         {
-                            if (this.ATCommand.Substring(2, 2) == responseNew.command)
-                            {
-                                IsResponseCorrect = true;
-                            }
+                            IsResponseCorrect = true;
                         }
+                    }
                     //}
                     break;
                 default:
-                    IsResponseCorrect=false;
+                    IsResponseCorrect = false;
                     break;
             }
             return IsResponseCorrect;

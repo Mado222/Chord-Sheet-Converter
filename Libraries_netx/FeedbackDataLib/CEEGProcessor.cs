@@ -15,7 +15,7 @@ namespace FeedbackDataLib
         /// </summary>
 
         private const int default_fft_window_width_ms = 2560;
-        private int fftWindowWidth_ms= default_fft_window_width_ms;
+        private int fftWindowWidth_ms = default_fft_window_width_ms;
         public int FFTWindowWidth_ms
         {
             get
@@ -33,7 +33,8 @@ namespace FeedbackDataLib
         public int SampleInt_ms
         {
             get => sampleInt_ms;
-            set { 
+            set
+            {
                 sampleInt_ms = value;
                 Update();
             }
@@ -45,13 +46,13 @@ namespace FeedbackDataLib
         private readonly CSWChannel? rawChannel = null;
         public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
-        
-        
+
+
 
         //private CRingpuffer RP;
         private CRingpuffer RP;
 
-        public CEEGProcessor (CSWChannel rawChannel, CEEGCalcChannels eegChannels)
+        public CEEGProcessor(CSWChannel rawChannel, CEEGCalcChannels eegChannels)
         {
             EEGSWChannels = eegChannels;
             _CEEG_Spectrum = new CEEG_Spectrum(eegChannels.EEG_FrequencyRanges);
@@ -136,7 +137,7 @@ namespace FeedbackDataLib
             }
         }
 
-        public double Get_EEG_Band_Value (int idx_Band)
+        public double Get_EEG_Band_Value(int idx_Band)
         {
             return _CEEG_Spectrum.EEG_Bands[idx_Band].value;
         }

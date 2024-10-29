@@ -3,7 +3,7 @@
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public enum enumSWChannelType
     {
-        cSWChannelTypeNotDefined =1000,
+        cSWChannelTypeNotDefined = 1000,
         /// Multisensor: 
         cSWChannelTypeSCL = (enumModuleType.cModuleMultisensor << 8) + 0,
         cSWChannelTypeTemp = (enumModuleType.cModuleMultisensor << 8) + 1,
@@ -44,11 +44,11 @@
         cSWChannelTypeEEG11 = (((UInt16)enumModuleType.cModuleEEG << 8) + 11),
 
 #else
-            //EEG
-            cSWChannelTypeEEG0 = (enumModuleType.cModuleEEG << 8) + 0,
-            cSWChannelTypeEEG1 = (enumModuleType.cModuleEEG << 8) + 1,
-            cSWChannelTypeEEG2 = (enumModuleType.cModuleEEG << 8) + 2,
-            cSWChannelTypeEEG3 = (enumModuleType.cModuleEEG << 8) + 3,
+        //EEG
+        cSWChannelTypeEEG0 = (enumModuleType.cModuleEEG << 8) + 0,
+        cSWChannelTypeEEG1 = (enumModuleType.cModuleEEG << 8) + 1,
+        cSWChannelTypeEEG2 = (enumModuleType.cModuleEEG << 8) + 2,
+        cSWChannelTypeEEG3 = (enumModuleType.cModuleEEG << 8) + 3,
 #endif
 
         //ExG_ADS

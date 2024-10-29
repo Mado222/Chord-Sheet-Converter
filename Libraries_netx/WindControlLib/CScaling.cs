@@ -8,24 +8,24 @@ namespace WindControlLib
     /// and implements linear interpolation of values to a specified range
     /// </summary>
 	public class CScaling
-	{
+    {
 
         /// <summary>
         /// Used Intervalls on Scale
         /// </summary>
-        private readonly double[] pref_deltaTiks = { 0.1, 0.2, 0.25, 0.3, 0.5, 1, 2, 2.5, 3, 5 };
+        private readonly double[] pref_deltaTiks = [0.1, 0.2, 0.25, 0.3, 0.5, 1, 2, 2.5, 3, 5];
         private readonly int cminTiks = 3;
 
         private CLinearInterpolation LinInterpol;
-        
-        private double  _ValMax;
+
+        private double _ValMax;
         /// <summary>
         /// Max Value of the scale
         /// </summary>
         /// <remarks>
         /// Will be set to a rounded value in SetParams
         /// </remarks>
-        public double  ValMax
+        public double ValMax
         {
             get { return _ValMax; }
         }
@@ -89,8 +89,8 @@ namespace WindControlLib
 
         int exp = 0;                  //multiplikator = 10^exp
         double multiplikator = 1;  //Value x multiplikator ... puts it in the range that meets prefix
-        string prefix="";   //m, µ ... 
-        
+        string prefix = "";   //m, µ ... 
+
         /// <summary>
         /// Calculate rounded Values
         /// </summary>
@@ -180,9 +180,9 @@ namespace WindControlLib
                     double[] _pref_deltaTiks = new double[pref_deltaTiks.Length];
                     Array.Copy(pref_deltaTiks, _pref_deltaTiks, pref_deltaTiks.Length);
 
-                    List<double> dif = new List<double>();
-                    List<int> list_idx_pref_deltaTiks = new List<int>();
-                    List<int> list_no_Tiks = new List<int>();
+                    List<double> dif = new();
+                    List<int> list_idx_pref_deltaTiks = new();
+                    List<int> list_no_Tiks = new();
 
                     while (dif.Count < 1)
                     {
@@ -280,7 +280,7 @@ namespace WindControlLib
         /// <param name="ValMax">The val max.</param>
         /// <param name="ValMin">The val min.</param>
         /// <param name="TiksMax">The max tiks.</param>
-        public void Set_Params (double ValMax, double ValMin, int TiksMax)
+        public void Set_Params(double ValMax, double ValMin, int TiksMax)
         {
             if (TiksMax < cminTiks)
             {
@@ -337,13 +337,13 @@ namespace WindControlLib
         {
             _Skal2 = Skal2;
             _Skal1 = Skal1;
-            if (Skal2!=Skal1)
+            if (Skal2 != Skal1)
             {
-            LinInterpol = new CLinearInterpolation(
-                Skal2,    //x1
-                ValMin,   //y1 
-                Skal1,    //x2
-                ValMax);  //y2
+                LinInterpol = new CLinearInterpolation(
+                    Skal2,    //x1
+                    ValMin,   //y1 
+                    Skal1,    //x2
+                    ValMax);  //y2
             }
         }
 
@@ -362,4 +362,4 @@ namespace WindControlLib
             return ret;
         }
     }
- }
+}

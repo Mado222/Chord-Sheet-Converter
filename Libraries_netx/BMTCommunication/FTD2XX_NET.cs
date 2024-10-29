@@ -398,9 +398,9 @@ namespace BMTCommunication
         };
 
         // Flags for FT_OpenEx
-        private const uint FT_OPEN_BY_SERIAL_NUMBER	= 0x00000001;
-        private const uint FT_OPEN_BY_DESCRIPTION		= 0x00000002;
-        private const uint FT_OPEN_BY_LOCATION		= 0x00000004;
+        private const uint FT_OPEN_BY_SERIAL_NUMBER = 0x00000001;
+        private const uint FT_OPEN_BY_DESCRIPTION = 0x00000002;
+        private const uint FT_OPEN_BY_LOCATION = 0x00000004;
 
         // Word Lengths
         /// <summary>
@@ -443,23 +443,23 @@ namespace BMTCommunication
             /// <summary>
             /// No parity
             /// </summary>
-            public const byte FT_PARITY_NONE	= 0x00;
+            public const byte FT_PARITY_NONE = 0x00;
             /// <summary>
             /// Odd parity
             /// </summary>
-            public const byte FT_PARITY_ODD		= 0x01;
+            public const byte FT_PARITY_ODD = 0x01;
             /// <summary>
             /// Even parity
             /// </summary>
-            public const byte FT_PARITY_EVEN	= 0x02;
+            public const byte FT_PARITY_EVEN = 0x02;
             /// <summary>
             /// Mark parity
             /// </summary>
-            public const byte FT_PARITY_MARK	= 0x03;
+            public const byte FT_PARITY_MARK = 0x03;
             /// <summary>
             /// Space parity
             /// </summary>
-            public const byte FT_PARITY_SPACE	= 0x04;
+            public const byte FT_PARITY_SPACE = 0x04;
         }
 
         // Flow Control
@@ -471,19 +471,19 @@ namespace BMTCommunication
             /// <summary>
             /// No flow control
             /// </summary>
-            public const ushort FT_FLOW_NONE		= 0x0000;
+            public const ushort FT_FLOW_NONE = 0x0000;
             /// <summary>
             /// RTS/CTS flow control
             /// </summary>
-            public const ushort FT_FLOW_RTS_CTS		= 0x0100;
+            public const ushort FT_FLOW_RTS_CTS = 0x0100;
             /// <summary>
             /// DTR/DSR flow control
             /// </summary>
-            public const ushort FT_FLOW_DTR_DSR		= 0x0200;
+            public const ushort FT_FLOW_DTR_DSR = 0x0200;
             /// <summary>
             /// Xon/Xoff flow control
             /// </summary>
-            public const ushort FT_FLOW_XON_XOFF	= 0x0400;
+            public const ushort FT_FLOW_XON_XOFF = 0x0400;
         }
 
         // Purge Rx and Tx buffers
@@ -511,19 +511,19 @@ namespace BMTCommunication
             /// <summary>
             /// Clear To Send (CTS) modem status
             /// </summary>
-            public const byte FT_CTS	= 0x10;
+            public const byte FT_CTS = 0x10;
             /// <summary>
             /// Data Set Ready (DSR) modem status
             /// </summary>
-            public const byte FT_DSR	= 0x20;
+            public const byte FT_DSR = 0x20;
             /// <summary>
             /// Ring Indicator (RI) modem status
             /// </summary>
-            public const byte FT_RI		= 0x40;
+            public const byte FT_RI = 0x40;
             /// <summary>
             /// Data Carrier Detect (DCD) modem status
             /// </summary>
-            public const byte FT_DCD	= 0x80;
+            public const byte FT_DCD = 0x80;
         }
 
         // Line Status bits
@@ -559,15 +559,15 @@ namespace BMTCommunication
             /// <summary>
             /// Event on receive character
             /// </summary>
-            public const uint FT_EVENT_RXCHAR			= 0x00000001;
+            public const uint FT_EVENT_RXCHAR = 0x00000001;
             /// <summary>
             /// Event on modem status change
             /// </summary>
-            public const uint FT_EVENT_MODEM_STATUS	= 0x00000002;
+            public const uint FT_EVENT_MODEM_STATUS = 0x00000002;
             /// <summary>
             /// Event on line status change
             /// </summary>
-            public const uint FT_EVENT_LINE_STATUS	= 0x00000004;
+            public const uint FT_EVENT_LINE_STATUS = 0x00000004;
         }
 
         // Bit modes
@@ -579,35 +579,35 @@ namespace BMTCommunication
             /// <summary>
             /// Reset bit mode
             /// </summary>
-            public const byte FT_BIT_MODE_RESET			= 0x00;
+            public const byte FT_BIT_MODE_RESET = 0x00;
             /// <summary>
             /// Asynchronous bit-bang mode
             /// </summary>
-            public const byte FT_BIT_MODE_ASYNC_BITBANG	= 0x01;
+            public const byte FT_BIT_MODE_ASYNC_BITBANG = 0x01;
             /// <summary>
             /// MPSSE bit mode - only available on FT2232, FT2232H, FT4232H and FT232H
             /// </summary>
-            public const byte FT_BIT_MODE_MPSSE			= 0x02;
+            public const byte FT_BIT_MODE_MPSSE = 0x02;
             /// <summary>
             /// Synchronous bit-bang mode
             /// </summary>
-            public const byte FT_BIT_MODE_SYNC_BITBANG	= 0x04;
+            public const byte FT_BIT_MODE_SYNC_BITBANG = 0x04;
             /// <summary>
             /// MCU host bus emulation mode - only available on FT2232, FT2232H, FT4232H and FT232H
             /// </summary>
-            public const byte FT_BIT_MODE_MCU_HOST		= 0x08;
+            public const byte FT_BIT_MODE_MCU_HOST = 0x08;
             /// <summary>
             /// Fast opto-isolated serial mode - only available on FT2232, FT2232H, FT4232H and FT232H
             /// </summary>
-            public const byte FT_BIT_MODE_FAST_SERIAL	= 0x10;
+            public const byte FT_BIT_MODE_FAST_SERIAL = 0x10;
             /// <summary>
             /// CBUS bit-bang mode - only available on FT232R and FT232H
             /// </summary>
-            public const byte FT_BIT_MODE_CBUS_BITBANG	= 0x20;
+            public const byte FT_BIT_MODE_CBUS_BITBANG = 0x20;
             /// <summary>
             /// Single channel synchronous 245 FIFO mode - only available on FT2232H channel A and FT232H
             /// </summary>
-            public const byte FT_BIT_MODE_SYNC_FIFO		= 0x40;
+            public const byte FT_BIT_MODE_SYNC_FIFO = 0x40;
         }
 
         // FT232R CBUS Options
@@ -619,55 +619,55 @@ namespace BMTCommunication
             /// <summary>
             /// FT232R CBUS EEPROM options - Tx Data Enable
             /// </summary>
-            public const byte FT_CBUS_TXDEN			= 0x00;
+            public const byte FT_CBUS_TXDEN = 0x00;
             /// <summary>
             /// FT232R CBUS EEPROM options - Power On
             /// </summary>
-            public const byte FT_CBUS_PWRON			= 0x01;
+            public const byte FT_CBUS_PWRON = 0x01;
             /// <summary>
             /// FT232R CBUS EEPROM options - Rx LED
             /// </summary>
-            public const byte FT_CBUS_RXLED			= 0x02;
+            public const byte FT_CBUS_RXLED = 0x02;
             /// <summary>
             /// FT232R CBUS EEPROM options - Tx LED
             /// </summary>
-            public const byte FT_CBUS_TXLED			= 0x03;
+            public const byte FT_CBUS_TXLED = 0x03;
             /// <summary>
             /// FT232R CBUS EEPROM options - Tx and Rx LED
             /// </summary>
-            public const byte FT_CBUS_TXRXLED		= 0x04;
+            public const byte FT_CBUS_TXRXLED = 0x04;
             /// <summary>
             /// FT232R CBUS EEPROM options - Sleep
             /// </summary>
-            public const byte FT_CBUS_SLEEP			= 0x05;
+            public const byte FT_CBUS_SLEEP = 0x05;
             /// <summary>
             /// FT232R CBUS EEPROM options - 48MHz clock
             /// </summary>
-            public const byte FT_CBUS_CLK48			= 0x06;
+            public const byte FT_CBUS_CLK48 = 0x06;
             /// <summary>
             /// FT232R CBUS EEPROM options - 24MHz clock
             /// </summary>
-            public const byte FT_CBUS_CLK24			= 0x07;
+            public const byte FT_CBUS_CLK24 = 0x07;
             /// <summary>
             /// FT232R CBUS EEPROM options - 12MHz clock
             /// </summary>
-            public const byte FT_CBUS_CLK12			= 0x08;
+            public const byte FT_CBUS_CLK12 = 0x08;
             /// <summary>
             /// FT232R CBUS EEPROM options - 6MHz clock
             /// </summary>
-            public const byte FT_CBUS_CLK6			= 0x09;
+            public const byte FT_CBUS_CLK6 = 0x09;
             /// <summary>
             /// FT232R CBUS EEPROM options - IO mode
             /// </summary>
-            public const byte FT_CBUS_IOMODE		= 0x0A;
+            public const byte FT_CBUS_IOMODE = 0x0A;
             /// <summary>
             /// FT232R CBUS EEPROM options - Bit-bang write strobe
             /// </summary>
-            public const byte FT_CBUS_BITBANG_WR	= 0x0B;
+            public const byte FT_CBUS_BITBANG_WR = 0x0B;
             /// <summary>
             /// FT232R CBUS EEPROM options - Bit-bang read strobe
             /// </summary>
-            public const byte FT_CBUS_BITBANG_RD	= 0x0C;
+            public const byte FT_CBUS_BITBANG_RD = 0x0C;
         }
 
         // FT232H CBUS Options
@@ -724,8 +724,8 @@ namespace BMTCommunication
             /// FT232H CBUS EEPROM options - 15MHz clock
             /// </summary>
             public const byte FT_CBUS_CLK15 = 0x0B;/// <summary>
-            /// FT232H CBUS EEPROM options - 7.5MHz clock
-            /// </summary>
+                                                   /// FT232H CBUS EEPROM options - 7.5MHz clock
+                                                   /// </summary>
             public const byte FT_CBUS_CLK7_5 = 0x0C;
         }
 
@@ -833,11 +833,11 @@ namespace BMTCommunication
             /// <summary>
             /// Indicates that the device is open
             /// </summary>
-            public const uint FT_FLAGS_OPENED		= 0x00000001;
+            public const uint FT_FLAGS_OPENED = 0x00000001;
             /// <summary>
             /// Indicates that the device is enumerated as a hi-speed USB device
             /// </summary>
-            public const uint FT_FLAGS_HISPEED	= 0x00000002;
+            public const uint FT_FLAGS_HISPEED = 0x00000002;
         }
 
         // Valid drive current values for FT2232H, FT4232H and FT232H devices
@@ -849,19 +849,19 @@ namespace BMTCommunication
             /// <summary>
             /// 4mA drive current
             /// </summary>
-            public const byte FT_DRIVE_CURRENT_4MA	= 4;
+            public const byte FT_DRIVE_CURRENT_4MA = 4;
             /// <summary>
             /// 8mA drive current
             /// </summary>
-            public const byte FT_DRIVE_CURRENT_8MA	= 8;
+            public const byte FT_DRIVE_CURRENT_8MA = 8;
             /// <summary>
             /// 12mA drive current
             /// </summary>
-            public const byte FT_DRIVE_CURRENT_12MA	= 12;
+            public const byte FT_DRIVE_CURRENT_12MA = 12;
             /// <summary>
             /// 16mA drive current
             /// </summary>
-            public const byte FT_DRIVE_CURRENT_16MA	= 16;
+            public const byte FT_DRIVE_CURRENT_16MA = 16;
         }
 
         // Device type identifiers for FT_GetDeviceInfoDetail and FT_GetDeviceInfo
@@ -927,7 +927,7 @@ namespace BMTCommunication
             /// </summary>
             FT_DEVICE_4222_PROG,
         };
-#endregion
+        #endregion
 
         #region DEFAULT_VALUES
         /*
@@ -1988,15 +1988,6 @@ namespace BMTCommunication
             /// <param name="message"></param>
             /// <param name="inner"></param>
             public FT_EXCEPTION(string message, Exception inner) : base(message, inner) { }
-            /// <summary>
-            /// 
-            /// </summary>
-            /// <param name="info"></param>
-            /// <param name="context"></param>
-            protected FT_EXCEPTION(
-            System.Runtime.Serialization.SerializationInfo info,
-            System.Runtime.Serialization.StreamingContext context)
-                : base(info, context) { }
         }
         #endregion
 
@@ -3577,7 +3568,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -3671,7 +3662,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -3775,7 +3766,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -3884,7 +3875,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -3997,7 +3988,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4109,7 +4100,7 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4170,7 +4161,7 @@ namespace BMTCommunication
                     ee232h.IsFastSer = Convert.ToBoolean(eedata.IsFastSerH);
                     ee232h.IsFT1248 = Convert.ToBoolean(eedata.IsFT1248H);
                     ee232h.FT1248Cpol = Convert.ToBoolean(eedata.FT1248CpolH);
-                    ee232h.FT1248Lsb =  Convert.ToBoolean(eedata.FT1248LsbH);
+                    ee232h.FT1248Lsb = Convert.ToBoolean(eedata.FT1248LsbH);
                     ee232h.FT1248FlowControl = Convert.ToBoolean(eedata.FT1248FlowControlH);
                     ee232h.IsVCP = Convert.ToBoolean(eedata.IsVCPH);
                     ee232h.PowerSaveEnable = Convert.ToBoolean(eedata.PowerSaveEnableH);
@@ -4226,8 +4217,8 @@ namespace BMTCommunication
                         ErrorHandler(ftStatus, ftErrorCondition);
                     }
 
-                    FT_XSERIES_DATA eeData = new FT_XSERIES_DATA();
-                    FT_EEPROM_HEADER eeHeader = new FT_EEPROM_HEADER();
+                    FT_XSERIES_DATA eeData = new();
+                    FT_EEPROM_HEADER eeHeader = new();
 
                     byte[] manufacturer = new byte[32];
                     byte[] manufacturerID = new byte[16];
@@ -4243,7 +4234,7 @@ namespace BMTCommunication
                     // Allocate space for our pointer...
                     IntPtr eeDataMarshal = Marshal.AllocHGlobal(size);
                     Marshal.StructureToPtr(eeData, eeDataMarshal, false);
-                    
+
                     // Call FT_EEPROM_Read
                     ftStatus = FT_EEPROM_Read(ftHandle, eeDataMarshal, (uint)size, manufacturer, manufacturerID, description, serialNumber);
 
@@ -4253,7 +4244,7 @@ namespace BMTCommunication
                         eeData = (FT_XSERIES_DATA)Marshal.PtrToStructure(eeDataMarshal, typeof(FT_XSERIES_DATA));
 
                         // Retrieve string values
-                        System.Text.UTF8Encoding enc = new System.Text.UTF8Encoding();
+                        System.Text.UTF8Encoding enc = new();
                         eeX.Manufacturer = enc.GetString(manufacturer);
                         eeX.ManufacturerID = enc.GetString(manufacturerID);
                         eeX.Description = enc.GetString(description);
@@ -4370,7 +4361,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4485,7 +4476,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4610,7 +4601,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4743,7 +4734,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -4876,7 +4867,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -5008,7 +4999,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_PROGRAM_DATA eedata = new FT_PROGRAM_DATA
+                    FT_PROGRAM_DATA eedata = new()
                     {
 
                         // Set up structure headers
@@ -5124,7 +5115,7 @@ namespace BMTCommunication
                 return ftStatus;
 
             // Check for our required function pointers being set up
-            if (pFT_EEPROM_Program != IntPtr.Zero) 
+            if (pFT_EEPROM_Program != IntPtr.Zero)
             {
                 tFT_EEPROM_Program FT_EEPROM_Program = (tFT_EEPROM_Program)Marshal.GetDelegateForFunctionPointer(pFT_EEPROM_Program, typeof(tFT_EEPROM_Program));
 
@@ -5147,7 +5138,7 @@ namespace BMTCommunication
                         return FT_STATUS.FT_INVALID_PARAMETER;
                     }
 
-                    FT_XSERIES_DATA eeData = new FT_XSERIES_DATA();
+                    FT_XSERIES_DATA eeData = new();
 
                     // String manipulation...
                     // Allocate space from unmanaged heap
@@ -5168,7 +5159,7 @@ namespace BMTCommunication
                         eeX.SerialNumber = eeX.SerialNumber[..16];
 
                     // Set string values
-                    System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+                    System.Text.UTF8Encoding encoding = new();
                     manufacturer = encoding.GetBytes(eeX.Manufacturer);
                     manufacturerID = encoding.GetBytes(eeX.ManufacturerID);
                     description = encoding.GetBytes(eeX.Description);
@@ -5406,7 +5397,7 @@ namespace BMTCommunication
             }
             return ftStatus;
         }
-        
+
         //**************************************************************************
         // GetDeviceID
         //**************************************************************************
@@ -6126,7 +6117,7 @@ namespace BMTCommunication
             }
             return ftStatus;
         }
-        
+
         //**************************************************************************
         // SetResetPipeRetryCount
         //**************************************************************************
@@ -6718,7 +6709,7 @@ namespace BMTCommunication
         /// <summary>
         /// Method to check ftStatus and ftErrorCondition values for error conditions and throw exceptions accordingly.
         /// </summary>
-        private void ErrorHandler(FT_STATUS ftStatus, FT_ERROR ftErrorCondition)
+        private static void ErrorHandler(FT_STATUS ftStatus, FT_ERROR ftErrorCondition)
         {
             if (ftStatus != FT_STATUS.FT_OK)
             {

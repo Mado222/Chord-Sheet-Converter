@@ -14,7 +14,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         public static enumModuleType[] get_enumModuleTypes_toEvaluate()
         {
             enumModuleType[] enVals = (enumModuleType[])Enum.GetValues(typeof(enumModuleType));
-            List<enumModuleType> lenVals = new List<enumModuleType>(enVals);
+            List<enumModuleType> lenVals = new(enVals);
             lenVals.Remove(enumModuleType.cNotDefined);
             //lenVals.Remove(enumModuleType.cModuleAtemIRDig);
             lenVals.Remove(enumModuleType.cModuleExGADS94);

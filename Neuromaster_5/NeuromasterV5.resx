@@ -1153,9 +1153,6 @@
   <data name="&gt;&gt;pbXBeeChannelCapacity.Parent" xml:space="preserve">
     <value>gbConnectivitie</value>
   </data>
-  <data name="&gt;&gt;pbXBeeChannelCapacity.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
   <data name="txtStatus.Location" type="System.Drawing.Point, System.Drawing">
     <value>304, 28</value>
   </data>

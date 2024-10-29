@@ -11,7 +11,7 @@ namespace WindControlLib
 
     public class CMyTools
     {
-        private static readonly Random _rng = new Random();
+        private static readonly Random _rng = new();
         private const string _chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace WindControlLib
             return (formatted);
         }
 
-        private static readonly string[] ms_seperator = { "," };
+        private static readonly string[] ms_seperator = [","];
 
         /// <summary>Formats DateTime to "12:14:07,786"</summary>
         /// <param name="dt">DateTime</param>
@@ -207,7 +207,7 @@ namespace WindControlLib
         }
         public static int FromIntBytestoInt(byte Low, byte High)
         {
-            int res = ((int)High << 8) + Low;
+            int res = (High << 8) + Low;
             if (res > 0x7fff) res = (0x10000 - res) * -1;
             return res;
         }
@@ -226,7 +226,7 @@ namespace WindControlLib
 
         public static int FromUIntBytestoInt(byte Low, byte High)
         {
-            return ((int)High << 8) + Low;
+            return (High << 8) + Low;
         }
 
         public static uint FromUIntBytestoUInt(byte Low, byte High)
@@ -299,13 +299,13 @@ namespace WindControlLib
         public static byte[] StringToByteArray(string str, int digits_to_group)
         {
             int i = 0;
-            List<byte> btl = new List<byte>();
+            List<byte> btl = new();
             while (i + digits_to_group <= str.Length)
             {
                 btl.Add(Convert.ToByte((str.Substring(i, digits_to_group)), 16));
                 i += digits_to_group;
             }
-            return btl.ToArray();
+            return [.. btl];
         }
 
         public static byte[] StringToByteArray(string str)
@@ -342,7 +342,7 @@ namespace WindControlLib
             return ni;
         }
 
-        
+
     }
 
     /// <summary>
@@ -483,8 +483,8 @@ namespace WindControlLib
             // Determine the file mode based on the append parameter
             FileMode mode = append ? FileMode.Append : FileMode.Create;
 
-            using (FileStream stream = new FileStream(filePath, mode))
-            using (StreamWriter writer = new StreamWriter(stream))
+            using (FileStream stream = new(filePath, mode))
+            using (StreamWriter writer = new(stream))
             {
                 writer.Write(jsonString);
             }
@@ -492,8 +492,8 @@ namespace WindControlLib
 
         public static T ReadFromJsonFile<T>(string filePath)
         {
-            using (FileStream stream = new FileStream(filePath, FileMode.Open))
-            using (StreamReader reader = new StreamReader(stream))
+            using (FileStream stream = new(filePath, FileMode.Open))
+            using (StreamReader reader = new(stream))
             {
                 string jsonString = reader.ReadToEnd();
                 return JsonSerializer.Deserialize<T>(jsonString);

@@ -7,7 +7,7 @@ public class CPIC24_Bootloader_Params
     //const string cmd_Read_Neuromodul_To_File = @"/P24FJ64GA102 /V3.25 /GPF";
 
     //MPLAB X
-    
+
     public const string cmd_Read_Neuromodul_EEG_To_File = @"/P33FJ128GP802 /V3.25 /GF";    //Add FileName with "" with no space - see Add_File_to_CommandLineParameters
     public const string cmd_Read_Neuromodul_To_File = @"/P24FJ64GA102 /V3.25 /GF";
 
@@ -17,7 +17,7 @@ public class CPIC24_Bootloader_Params
 
     //const string cmd_Erase_Neuromaster = @"/P24FJ256GB210 /E";
     public const string cmd_Flash_Neuromaster = @"/P24FJ256GB210 /M /L /F";
-    
+
     //General
     public const int BOOTLOADER_SW_ADDRESS = 0x200;                //Place of SW Version, same position of software version for all types
 
@@ -58,7 +58,7 @@ public class CPIC24_Bootloader_Params
     public const uint dsPIC33_SWChannelInfo_memory_location = 0x9C00;
 
     public const int dsPIC33_PROGRAM_MEMORY_LENGTH = 0x14A00;
-    
+
 
 
 

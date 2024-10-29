@@ -40,7 +40,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             if (File.Exists(confFile_path))
             {
                 //Change Serial Number
-                XmlDocument xmlDoc = new XmlDocument();
+                XmlDocument xmlDoc = new();
                 xmlDoc.Load(confFile_path);
                 XmlNode node = xmlDoc.SelectSingleNode(@"FT_EEPROM/USB_String_Descriptors/SerialNumber");
                 node.InnerText = SerialNumber;
@@ -55,7 +55,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                     {
                         string path = "\"" + pt + "\"";
                         System.Diagnostics.ProcessStartInfo psi =
-                            new System.Diagnostics.ProcessStartInfo("cmd.exe", "/c " + path)
+                            new("cmd.exe", "/c " + path)
                             {
                                 CreateNoWindow = true,
                                 WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,

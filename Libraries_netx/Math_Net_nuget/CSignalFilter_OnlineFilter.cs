@@ -1,12 +1,12 @@
 ﻿using MathNet.Filtering;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
-    public class CSignalFilter_OnlineFilter: CSignalFilter_Base
+    public class CSignalFilterOnlineFilter : CSignalFilterBase
     {
 
-        public CSignalFilter_OnlineFilter(enumSignalFilterType SignalFilterType, double sampleRate, double fg, int order= 2):
-            base (SignalFilterType, fg, sampleRate, order)
+        public CSignalFilterOnlineFilter(enumSignalFilterType SignalFilterType, double sampleRate, double fg, int order = 2) :
+            base(SignalFilterType, fg, sampleRate, order)
         {
             switch (SignalFilterType)
             {
@@ -43,15 +43,14 @@ namespace Math_Net_nuget
             }
         }
 
-        public void Reset ()
+        public void Reset()
         {
-            if (_SignalFilter != null)
-                _SignalFilter.Reset();
+            _SignalFilter?.Reset();
         }
 
         public double ProcessSample(double newVal) => _SignalFilter.ProcessSample(newVal);
     }
 
 }
-    
+
 

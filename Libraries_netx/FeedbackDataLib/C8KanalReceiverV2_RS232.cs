@@ -60,7 +60,7 @@ namespace FeedbackDataLib
         {
             get { return _RS232_Neurolink_BaudRate; }
         }
-        
+
 
         /// <summary>
         /// Base Constructor

@@ -2,6 +2,7 @@
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 
 namespace Insight_Manufacturing5_net8.tests_measurements
@@ -32,7 +33,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                         {
                             CModuleBase[] cmi = new CModuleBase[DataReceiver.Connection.Device.ModuleInfos.Count];
                             DataReceiver.Connection.Device.ModuleInfos.CopyTo(cmi);
-                            List<CModuleBase> ModuleInfo = new List<CModuleBase>(cmi);
+                            List<CModuleBase> ModuleInfo = new(cmi);
                             byte channel_ok = 0;
                             for (int i = 0; i < 7; i++)
                             {
@@ -80,8 +81,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             DateTime dt_tested = DateTime.Now;
             try
             {
-                dsManufacturing _dsManufacturing = new dsManufacturing();
-                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter();
+                dsManufacturing _dsManufacturing = new();
+                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new();
 
                 neurodevicesTableAdapter.FillBy_SerialNumber(_dsManufacturing.Neurodevices, SerialNumber);
                 if (_dsManufacturing.Neurodevices.Count == 1)

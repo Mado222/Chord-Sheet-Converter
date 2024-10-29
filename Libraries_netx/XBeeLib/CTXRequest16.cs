@@ -21,7 +21,7 @@ namespace XBeeLib
             get { return _DestinationAddress16; }
             set { _DestinationAddress16 = value; }
         }
-        
+
         override public TXRequestOptions options
         {
             get { return _options; }
@@ -46,7 +46,7 @@ namespace XBeeLib
         /// </summary>
         override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new List<byte>
+            List<byte> FrameData = new()
             {
                 //FrameData Byte 0
                 APID,

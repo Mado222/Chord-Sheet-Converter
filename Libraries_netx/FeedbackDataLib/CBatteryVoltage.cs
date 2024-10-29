@@ -66,7 +66,7 @@ namespace FeedbackDataLib
                 return BatteryValuePairs[0].BatteryPercentage;
             }
 
-            if (BatteryVoltage_V > BatteryValuePairs[BatteryValuePairs.Length - 1].BatteryVoltage_V)
+            if (BatteryVoltage_V > BatteryValuePairs[^1].BatteryVoltage_V)
             {
                 //Interpolate
                 for (int i = 0; i < BatteryValuePairs.Length - 2; i++)
@@ -74,7 +74,7 @@ namespace FeedbackDataLib
                     if ((BatteryVoltage_V <= BatteryValuePairs[i].BatteryVoltage_V) &&
                         (BatteryVoltage_V > BatteryValuePairs[i + 1].BatteryVoltage_V))
                     {
-                        CLinearInterpolation c = new CLinearInterpolation(
+                        CLinearInterpolation c = new(
                         BatteryValuePairs[i + 1].BatteryVoltage_V, BatteryValuePairs[i + 1].BatteryPercentage,
                         BatteryValuePairs[i].BatteryVoltage_V, BatteryValuePairs[i].BatteryPercentage);
 
@@ -85,7 +85,7 @@ namespace FeedbackDataLib
             return 0;
         }
 
-        public void GetConfigPath(ref string ConfigXMLPath)
+        public static void GetConfigPath(ref string ConfigXMLPath)
         {
             string fullPath = System.IO.Directory.GetCurrentDirectory();
             ConfigXMLPath = fullPath + @"\BatVals.xml";
@@ -101,9 +101,9 @@ namespace FeedbackDataLib
                 string ConfigXMLPath = "";
                 GetConfigPath(ref ConfigXMLPath);
 
-                FileStream fs = new FileStream(ConfigXMLPath, FileMode.Open);
+                FileStream fs = new(ConfigXMLPath, FileMode.Open);
                 reader = new StreamReader(fs);
-                XmlSerializer ser = new XmlSerializer(typeof(BatteryValuePair[]));
+                XmlSerializer ser = new(typeof(BatteryValuePair[]));
                 BatteryValuePairs = (BatteryValuePair[])ser.Deserialize(reader);
                 reader.Close();
                 ret = true;
@@ -114,8 +114,7 @@ namespace FeedbackDataLib
             }
             finally
             {
-                if (reader != null)
-                    reader.Close();
+                reader?.Close();
             }
             return ret;
         }
@@ -129,9 +128,9 @@ namespace FeedbackDataLib
                 string ConfigXMLPath = "";
                 GetConfigPath(ref ConfigXMLPath);
 
-                FileStream fs = new FileStream(ConfigXMLPath, FileMode.Create);
+                FileStream fs = new(ConfigXMLPath, FileMode.Create);
                 TextWriter writer = new StreamWriter(fs);
-                XmlSerializer ser = new XmlSerializer(typeof(BatteryValuePair[]));
+                XmlSerializer ser = new(typeof(BatteryValuePair[]));
                 ser.Serialize(writer, BatteryValuePairs);
                 writer.Close();
             }

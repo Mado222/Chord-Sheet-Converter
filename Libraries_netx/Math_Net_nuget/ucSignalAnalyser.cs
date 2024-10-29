@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using WindControlLib;
 
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
 #pragma warning disable CA1416 // Validate platform compatibility
     public partial class ucSignalAnalyser : UserControl
@@ -37,15 +37,15 @@ namespace Math_Net_nuget
         {
             Init(1000);
         }
-        public ucSignalAnalyser(int cache_size_samples)
+        public ucSignalAnalyser(int cacheSizeSamples)
         {
-            if (cache_size_samples > 0)
-                Init(cache_size_samples);
+            if (cacheSizeSamples > 0)
+                Init(cacheSizeSamples);
             else
                 Init(1000);
         }
 
-        private void Init (int cache_size_samples)
+        private void Init(int cache_size_samples)
         {
             InitializeComponent();
             lblHeader.Text = _HeaderText;
@@ -66,7 +66,7 @@ namespace Math_Net_nuget
             if (_HeaderText == "")
             {
                 tlpMeasure.RowStyles[0].Height = 0;
-                int d = this.Height / (tlpMeasure.RowCount - 1);
+                int d = Height / (tlpMeasure.RowCount - 1);
 
                 for (int i = 1; i < tlpMeasure.RowStyles.Count; i++)
                 {
@@ -75,7 +75,7 @@ namespace Math_Net_nuget
             }
             else
             {
-                int d = this.Height / (tlpMeasure.RowCount);
+                int d = Height / (tlpMeasure.RowCount);
 
                 for (int i = 0; i < tlpMeasure.RowStyles.Count; i++)
                 {
@@ -115,7 +115,7 @@ namespace Math_Net_nuget
             if (l.Length != 0)
             {
                 umean /= l.Length;
-                lblValeff.Text = CMyTools.Format_with_SI_prefixes(ueff, unit+"eff");
+                lblValeff.Text = CMyTools.Format_with_SI_prefixes(ueff, unit + "eff");
                 lblValmean.Text = CMyTools.Format_with_SI_prefixes(umean, unit + "mean");
                 lblpeakplusValue.Text = CMyTools.Format_with_SI_prefixes(uplus, unit + "+p");
                 lblpeakminusValue.Text = CMyTools.Format_with_SI_prefixes(uminus, unit + "-p");
@@ -123,10 +123,10 @@ namespace Math_Net_nuget
             cache.Clear();
         }
 
-        public void Autoupdate(int time_ms)
+        public void Autoupdate(int timeMs)
         {
             updater.Stop();
-            updater.Interval = time_ms;
+            updater.Interval = timeMs;
             updater.Start();
         }
 

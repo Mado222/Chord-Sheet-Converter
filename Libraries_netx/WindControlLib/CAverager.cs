@@ -18,25 +18,25 @@ namespace WindControlLib
 
         public void Clear()
         {
-            val=0;
+            val = 0;
             _count = 0;
         }
 
-        public void Add (double value)
+        public void Add(double value)
         {
             val += value;
-            _count ++;
+            _count++;
         }
 
-        public void Subtract (double value)
+        public void Subtract(double value)
         {
             val -= value;
-            _count --;
+            _count--;
         }
 
         public double GetAverage()
         {
-            return val / (double) _count;
+            return val / _count;
         }
     }
 
@@ -74,7 +74,7 @@ namespace WindControlLib
                 SumofValuesTemp = 0;
                 CountValues = buffer_size;
             }
-            _Average = (int)((double)SumofValues / (double)buffer_size);
+            _Average = (int)(SumofValues / (double)buffer_size);
             return _Average;
         }
 
@@ -110,7 +110,7 @@ namespace WindControlLib
         {
             SumofValues += Value;
             SumofValuesTemp += Value;
-            SumofValues -= (double) RP.NextLostValue();
+            SumofValues -= (double)RP.NextLostValue();
             RP.Push(Value);
             CountValues--;
             if (CountValues == 0)
@@ -120,7 +120,7 @@ namespace WindControlLib
                 SumofValuesTemp = 0;
                 CountValues = buffer_size;
             }
-            _Average = SumofValues / (double)buffer_size;
+            _Average = SumofValues / buffer_size;
             return _Average;
         }
 

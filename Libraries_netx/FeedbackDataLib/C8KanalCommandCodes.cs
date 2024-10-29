@@ -223,7 +223,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// CRC8 Algorithm
         /// </summary>
-        protected static WindControlLib.CCRC8 CRC8 = new CCRC8(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
+        protected static WindControlLib.CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
 
         /// <summary>
         /// Alive Sequence to be sent to Neuromaster
@@ -233,9 +233,9 @@ namespace FeedbackDataLib
             //{ 0x11, 0xFE };//CommandCode, cDeviceAlive
             //return new byte[] { C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cDeviceAlive, 1, 0};
 
-            byte[] buf = new byte[] { C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cDeviceAlive, 1, 0 };
+            byte[] buf = [C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cDeviceAlive, 1, 0];
 
-            buf[buf.Length - 1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
 
@@ -249,8 +249,8 @@ namespace FeedbackDataLib
             //+CRC
             //return new byte[] { C8KanalReceiverCommandCodes.cConnectToDevice, 0};
 
-            byte[] buf = new byte[] { C8KanalReceiverCommandCodes.cDeviceAlive, 0 };
-            buf[buf.Length - 1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            byte[] buf = [C8KanalReceiverCommandCodes.cDeviceAlive, 0];
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
 
@@ -260,8 +260,8 @@ namespace FeedbackDataLib
         public static byte[] ConnectSequToSend()
         {
             //{ 0x11, 0xFA, one byte, CRC};
-            byte[] buf = new byte[] { C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cConnectToDevice, 1, 0 };
-            buf[buf.Length - 1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            byte[] buf = [C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cConnectToDevice, 1, 0];
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
 
@@ -273,8 +273,8 @@ namespace FeedbackDataLib
             //return new byte[] { 0x7, 0xC0, 0x80, 0x82, C8KanalReceiverCommandCodes.cConnectToDevice, 0};
             //+ CRC
             //return new byte[] { C8KanalReceiverCommandCodes.cConnectToDevice, 0xE8 };
-            byte[] buf = new byte[] { C8KanalReceiverCommandCodes.cConnectToDevice, 0 };
-            buf[buf.Length - 1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            byte[] buf = [C8KanalReceiverCommandCodes.cConnectToDevice, 0];
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
 

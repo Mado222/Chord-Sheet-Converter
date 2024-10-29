@@ -1,4 +1,4 @@
-﻿using Math_Net_nuget;
+﻿using MathNetNuget;
 using System;
 using WindControlLib;
 using System.Collections.Generic;
@@ -32,7 +32,7 @@ namespace FeedbackDataLib
             {
             }
 
-            public CEEG_FrequencyRanges(string Name,double f_Low, double f_High, double Calibration_factor) : base(Name, f_Low, f_High, Calibration_factor)
+            public CEEG_FrequencyRanges(string Name, double f_Low, double f_High, double Calibration_factor) : base(Name, f_Low, f_High, Calibration_factor)
             {
             }
 
@@ -49,7 +49,7 @@ namespace FeedbackDataLib
             }
         }
 
-        private CFFT_MathNet FFT_MathNet;
+        private CFFTMathNet FFT_MathNet = new();
         public List<CEEG_FrequencyRanges> EEG_Bands;
 
         public DateTime dtLastFFT { get; set; } = DateTime.Now;
@@ -74,9 +74,9 @@ namespace FeedbackDataLib
 
         private void Init_CEEG_Spectrum(in CEEG_FrequencyRanges[] Frequ_Ranges)
         {
-            FFT_MathNet = new CFFT_MathNet();
+            FFT_MathNet = new CFFTMathNet();
             EEG_Bands = [];
-            for (int i = 0; i< Frequ_Ranges.Length; i++)
+            for (int i = 0; i < Frequ_Ranges.Length; i++)
             {
                 EEG_Bands.Add(Frequ_Ranges[i]);
             }
@@ -87,20 +87,20 @@ namespace FeedbackDataLib
         /// </summary>
         public void Process_Spectrum(double[] samples, double Sample_time_ms)
         {
-            FFT_MathNet.Data_x = new double[] { 0, (double)Sample_time_ms / 1000 }; //2 Werte genügen
+            FFT_MathNet.Data_x = [0, (double)Sample_time_ms / 1000]; //2 Werte genügen
             FFT_MathNet.Data_y = samples;
 
             if (Hanninng_Percentage != 0)
             {
-                FFT_MathNet.Hanning_Percent(Hanninng_Percentage, 0);
+                FFT_MathNet.HanningPercent(Hanninng_Percentage, 0);
             }
 
             FFT_MathNet.FFT();
 
             //Reset bands
             foreach (CEEG_FrequencyRanges cf in EEG_Bands) cf?.Reset();
-            double[] fftFrequ = FFT_MathNet.fftFrequ;
-            double[] fftRMS = FFT_MathNet.fftAmplitudeRMS; //Power [s^2/Hz]
+            double[] fftFrequ = FFT_MathNet.FftFrequ;
+            double[] fftRMS = FFT_MathNet.FftAmplitudeRMS; //Power [s^2/Hz]
 
             //Skip DC
             fftRMS[0] = 0;
@@ -131,14 +131,14 @@ namespace FeedbackDataLib
         public double[]? GetEEGSpectrum_1Hz_Steps(double[] samples, double Sample_time_ms)
         {
             if (dtLastFFT + new TimeSpan(0, 0, 2) < DateTime.Now)
-                Process_Spectrum (samples, Sample_time_ms);
-            
-            if (FFT_MathNet.fftFrequ != null)
+                Process_Spectrum(samples, Sample_time_ms);
+
+            if (FFT_MathNet.FftFrequ != null)
             {
                 double[] arr = new double[30];
 
-                double[] fftFrequ = FFT_MathNet.fftFrequ;
-                double[] fftRMS = FFT_MathNet.fftAmplitudeRMS; //- RMS!! not Power [s^2/Hz]
+                double[] fftFrequ = FFT_MathNet.FftFrequ;
+                double[] fftRMS = FFT_MathNet.FftAmplitudeRMS; //- RMS!! not Power [s^2/Hz]
 
                 double f, y;
                 int cnt_Steps = 0;

@@ -37,7 +37,7 @@ namespace Neuromaster_V5
 
         private void ctbSaving_ToState1(object sender, EventArgs e)
         {
-            OnStopSaving(); 
+            OnStopSaving();
         }
 
         private void ctbSaving_ToState2(object sender, EventArgs e)

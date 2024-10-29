@@ -1,7 +1,5 @@
-﻿using BMTCommunicationLib;
-using FTD2XX_NET;
+﻿using BMTCommunication;
 using System.IO.Ports;
-using System.Runtime.InteropServices;
 
 //using log4net;
 //using log4net.Config;
@@ -12,7 +10,7 @@ using WindControlLib;
 
 
 
-namespace BMTCommunication
+namespace BMTCommunicationLib
 {
     /************************************************************************************
      * ************************************************************************************
@@ -29,8 +27,8 @@ namespace BMTCommunication
     public class CFTDI_D2xx : ISerialPort, IDisposable
     {
         private readonly FTDI myFtdiDevice;
-        private FTDI.FT_DEVICE_INFO_NODE[] ftdiDeviceList;
-        private readonly CHighPerformanceDateTime hp_Timer;
+        private FTDI.FT_DEVICE_INFO_NODE[] ftdiDeviceList = [];
+        private readonly CHighPerformanceDateTime hp_Timer = new();
 
         /// <summary>
         /// log4net 
@@ -40,44 +38,31 @@ namespace BMTCommunication
         /// <summary>
         /// Object to lock myFtdiDevice
         /// </summary>
-        public readonly object FTDILock = new object();
-        //public readonly object FTDIWriteLock = new object();
-        //public readonly object FTDISettingsLock = new object();
+        public readonly object FTDILock = new();
 
-        private int _numDevices = -1;
         /// <summary>
         /// Number of devices detected
         /// </summary>
-        public int numDevices
-        {
-            get { return _numDevices; }
-        }
+        public int NumDevices { get; private set; } = -1;
+        public int IndexOfDeviceToOpen { get; set; } = -1;
 
 
-        private int _IndexOfDeviceToOpen=-1;
-        public int IndexOfDeviceToOpen
-        {
-            get { return _IndexOfDeviceToOpen; }
-            set { _IndexOfDeviceToOpen = value; }
-        }
-
-
-#region Device_Data
-        public string Description (int idx)
+        #region Device_Data
+        public string Description(int idx)
         {
             return ftdiDeviceList[idx].Description;
         }
 
-        public uint ID (int idx)
+        public uint ID(int idx)
         {
-            return ftdiDeviceList[idx].ID; 
+            return ftdiDeviceList[idx].ID;
         }
 
-        public string PID (int idx)
+        public string PID(int idx)
         {
             //0xvvvvpppp
             string PID = ftdiDeviceList[idx].ID.ToString("X8");
-            return PID.Substring(PID.Length - 4);
+            return PID[^4..];
         }
 
         public string VID(int idx)
@@ -99,15 +84,15 @@ namespace BMTCommunication
 
         public string RelatedCom(int idx)
         {
-            string ComPort="";
+            string ComPort = "";
             //FTDI.FT_STATUS stat= myFtdiDevice.GetCOMPort(out ComPort);
             List<CComPortInfo> ComPortInfo = CGetComPorts.GetComPortInfo(string.Empty, string.Empty, ftdiDeviceList[idx].SerialNumber);
 
             //Remove not active Ports from the List
-            List<string> ActiveComPorts = BMTCommunication.CGetComPorts.GetActiveComPorts(string.Empty);
+            List<string> ActiveComPorts = CGetComPorts.GetActiveComPorts(string.Empty);
             for (int i = ComPortInfo.Count - 1; i >= 0; i--)
             {
-                bool isActife=false;
+                bool isActife = false;
                 for (int j = 0; j < ActiveComPorts.Count; j++)
                 {
                     if (ComPortInfo[i].ComName == ActiveComPorts[j])
@@ -155,19 +140,16 @@ namespace BMTCommunication
         {
             return (FTDI_Types)ftdiDeviceList[idx].Type;
         }
-            
 
-#endregion Device_Data
+
+        #endregion Device_Data
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CFTDI_D2xx" /> class.
         /// </summary>
         public CFTDI_D2xx()
         {
-            if (myFtdiDevice == null)
-            {
-                myFtdiDevice = new FTDI();
-            }
+            myFtdiDevice ??= new FTDI();
 
             /*
             //Log4Net anlegen
@@ -191,7 +173,7 @@ namespace BMTCommunication
 
             hp_Timer = new CHighPerformanceDateTime();
 
-            
+
             /*
             //Code to implement OnReceive Event
             receivedDataEvent = new AutoResetEvent(false);
@@ -205,7 +187,7 @@ namespace BMTCommunication
         private string AdditionalFTDIInfo = "";
 #pragma warning restore IDE0052 // Remove unread private members
         private FTDI.FT_STATUS _ftStatus;
-        private FTDI.FT_STATUS ftStatus
+        private FTDI.FT_STATUS FtStatus
         {
             get
             {
@@ -225,17 +207,6 @@ namespace BMTCommunication
 #endif
             }
         }
-
-        /*
-        void dataReceivedHandler_DoWork(object sender, DoWorkEventArgs e)
-        {
-            while (!dataReceiveBackgroundWorker.CancellationPending)
-            {
-                // wait until event is fired
-                this.receivedDataEvent.WaitOne();
-                OnSerialDataReceived(this, null);
-            }
-        }*/
 
 
         /// <summary>
@@ -257,71 +228,71 @@ namespace BMTCommunication
             {
                 uint ftdiDeviceCount = 0;
                 FTDI.FT_STATUS ftStatustemp = FTDI.FT_STATUS.FT_OK;
-                ftStatus = FTDI.FT_STATUS.FT_OK;
+                FtStatus = FTDI.FT_STATUS.FT_OK;
                 ftdiDeviceList = [];
 
                 // Determine the number of FTDI devices connected to the machine
 #if DEBUG
                 AdditionalFTDIInfo = "GetNumberOfDevices";
 #endif
-                ftStatus = myFtdiDevice.GetNumberOfDevices(ref ftdiDeviceCount);
-                ftStatustemp = ftStatus;
+                FtStatus = myFtdiDevice.GetNumberOfDevices(ref ftdiDeviceCount);
+                ftStatustemp = FtStatus;
 
-/* ==== Folgendes macht keinen Sinn da dazu der Port offen sein muss
-#if DEBUG
-                AdditionalFTDIInfo = "GetCOMPort";
-#endif
-                string GetCOMPort = "";
-                ftStatus = myFtdiDevice.GetCOMPort(out GetCOMPort);
+                /* ==== Folgendes macht keinen Sinn da dazu der Port offen sein muss
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetCOMPort";
+                #endif
+                                string GetCOMPort = "";
+                                ftStatus = myFtdiDevice.GetCOMPort(out GetCOMPort);
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetDescription";
-#endif
-                string GetDescription = "";
-                ftStatus = myFtdiDevice.GetDescription(out GetDescription);
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetDescription";
+                #endif
+                                string GetDescription = "";
+                                ftStatus = myFtdiDevice.GetDescription(out GetDescription);
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetDeviceID";
-#endif
-                uint GetDeviceID = 0;
-                ftStatus = myFtdiDevice.GetDeviceID(ref GetDeviceID);
-                //FTDI.FT_DeviceType GetDeviceType;
-                //myFtdiDevice.GetDeviceType(ref GetDeviceType);
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetDeviceID";
+                #endif
+                                uint GetDeviceID = 0;
+                                ftStatus = myFtdiDevice.GetDeviceID(ref GetDeviceID);
+                                //FTDI.FT_DeviceType GetDeviceType;
+                                //myFtdiDevice.GetDeviceType(ref GetDeviceType);
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetDriverVersion";
-#endif
-                uint GetDriverVersion = 0;
-                ftStatus = myFtdiDevice.GetDriverVersion(ref GetDriverVersion);
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetDriverVersion";
+                #endif
+                                uint GetDriverVersion = 0;
+                                ftStatus = myFtdiDevice.GetDriverVersion(ref GetDriverVersion);
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetEventType";
-#endif
-                uint GetEventType = 0;
-                ftStatus = myFtdiDevice.GetEventType(ref GetEventType);
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetEventType";
+                #endif
+                                uint GetEventType = 0;
+                                ftStatus = myFtdiDevice.GetEventType(ref GetEventType);
 
-                int GetHashCode = myFtdiDevice.GetHashCode();
-                byte GetLineStatus = 0;
+                                int GetHashCode = myFtdiDevice.GetHashCode();
+                                byte GetLineStatus = 0;
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetLineStatus";
-#endif
-                ftStatus = myFtdiDevice.GetLineStatus(ref GetLineStatus);
-                byte GetModemStatus = 0;
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetLineStatus";
+                #endif
+                                ftStatus = myFtdiDevice.GetLineStatus(ref GetLineStatus);
+                                byte GetModemStatus = 0;
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetModemStatus";
-#endif
-                ftStatus = myFtdiDevice.GetModemStatus(ref GetModemStatus);
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetModemStatus";
+                #endif
+                                ftStatus = myFtdiDevice.GetModemStatus(ref GetModemStatus);
 
-#if DEBUG
-                AdditionalFTDIInfo = "GetSerialNumber";
-#endif
-                string GetSerialNumber;
-                ftStatus = myFtdiDevice.GetSerialNumber(out GetSerialNumber);
-*/
+                #if DEBUG
+                                AdditionalFTDIInfo = "GetSerialNumber";
+                #endif
+                                string GetSerialNumber;
+                                ftStatus = myFtdiDevice.GetSerialNumber(out GetSerialNumber);
+                */
                 // Check status
-                if ((ftStatustemp == FTDI.FT_STATUS.FT_OK) && ftdiDeviceCount > 0)
+                if (ftStatustemp == FTDI.FT_STATUS.FT_OK && ftdiDeviceCount > 0)
                 {
                     // Allocate storage for device info list
                     ftdiDeviceList = new FTDI.FT_DEVICE_INFO_NODE[ftdiDeviceCount];
@@ -331,15 +302,15 @@ namespace BMTCommunication
                     AdditionalFTDIInfo = "GetDeviceList";
 #endif
 
-                    ftStatus = myFtdiDevice.GetDeviceList(ftdiDeviceList);
+                    FtStatus = myFtdiDevice.GetDeviceList(ftdiDeviceList);
                 }
-                if (ftStatus != FTDI.FT_STATUS.FT_OK)
+                if (FtStatus != FTDI.FT_STATUS.FT_OK)
                 {
                     ftdiDeviceList = [];
                 }
 
-                _numDevices = ftdiDeviceList.Length;
-                return _numDevices;
+                NumDevices = ftdiDeviceList.Length;
+                return NumDevices;
             }
         }
 
@@ -371,7 +342,7 @@ namespace BMTCommunication
 #if DEBUG
             AdditionalFTDIInfo = "RestDevice";
 #endif
-            ftStatus = _ftStatus;
+            FtStatus = _ftStatus;
             return _ftStatus;
         }
 
@@ -391,7 +362,7 @@ namespace BMTCommunication
                 }
             }
 
-            ftStatus = _ftStatus;
+            FtStatus = _ftStatus;
             return _ftStatus;
         }
 
@@ -406,7 +377,7 @@ namespace BMTCommunication
                     //Wait for Device to reappear
                     if (_ftStatus == FTDI.FT_STATUS.FT_OK)
                     {
-                        TimeSpan ts = new TimeSpan(0, 0, 0, 8);
+                        TimeSpan ts = new(0, 0, 0, 8);
                         DateTime endoftrial = DateTime.Now + ts;
                         while (DateTime.Now < endoftrial)
                         {
@@ -424,7 +395,7 @@ namespace BMTCommunication
 #if DEBUG
             AdditionalFTDIInfo = "CyclePort";
 #endif
-            ftStatus = _ftStatus;
+            FtStatus = _ftStatus;
             return _ftStatus;
         }
 
@@ -437,50 +408,29 @@ namespace BMTCommunication
         public void Dispose()
         {
             Close();    //3rd Close
+            GC.SuppressFinalize(this); // Suppress the finalizer.
         }
 
-        public FTDI.FT_STATUS GetModemStatus (ref byte ModemStatus)
+        public FTDI.FT_STATUS GetModemStatus(ref byte ModemStatus)
         {
             lock (FTDILock)
             {
-                ftStatus = myFtdiDevice.GetModemStatus(ref ModemStatus);
+                FtStatus = myFtdiDevice.GetModemStatus(ref ModemStatus);
             }
 
-            return ftStatus;
+            return FtStatus;
         }
 
         #endregion
 
         #region ISerialPort Members
 
-        private string _PortName;
-        public string PortName
-        {
-            get
-            {
-                return _PortName;
-            }
-            set
-            {
-                _PortName=value;
-            }
-        }
+        public string PortName { get; set; } = "";
 
-        public int _BaudRate=0;
         /// <summary>
         /// Gets or sets the baud rate.
         /// </summary>
-        public int BaudRate
-        {
-            get
-            {
-                return _BaudRate;
-            }
-            set
-            {
-                _BaudRate = value;
-            }
-        }
+        public int BaudRate { get; set; } = 0;
 
         /// <summary>
         /// FTDI is open
@@ -509,37 +459,37 @@ namespace BMTCommunication
         {
             bool res = false;
             //lock (FTDISettingsLock)
-            lock(FTDILock)
+            lock (FTDILock)
             {
-                if (_IndexOfDeviceToOpen >= 0)
+                if (IndexOfDeviceToOpen >= 0)
                 {
 #if DEBUG
                     AdditionalFTDIInfo = "OpenByIndex";
 #endif
-                    ftStatus = myFtdiDevice.OpenByIndex((uint)_IndexOfDeviceToOpen);
-                    if (ftStatus == FTDI.FT_STATUS.FT_OK)
+                    FtStatus = myFtdiDevice.OpenByIndex((uint)IndexOfDeviceToOpen);
+                    if (FtStatus == FTDI.FT_STATUS.FT_OK)
                     {
                         if (SetTimeout())
                         {
 #if DEBUG
                             AdditionalFTDIInfo = "SetBaudRate";
 #endif
-                            ftStatus = myFtdiDevice.SetBaudRate((uint)_BaudRate);
+                            FtStatus = myFtdiDevice.SetBaudRate((uint)BaudRate);
 
                             //Params can be only set when Port is open
                             SetDataCharacteristics();
 
-                            if (Handshake == System.IO.Ports.Handshake.RequestToSend)
+                            if (Handshake == Handshake.RequestToSend)
                             {
                                 DtrEnable = true;   //Awake from Sleep 11.12.2012
                             }
 
-                            if (ftStatus == FTDI.FT_STATUS.FT_OK)
+                            if (FtStatus == FTDI.FT_STATUS.FT_OK)
                             {
 #if DEBUG
                                 AdditionalFTDIInfo = "SetResetPipeRetryCount";
 #endif
-                                ftStatus = myFtdiDevice.SetResetPipeRetryCount(10000);
+                                FtStatus = myFtdiDevice.SetResetPipeRetryCount(10000);
                                 res = true;
                             }
                             /*
@@ -566,13 +516,13 @@ namespace BMTCommunication
                 {
                     if (IsOpen)
                     {
-                        if (Handshake== System.IO.Ports.Handshake.RequestToSend)
+                        if (Handshake == Handshake.RequestToSend)
                             DtrEnable = false;   //Sleep 11.12.2012
                         //dataReceiveBackgroundWorker.CancelAsync();
 #if DEBUG
                         AdditionalFTDIInfo = "Close";
 #endif
-                        ftStatus= myFtdiDevice.Close();
+                        FtStatus = myFtdiDevice.Close();
                     }
                 }
             }
@@ -613,8 +563,8 @@ namespace BMTCommunication
 #if DEBUG
                 AdditionalFTDIInfo = "SetTimeouts";
 #endif
-                ftStatus = myFtdiDevice.SetTimeouts((uint)_ReadTimeout, (uint)_WriteTimeout);
-                if ((ftStatus == FTDI.FT_STATUS.FT_OK))
+                FtStatus = myFtdiDevice.SetTimeouts((uint)_ReadTimeout, (uint)_WriteTimeout);
+                if (FtStatus == FTDI.FT_STATUS.FT_OK)
                 {
                     ret = true;
                 }
@@ -622,8 +572,8 @@ namespace BMTCommunication
             return ret;
         }
 
-        public System.IO.Ports.StopBits _StopBits = System.IO.Ports.StopBits.One;
-        public System.IO.Ports.StopBits StopBits
+        public StopBits _StopBits = StopBits.One;
+        public StopBits StopBits
         {
             get
             {
@@ -636,8 +586,8 @@ namespace BMTCommunication
             }
         }
 
-        private System.IO.Ports.Parity _Parity = System.IO.Ports.Parity.None;
-        public System.IO.Ports.Parity Parity
+        private Parity _Parity = Parity.None;
+        public Parity Parity
         {
             get
             {
@@ -680,22 +630,22 @@ namespace BMTCommunication
                 byte ftparity = FTDI.FT_PARITY.FT_PARITY_NONE;
                 switch (_Parity)
                 {
-                    case System.IO.Ports.Parity.Even:
+                    case Parity.Even:
                         {
                             ftparity = FTDI.FT_PARITY.FT_PARITY_EVEN;
                             break;
                         }
-                    case System.IO.Ports.Parity.Mark:
+                    case Parity.Mark:
                         {
                             ftparity = FTDI.FT_PARITY.FT_PARITY_MARK;
                             break;
                         }
-                    case System.IO.Ports.Parity.Odd:
+                    case Parity.Odd:
                         {
                             ftparity = FTDI.FT_PARITY.FT_PARITY_ODD;
                             break;
                         }
-                    case System.IO.Ports.Parity.Space:
+                    case Parity.Space:
                         {
                             ftparity = FTDI.FT_PARITY.FT_PARITY_SPACE;
                             break;
@@ -705,15 +655,15 @@ namespace BMTCommunication
                 byte ftstop = FTDI.FT_STOP_BITS.FT_STOP_BITS_1;
                 switch (_StopBits)
                 {
-                    case System.IO.Ports.StopBits.None:
+                    case StopBits.None:
                         {
                             throw new Exception("None stopbits not allowed");
                         }
-                    case System.IO.Ports.StopBits.OnePointFive:
+                    case StopBits.OnePointFive:
                         {
                             throw new Exception("1.5 stopbits not allowed");
                         }
-                    case System.IO.Ports.StopBits.Two:
+                    case StopBits.Two:
                         {
                             ftstop = FTDI.FT_STOP_BITS.FT_STOP_BITS_2;
                             break;
@@ -725,13 +675,13 @@ namespace BMTCommunication
 #if DEBUG
                     AdditionalFTDIInfo = "SetDataCharacteristics";
 #endif
-                    ftStatus = myFtdiDevice.SetDataCharacteristics(ftdb, ftstop, ftparity);
+                    FtStatus = myFtdiDevice.SetDataCharacteristics(ftdb, ftstop, ftparity);
                 }
             }
         }
 
-        private System.IO.Ports.Handshake _Handshake = System.IO.Ports.Handshake.None;
-        public System.IO.Ports.Handshake Handshake
+        private Handshake _Handshake = Handshake.None;
+        public Handshake Handshake
         {
             get
             {
@@ -773,7 +723,7 @@ namespace BMTCommunication
 
                 if (IsOpen)
                 {
-                    ftStatus = myFtdiDevice.SetFlowControl(dtflow, 0, 0);
+                    FtStatus = myFtdiDevice.SetFlowControl(dtflow, 0, 0);
                 }
             }
         }
@@ -792,8 +742,8 @@ namespace BMTCommunication
 #if DEBUG
                     AdditionalFTDIInfo = "Read";
 #endif
-                    ftStatus = myFtdiDevice.Read(ReadBuffer, (uint)count, ref btRead);
-                    if ((ftStatus == FTDI.FT_STATUS.FT_OK) && (btRead == count))
+                    FtStatus = myFtdiDevice.Read(ReadBuffer, (uint)count, ref btRead);
+                    if (FtStatus == FTDI.FT_STATUS.FT_OK && btRead == count)
                     {
                         Buffer.BlockCopy(ReadBuffer, 0, buffer, offset, count);
                     }
@@ -810,11 +760,11 @@ namespace BMTCommunication
             DateTime Timeout = DateTime.Now + new TimeSpan(0, 0, 0, 0, WaitMax_ms);
             if (IsOpen)
             {
-                while (((IsOpen) && BytesToRead < count) && (DateTime.Now < Timeout))
+                while (IsOpen && BytesToRead < count && DateTime.Now < Timeout)
                 {
                     //Application.DoEvents();
                 }
-                if ((IsOpen) && (BytesToRead >= count))
+                if (IsOpen && BytesToRead >= count)
                 {
                     ret = Read(ref buffer, offset, count);
                 }
@@ -830,7 +780,7 @@ namespace BMTCommunication
 #if DEBUG
                 AdditionalFTDIInfo = "Purge RX";
 #endif
-                ftStatus = myFtdiDevice.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
+                FtStatus = myFtdiDevice.Purge(FTDI.FT_PURGE.FT_PURGE_RX);
             }
         }
 
@@ -842,7 +792,7 @@ namespace BMTCommunication
 #if DEBUG
                 AdditionalFTDIInfo = "Purge TX";
 #endif
-                ftStatus = myFtdiDevice.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
+                FtStatus = myFtdiDevice.Purge(FTDI.FT_PURGE.FT_PURGE_TX);
             }
         }
 
@@ -861,8 +811,8 @@ namespace BMTCommunication
 #if DEBUG
                     AdditionalFTDIInfo = "Write";
 #endif
-                    ftStatus = myFtdiDevice.Write(Outbuffer, count, ref numBytesWritten);
-                    if ((ftStatus == FTDI.FT_STATUS.FT_OK) && (numBytesWritten == count))
+                    FtStatus = myFtdiDevice.Write(Outbuffer, count, ref numBytesWritten);
+                    if (FtStatus == FTDI.FT_STATUS.FT_OK && numBytesWritten == count)
                         ret = true;
                 }
                 return ret;
@@ -881,20 +831,20 @@ namespace BMTCommunication
 #endif
                     if (myFtdiDevice.IsOpen)
                     {
-                        ftStatus = myFtdiDevice.GetRxBytesAvailable(ref bt);
+                        FtStatus = myFtdiDevice.GetRxBytesAvailable(ref bt);
                     }
                     else
                     {
                         bt = 0;
                     }
                 }
-                return (int) bt;
+                return (int)bt;
             }
         }
 
         public bool RtsEnable
         {
-            get { throw new NotImplementedException (); }
+            get { throw new NotImplementedException(); }
             set
             {
                 lock (FTDILock)
@@ -902,7 +852,7 @@ namespace BMTCommunication
 #if DEBUG
                     AdditionalFTDIInfo = "SetRTS";
 #endif
-                    ftStatus= myFtdiDevice.SetRTS(value);
+                    FtStatus = myFtdiDevice.SetRTS(value);
                 }
             }
         }
@@ -919,7 +869,7 @@ namespace BMTCommunication
 #endif
                     if (IsOpen)
                     {
-                        ftStatus = myFtdiDevice.SetDTR(value);
+                        FtStatus = myFtdiDevice.SetDTR(value);
                     }
                 }
             }
@@ -930,14 +880,14 @@ namespace BMTCommunication
             get { throw new NotImplementedException(); }
         }
 
-        public event System.IO.Ports.SerialDataReceivedEventHandler SerialDataReceivedEvent;
+        public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
         protected virtual void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialDataReceivedEvent?.Invoke(this, e);
         }
 
 
-        private string _LastErrorString="";
+        private string _LastErrorString = "";
         public string LastErrorString
         {
             get { return _LastErrorString; }

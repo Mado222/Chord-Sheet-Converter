@@ -71,7 +71,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override enModuleTestResult isModule_OK()
         {
-            CEMG_Read_NM_base emgbase = new CEMG_Read_NM_base(_FY6900);
+            CEMG_Read_NM_base emgbase = new(_FY6900);
             emgbase.AllResults = AllResults;
             emgbase.AgainValues = AgainValues;
             emgbase.my_name = my_name;

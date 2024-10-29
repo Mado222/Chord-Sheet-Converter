@@ -16,13 +16,13 @@
                 "Atem-Amplitude [1]",
                 "Atem-Unused"
                 ];
-            cSWChannelTypes = new enumSWChannelType[]
-            {
+            cSWChannelTypes =
+            [
                 enumSWChannelType.cSWChannelTypeAtem0,
                 enumSWChannelType.cSWChannelTypeAtem1,
                 enumSWChannelType.cSWChannelTypeAtem2,
                 enumSWChannelType.cSWChannelTypeAtem3
-            };
+            ];
         }
     }
 }

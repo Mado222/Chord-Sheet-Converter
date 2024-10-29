@@ -25,8 +25,8 @@ namespace XBeeLib
                                     "New Node-Identifier-String is not adequate"};
          */
 
-                                //XBSetLastError(4);
-                        //_Error.SetError_CommandModeFailed();
+        //XBSetLastError(4);
+        //_Error.SetError_CommandModeFailed();
 
 
         /// <summary>
@@ -36,45 +36,65 @@ namespace XBeeLib
         {
             get
             {
-                ResourceManager rm = new ResourceManager("XBeeLib.Error", Assembly.GetExecutingAssembly());
+                ResourceManager rm = new("XBeeLib.Error", Assembly.GetExecutingAssembly());
+                string? errorString = null;
+
                 switch (Math.Abs(_Last_ErrorNo))
                 {
                     case 0:
-                        return rm.GetString("err_NoError");
+                        errorString = rm.GetString("err_NoError");
+                        break;
                     case 1:
-                        return rm.GetString("err_NoRemoteDevice");
+                        errorString = rm.GetString("err_NoRemoteDevice");
+                        break;
                     case 2:
-                        return rm.GetString("err_PortCannotBeReopened");
+                        errorString = rm.GetString("err_PortCannotBeReopened");
+                        break;
                     case 3:
-                        return rm.GetString("err_XBeeError");
+                        errorString = rm.GetString("err_XBeeError");
+                        break;
                     case 4:
-                        return rm.GetString("err_MoreThan1XBee");
+                        errorString = rm.GetString("err_MoreThan1XBee");
+                        break;
                     case 5:
-                        return rm.GetString("err_SPReadTimeout");
+                        errorString = rm.GetString("err_SPReadTimeout");
+                        break;
                     case 6:
-                        return rm.GetString("err_Checksum");
+                        errorString = rm.GetString("err_Checksum");
+                        break;
                     case 7:
-                        return rm.GetString("err_noOKAT");
+                        errorString = rm.GetString("err_noOKAT");
+                        break;
                     case 8:
-                        return rm.GetString("err_NoCorrespondingResponse");
+                        errorString = rm.GetString("err_NoCorrespondingResponse");
+                        break;
                     case 9:
-                        return rm.GetString("err_CommandModeFailed");
+                        errorString = rm.GetString("err_CommandModeFailed");
+                        break;
                     case 10:
-                        return rm.GetString("err_ATErrorStatus");
+                        errorString = rm.GetString("err_ATErrorStatus");
+                        break;
                     case 11:
-                        return rm.GetString("err_ATInvalidCommand");
+                        errorString = rm.GetString("err_ATInvalidCommand");
+                        break;
                     case 12:
-                        return rm.GetString("err_ATInvalidParam");
+                        errorString = rm.GetString("err_ATInvalidParam");
+                        break;
                     case 13:
-                        return rm.GetString("err_LocalDevNotInApi");
+                        errorString = rm.GetString("err_LocalDevNotInApi");
+                        break;
                     case 14:
-                        return rm.GetString("err_ATNoResponse");
+                        errorString = rm.GetString("err_ATNoResponse");
+                        break;
                     case 15:
-                        return rm.GetString("err_NoAssociationResponse");
+                        errorString = rm.GetString("err_NoAssociationResponse");
+                        break;
                     case 16:
-                        return rm.GetString("err_NodeIdentifierString");
+                        errorString = rm.GetString("err_NodeIdentifierString");
+                        break;
                 }
-                return "No Error string available";
+
+                return errorString ?? "No error string found";
             }
         }
 

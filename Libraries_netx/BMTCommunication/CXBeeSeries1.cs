@@ -20,7 +20,15 @@ namespace BMTCommunication
     /// Transparent / AT Mode
     /// API Mode
     /// </remarks>
-    public class CXBeeSeries1: IDisposable
+    /// <remarks>
+    /// Constructor
+    /// </remarks>
+    /// <remarks>
+    /// inits the private members of this class
+    /// sets the CC, GT, NT to default values
+    /// </remarks>
+    /// <param name="SerialPort">serial port</param>
+    public class CXBeeSeries1(ISerialPort SerialPort) : IDisposable
     {
         /// <summary>
         /// log4net 
@@ -30,59 +38,29 @@ namespace BMTCommunication
         /// <summary>
         /// Experimental evaluated Timeout for XBGetResponse
         /// </summary>
-        private static readonly int Timeout_ms= 500;
-        
+        private static readonly int Timeout_ms = 500;
+
         /// <summary>
         /// Open Serial Port Connection
         /// </summary>
-        public ISerialPort Seriell32;
-        
+        public ISerialPort Seriell32 = SerialPort;
+
         /// <summary>
         /// Time at which Command Mode was entered
         /// </summary>
-        private DateTime TimeSentCommandString;
-        
+        private DateTime TimeSentCommandString = DateTime.MinValue;
+
         /// <summary>
         /// Time after XB module leaves automatically command mode
         /// </summary>
         /// <remarks>Read in XBEnterCommanMode see "ATCT" Command</remarks>
         private TimeSpan TimeoutCommandMode;
 
-        /// <summary>
-        /// stores the configuration of the local device
-        /// </summary>
-        /// <remarks>
-        /// to ensure that always the right configuration of the local device is stored, please use the getter-methode 
-        /// for the local-device-configuration
-        /// </remarks>
-        private CXBNodeInformation _LocalDevice;
-        public CXBNodeInformation LocalDevice
-        {
-            get { return _LocalDevice; }
-            set { _LocalDevice = value; }
-        }
+        public CXBNodeInformation? LocalDevice { get; set; } = new CXBNodeInformation();
+        public CXBNodeInformation? CurrentEndDevice { get; set; } = new CXBNodeInformation();
+        public bool DisplayMessages { get; set; } = false;
 
-        /// <summary>
-        /// stores the configuration of the current end device you want to config
-        /// </summary>
-        private CXBNodeInformation _CurrentEndDevice;
-        public CXBNodeInformation CurrentEndDevice
-        {
-            get { return _CurrentEndDevice; }
-            set { _CurrentEndDevice = value; }
-        }
-
-        /// <summary>
-        /// Message Boxes are displayed during Device pairing
-        /// </summary>
-        private bool _DisplayMessages = false;
-        public bool DisplayMessages
-        {
-            get { return _DisplayMessages; }
-            set { _DisplayMessages = value; }
-        }
-
-        private const string MessageBoxCaption = "XBee Error";
+        //private const string MessageBoxCaption = "XBee Error";
 
         /// <summary>
         /// commom sequence character
@@ -90,23 +68,23 @@ namespace BMTCommunication
         /// <remarks>
         /// please be careful if you change this register
         /// </remarks>
-        private char _CommonSequenceCharacter;
-        
+        private char _CommonSequenceCharacter = '+';
+
         /// <summary>
         /// guard times
         /// </summary>
         /// <remarks>
         /// please be careful if you change this register
         /// </remarks>
-        private ushort _GuardTimes;
-        
+        private ushort _GuardTimes = 0x3E8;
+
         /// <summary>
         /// node discover time
         /// </summary>
         /// <remarks>
         /// please be careful if you change this register
         /// </remarks>
-        private byte _NodeDiscoverTime;
+        private byte _NodeDiscoverTime = 0x19;
 
         /// <summary>
         /// returns the enter command mode string (default: +++)
@@ -119,41 +97,12 @@ namespace BMTCommunication
                 _CommonSequenceCharacter.ToString();
         }
 
-        /// <summary>
-        /// discovered enddevices (after executing)an node discover commands
-        /// </summary>
-        private List<CXBNodeInformation> _DiscoveredEndDevices;
-        public List<CXBNodeInformation> DiscoveredEndDevices
-        {
-            get { return _DiscoveredEndDevices; }
-            private set { _DiscoveredEndDevices = value; }
-        }
+        public List<CXBNodeInformation> DiscoveredEndDevices { get; private set; } = [];
 
         /// <summary>
         /// error class
         /// </summary>
-        private readonly CXBError _Error;
-        
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <remarks>
-        /// inits the private members of this class
-        /// sets the CC, GT, NT to default values
-        /// </remarks>
-        /// <param name="SerialPort">serial port</param>
-        public CXBeeSeries1(ISerialPort SerialPort)
-        {
-            this.Seriell32 = SerialPort;
-            //BaudRate_Default = (uint) SerialPort.BaudRate;
-            _Error = new CXBError();
-            _CommonSequenceCharacter = '+';
-            _GuardTimes = 0x3E8;
-            _NodeDiscoverTime = 0x19;
-            _LocalDevice = new CXBNodeInformation();
-            _CurrentEndDevice = new CXBNodeInformation();
-            _DiscoveredEndDevices = new List<CXBNodeInformation>();
-        }
+        private readonly CXBError _Error = new ();
 
         #region IDisposable Members
         public void Dispose()
@@ -194,7 +143,7 @@ namespace BMTCommunication
         {
             Seriell32.DtrEnable = true;
             Thread.Sleep(_GuardTimes);         //last version: Thread.Sleep(1000);
-            
+
             //Switch to Command Mode
             XBSendString(XBGetEnterCommandModeString());      //last version: XBSendString(CXBATCommands.XBAT_EnterCommandMode);
 
@@ -211,7 +160,7 @@ namespace BMTCommunication
                 //if (logger.IsInfoEnabled) logger.Info("checking the baudrate successfully finished");
                 return ret;
             }
-            else 
+            else
             {
                 //if (logger.IsInfoEnabled) logger.Info("checking the baudrate not successfully finished or wrong baudrate");
                 return ret;
@@ -242,7 +191,7 @@ namespace BMTCommunication
 
                     //Wait at least one second (no chars may be transmitted)
                     Thread.Sleep(_GuardTimes);
-                    
+
                     //Switch to Command Mode
                     XBSendString(XBGetEnterCommandModeString());      //last version: XBSendString(CXBATCommands.XBAT_EnterCommandMode);
 
@@ -252,12 +201,12 @@ namespace BMTCommunication
                     //No characters sent for one second [GT (Guard Times) parameter = 0x3E8]
                     Thread.Sleep(_GuardTimes);
 
-                    if (ret>0)
+                    if (ret > 0)
                     {
                         //get CommandModeTimeout
                         XBSendString(CXBATCommands.XBAT_GetCommandModeTimeout);
                         string s = XBGetString(1000);
-                        if(s != null)
+                        if (s != null)
                         {
                             int ms = CMyConvert.HexStringToInt(s) * 100; //[ms]
                             TimeoutCommandMode = new TimeSpan(0, 0, 0, 0, ms);
@@ -292,10 +241,10 @@ namespace BMTCommunication
         public int XBLeaveCommandMode()                            // last version: private bool XBLeaveCommandMode()
         {
             //if (logger.IsInfoEnabled) logger.Info("Leaving the command mode...");
-            if (XBCheckCommandMode(false)>0)
+            if (XBCheckCommandMode(false) > 0)
             {
                 int res = XBSendString_CheckOKResponse(CXBATCommands.XBAT_ExitCommandMode); //vorher bool res
-                if (res>0)
+                if (res > 0)
                 {
                     TimeoutCommandMode = new TimeSpan(0, 0, 0, 0, 0); // reset
                     //if (logger.IsInfoEnabled) logger.Info("Command mode successfully left");
@@ -402,8 +351,8 @@ namespace BMTCommunication
         {
             //if (logger.IsInfoEnabled) logger.Info("Getting the string through serial port...");
             string s = string.Empty;
-            
-            List<byte> bt = new List<byte>();
+
+            List<byte> bt = new();
             byte[] inBuf = new byte[1];
             bool finished = false;
             int numberByteRead;
@@ -415,7 +364,7 @@ namespace BMTCommunication
                 else
                     finished = true;
             }
-            while (!finished && numberByteRead>0);
+            while (!finished && numberByteRead > 0);
             if (numberByteRead <= 0)
             {
                 //XBSetLastError(1);
@@ -423,10 +372,10 @@ namespace BMTCommunication
                 //if (logger.IsInfoEnabled) logger.Info("Getting the string through serial port not successfully finished");
                 return null;
             }
-            
+
             if (bt.Count > 0)
             {
-                s = WindControlLib.CMyConvert.ByteArraytoString(bt.ToArray());
+                s = WindControlLib.CMyConvert.ByteArraytoString([.. bt]);
             }
 
             //if (logger.IsDebugEnabled) logger.Debug("'" + s + "'" + " received");
@@ -475,7 +424,7 @@ namespace BMTCommunication
             if (numberReadByte == 0)
             {
                 _Error.SetError_SPReadTimeout();
-                 return null;
+                return null;
             }
             uint ulength = (ushort)CMyConvert.FromUIntBytestoUInt(inBuf[1], inBuf[0]);
 
@@ -521,8 +470,8 @@ namespace BMTCommunication
                 default:
                     break;
             }
-            
-            List<byte> byteList = new List<byte>(frameData);
+
+            List<byte> byteList = new(frameData);
 
             response.initResponse(byteList);
 
@@ -533,14 +482,14 @@ namespace BMTCommunication
                 _Error.SetError_SPReadTimeout();
                 return null;
             }
-            byte checksum_fd= inBuf[0];
-            checksum_fd += (byte)APIdentifier;
+            byte checksum_fd = inBuf[0];
+            checksum_fd += APIdentifier;
             for (int i = 0; i < frameData.Length; i++)
             {
                 checksum_fd += frameData[i];
             }
 
-            if (checksum_fd== 0xff)
+            if (checksum_fd == 0xff)
             {
                 return response;
             }
@@ -592,7 +541,7 @@ namespace BMTCommunication
         /// MY-Address (in 64bit-format) of Node: if MY-Address of wanted node is set lower than 0xFFFF
         /// UInt64.MaxValue, if an error occurs or node with given Node-Identifier not found
         /// </returns>
-        public ulong XBGetSerialNumberOfNode(string NodeIdentifier) 
+        public ulong XBGetSerialNumberOfNode(string NodeIdentifier)
         {
             string s;
             if (XBCheckCommandMode(true) > 0)
@@ -672,8 +621,8 @@ namespace BMTCommunication
         /// </summary>
         public List<CXBNodeInformation> XBNodeDiscoverAPI2()
         {
-            List<CXBNodeInformation> NodeInfos = new List<CXBNodeInformation>();
-            if (XBCheckCommandMode(true)==1)
+            List<CXBNodeInformation> NodeInfos = new();
+            if (XBCheckCommandMode(true) == 1)
             {
                 //Send ATND Command
                 Thread.Sleep(100);
@@ -683,7 +632,7 @@ namespace BMTCommunication
 
                 while (s != "")
                 {
-                    CXBNodeInformation NodeInfo = new CXBNodeInformation
+                    CXBNodeInformation NodeInfo = new()
                     {
                         MY_MyAddress = Convert.ToUInt16(s, 16),
                         SH_SerialNumberHigh = Convert.ToUInt32(XBGetString(1000), 16),
@@ -700,7 +649,7 @@ namespace BMTCommunication
             }
             return NodeInfos;
         }
-        
+
         /// <summary>
         /// Local Device commits a node discover
         /// </summary>
@@ -713,9 +662,9 @@ namespace BMTCommunication
         {
             //if (logger.IsInfoEnabled) logger.Info("Discover available nodes...");
 
-            int NTmsec = (int)_NodeDiscoverTime * 100 + 300;                //+300ms tolerance
+            int NTmsec = _NodeDiscoverTime * 100 + 300;                //+300ms tolerance
 
-            List<CXBNodeInformation> NodeInfos = new List<CXBNodeInformation>();
+            List<CXBNodeInformation> NodeInfos = new();
 
             if (LocalDevice.APIMode == XBAPIMode.Disabled)
             {
@@ -725,7 +674,7 @@ namespace BMTCommunication
                 return null;
             }
 
-            CATCommand request = new CATCommand
+            CATCommand request = new()
             {
                 ATCommand = CXBATCommands.XBAT_NodeDiscover,
                 ATCommandResponse = true
@@ -733,12 +682,12 @@ namespace BMTCommunication
             CATCommandResponse? response = (CATCommandResponse)XBSendRequest(request, NTmsec);   // last version: CATCommandResponse response = (CATCommandResponse)XBSendRequest(request, 3000);
             if (response != null)
             {
-                List<byte> listOfByte = new List<byte>(response.valueOfCommand);
+                List<byte> listOfByte = new(response.valueOfCommand);
                 List<byte>.Enumerator listEnum = listOfByte.GetEnumerator();
 
                 while (listEnum.MoveNext())
                 {
-                    CXBNodeInformation NodeInfo = new CXBNodeInformation();
+                    CXBNodeInformation NodeInfo = new();
 
                     //Read My Address
                     byte[] be = new byte[2];
@@ -770,7 +719,7 @@ namespace BMTCommunication
                     //Read Rec Signal Strength
                     NodeInfo.RecSignalStrength = listEnum.Current;
 
-                    List<byte> helpList = new List<byte>();
+                    List<byte> helpList = new();
                     while (listEnum.MoveNext() && listEnum.Current != 0x00)
                     {
                         helpList.Add(listEnum.Current);
@@ -881,7 +830,7 @@ namespace BMTCommunication
         private int XBWrite_to_nonvolatilememory()
         {
             //if (logger.IsInfoEnabled) logger.Info("Sending WRITE-message for writing changes to nonvolatile memory...");
-            if (XBCheckCommandMode(true)>0)
+            if (XBCheckCommandMode(true) > 0)
             {
                 return XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory);
             }
@@ -904,21 +853,21 @@ namespace BMTCommunication
         public int XBSetSerialPort2LocalDevice(uint BaudRate, System.IO.Ports.Parity parity)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting the serial port configuration of the local device...");
-            if (XBCheckCommandMode(true)>0)
+            if (XBCheckCommandMode(true) > 0)
             {
-                if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_SetBaudRate(BaudRate))>0)
+                if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_SetBaudRate(BaudRate)) > 0)
                 {
                     if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_SetParity(parity)) > 0)
                     {
-                        if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory)>0)
+                        if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory) > 0)
                         {
                             //if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_ApplyChanges) > 0) // not neccassary if WR+CN was sent
                             //{
-                                XBLeaveCommandMode();
-                                Seriell32.BaudRate = (int)BaudRate;
-                                Seriell32.Parity = parity;
-                                //if (logger.IsInfoEnabled) logger.Info("Setting the serial port configuration of the local device successfully finished");
-                                return 1;
+                            XBLeaveCommandMode();
+                            Seriell32.BaudRate = (int)BaudRate;
+                            Seriell32.Parity = parity;
+                            //if (logger.IsInfoEnabled) logger.Info("Setting the serial port configuration of the local device successfully finished");
+                            return 1;
                             //}
                         }
                     }
@@ -970,7 +919,7 @@ namespace BMTCommunication
         {
             //if (logger.IsInfoEnabled) logger.Info("Connect to local device and read configuration...");
 
-            if (XBCheckCommandMode(true)>0)
+            if (XBCheckCommandMode(true) > 0)
             {
                 XBSendString(CXBATCommands.XBAT_GetMyAddress);
                 string? s = XBGetString(1000);
@@ -1238,7 +1187,7 @@ namespace BMTCommunication
                     return res;
             }
             return -1;
-            
+
         }
 
         /// <summary>
@@ -1272,7 +1221,7 @@ namespace BMTCommunication
             {
                 //if (logger.IsInfoEnabled) logger.Info("Register of local device not successfully set");
             }
-                return res;
+            return res;
         }
 
         /// <summary>
@@ -1286,7 +1235,7 @@ namespace BMTCommunication
         private int XBSendSetCommand2LocalDeviceAPIMode(string ATCommand)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting a register on local device in API-mode...");
-            CATCommand request = new CATCommand
+            CATCommand request = new()
             {
                 ATCommandResponse = true,
                 ATCommand = ATCommand
@@ -1338,25 +1287,25 @@ namespace BMTCommunication
         private int XBSendSetCommand2LocalDeviceCMDMode(string ATCommand)
         {
             //if (logger.IsInfoEnabled) logger.Info("Setting a register on local device in command-mode...");
-            if (XBCheckCommandMode(true)>0)
+            if (XBCheckCommandMode(true) > 0)
             {
-                if (XBSendString_CheckOKResponse(ATCommand)>0)
+                if (XBSendString_CheckOKResponse(ATCommand) > 0)
                 {
-                    if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory)>0)
+                    if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory) > 0)
                     {
                         //if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_ApplyChanges) > 0) // not neccessary if WR+CN was sent
                         //{
 
-                            XBLeaveCommandMode();
-                            CModemStatus response = (CModemStatus)XBGetResponse(); //waits for ModemStatus for 500msec.
-                            if (response != null)
-                            {
-                                //if (logger.IsInfoEnabled) logger.Info("Register of local device successfully set");
-                                return (int)response.modemStatus;
-                            }
-                            //if (logger.IsInfoEnabled) logger.Info("Last timeout could be a result of not receiving any modem-status response, which is only sending while specific conditions");
+                        XBLeaveCommandMode();
+                        CModemStatus response = (CModemStatus)XBGetResponse(); //waits for ModemStatus for 500msec.
+                        if (response != null)
+                        {
                             //if (logger.IsInfoEnabled) logger.Info("Register of local device successfully set");
-                            return 1;
+                            return (int)response.modemStatus;
+                        }
+                        //if (logger.IsInfoEnabled) logger.Info("Last timeout could be a result of not receiving any modem-status response, which is only sending while specific conditions");
+                        //if (logger.IsInfoEnabled) logger.Info("Register of local device successfully set");
+                        return 1;
                         //}
                     }
                 }
@@ -1530,7 +1479,7 @@ namespace BMTCommunication
                 return -1;
             }
 
-            CRemoteATCommandRequest remoteCommand = new CRemoteATCommandRequest
+            CRemoteATCommandRequest remoteCommand = new()
             {
                 ApplyChangesOnRemote = true,
                 ATCommandResponse = true,
@@ -1553,10 +1502,10 @@ namespace BMTCommunication
                         return 1;
                     }
                 }
-                while(response!=null && response.status==RXCommandResponseStatus.NoResponse); 
+                while (response != null && response.status == RXCommandResponseStatus.NoResponse);
                 //until API-packet with WR-command returns a "No response" 
             }
-            
+
             if (response == null)
             {
                 //if (logger.IsInfoEnabled) logger.Info("Setting the A1-register not successfully finished");
@@ -1600,7 +1549,7 @@ namespace BMTCommunication
                 return -1;
             }*/
 
-            CRemoteATCommandRequest remoteCommand = new CRemoteATCommandRequest
+            CRemoteATCommandRequest remoteCommand = new()
             {
                 ApplyChangesOnRemote = false,     //!!!! must be set for the last Command!!!!!
                 ATCommandResponse = true,
@@ -1777,7 +1726,7 @@ namespace BMTCommunication
                 return null;
             }
 
-            CRemoteATCommandRequest remoteCommand = new CRemoteATCommandRequest
+            CRemoteATCommandRequest remoteCommand = new()
             {
                 ApplyChangesOnRemote = false,
                 ATCommandResponse = true,
@@ -1811,7 +1760,7 @@ namespace BMTCommunication
                             CurrentEndDevice.SH_SerialNumberHigh = ((uint)response.valueOfCommand[0]) << 24;
                             CurrentEndDevice.SH_SerialNumberHigh += ((uint)response.valueOfCommand[1]) << 16;
                             CurrentEndDevice.SH_SerialNumberHigh += ((uint)response.valueOfCommand[2]) << 8;
-                            CurrentEndDevice.SH_SerialNumberHigh += ((uint)response.valueOfCommand[3]);
+                            CurrentEndDevice.SH_SerialNumberHigh += response.valueOfCommand[3];
                         }
                         //Get SL
                         remoteCommand.ATCommand = CXBATCommands.XBAT_GetSerialNumberL;
@@ -1823,7 +1772,7 @@ namespace BMTCommunication
                                 CurrentEndDevice.SL_SerialNumberLow = ((uint)response.valueOfCommand[0]) << 24;
                                 CurrentEndDevice.SL_SerialNumberLow += ((uint)response.valueOfCommand[1]) << 16;
                                 CurrentEndDevice.SL_SerialNumberLow += ((uint)response.valueOfCommand[2]) << 8;
-                                CurrentEndDevice.SL_SerialNumberLow += ((uint)response.valueOfCommand[3]);
+                                CurrentEndDevice.SL_SerialNumberLow += response.valueOfCommand[3];
                             }
 
                             //Get CE
@@ -2115,7 +2064,7 @@ namespace BMTCommunication
             {
                 //Todo: Seriell32 bedient jetzt die DTR Leitung ... sollte aber nicht sein!!!
                 //sollte auf open und close in CXBee connection zugreifen
-                
+
                 if (!Seriell32.IsOpen) Seriell32.Open();
                 if (Seriell32.IsOpen)
                 {
@@ -2192,7 +2141,7 @@ namespace BMTCommunication
                     }
                 }
 
-                if (Seriell32.IsOpen) 
+                if (Seriell32.IsOpen)
                     Seriell32.Close();
                 return ret;
             }
@@ -2209,7 +2158,7 @@ namespace BMTCommunication
             bool ret = false;
             //Just ckeck parameters currently relevant
             XBGetConfigurationOfLocalDevice();  //ToDo: notwendig?
-            CXBNodeInformation NILocal = (CXBNodeInformation)this.LocalDevice.Clone();
+            CXBNodeInformation NILocal = (CXBNodeInformation)LocalDevice.Clone();
             NILocal.UpdateIfNotDefault(LocalDeviceConfiguration);
 
             if (NILocal.CompareTo(LocalDevice) != 0)
@@ -2257,13 +2206,13 @@ namespace BMTCommunication
             if (!Seriell32.IsOpen) Seriell32.Open();
             List<CXBNodeInformation> NodeInfos = XBNodeDiscoverAPI();
 
-            
+
             if ((NodeInfos == null) || (NodeInfos.Count == 0))
             {
                 _Error.SetError_NoRemoteDevice();    //Error
                 //if (logger.IsInfoEnabled) logger.Info(_Error.LastError_String);
                 if (DisplayMessages)
-                {       
+                {
                     //MessageBox.Show(_Error.LastError_String, MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
@@ -2273,7 +2222,7 @@ namespace BMTCommunication
                 ulong DestinationAddress64 = NodeInfos[0].SerialNumber;
 
                 //Only One remote device in Range, configure it
-                CRemoteATCommandRequest remoteCommand = new CRemoteATCommandRequest
+                CRemoteATCommandRequest remoteCommand = new()
                 {
                     ApplyChangesOnRemote = false,     //!!!! must be set for the last Command!!!!!
                     ATCommandResponse = true,
@@ -2283,7 +2232,7 @@ namespace BMTCommunication
                 CXBNodeInformation remoteDevice = XBGetConfigurationOfRemoteDevice(DestinationAddress64);
                 if (remoteDevice != null)
                 {
-                    CXBNodeInformation def = new CXBNodeInformation(); //(CXBNodeInformation)remoteDevice.Clone();
+                    CXBNodeInformation def = new(); //(CXBNodeInformation)remoteDevice.Clone();
                     def.UpdateIfNotDefault(RemoteDeviceDefault_Configuration);
                     def.BaudRate = RemoteDeviceDefault_Configuration.BaudRate;  //Assuemes that there a default values stored in it 
                     def.DestinationAddress = LocalDevice.SerialNumber;
@@ -2340,7 +2289,7 @@ namespace BMTCommunication
         private bool Search4LocalXBeeModule()
         {
             bool ret = false;
-            int[] baudrateOptions = { 250000, 9600, 115200, 19200, 38400, 57600 };
+            int[] baudrateOptions = [250000, 9600, 115200, 19200, 38400, 57600];
             //int[] baudrateOptions = { 115200, 250000 };
 
             //get some available COM-Ports found based on the passed search string
@@ -2408,7 +2357,7 @@ namespace BMTCommunication
                 }
             }
 
-            Seriell32.Handshake= Handshake_prev; 
+            Seriell32.Handshake = Handshake_prev;
             return ret;
         }
 
@@ -2481,6 +2430,6 @@ namespace BMTCommunication
             }
             return ret;
         }*/
-       
+
     }
 }

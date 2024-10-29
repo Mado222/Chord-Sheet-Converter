@@ -38,10 +38,10 @@ namespace FeedbackDataLib
             "Ratio_Theta_LowBeta_Beta"
         ];
 
-        private string[] get_Channel_Shortnames ()
+        private string[] Get_Channel_Shortnames()
         {
             List<string> ret = [];
-            for (int i=0; i<EEG_FrequencyRanges.Length; i++)
+            for (int i = 0; i < EEG_FrequencyRanges.Length; i++)
             {
                 ret.Add(EEG_FrequencyRanges[i].Name);
             }
@@ -49,19 +49,19 @@ namespace FeedbackDataLib
             {
                 ret.Add(EEGCalcParams[i]);
             }
-            return ret.ToArray();
+            return [.. ret];
         }
 
         public CEEGCalcChannels()
         {
             EEG_SWChannels = [];
-            update_idx(0);
+            Update_idx(0);
         }
 
-        public void update_idx(int offset)
+        public void Update_idx(int offset)
         {
             EEG_SWChannels.Clear();
-            string[] sn = get_Channel_Shortnames();
+            string[] sn = Get_Channel_Shortnames();
             for (int i = 0; i < sn.Length; i++)
             {
                 EEG_SWChannels.Add((i + offset, sn[i], sn[i] + " [Veff]"));

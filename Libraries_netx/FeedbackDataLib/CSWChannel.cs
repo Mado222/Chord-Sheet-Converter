@@ -35,9 +35,9 @@ namespace FeedbackDataLib
 
         public CSWConfigValues SWChannelConfig = new();
 
-        public CSWConfigValues GetUserChangableValues ()
+        public CSWConfigValues GetUserChangableValues()
         {
-            return (CSWConfigValues) SWChannelConfig.Clone();
+            return (CSWConfigValues)SWChannelConfig.Clone();
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Gets the AD-uref
         /// </summary>
-        public double uref
+        public double Uref
         {
             set => SWChannelInfo.uref = value;
             get => SWChannelInfo.uref;
@@ -205,10 +205,11 @@ namespace FeedbackDataLib
         public double SkalValue_k
         {
             get => SWChannelInfo.SkalValue_k;
-            set {
+            set
+            {
                 SWChannelInfo.SkalValue_k = value;
                 if (value == 0)
-                    SWChannelInfo.SkalValue_k =-1;
+                    SWChannelInfo.SkalValue_k = -1;
             }
         }
 
@@ -270,7 +271,7 @@ namespace FeedbackDataLib
             d = (d * SkalValue_k) + Offset_d;
 
             if (SWChannelType_enum == enumSWChannelType.cSWChannelTypeSCL ||
-                ((ushort) SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleSCLADS ||
+                ((ushort)SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleSCLADS ||
                 ((ushort)SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleMultiSCL)
 
             {

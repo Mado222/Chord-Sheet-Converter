@@ -29,7 +29,7 @@ namespace Insight_Manufacturing5_net8
 
         #region Events
         public event CPhidgetLib22.ReportStatusEventHandler ReportMeasurementProgress;
-        protected virtual void OnReportModuleTesterStatus(string text, System.Drawing.Color col)
+        protected virtual void OnReportModuleTesterStatus(string text, Color col)
             => ReportMeasurementProgress?.Invoke(this, text, col);
         #endregion
 
@@ -44,7 +44,7 @@ namespace Insight_Manufacturing5_net8
         public static CInsightModuleTester_Settings Get_Default_Setting()
         {
             CInsightModuleTester_Settings InsightModuleTester =
-            new CInsightModuleTester_Settings(
+            new(
             CInsightModuleTester_Settings.enICD.ICD_Connected,
             CInsightModuleTester_Settings.enEEG.EEG_Off,
             CInsightModuleTester_Settings.enUoff.Uoff_Off,
@@ -60,7 +60,7 @@ namespace Insight_Manufacturing5_net8
             SetDefaultValues();
         }
 
-        private void Phglib_ReportMeasurementProgress(object sender, string text, System.Drawing.Color col)
+        private void Phglib_ReportMeasurementProgress(object sender, string text, Color col)
         {
             OnReportModuleTesterStatus(text, col);
         }

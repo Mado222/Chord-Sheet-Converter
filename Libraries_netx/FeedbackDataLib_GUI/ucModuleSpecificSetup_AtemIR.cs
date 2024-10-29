@@ -9,13 +9,13 @@ namespace FeedbackDataLib_GUI
         public ucModuleSpecificSetup_AtemIR()
         {
             InitializeComponent();
-            this.toolTip1.SetToolTip(this.txtt_calc_new_scaling_ms, "The interval in [ms] after which the amplification is checked");
-            this.toolTip1.SetToolTip(this.txtt_max_overload_time_ms, "The time [ms] for which the Sensor has to be in sturation before a new calibration proceure is initiated");
-            this.toolTip1.SetToolTip(this.txtt_inOverload_time_ms, "The time [ms] for which the Sensor recalibrates in overload mode");
-            this.toolTip1.SetToolTip(this.txtpost_shift_value, "Amplification as exponent of 2 ... -2 -> 1/4, -1 -> 1/2, 0 -> 1, 1 -> 2, 2-> 2, ...");
-            this.toolTip1.SetToolTip(this.txtMovingAVG_Buffersize_asPowerof2, "Moving average buffer size as exponen of 2 ... 10 -> 1024");
-            this.toolTip1.SetToolTip(this.txtMovingAVG_Buffersize_overload_asPowerof2, "Moving average buffer size as exponen of 2 in overload mode 6 -> 64");
-            this.toolTip1.SetToolTip(this.txtILED, "Current through IR Leds, x10 [mA]");
+            toolTip1.SetToolTip(txtt_calc_new_scaling_ms, "The interval in [ms] after which the amplification is checked");
+            toolTip1.SetToolTip(txtt_max_overload_time_ms, "The time [ms] for which the Sensor has to be in sturation before a new calibration proceure is initiated");
+            toolTip1.SetToolTip(txtt_inOverload_time_ms, "The time [ms] for which the Sensor recalibrates in overload mode");
+            toolTip1.SetToolTip(txtpost_shift_value, "Amplification as exponent of 2 ... -2 -> 1/4, -1 -> 1/2, 0 -> 1, 1 -> 2, 2-> 2, ...");
+            toolTip1.SetToolTip(txtMovingAVG_Buffersize_asPowerof2, "Moving average buffer size as exponen of 2 ... 10 -> 1024");
+            toolTip1.SetToolTip(txtMovingAVG_Buffersize_overload_asPowerof2, "Moving average buffer size as exponen of 2 in overload mode 6 -> 64");
+            toolTip1.SetToolTip(txtILED, "Current through IR Leds, x10 [mA]");
         }
 
         /*
@@ -35,16 +35,16 @@ namespace FeedbackDataLib_GUI
             txtt_calc_new_scaling_ms.Update();
         }*/
 
-        public  void ReadModuleSpecificInfo(ref CModuleRespI ModuleInfo)
+        public void ReadModuleSpecificInfo(ref CModuleRespI ModuleInfo)
         {
-          
+
             ModuleInfo.AtemIR_MovingAVG_Buffersize_overload_asPowerof2 = Convert.ToByte(ProcessTextBox(txtMovingAVG_Buffersize_overload_asPowerof2));
             //ModuleInfo.AtemIR_MovingAVG_Current_Buffersize_asPowerof2= Convert.ToByte(ProcessTextBox(txt_MovingAVG_Current_Buffersize_asPowerof2));
-            ModuleInfo.AtemIR_MovingAVG_Max_Buffersize_asPowerof2= Convert.ToByte(ProcessTextBox(txtMovingAVG_Buffersize_asPowerof2));
-            ModuleInfo.AtemIR_post_shift_value= Convert.ToInt16(ProcessTextBox(txtpost_shift_value));
-            ModuleInfo.AtemIR_t_calc_new_scaling_ms= Convert.ToUInt16(ProcessTextBox(txtt_calc_new_scaling_ms));
-            ModuleInfo.AtemIR_t_inOverload_time_ms= Convert.ToUInt16(ProcessTextBox(txtt_inOverload_time_ms));
-            ModuleInfo.AtemIR_t_max_overload_time_ms= Convert.ToUInt16(ProcessTextBox(txtt_max_overload_time_ms));
+            ModuleInfo.AtemIR_MovingAVG_Max_Buffersize_asPowerof2 = Convert.ToByte(ProcessTextBox(txtMovingAVG_Buffersize_asPowerof2));
+            ModuleInfo.AtemIR_post_shift_value = Convert.ToInt16(ProcessTextBox(txtpost_shift_value));
+            ModuleInfo.AtemIR_t_calc_new_scaling_ms = Convert.ToUInt16(ProcessTextBox(txtt_calc_new_scaling_ms));
+            ModuleInfo.AtemIR_t_inOverload_time_ms = Convert.ToUInt16(ProcessTextBox(txtt_inOverload_time_ms));
+            ModuleInfo.AtemIR_t_max_overload_time_ms = Convert.ToUInt16(ProcessTextBox(txtt_max_overload_time_ms));
             ModuleInfo.AtemIR_ILED_10 = Convert.ToByte(ProcessTextBox(txtILED));
 
         }

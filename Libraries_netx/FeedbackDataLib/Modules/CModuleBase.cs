@@ -1,5 +1,5 @@
 ﻿using WindControlLib;
-using System.Linq; 
+using System.Linq;
 
 namespace FeedbackDataLib.Modules
 {
@@ -13,7 +13,7 @@ namespace FeedbackDataLib.Modules
     {
 
         protected int _num_raw_Channels = 4;
-        public int numRawChannels { get => _num_raw_Channels; }
+        public int NumRawChannels => _num_raw_Channels;
 
         public const int ModuleSpecific_sizeof = 16;
         protected byte[] ModuleSpecific = new byte[ModuleSpecific_sizeof];
@@ -50,12 +50,12 @@ namespace FeedbackDataLib.Modules
         ];
 
         protected enumSWChannelType[] cSWChannelTypes =
-{
+[
             enumSWChannelType.cSWChannelTypeNotDefined,
             enumSWChannelType.cSWChannelTypeNotDefined,
             enumSWChannelType.cSWChannelTypeNotDefined,
             enumSWChannelType.cSWChannelTypeNotDefined,
-        };
+        ];
 
 
         protected virtual void Setup_SWChannels()
@@ -73,17 +73,12 @@ namespace FeedbackDataLib.Modules
             }
         }
 
-        public class ExtraData <T>
+        public class ExtraData<T>(T typeExtradat)
         {
             public double Value { get; set; } = -1;
             public DateTime DTLastUpdated = DateTime.MinValue;
 
-            public ExtraData(T typeExtradat)
-            {
-                TypeExtradat = typeExtradat;
-            }
-
-            public T TypeExtradat { get; set; }
+            public T TypeExtradat { get; set; } = typeExtradat;
         }
 
 
@@ -144,7 +139,7 @@ namespace FeedbackDataLib.Modules
         public bool IsModuleActive()
         {
             for (int i = 0; i < SWChannels.Count; i++)
-            if (SWChannels[i].SendChannel)
+                if (SWChannels[i].SendChannel)
                     return true;
             return false;
         }
@@ -321,12 +316,12 @@ namespace FeedbackDataLib.Modules
 
             //Get Module specific struct
             Buffer.BlockCopy(InBuf, ptr, ModuleSpecific, 0, ModuleSpecific.Length);
-             ptr += ModuleSpecific.Length;
+            ptr += ModuleSpecific.Length;
 
             Setup_SWChannels();
             SetModuleSpecific(ModuleSpecific);
             return ptr;
-         }
+        }
 
         /// <summary>
         /// Processes the data, coming drom distributor thread
@@ -382,7 +377,7 @@ namespace FeedbackDataLib.Modules
 
         public virtual void Update_SWChannels(List<CSWChannel> sWChannels)
         {
-            for (int i =0; i<sWChannels.Count; i++)
+            for (int i = 0; i < sWChannels.Count; i++)
             {
                 Update_SWChannel(i, sWChannels[i].SWChannelConfig);
             }

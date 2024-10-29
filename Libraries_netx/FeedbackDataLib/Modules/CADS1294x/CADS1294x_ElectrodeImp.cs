@@ -9,7 +9,7 @@
         public CADS1294x_ElectrodeImp(int num24bitChannels)
         {
             electrodeInfo = [];
-            for (int i=0; i<num24bitChannels;i++)
+            for (int i = 0; i < num24bitChannels; i++)
             {
                 electrodeInfo.Add(new CElectrode_InputImp[2]);
             }
@@ -23,7 +23,7 @@
         }
         public void Update(byte[] bytein)
         {
-            CElectrode_InputImp ei = new CElectrode_InputImp(bytein);
+            CElectrode_InputImp ei = new(bytein);
             int j = ei.IsN ? 1 : 0;
             electrodeInfo[ei.Channel_no][j] = ei;
         }
@@ -64,12 +64,12 @@
 
         public int Channel_no { get => channel_no; }
         public double Impedance_Ohm { get => impedance_Ohm; }
-        public double UElektrode_V { get => uElektrode_V;}
-        public int Succeeded { get => succeeded;}
-        public int Gain { get => gain;}
-        public bool IsN { get => isN;}
+        public double UElektrode_V { get => uElektrode_V; }
+        public int Succeeded { get => succeeded; }
+        public int Gain { get => gain; }
+        public bool IsN { get => isN; }
 
-        private double GetScaledValue(int val, int gain)
+        private static double GetScaledValue(int val, int gain)
         {
             return val * CONF_SWCH0_VREF / ((1 << CONF_SWCH0_ADRESOLUTION) * gain);
         }

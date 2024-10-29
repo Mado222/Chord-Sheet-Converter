@@ -13,11 +13,11 @@ namespace ComponentsLib_GUI
     {
         public const string DriverName = "CH340";
         //Arbitrary1 Command Code "WMW36" --- Achtung - lt Manual 37
-        public const int Arbitraty_Chan_No_1 = 36;
-        public const int Resolution_bit = 14;
-        public const int NumValues_Arbitrary  = 8192;
+        public const int ArbitratyChanNo1 = 36;
+        public const int ResolutionBit = 14;
+        public const int NumValuesArbitrary = 8192;
 
-        private CSerialPortWrapper _Seriell32 = new ();
+        private CSerialPortWrapper _Seriell32 = new();
         private readonly byte[] default_return_value = [0xa];
         private List<byte> LastReturnValue = [];
 
@@ -33,11 +33,11 @@ namespace ComponentsLib_GUI
             }
         }
 
-        public string Fw_Version { get; private set; } = string.Empty;
+        public string FwVersion { get; private set; } = string.Empty;
 
         public UCComPortSelector? ucs = new();
 
-        public List<string>? GetRelatedComPorts ()
+        public List<string>? GetRelatedComPorts()
         {
             List<string>? ret = null;
             if (ucs is not null && ucs.Items is not null)
@@ -72,9 +72,9 @@ namespace ComponentsLib_GUI
                 if (_Seriell32.IsOpen)
                 {
                     //Check for Generator
-                    if (SetOutput_Off(true))
+                    if (SetOutputOff(true))
                     {
-                        Fw_Version = GetFWVersion();
+                        FwVersion = GetFWVersion();
                     }
                 }
             }
@@ -83,8 +83,7 @@ namespace ComponentsLib_GUI
 
         public void Close()
         {
-            if (_Seriell32 != null)
-                _Seriell32.Close();
+            _Seriell32?.Close();
         }
 
         public byte[] GetLastReturnValue()
@@ -92,54 +91,54 @@ namespace ComponentsLib_GUI
             return [.. LastReturnValue];
         }
 
-        public bool SetOutput_On(bool check_return_value)
+        public bool SetOutputOn(bool checkReturnValue)
         {
-            return Send_Command("WMN1", default_return_value, check_return_value);
+            return Send_Command("WMN1", default_return_value, checkReturnValue);
         }
-        public bool SetOutput_Off(bool check_return_value)
+        public bool SetOutputOff(bool checkReturnValue)
         {
-            return Send_Command("WMN0", default_return_value, check_return_value);
+            return Send_Command("WMN0", default_return_value, checkReturnValue);
         }
 
-        public bool SetFrequency(double f, bool check_return_value)
+        public bool SetFrequency(double f, bool checkReturnValue)
         {
-            if (Fw_Version != string.Empty)
+            if (FwVersion != string.Empty)
             {
                 string val = "";
                 //FY6900 FW 1.3
-                if (Fw_Version == "V1.3")
+                if (FwVersion == "V1.3")
                 {
                     int ff = (int)(f * 1e6); //[µHz]
                     val = "WMF" + ff.ToString("00000000000000");
                 }
-                else if (Fw_Version == "V1.5")
+                else if (FwVersion == "V1.5")
                 {
                     //FY6900 FW 1.5
                     val = "WMF" + f.ToString("00000000.000000").Replace(".", "");//
                 }
 
-                return Send_Command(val, default_return_value, check_return_value);
+                return Send_Command(val, default_return_value, checkReturnValue);
 
             }
             return false;
         }
 
-        public bool SetVss(double Vss, bool check_return_value)
+        public bool SetVss(double Vss, bool checkReturnValue)
         {
             string val = "WMA" + string.Format("{0:0.00}", Vss);
             val = val.Replace(",", ".");
-            return Send_Command(val, default_return_value, check_return_value);
+            return Send_Command(val, default_return_value, checkReturnValue);
         }
 
         /// <summary>
         ///   <para>
         ///  Selct Sinus as Output Wave</para>
         /// </summary>
-        /// <param name="check_return_value">if set to <c>true</c> [check return value].</param>
+        /// <param name="checkReturnValue">if set to <c>true</c> [check return value].</param>
         /// <returns></returns>
-        public bool SetSinus(bool check_return_value)
+        public bool SetSinus(bool checkReturnValue)
         {
-            return Send_Command("WMW0", default_return_value, check_return_value);
+            return Send_Command("WMW0", default_return_value, checkReturnValue);
         }
 
         /// <summary>  Select Arbitrary number "ChanNo" as Output Wave</summary>
@@ -147,14 +146,14 @@ namespace ComponentsLib_GUI
         ///   <para>
         ///  Channe number>=1</para>
         /// </param>
-        /// <param name="check_return_value">if set to <c>true</c> [check return value].</param>
+        /// <param name="checkReturnValue">if set to <c>true</c> [check return value].</param>
         /// <returns></returns>
-        public bool SetArbitrary(int ChanNo, bool check_return_value)
+        public bool SetArbitrary(int ChanNo, bool checkReturnValue)
         {
             if (ChanNo >= 1)
             {
-                ChanNo = Arbitraty_Chan_No_1 + ChanNo - 1;
-                return Send_Command("WMW" + ChanNo.ToString(), default_return_value, check_return_value);
+                ChanNo = ArbitratyChanNo1 + ChanNo - 1;
+                return Send_Command("WMW" + ChanNo.ToString(), default_return_value, checkReturnValue);
             }
             return false;
         }
@@ -270,11 +269,11 @@ namespace ComponentsLib_GUI
         /// <returns></returns>
         private bool Send_Command(string s, byte[]? return_value = null)
         {
-            List<byte> outbuf = new(Encoding.ASCII.GetBytes(s)) {0x0a};
-            return Send_Command(outbuf.ToArray(), return_value);
+            List<byte> outbuf = new(Encoding.ASCII.GetBytes(s)) { 0x0a };
+            return Send_Command([.. outbuf], return_value);
         }
         private bool Send_Command(byte[] outbuf, byte[]? return_value = null)
-    {
+        {
             bool bret = true;
             if (_Seriell32 is not null && _Seriell32.IsOpen)
             {

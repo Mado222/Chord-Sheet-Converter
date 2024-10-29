@@ -54,7 +54,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override enModuleTestResult isModule_OK()
         {
-            CECG_Read_NM_base ecgbase = new CECG_Read_NM_base(_FY6900);
+            CECG_Read_NM_base ecgbase = new(_FY6900);
             ecgbase.AllResults = AllResults;
             ecgbase.AgainValues = AgainValues;
             ecgbase.my_name = my_name;

@@ -1,4 +1,4 @@
-﻿namespace Math_Net_nuget
+﻿namespace MathNetNuget
 {
     partial class ucSignalAnalyser
     {

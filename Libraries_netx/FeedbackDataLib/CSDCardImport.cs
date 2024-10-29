@@ -83,7 +83,7 @@ namespace FeedbackDataLib
             public void Copy(CDataIn_Scaled DataIn)
             {
                 base.Copy(DataIn);
-                this.Value_Scaled = DataIn.Value_Scaled;
+                Value_Scaled = DataIn.Value_Scaled;
             }
         }
 
@@ -111,11 +111,11 @@ namespace FeedbackDataLib
             {
                 //Split Directory
                 string[] ss = path.Split(Path.DirectorySeparatorChar);
-                string t = ss[ss.Length - 1];   //time
-                string d = ss[ss.Length - 2];   //date
+                string t = ss[^1];   //time
+                string d = ss[^2];   //date
 
-                string[] tt = ss[ss.Length - 1].Split(new char[1] { '-' }); //time
-                string[] dd = ss[ss.Length - 2].Split(new char[1] { '-' }); //date
+                string[] tt = ss[^1].Split(['-']); //time
+                string[] dd = ss[^2].Split(['-']); //date
 
 
                 ret = new DateTime(
@@ -138,10 +138,10 @@ namespace FeedbackDataLib
 
         /// Class to connect to Neuromaster
         private C8KanalReceiverV2 DataReceiver;
-        private readonly WindControlLib.CCRC8 CRC8 = new CCRC8(CCRC8.CRC8_POLY.CRC8_CCITT);
+        private readonly WindControlLib.CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
         private DateTime LastSyncSignal;
         private DateTime Recording_Start_Time_from_File = DateTime.MinValue;
-        private TimeSpan SyncInterval = new TimeSpan(0, 0, 0, 0, C8KanalReceiverV2_CommBase.SyncInterval_ms);
+        private TimeSpan SyncInterval = new(0, 0, 0, 0, C8KanalReceiverV2_CommBase.SyncInterval_ms);
 
         private FileStream SDFileStream = null;
         private BinaryReader SDBinaryReader = null;
@@ -238,13 +238,10 @@ namespace FeedbackDataLib
         /// </summary>
         public void StopImport()
         {
-            if (SDBinaryReader != null)
-                SDBinaryReader.Close();
-            if (SDFileStream != null)
-                SDFileStream.Close();
+            SDBinaryReader?.Close();
+            SDFileStream?.Close();
 
-            if (DataReceiver != null)
-                DataReceiver.Close_All();
+            DataReceiver?.Close_All();
         }
 
 
@@ -256,7 +253,7 @@ namespace FeedbackDataLib
         /// <returns>null if no more vales in the file</returns>
         public CDataIn_Scaled GetNextValue()
         {
-            CDataIn DataIn = new CDataIn();
+            CDataIn DataIn = new();
             isDataByte = false;
             int idxRS232inBytes = 0;
             while (!isDataByte)
@@ -436,7 +433,7 @@ namespace FeedbackDataLib
                 }
             }//while (!isDataByte)
 
-            CDataIn_Scaled cds = new CDataIn_Scaled(DataIn)
+            CDataIn_Scaled cds = new(DataIn)
             {
                 Value_Scaled = DataReceiver.Connection.GetScaledValue(DataIn)
             };

@@ -2,6 +2,7 @@
 using WindControlLib;
 using FeedbackDataLib.Modules;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {
@@ -33,11 +34,11 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override void Save_Results_to_DB()
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
+            dsManufacturing _dsManufacturing = new();
 
             //is there already a dataset from wtihin the last hour?
             bool Measured_within_one_hour = true; //false
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
             neuromodule_DatenTableAdapter.FillBy_SerialNumber_Order_Desc_by_Date(_dsManufacturing.Neuromodule_Daten, SerialNumber);
 
             /*
@@ -50,12 +51,12 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                 }
             }*/
 
-            dataSources.dsManufacturingTableAdapters.AmplitudengainTableAdapter amplitudengainTableAdapter = new dataSources.dsManufacturingTableAdapters.AmplitudengainTableAdapter();
+            dataSources.dsManufacturingTableAdapters.AmplitudengainTableAdapter amplitudengainTableAdapter = new();
             
             string path = Path.GetDirectoryName(Dir_Results) + @"\" + Job_Message + "_Amplitudegain.csv";
-            StreamWriter sw = new StreamWriter(path, false);
+            StreamWriter sw = new(path, false);
 
-            CSave_Binary_Objects.WriteToJsonFile<List<CModuleBase>>(Path.ChangeExtension(path, ".cfg"), DataReceiver.Connection.Device.ModuleInfos);
+            CSave_Binary_Objects.WriteToJsonFile(Path.ChangeExtension(path, ".cfg"), DataReceiver.Connection.Device.ModuleInfos);
             sw.WriteLine("f [Hz]\tUineff [V]\tU0eff [V]\tv0ist [dB]\tv0soll [dB]\tTolerance [+-dB]\tIsOK\tcomment");
 
             ModuleTestResult = enModuleTestResult.OK;

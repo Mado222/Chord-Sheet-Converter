@@ -87,7 +87,7 @@
             cModuleInfoDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             cModuleInfoDataGridView.Size = new Size(257, 321);
             cModuleInfoDataGridView.TabIndex = 0;
-            cModuleInfoDataGridView.RowEnter += cModuleInfoDataGridView_RowEnter;
+            cModuleInfoDataGridView.RowEnter += CModuleInfoDataGridView_RowEnter;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -172,7 +172,7 @@
             sWChannelsDataGridView.RowHeadersWidth = 51;
             sWChannelsDataGridView.Size = new Size(505, 321);
             sWChannelsDataGridView.TabIndex = 1;
-            sWChannelsDataGridView.RowEnter += sWChannelsDataGridView_RowEnter;
+            sWChannelsDataGridView.RowEnter += SWChannelsDataGridView_RowEnter;
             // 
             // dataGridViewTextBoxColumn7
             // 

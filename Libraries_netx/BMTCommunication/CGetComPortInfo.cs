@@ -45,17 +45,17 @@ vergebenen ids gibt, weiss ich nicht.
 
         public CComPortInfo()
         {
-            this._ComName = string.Empty;
-            this._Driver = string.Empty;
-            this._DriverDesc = string.Empty;
-            this._FriendlyName = string.Empty;
-            this._HardwareID = string.Empty;
-            this._Manufacturer = string.Empty;
-            this._MatchingDeviceId = string.Empty;
-            this._Service = string.Empty;
-            this._FTDIBusKeyName = string.Empty;
+            _ComName = string.Empty;
+            _Driver = string.Empty;
+            _DriverDesc = string.Empty;
+            _FriendlyName = string.Empty;
+            _HardwareID = string.Empty;
+            _Manufacturer = string.Empty;
+            _MatchingDeviceId = string.Empty;
+            _Service = string.Empty;
+            _FTDIBusKeyName = string.Empty;
         }
-        
+
         #region Properties
         private string _ComName;
         public string ComName
@@ -134,9 +134,12 @@ vergebenen ids gibt, weiss ich nicht.
         #endregion    }
 
         #region IComparer<CComPortInfo> Members
-        public int Compare(CComPortInfo x, CComPortInfo y)
+        public int Compare(CComPortInfo? x, CComPortInfo? y)
         {
-            //return ((new CaseInsensitiveComparer()).Compare(x.EventName, y.EventName));
+            if (x == null && y == null) return 0;
+            if (x == null) return -1;
+            if (y == null) return 1;
+
             if (string.Equals(x.MatchingDeviceId, y.MatchingDeviceId))
                 return 0;
             return string.Compare(x.MatchingDeviceId, y.MatchingDeviceId);
@@ -151,9 +154,14 @@ vergebenen ids gibt, weiss ich nicht.
 
         #region IComparable Members
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            return Compare((CComPortInfo)this, (CComPortInfo)obj);
+            if (obj is null) return 1; // Return a default comparison for null
+            if (obj is CComPortInfo other)
+            {
+                return Compare(this, other);
+            }
+            throw new ArgumentException("Object is not a CComPortInfo", nameof(obj));
         }
 
         #endregion
@@ -197,13 +205,13 @@ vergebenen ids gibt, weiss ich nicht.
         /// </remarks>
         public static List<CComPortInfo> GetComPortInfo(string Driver_Device_Description_SearchString, string PID_VID_SerachString, string CurrentControlSet_SearchString)
         {
-            List<CComPortInfo> temp = new List<CComPortInfo>();
-            List<CComPortInfo> ret = new List<CComPortInfo>();
+            List<CComPortInfo> temp = new();
+            List<CComPortInfo> ret = new();
 
             //lower case
             Driver_Device_Description_SearchString = Driver_Device_Description_SearchString.ToLower();
 
-            RegistryKey rk;
+            RegistryKey? rk;
             rk = Registry.LocalMachine.OpenSubKey(key_List_of_ComPorts, false);
 
             if (rk != null)
@@ -224,25 +232,25 @@ vergebenen ids gibt, weiss ich nicht.
                         }
                         if (rk != null)
                         {
-                            CComPortInfo c = new CComPortInfo();
+                            CComPortInfo c = new();
                             if (rk.GetValue("DriverDesc") != null)
                             {
-                                object oDriverDesc = rk.GetValue("DriverDesc");
+                                object? oDriverDesc = rk.GetValue("DriverDesc");
                                 if (oDriverDesc != null)
                                 {
                                     string DriverDesc = ((string)oDriverDesc).ToLower();  //lower case
                                     if (DriverDesc.Contains(Driver_Device_Description_SearchString))     // NEU
                                     {
-                                        c.DriverDesc = (string)rk.GetValue("DriverDesc");
+                                        c.DriverDesc = (string?)rk.GetValue("DriverDesc") ?? string.Empty;
 
-                                        object oMatchingDeviceId = rk.GetValue("MatchingDeviceId");
+                                        object? oMatchingDeviceId = rk.GetValue("MatchingDeviceId");
 
                                         if (oMatchingDeviceId != null)
                                         {
-                                            string MatchingDeviceId = ((string)oMatchingDeviceId).ToLower();
-                                            if (MatchingDeviceId.Contains(PID_VID_SerachString.ToLower()))
+                                            string MatchingDeviceId = ((string)oMatchingDeviceId).ToLower(System.Globalization.CultureInfo.CurrentCulture);
+                                            if (MatchingDeviceId.Contains(PID_VID_SerachString, StringComparison.CurrentCultureIgnoreCase))
                                             {
-                                                c.MatchingDeviceId = (string)rk.GetValue("MatchingDeviceId");
+                                                c.MatchingDeviceId = (string?)rk.GetValue("MatchingDeviceId") ?? string.Empty;
                                                 temp.Add(c);
                                             }
                                         }
@@ -303,7 +311,7 @@ vergebenen ids gibt, weiss ich nicht.
                         if (rk != null)
                         {
                             string[] AllEntriesOfMainDir = rk.GetSubKeyNames();
-                            List<string> SelectedEntriesOfMainDir = new List<string>();
+                            List<string> SelectedEntriesOfMainDir = new();
 
                             //Select only relevant Subkeys
                             foreach (string entry in AllEntriesOfMainDir)
@@ -341,39 +349,51 @@ vergebenen ids gibt, weiss ich nicht.
                                         //if (rk.Name.ToLower().Contains(CurrentControlSet_SearchString.ToLower()))        //NEU
                                         {
                                             //read information
-                                            CComPortInfo cinfo = new CComPortInfo
+                                            CComPortInfo cinfo = new()
                                             {
                                                 FTDIBusKeyName = subkey
                                             };
 
                                             //device description
-                                            if ((string)rk.GetValue("DeviceDesc") != null)
-                                                cinfo.DriverDesc = (string)rk.GetValue("DeviceDesc");
+                                            string? deviceDesc = (string?)rk.GetValue("DeviceDesc");
+                                            if (deviceDesc != null)
+                                            {
+                                                cinfo.DriverDesc = deviceDesc;
+                                            }
 
                                             //matching device id
                                             cinfo.MatchingDeviceId = c.MatchingDeviceId;
 
                                             //hardware id
-                                            if ((string[])rk.GetValue("HardwareID") != null)
+                                            string[]? helpStringArray = (string[]?)rk.GetValue("HardwareID");
+                                            if (helpStringArray != null)
                                             {
-                                                string[] helpStringArray = (string[])rk.GetValue("HardwareID");
                                                 foreach (string a in helpStringArray)
                                                 {
                                                     cinfo.HardwareID += a;
                                                 }
                                             }
 
-                                            //Service
-                                            if ((string)rk.GetValue("Service") != null)
-                                                cinfo.Service = (string)rk.GetValue("Service");
+                                            // Service
+                                            string? service = (string?)rk.GetValue("Service");
+                                            if (service != null)
+                                            {
+                                                cinfo.Service = service;
+                                            }
 
-                                            //Friendly Name
-                                            if ((string)rk.GetValue("FriendlyName") != null)
-                                                cinfo.FriendlyName = (string)rk.GetValue("FriendlyName");
+                                            // Friendly Name
+                                            string? friendlyName = (string?)rk.GetValue("FriendlyName");
+                                            if (friendlyName != null)
+                                            {
+                                                cinfo.FriendlyName = friendlyName;
+                                            }
 
-                                            //Driver
-                                            if ((string)rk.GetValue("Driver") != null)
-                                                cinfo.Driver = (string)rk.GetValue("Driver");
+                                            // Driver
+                                            string? driver = (string?)rk.GetValue("Driver");
+                                            if (driver != null)
+                                            {
+                                                cinfo.Driver = driver;
+                                            }
 
                                             subkey2 += "\\Device Parameters";
 
@@ -381,16 +401,16 @@ vergebenen ids gibt, weiss ich nicht.
                                             rk = Registry.LocalMachine.OpenSubKey(subkey2, false);
 
                                             //Port Name
-                                            if ((rk != null) && (rk.GetValue("PortName") != null))
+                                            if (rk != null && rk.GetValue("PortName") is string portName)
                                             {
-                                                cinfo.ComName = (string)rk.GetValue("PortName");
-                                                if (cinfo.DriverDesc != null)
+                                                cinfo.ComName = portName;
+                                                if (!string.IsNullOrEmpty(cinfo.DriverDesc))
                                                 {
-                                                    //if Driver Description contains the search string
-                                                    string DriverDescLowerCase = cinfo.DriverDesc.ToLower();    //lower case
-                                                    if (DriverDescLowerCase.Contains(Driver_Device_Description_SearchString))        //NEU
+                                                    // Convert Driver Description to lowercase
+                                                    string DriverDescLowerCase = cinfo.DriverDesc!.ToLower(); // `!` is safe because of the previous null check
+                                                    if (DriverDescLowerCase.Contains(Driver_Device_Description_SearchString))
                                                     {
-                                                        //Add the result list
+                                                        // Add to the result list
                                                         ret.Add(cinfo);
                                                     }
                                                 }
@@ -417,29 +437,26 @@ vergebenen ids gibt, weiss ich nicht.
         /// <returns>list of available COM Ports, containing the search string</returns>
         public static List<string> GetActiveComPorts(string SearchString)
         {
-            List<string> ret = new List<string>();
+            List<string> ret = new();
             try
             {
-                ManagementObjectSearcher searcher =
-                    new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PnPEntity");
+                ManagementObjectSearcher searcher = new("root\\CIMV2", "SELECT * FROM Win32_PnPEntity");
                 ManagementObjectCollection mo = searcher.Get();
 
-                foreach (ManagementObject queryObj in mo)
+                string searchStringLower = SearchString.ToLower();
+                foreach (ManagementObject queryObj in mo.Cast<ManagementObject>())
                 {
-
-                    if (queryObj["Caption"] != null)
+                    if (queryObj["Caption"] is string caption)
                     {
-                        string s = queryObj["Caption"].ToString();
-                        s= s.ToLower();
-                        SearchString = SearchString.ToLower();
-                        if (s.Contains("(com") && s.Contains(SearchString))
+                        string captionLower = caption.ToLower();
+                        if (captionLower.Contains("(com") && captionLower.Contains(searchStringLower))
                         {
-                            //Com Nummer (Bezeichnung) herausholen
-                            // .... (COMxx)
-                            int klammer_auf_idx = s.IndexOf('(');
-                            int klammer_zu_idx = s.IndexOf(')');
-                            string sub = s.Substring(klammer_auf_idx + 1, klammer_zu_idx - klammer_auf_idx - 1);
-                            ret.Add(sub);
+                            int startIdx = captionLower.IndexOf('(') + 1;
+                            int endIdx = captionLower.IndexOf(')');
+                            if (startIdx > 0 && endIdx > startIdx)
+                            {
+                                ret.Add(captionLower[startIdx..endIdx]);
+                            }
                         }
                     }
                 }
@@ -463,7 +480,7 @@ vergebenen ids gibt, weiss ich nicht.
         /// <summary>
         /// Occurs when USB device is connected
         /// </summary>
-        public event USBDeviceConnectedHandler USBDeviceConnectedEvent;
+        public event USBDeviceConnectedHandler? USBDeviceConnectedEvent;
         /// <summary>
         /// Called when USB device is connected
         /// </summary>
@@ -476,7 +493,7 @@ vergebenen ids gibt, weiss ich nicht.
         /// <summary>
         /// Occurs when USB device disconnected
         /// </summary>
-        public event USBDeviceDisConnectedHandler USBDeviceDisConnectedEvent;
+        public event USBDeviceDisConnectedHandler? USBDeviceDisConnectedEvent;
         /// <summary>
         /// Called when USB device disconnected
         /// </summary>
@@ -497,8 +514,9 @@ vergebenen ids gibt, weiss ich nicht.
         {
             Close();
         }
-        
-        private ManagementEventWatcher w_in, w_out;
+
+        private ManagementEventWatcher w_in = new();
+        private ManagementEventWatcher w_out = new();
 
 
         /// <summary>
@@ -513,17 +531,17 @@ vergebenen ids gibt, weiss ich nicht.
         public bool StartUSBMonitoring(string VID, string PID, string PID_VID)
         {
             bool ret = true;
-            string pid_vid="";
+            string pid_vid = "";
 
             if (PID_VID != null)
                 if (PID_VID != "")
                     pid_vid = PID_VID;
-            
-            if (pid_vid=="")
+
+            if (pid_vid == "")
                 pid_vid = "VID_" + VID + "&PID_" + PID;      //"VID_0403&PID_6001";
 
             WqlEventQuery q_in, q_out;// Represents a WMI event query in WQL format (Windows Query Language)
-            ManagementScope scope = new ManagementScope("root\\CIMV2");
+            ManagementScope scope = new("root\\CIMV2");
             // Represents a scope (namespace) for management operations.
             scope.Options.EnablePrivileges = true;
             try
@@ -559,7 +577,7 @@ vergebenen ids gibt, weiss ich nicht.
                 _IsMonitoring = true;
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Close();
                 ret = false;
@@ -567,35 +585,7 @@ vergebenen ids gibt, weiss ich nicht.
 
             return ret;
         }
-        
-        /// <summary>
-        /// Starts the USB monitoring
-        /// </summary>
-        /// <param name="SearchString">String the device name must contain</param>
-        /// <returns>
-        /// true if started
-        /// </returns>
-        /// <remarks>
-        /// Searches registry for COM ports containing the SearchString and reads PID and VID to link to the USB device
-        /// if driver not properly installed default value VID_0403&PID_6001 is used
-        /// </remarks>
-        /*
-        public bool StartUSBMonitoring (string SearchString)
-        {
-            string pid_vid = "VID_0403&PID_6010";
 
-            List<CComPortInfo> cpi = CGetComPorts.GetComPortInfo(SearchString);
-
-            if ((cpi != null) && (cpi.Count > 0))
-            {
-                int start_idx = cpi[0].HardwareID.IndexOf("&");
-                int end_idx = cpi[0].HardwareID.Length - 1;
-
-                pid_vid = cpi[0].HardwareID.Substring(start_idx + 1, end_idx - start_idx);
-            }
-
-            return StartUSBMonitoring("", "", pid_vid);
-        }*/
 
         //Event kommt 3x ... warum?
         private void USBConnected(object sender, EventArgs e)
@@ -617,19 +607,13 @@ vergebenen ids gibt, weiss ich nicht.
         {
             try
             {
-                if (w_in != null)
-                {
-                    w_in.Stop();
-                }
+                w_in?.Stop();
             }
             catch { };
 
             try
             {
-                if (w_out != null)
-                {
-                    w_out.Stop();
-                }
+                w_out?.Stop();
             }
             catch { };
             _IsMonitoring = false;

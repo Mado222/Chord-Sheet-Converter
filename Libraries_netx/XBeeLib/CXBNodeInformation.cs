@@ -28,7 +28,7 @@ namespace XBeeLib
         public const byte default_SO_SleepOption = 0;
         public const byte default_RO_PacketizationTimeout = 3;
 
-        
+
         /// <summary>
         /// constructor 
         /// </summary>
@@ -36,21 +36,21 @@ namespace XBeeLib
         public CXBNodeInformation()
         {
             //set default values
-            this.APIMode = default_APIMode;
-            this.A2_CoordinatorAssociation = default_A2_CoordinatorAssociation;
-            this.CE_CoordinatorEnable = default_CE_CoordinatorEnable;
-            this.A1_EndDeviceAssociation = default_A1_EndDeviceAssociation;
-            this.MY_MyAddress = default_MY_MyAddress;
-            this.NI_NodeIdentifier = default_NI_NodeIdentifier;
-            this.RecSignalStrength = 0x00;
-            this.SH_SerialNumberHigh = default_SH_SerialNumberHigh;
-            this.SL_SerialNumberLow = default_SL_SerialNumberLow;
-            this.DestinationAddress = 0;
-            this.SM_SleepMode = default_SM_SleepMode;
-            this.SP_CyclicSleepPeriode = default_SP_CyclicSleepPeriode;
-            this.ST_TimeBeforeSleep = default_ST_TimeBeforeSleep;
-            this.SO_SleepOption = default_SO_SleepOption;
-            this.R0_PacketizationTimeout = default_RO_PacketizationTimeout;
+            APIMode = default_APIMode;
+            A2_CoordinatorAssociation = default_A2_CoordinatorAssociation;
+            CE_CoordinatorEnable = default_CE_CoordinatorEnable;
+            A1_EndDeviceAssociation = default_A1_EndDeviceAssociation;
+            MY_MyAddress = default_MY_MyAddress;
+            NI_NodeIdentifier = default_NI_NodeIdentifier;
+            RecSignalStrength = 0x00;
+            SH_SerialNumberHigh = default_SH_SerialNumberHigh;
+            SL_SerialNumberLow = default_SL_SerialNumberLow;
+            DestinationAddress = 0;
+            SM_SleepMode = default_SM_SleepMode;
+            SP_CyclicSleepPeriode = default_SP_CyclicSleepPeriode;
+            ST_TimeBeforeSleep = default_ST_TimeBeforeSleep;
+            SO_SleepOption = default_SO_SleepOption;
+            R0_PacketizationTimeout = default_RO_PacketizationTimeout;
         }
 
         /// <summary>
@@ -58,19 +58,19 @@ namespace XBeeLib
         /// </summary>
         public void UpdateIfNotDefault(CXBNodeInformation Updt)
         {
-            if (Updt.APIMode != default_APIMode) { this.APIMode = Updt.APIMode; };
-            if (Updt.A2_CoordinatorAssociation != default_A2_CoordinatorAssociation) { this.A2_CoordinatorAssociation = Updt.A2_CoordinatorAssociation; };
-            if (Updt.CE_CoordinatorEnable != default_CE_CoordinatorEnable) { this.CE_CoordinatorEnable = Updt.CE_CoordinatorEnable; };
-            if (Updt.A1_EndDeviceAssociation != default_A1_EndDeviceAssociation) { this.A1_EndDeviceAssociation = Updt.A1_EndDeviceAssociation;};
-            if (Updt.MY_MyAddress != default_MY_MyAddress) { this.MY_MyAddress = Updt.MY_MyAddress;};
-            if (Updt.NI_NodeIdentifier != default_NI_NodeIdentifier) { this.NI_NodeIdentifier = Updt.NI_NodeIdentifier;};
-            if (Updt.SH_SerialNumberHigh != default_SH_SerialNumberHigh) { this.SH_SerialNumberHigh = Updt.SH_SerialNumberHigh;};
-            if (Updt.SL_SerialNumberLow != default_SL_SerialNumberLow) { this.SL_SerialNumberLow = Updt.SL_SerialNumberLow;};
-            if (Updt.SM_SleepMode != default_SM_SleepMode) { this.SM_SleepMode = Updt.SM_SleepMode;};
-            if (Updt.SP_CyclicSleepPeriode != default_SP_CyclicSleepPeriode) { this.SP_CyclicSleepPeriode = Updt.SP_CyclicSleepPeriode; };
-            if (Updt.ST_TimeBeforeSleep != default_ST_TimeBeforeSleep) { this.ST_TimeBeforeSleep = Updt.ST_TimeBeforeSleep;};
-            if (Updt.SO_SleepOption != default_SO_SleepOption) { this.SO_SleepOption = Updt.SO_SleepOption;};
-            if (Updt.R0_PacketizationTimeout != default_RO_PacketizationTimeout) { this.R0_PacketizationTimeout = Updt.R0_PacketizationTimeout; };
+            if (Updt.APIMode != default_APIMode) { APIMode = Updt.APIMode; };
+            if (Updt.A2_CoordinatorAssociation != default_A2_CoordinatorAssociation) { A2_CoordinatorAssociation = Updt.A2_CoordinatorAssociation; };
+            if (Updt.CE_CoordinatorEnable != default_CE_CoordinatorEnable) { CE_CoordinatorEnable = Updt.CE_CoordinatorEnable; };
+            if (Updt.A1_EndDeviceAssociation != default_A1_EndDeviceAssociation) { A1_EndDeviceAssociation = Updt.A1_EndDeviceAssociation; };
+            if (Updt.MY_MyAddress != default_MY_MyAddress) { MY_MyAddress = Updt.MY_MyAddress; };
+            if (Updt.NI_NodeIdentifier != default_NI_NodeIdentifier) { NI_NodeIdentifier = Updt.NI_NodeIdentifier; };
+            if (Updt.SH_SerialNumberHigh != default_SH_SerialNumberHigh) { SH_SerialNumberHigh = Updt.SH_SerialNumberHigh; };
+            if (Updt.SL_SerialNumberLow != default_SL_SerialNumberLow) { SL_SerialNumberLow = Updt.SL_SerialNumberLow; };
+            if (Updt.SM_SleepMode != default_SM_SleepMode) { SM_SleepMode = Updt.SM_SleepMode; };
+            if (Updt.SP_CyclicSleepPeriode != default_SP_CyclicSleepPeriode) { SP_CyclicSleepPeriode = Updt.SP_CyclicSleepPeriode; };
+            if (Updt.ST_TimeBeforeSleep != default_ST_TimeBeforeSleep) { ST_TimeBeforeSleep = Updt.ST_TimeBeforeSleep; };
+            if (Updt.SO_SleepOption != default_SO_SleepOption) { SO_SleepOption = Updt.SO_SleepOption; };
+            if (Updt.R0_PacketizationTimeout != default_RO_PacketizationTimeout) { R0_PacketizationTimeout = Updt.R0_PacketizationTimeout; };
         }
 
         private ushort _MY_MyAddress;
@@ -122,7 +122,7 @@ namespace XBeeLib
         {
             get
             {
-                return (ulong)(SL_SerialNumberLow + ((ulong)SH_SerialNumberHigh << 32));
+                return SL_SerialNumberLow + ((ulong)SH_SerialNumberHigh << 32);
             }
             set
             {
@@ -276,7 +276,7 @@ namespace XBeeLib
                                                         if (x.BaudRate == y.BaudRate)
                                                             if (x.DestinationAddress == y.DestinationAddress)
                                                                 if (x.R0_PacketizationTimeout == y.R0_PacketizationTimeout)
-                                                                return 0;   //Equal
+                                                                    return 0;   //Equal
 
 
             //TODO
@@ -296,7 +296,7 @@ namespace XBeeLib
         #region IComparable Members
         public int CompareTo(object obj)
         {
-            return Compare((CXBNodeInformation)this, (CXBNodeInformation)obj);
+            return Compare(this, (CXBNodeInformation)obj);
         }
         #endregion
 
@@ -304,7 +304,7 @@ namespace XBeeLib
 
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
 
         #endregion

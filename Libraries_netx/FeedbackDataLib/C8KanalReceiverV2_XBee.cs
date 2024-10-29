@@ -62,7 +62,7 @@ namespace FeedbackDataLib
         protected const int XBee_BaudRate_RemoteDevice = 115200;
 
 
-        private string _LastXBeeErrorString="";
+        private string _LastXBeeErrorString = "";
         public string LastXBeeErrorString
         {
             get

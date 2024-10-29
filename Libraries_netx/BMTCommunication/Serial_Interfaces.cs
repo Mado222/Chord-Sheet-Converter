@@ -86,7 +86,7 @@ namespace BMTCommunicationLib
 
         public bool IsOpen
         {
-            get => _SerialPort.IsOpen; 
+            get => _SerialPort.IsOpen;
         }
         public void Close()
         {

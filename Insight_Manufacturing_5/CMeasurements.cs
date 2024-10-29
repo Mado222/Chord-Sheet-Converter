@@ -14,7 +14,7 @@ namespace Insight_Manufacturing5_net8
             //Hier stehen alle verfügbaren Module zum flashen, messen usw.
         }
 
-        public bool is_Save_to_DB_overwritten(System.Type class_to_check)
+        public bool is_Save_to_DB_overwritten(Type class_to_check)
         {
             var i = class_to_check.GetMember("Save_to_DB",
                    BindingFlags.NonPublic

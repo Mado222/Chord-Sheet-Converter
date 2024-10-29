@@ -108,7 +108,7 @@ namespace XBeeLib
         /// <returns>byte array, ready to send over the serial port</returns>
         override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new List<byte>
+            List<byte> FrameData = new()
             {
                 //Start to build FrameData
 
@@ -136,7 +136,7 @@ namespace XBeeLib
                 FrameData.Add(0);
 
             FrameData.AddRange(Command2ByteList());
-            
+
             return MakeBasicDataFrame(FrameData, ApiMode);
         }
 
@@ -153,27 +153,27 @@ namespace XBeeLib
             switch (response.APID)
             {
                 case (CXBAPICommands.RemoteCommandResponse):
-                    
+
                     CRemoteCommandResponse responseNew = (CRemoteCommandResponse)response;
                     //if (responseNew.status == RXCommandResponseStatus.OK)
                     //{
-                        //is frameId equal
-                        if (this.frameId == responseNew.frameId)
+                    //is frameId equal
+                    if (frameId == responseNew.frameId)
+                    {
+                        //is command equal
+                        if (ATCommand.Substring(2, 2) == responseNew.command)
                         {
-                            //is command equal
-                            if (this.ATCommand.Substring(2, 2) == responseNew.command)
+                            //is address equal
+                            if ((DestinationAddress64 == responseNew.ResponderAddress64) ||
+                                (DestinationAddress16 == responseNew.ResponderAddress16))
                             {
-                                //is address equal
-                                if ((this.DestinationAddress64 == responseNew.ResponderAddress64) ||
-                                    (this.DestinationAddress16 == responseNew.ResponderAddress16))
-                                {
-                                    IsResponseCorrect = true;
-                                }
+                                IsResponseCorrect = true;
                             }
                         }
+                    }
                     //}
                     break;
-                
+
                 default:
                     IsResponseCorrect = false;
                     break;

@@ -1,7 +1,6 @@
 ﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using System.Xml.Serialization;
-using FeedbackDataLib.Modules;
 
 
 namespace FeedbackDataLib_GUI
@@ -20,28 +19,12 @@ namespace FeedbackDataLib_GUI
         {
             public class Scaling_Values
             {
+                public double Default_Max { get; set; }
 
-                private double _Default_Max;
-                public double Default_Max
-                {
-                    get { return _Default_Max; }
-                    set { _Default_Max = value; }
-                }
+                public double Default_Min { get; set; }
 
-                private double _Default_Min;
-                public double Default_Min
-                {
-                    get { return _Default_Min; }
-                    set { _Default_Min = value; }
-                }
-
-
-                private string _ModuleName;
                 public string ModuleName        //just for better reading
-                {
-                    get { return _ModuleName; }
-                    set { _ModuleName = value; }
-                }
+                { get; set; } = "";
 
 
                 public Scaling_Values()
@@ -81,10 +64,11 @@ namespace FeedbackDataLib_GUI
             {
                 DefaultVals[(int)moduleType][sw_cn].Default_Max = DefMax;
                 DefaultVals[(int)moduleType][sw_cn].Default_Min = DefMin;
-                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(enumModuleType), moduleType);
+                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(enumModuleType), moduleType); //??
             }
 
-            public void GetConfigPath(ref string ConfigXMLPath)
+
+            public static void GetConfigPath(ref string ConfigXMLPath)
             {
                 string fullPath = System.IO.Directory.GetCurrentDirectory();
                 ConfigXMLPath = fullPath + @"\LocalDevice.xml";
@@ -99,9 +83,9 @@ namespace FeedbackDataLib_GUI
                     string ConfigXMLPath = "";
                     GetConfigPath(ref ConfigXMLPath);
 
-                    FileStream fs = new FileStream(ConfigXMLPath, FileMode.Create);
+                    FileStream fs = new(ConfigXMLPath, FileMode.Create);
                     TextWriter writer = new StreamWriter(fs);
-                    XmlSerializer ser = new XmlSerializer(typeof(Scaling_Values[][]));
+                    XmlSerializer ser = new(typeof(Scaling_Values[][]));
                     ser.Serialize(writer, DefaultVals);
                     writer.Close();
                 }
@@ -119,10 +103,14 @@ namespace FeedbackDataLib_GUI
                     string ConfigXMLPath = "";
                     GetConfigPath(ref ConfigXMLPath);
 
-                    FileStream fs = new FileStream(ConfigXMLPath, FileMode.Open);
+                    FileStream fs = new(ConfigXMLPath, FileMode.Open);
                     TextReader reader = new StreamReader(fs);
-                    XmlSerializer ser = new XmlSerializer(typeof(Scaling_Values[][]));
-                    DefaultVals = (Scaling_Values[][])ser.Deserialize(reader);
+                    XmlSerializer ser = new(typeof(Scaling_Values[][]));
+                    object? o = ser.Deserialize(reader);
+                    if (o != null)
+                    {
+                        DefaultVals = (Scaling_Values[][])o;
+                    }
                     reader.Close();
                 }
                 catch
@@ -167,8 +155,8 @@ namespace FeedbackDataLib_GUI
             }
         }
 
-        private List<DateTime> ChannelTimeouts;
-        private readonly System.Windows.Forms.Timer tmrTimeout;
+        private List<DateTime> ChannelTimeouts = [];
+        private readonly System.Windows.Forms.Timer tmrTimeout = new();
 
         private List<CModuleBase> _ModuleInfos;
 
@@ -187,17 +175,17 @@ namespace FeedbackDataLib_GUI
             return ret;
         }
 
-        public byte[] GetModuleSpecific (int HW_cn)
+        public byte[] GetModuleSpecific(int HW_cn)
         {
-            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor!= null)
+            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor != null)
             {
-                CModuleMultisensor ModuleInfo = new ();
+                CModuleMultisensor ModuleInfo = new();
                 ucModuleSpecificSetup_MultiSensor.ReadModuleSpecificInfo(ref ModuleInfo);
                 return ModuleInfo.GetModuleSpecific();
             }
-            else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig && ucModuleSpecificSetup_AtemIR!= null)
+            else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig && ucModuleSpecificSetup_AtemIR != null)
             {
-                CModuleRespI ModuleInfo = new ();
+                CModuleRespI ModuleInfo = new();
                 ucModuleSpecificSetup_AtemIR.ReadModuleSpecificInfo(ref ModuleInfo);
                 return ModuleInfo.GetModuleSpecific();
             }
@@ -210,7 +198,7 @@ namespace FeedbackDataLib_GUI
         /// <param name="value">The value.</param>
         public void SetModuleInfos(List<CModuleBase> value)
         {
-            if (value != null)
+            if (value is not null && cModuleInfoDataGridView is not null && cModuleInfoDataGridView.SelectedRows is not null)
             {
                 _ModuleInfos = [];
                 for (int i = 0; i < value.Count; i++)
@@ -233,21 +221,25 @@ namespace FeedbackDataLib_GUI
                 }
 
                 cModuleInfoDataGridView.Rows[0].Selected = true;
-                SelectedModuleRow = cModuleInfoDataGridView.SelectedRows[0].DataBoundItem as CModuleBase;
-
-                //if (sWChannelsDataGridView.Rows.Count > 0)
+                if (cModuleInfoDataGridView?.SelectedRows != null &&
+                    cModuleInfoDataGridView.SelectedRows.Count > 0 &&
+                    cModuleInfoDataGridView.SelectedRows[0]?.DataBoundItem is CModuleBase module)
                 {
-                    sWChannelsDataGridView.Rows[0].Selected = true;
-                    SelectedSWChannel = sWChannelsDataGridView.Rows[0].DataBoundItem as CSWChannel;
-
-                    UpdateInfo();
-                    UpdateModuleSpecificInfo(SelectedModuleRow);
+                    SelectedModuleRow = module;
                 }
+
+
+                sWChannelsDataGridView.Rows[0].Selected = true;
+                SelectedSWChannel = sWChannelsDataGridView.Rows[0].DataBoundItem as CSWChannel;
+
+                UpdateInfo();
+                UpdateModuleSpecificInfo(SelectedModuleRow);
+
                 tmrTimeout.Enabled = true;
             }
         }
 
-        public void SetUserChangeableData (List<CModuleBase> ModuleInfo)
+        public void SetUserChangeableData(List<CModuleBase> ModuleInfo)
         {
             for (int hw_cn = 0; hw_cn < ModuleInfo.Count; hw_cn++)
             {
@@ -272,7 +264,7 @@ namespace FeedbackDataLib_GUI
             Refresh();
         }
 
-        public void SetUserChangeableData(int hw_cn, int sw_cn,  CSWConfigValues SWConfigValues)
+        public void SetUserChangeableData(int hw_cn, int sw_cn, CSWConfigValues SWConfigValues)
         {
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SampleInt = SWConfigValues.SampleInt;
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SendChannel = SWConfigValues.SendChannel;
@@ -312,7 +304,7 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// User selected another Module Row
         /// </summary>
-        public event ModuleRowChangedEventHandler ModuleRowChanged;
+        public event ModuleRowChangedEventHandler? ModuleRowChanged;
         protected virtual void OnModuleRowChanged(CModuleBase ModuleInfo)
         {
             if (ModuleInfo != null)
@@ -327,9 +319,12 @@ namespace FeedbackDataLib_GUI
         /// User selected another SWChannel Row
         /// </summary>
         public event SWChannelRowChangedEventHandler SWChannelRowChanged;
-        protected virtual void OnSWChannelRowChanged(CSWChannel SelectedSWChannel)
+        protected virtual void OnSWChannelRowChanged(CSWChannel? SelectedSWChannel)
         {
-            SWChannelRowChanged?.Invoke(this, this.SelectedSWChannel);
+            if (SelectedSWChannel != null)
+            {
+                SWChannelRowChanged?.Invoke(this, SelectedSWChannel);
+            }
         }
 
         #endregion
@@ -354,40 +349,55 @@ namespace FeedbackDataLib_GUI
 
         public CModuleBase SelectedModuleRow { get; private set; }
 
-        public CSWChannel SelectedSWChannel { get; private set; }
+        public CSWChannel? SelectedSWChannel { get; private set; }
 
-        private void cModuleInfoDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
+        private void CModuleInfoDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             if (cModuleInfoDataGridView.SelectedRows.Count > 0)
             {
-                SelectedModuleRow = cModuleInfoDataGridView.SelectedRows[0].DataBoundItem as CModuleBase;
+                if (cModuleInfoDataGridView?.SelectedRows != null &&
+                    cModuleInfoDataGridView.SelectedRows.Count > 0 &&
+                    cModuleInfoDataGridView.SelectedRows[0]?.DataBoundItem is CModuleBase module)
+                {
+                    SelectedModuleRow = module;
+                }
                 UpdateInfo();
                 UpdateModuleSpecificInfo(SelectedModuleRow);
 
                 OnModuleRowChanged(SelectedModuleRow);
+
+
+                if (cModuleInfoDataGridView is not null && cModuleInfoDataGridView.RowHeadersDefaultCellStyle is not null)
+                {
+                    if (_ModuleInfos[e.RowIndex].ModuleBootloaderError)
+                    {
+                        cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor = colError;
+                    }
+                    else
+                    {
+                        cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor = _ModuleInfos[e.RowIndex].ModuleColor;
+                    }
+
+                    cModuleInfoDataGridView.DefaultCellStyle.SelectionBackColor = cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor;
+                }
             }
-            if (_ModuleInfos[e.RowIndex].ModuleBootloaderError)
-            {
-                cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor = colError;
-            }
-            else
-            {
-                cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor = (_ModuleInfos[e.RowIndex].ModuleColor);
-            }
-            cModuleInfoDataGridView.DefaultCellStyle.SelectionBackColor = cModuleInfoDataGridView.RowHeadersDefaultCellStyle.SelectionBackColor;
         }
 
-        private void sWChannelsDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
+        private void SWChannelsDataGridView_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
             int rowIndex = e.RowIndex;
-            SelectedSWChannel = sWChannelsDataGridView.Rows[rowIndex].DataBoundItem as CSWChannel;
-            UpdateInfo();
-            OnSWChannelRowChanged(SelectedSWChannel);
+            if (rowIndex >= 0 && rowIndex < sWChannelsDataGridView.Rows.Count)
+            {
+                SelectedSWChannel = sWChannelsDataGridView.Rows[rowIndex]?.DataBoundItem as CSWChannel;
+                UpdateInfo();
+                OnSWChannelRowChanged(SelectedSWChannel);
+
+            }
         }
 
-        private void saveCurrentValuesAsDefaultsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveCurrentValuesAsDefaultsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Default_Scaling_Values default_Scaling_Values = new Default_Scaling_Values();
+            Default_Scaling_Values default_Scaling_Values = new();
             if (!SelectedModuleRow.ModuleBootloaderError)
             {
                 if (SelectedModuleRow.ModuleType != enumModuleType.cModuleTypeEmpty)
@@ -403,13 +413,12 @@ namespace FeedbackDataLib_GUI
             default_Scaling_Values.SaveConfigData();
         }
 
-        ucModuleSpecificSetup_AtemIR ucModuleSpecificSetup_AtemIR = new ();
-        ucModuleSpecificSetup_VasoIR ucModuleSpecificSetup_VasoIR = new ();
+        ucModuleSpecificSetup_AtemIR ucModuleSpecificSetup_AtemIR = new();
+        ucModuleSpecificSetup_VasoIR ucModuleSpecificSetup_VasoIR = new();
         ucModuleSpecificSetup_MultiSensor ucModuleSpecificSetup_MultiSensor = new();
         ucModuleExGADS_Impedance ucModuleExGADS_Impedance = new();
-        ucModuleEEG? ucModuleEEG = new ();
-        //frmModuleSpecificSetup_ExGADS1292 frmModuleSpecificSetup_ExGADS = new ();
-        
+        ucModuleEEG? ucModuleEEG = new();
+
 
         private void UpdateInfo()
         {
@@ -442,7 +451,7 @@ namespace FeedbackDataLib_GUI
                 if (ucModuleSpecificSetup_AtemIR == null)
                 {
                     ucModuleSpecificSetup_AtemIR = new ucModuleSpecificSetup_AtemIR();
-                    this.Controls.Add(ucModuleSpecificSetup_AtemIR);
+                    Controls.Add(ucModuleSpecificSetup_AtemIR);
                     ucModuleSpecificSetup_AtemIR.Location = new Point(Left, Top);
                     ucModuleSpecificSetup_AtemIR.Name = "ucModuleSpecificSetup_AtemIR";
                     ucModuleSpecificSetup_AtemIR.Width = Width;
@@ -461,7 +470,7 @@ namespace FeedbackDataLib_GUI
                 if (ucModuleSpecificSetup_VasoIR == null)
                 {
                     ucModuleSpecificSetup_VasoIR = new ucModuleSpecificSetup_VasoIR();
-                    this.Controls.Add(ucModuleSpecificSetup_VasoIR);
+                    Controls.Add(ucModuleSpecificSetup_VasoIR);
                     ucModuleSpecificSetup_VasoIR.Location = new Point(Left, Top);
                     ucModuleSpecificSetup_VasoIR.Name = "ucModuleSpecificSetup_VasoIR";
                     ucModuleSpecificSetup_VasoIR.Width = Width;
@@ -482,7 +491,7 @@ namespace FeedbackDataLib_GUI
                 if (ucModuleSpecificSetup_MultiSensor == null)
                 {
                     ucModuleSpecificSetup_MultiSensor = new ucModuleSpecificSetup_MultiSensor();
-                    this.Controls.Add(ucModuleSpecificSetup_MultiSensor);
+                    Controls.Add(ucModuleSpecificSetup_MultiSensor);
 
 
                     ucModuleSpecificSetup_MultiSensor.Location = new System.Drawing.Point(Left, Top);
@@ -584,8 +593,7 @@ namespace FeedbackDataLib_GUI
 
         public void Update_ucModuleExGADS_Impedance(CADS1294x_ElectrodeImp mi)
         {
-            if (ucModuleExGADS_Impedance != null)
-                ucModuleExGADS_Impedance.SetImpedanceBoxes(mi);
+            ucModuleExGADS_Impedance?.SetImpedanceBoxes(mi);
         }
 
         public int GetSR_ms(int chNo)

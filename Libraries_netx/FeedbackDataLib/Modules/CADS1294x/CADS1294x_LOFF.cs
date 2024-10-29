@@ -44,40 +44,41 @@
         {
             registerValue = 0b01000000;  // Default value as per #define LEAD_OFF_Reg_default
         }
-    
 
-    // Enums to define values for each bit field
-    public enum CompTh : byte
-    {
-        COMP_TH_95 = 0,
-        COMP_TH_92_5,
-        COMP_TH_90,
-        COMP_TH_87_5,
-        COMP_TH_85,
-        COMP_TH_80,
-        COMP_TH_75,
-        COMP_TH_70
-    }
 
-    public enum LeadOffDetectMode : byte
-    {
-        LEAD_OFF_DETECT_CURRENT_SOURCE = 0,
-        LEAD_OFF_DETECT_RESISTOR = 1
-    }
+        // Enums to define values for each bit field
+        public enum CompTh : byte
+        {
+            COMP_TH_95 = 0,
+            COMP_TH_92_5,
+            COMP_TH_90,
+            COMP_TH_87_5,
+            COMP_TH_85,
+            COMP_TH_80,
+            COMP_TH_75,
+            COMP_TH_70
+        }
 
-    public enum LeadOffCurrentMag : byte
-    {
-        CURRENT_MAG_6NA = 0,
-        CURRENT_MAG_12NA,
-        CURRENT_MAG_18NA,
-        CURRENT_MAG_24NA
-    }
+        public enum LeadOffDetectMode : byte
+        {
+            LEAD_OFF_DETECT_CURRENT_SOURCE = 0,
+            LEAD_OFF_DETECT_RESISTOR = 1
+        }
 
-    public enum LeadOffFreq : byte
-    {
-        LEAD_OFF_FREQ_NORMAL = 0, // Follow datasheet instructions for FLEAD[1:0]
-        LEAD_OFF_FREQ_AC = 1, // AC lead-off detection at fDR / 4
-        LEAD_OFF_FREQ_UNUSED = 2, // Do not use
-        LEAD_OFF_FREQ_DC = 3 // DC lead-off detection turned on
+        public enum LeadOffCurrentMag : byte
+        {
+            CURRENT_MAG_6NA = 0,
+            CURRENT_MAG_12NA,
+            CURRENT_MAG_18NA,
+            CURRENT_MAG_24NA
+        }
+
+        public enum LeadOffFreq : byte
+        {
+            LEAD_OFF_FREQ_NORMAL = 0, // Follow datasheet instructions for FLEAD[1:0]
+            LEAD_OFF_FREQ_AC = 1, // AC lead-off detection at fDR / 4
+            LEAD_OFF_FREQ_UNUSED = 2, // Do not use
+            LEAD_OFF_FREQ_DC = 3 // DC lead-off detection turned on
+        }
     }
-}}
+}

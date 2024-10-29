@@ -47,7 +47,7 @@ namespace WindControlLib
         /// <summary>
         /// Timespan since ChannelStarted
         /// </summary>
-        [JsonIgnore] 
+        [JsonIgnore]
         public TimeSpan TS_Since_ChannelStarted { get; set; }
 
 

@@ -8,11 +8,11 @@ namespace XBeeLib
 {
 
 
- /************************************************************************************
- * ************************************************************************************
- * CLASS: CBasicAPICommand
- * ************************************************************************************
-************************************************************************************/
+    /************************************************************************************
+    * ************************************************************************************
+    * CLASS: CBasicAPICommand
+    * ************************************************************************************
+   ************************************************************************************/
 
 
     /// <summary>
@@ -37,7 +37,7 @@ namespace XBeeLib
             get { return _APID; }
             protected set { _APID = value; }
         }
-        
+
         /// <summary>
         /// constructor
         /// </summary>
@@ -55,7 +55,7 @@ namespace XBeeLib
         virtual protected byte[] MakeBasicDataFrame(List<byte> FrameData, XBAPIMode ApiMode)
         {
 
-            List<byte> CompleteAPICommand = new List<byte>
+            List<byte> CompleteAPICommand = new()
             {
                 //API Command Byte 0: Start Delimiter
                 CXBAPICommands.StartDelimiter
@@ -72,7 +72,7 @@ namespace XBeeLib
                     be[i] == 0x13))
                 {
                     CompleteAPICommand.Add(0x7D);
-                    CompleteAPICommand.Add((byte)(be[i]^0x20));
+                    CompleteAPICommand.Add((byte)(be[i] ^ 0x20));
                 }
                 else
                 {
@@ -92,7 +92,7 @@ namespace XBeeLib
                     FrameData[i] == 0x13))
                 {
                     CompleteAPICommand.Add(0x7D);
-                    CompleteAPICommand.Add((byte)(FrameData[i]^0x20));
+                    CompleteAPICommand.Add((byte)(FrameData[i] ^ 0x20));
                 }
                 else
                 {
@@ -101,7 +101,7 @@ namespace XBeeLib
             }
 
             //Checksum
-            Checksum = (byte)(((byte)0xff) - Checksum);
+            Checksum = (byte)(0xff - Checksum);
             if (ApiMode == XBAPIMode.Enabled_w_Escape_Control_Chars &&
                     (Checksum == CXBAPICommands.StartDelimiter ||
                     Checksum == 0x7D ||
@@ -109,14 +109,14 @@ namespace XBeeLib
                     Checksum == 0x13))
             {
                 CompleteAPICommand.Add(0x7D);
-                CompleteAPICommand.Add((byte)(Checksum^0x20));
+                CompleteAPICommand.Add((byte)(Checksum ^ 0x20));
             }
             else
             {
                 CompleteAPICommand.Add(Checksum);
             }
 
-            return CompleteAPICommand.ToArray();
+            return [.. CompleteAPICommand];
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace XBeeLib
         /// false: if not 
         /// </returns>
         abstract public bool checkResponse(CBasicAPIResponse response);
-        
+
         /// <summary>
         /// returns the byte array representation of the frame
         /// </summary>

@@ -10,12 +10,15 @@ namespace FeedbackDataLib
 
         public List<CModuleBase> ModuleInfos { get => moduleInfos; set => moduleInfos = value; }
 
-        public List<CModuleBase> GetModuleInfo_Clone() {
+        public List<CModuleBase> GetModuleInfo_Clone()
+        {
             List<CModuleBase> ret = [];
-            foreach (var module in moduleInfos) {
-                ret.Add((CModuleBase) module.Clone());
+            foreach (var module in moduleInfos)
+            {
+                ret.Add((CModuleBase)module.Clone());
             }
-            return moduleInfos; }
+            return moduleInfos;
+        }
 
 
         public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
@@ -89,7 +92,7 @@ namespace FeedbackDataLib
 
                 switch (mi.ModuleType)
                 {
-                   case enumModuleType.cModuleMultisensor:
+                    case enumModuleType.cModuleMultisensor:
                         ModuleInfos[mi.HW_cn] = new CModuleMultisensor();
                         break;
                     case enumModuleType.cModuleMultiSCL:
@@ -150,10 +153,7 @@ namespace FeedbackDataLib
         /// <param name="DataIn">Data</param>
         public void UpdateTime(CDataIn DataIn)
         {
-            if (ModuleInfos is not null)
-            {
-                ModuleInfos[DataIn.HW_cn].SWChannels[DataIn.SW_cn].UpdateTime(ref DataIn);
-            }
+            ModuleInfos?[DataIn.HW_cn].SWChannels[DataIn.SW_cn].UpdateTime(ref DataIn);
         }
 
 

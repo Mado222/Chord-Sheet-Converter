@@ -1,26 +1,26 @@
 ﻿using System;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
     public class CPeakDetect
     {
 
-        public double[] Maxima_y { get; set; } = new double[0];
-        public double[] Minima_y { get; set; } = new double[0];
+        public double[] MaximaY { get; set; } = [];
+        public double[] MinimaY { get; set; } = [];
 
-        public double Mean_of_Maxima
+        public double MeanOfMaxima
         {
             get
             {
-                return MathNet.Numerics.Statistics.Statistics.Median(Maxima_y);
+                return MathNet.Numerics.Statistics.Statistics.Median(MaximaY);
             }
         }
 
-        public double Mean_of_Minima
+        public double MeanOfMinima
         {
             get
             {
-                return MathNet.Numerics.Statistics.Statistics.Median(Minima_y);
+                return MathNet.Numerics.Statistics.Statistics.Median(MinimaY);
             }
         }
 
@@ -45,11 +45,11 @@ namespace Math_Net_nuget
             int min_Length = max_Length;
 
 
-            Maxima_y = new double[max_Length];
-            Minima_y = new double[min_Length];
+            MaximaY = new double[max_Length];
+            MinimaY = new double[min_Length];
 
-            Array.Copy(y, idx_max_Start, Maxima_y, 0, max_Length);
-            Array.Copy(y, idx_min_Start, Minima_y, 0, min_Length);
+            Array.Copy(y, idx_max_Start, MaximaY, 0, max_Length);
+            Array.Copy(y, idx_min_Start, MinimaY, 0, min_Length);
         }
     }
 }

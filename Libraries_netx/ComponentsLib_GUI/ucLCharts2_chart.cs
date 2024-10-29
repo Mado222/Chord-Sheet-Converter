@@ -22,7 +22,7 @@ namespace ComponentsLib_GUI
         private List<CartesianChart> charts = [];
         private List<ObservableCollection<ObservablePoint>> chartData = [];
         private System.Timers.Timer displayRefreshTimer;
-        private CFifoBuffer<CYvsTimeData> [] data_in;
+        private CFifoBuffer<CYvsTimeData>[] data_in;
 
         /********************** Properties ***********************/
         private int _numberOfCharts = 2; // Set this to desired number of charts
@@ -48,7 +48,9 @@ namespace ComponentsLib_GUI
         public int xLength_s
         {
             get { return (int)tsxLength.TotalSeconds; }
-            set { tsxLength = new TimeSpan(0, 0, value);
+            set
+            {
+                tsxLength = new TimeSpan(0, 0, value);
                 InitializeCharts(_numberOfCharts);
             }
         }
@@ -217,7 +219,7 @@ namespace ComponentsLib_GUI
 
         public void Start()
         {
-            
+
             endisCharts(true);
             displayRefreshTimer.Start();
         }
@@ -275,14 +277,14 @@ namespace ComponentsLib_GUI
             ResumeLayout(false);
 
             // Calculate display timer resolution
-            displayRefreshTimer.Interval =  (xLength_s*1000) / charts[0].Width;
+            displayRefreshTimer.Interval = (xLength_s * 1000) / charts[0].Width;
 
-            
+
             //Buffers for incoming data
             data_in = new CFifoBuffer<CYvsTimeData>[numberOfCharts];
-            for (int i = 0;i < numberOfCharts;i++)
+            for (int i = 0; i < numberOfCharts; i++)
             {
-                data_in[i] = new CFifoBuffer<CYvsTimeData>();   
+                data_in[i] = new CFifoBuffer<CYvsTimeData>();
                 data_in[i].Push(new CYvsTimeData(DateTime.Now, 0));
             }
             Start();

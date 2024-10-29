@@ -30,7 +30,7 @@ namespace FeedbackDataLib.Modules
 
         public ExtraData<EnTypeExtradat_ADS>[][] extraDatas;
         public CEEGElectrodeData[] ElectrodeDatas;
-        
+
 
 
         //////////////////
@@ -39,8 +39,8 @@ namespace FeedbackDataLib.Modules
         //private CHP_2nd_Butterworth_float[] HP;
 
         const int ADRESOLUTION = 24;
-        const double MaxADVal = 1 << (ADRESOLUTION - 1); //8388608.0;
-        const double MinADVal = -1* (ADRESOLUTION - 1) +1;
+        //const double MaxADVal = 1 << (ADRESOLUTION - 1); //8388608.0;
+        //const double MinADVal = -1* (ADRESOLUTION - 1) +1;
 
         //const int UpperLimitADVal = (int)(MaxADVal * 0.95);
         //int[] MaxVal;
@@ -53,10 +53,10 @@ namespace FeedbackDataLib.Modules
         //int[] sumMinVal;
         //int[] sumMaxVal;
 
-        private long[] sumVals;
-        private int[] numVals;
-        
-            
+        private readonly long[] sumVals;
+        private readonly int[] numVals;
+
+
         public string name = "base";
 
         protected const double Iconst = 24e-9;
@@ -68,8 +68,8 @@ namespace FeedbackDataLib.Modules
         {
             _num_raw_Channels = 4;
 
-            sumVals = new long[numRawChannels];
-            numVals = new int[numRawChannels];
+            sumVals = new long[NumRawChannels];
+            numVals = new int[NumRawChannels];
 
             ModuleColor = Color.LightBlue;
             ModuleName = "ExGADS1294";
@@ -90,11 +90,11 @@ namespace FeedbackDataLib.Modules
                 enumSWChannelType.cSWChannelTypeExGADS3
             ];
 
-            extraDatas = new ExtraData<EnTypeExtradat_ADS>[numRawChannels][];
+            extraDatas = new ExtraData<EnTypeExtradat_ADS>[NumRawChannels][];
             int innerSize = Enum.GetValues(typeof(EnTypeExtradat_ADS)).Length;
-            ElectrodeDatas = new CEEGElectrodeData[numRawChannels];
+            ElectrodeDatas = new CEEGElectrodeData[NumRawChannels];
 
-            for (int i = 0; i < numRawChannels; i++)
+            for (int i = 0; i < NumRawChannels; i++)
             {
                 ElectrodeDatas[i] = new CEEGElectrodeData();
                 extraDatas[i] = new ExtraData<EnTypeExtradat_ADS>[innerSize];
@@ -105,26 +105,26 @@ namespace FeedbackDataLib.Modules
                 }
             }
         }
-        
+
         public virtual void Init()
         {
             InitModuleSpecific();
         }
 
-        protected double getAmplification (int raw_chan_no)
+        protected double GetAmplification(int raw_chan_no)
         {
             return CHANxSET[raw_chan_no].GetAmplification();
         }
 
-        protected double getSkalValue_k(int raw_chan_no)
+        protected double GetSkalValueK(int raw_chan_no)
         {
-            return 2 * CONFIG3[0].Vref / Math.Pow(2, ADRESOLUTION) / getAmplification(raw_chan_no);
+            return 2 * CONFIG3[0].Vref / Math.Pow(2, ADRESOLUTION) / GetAmplification(raw_chan_no);
         }
-        
-        protected void Update_SkalValue_k_s (int raw_chan_no)
+
+        protected void Update_SkalValue_k_s(int raw_chan_no)
         {
             //ToDo: New SkalVals for SW related channels
-            double new_gain = getSkalValue_k (raw_chan_no);
+            double new_gain = GetSkalValueK(raw_chan_no);
             for (int i = 0; i < SWChannels.Count; i++)
             {
                 SWChannels[i].SkalValue_k = new_gain;
@@ -167,7 +167,7 @@ namespace FeedbackDataLib.Modules
             var chan = (CDataIn)dataIn.Clone();
             int d = dataIn.Value;
 
-            if (dataIn.SW_cn < numRawChannels)
+            if (dataIn.SW_cn < NumRawChannels)
             {
                 //ExecAutorange(dataIn); //debug weg
 
@@ -262,13 +262,13 @@ namespace FeedbackDataLib.Modules
         public byte[] Get_SWConfigChannelsByteArray2()
         {
             bool[] buSend = new bool[SWChannels.Count];
-            for (int i = numRawChannels; i < SWChannels.Count; i++)
+            for (int i = NumRawChannels; i < SWChannels.Count; i++)
             {
                 buSend[i] = SWChannels[i].SendChannel;
             }
-            byte [] ret = base.Get_SWConfigChannelsByteArray(SWChannels);
+            byte[] ret = base.Get_SWConfigChannelsByteArray(SWChannels);
 
-            for (int i = numRawChannels; i < SWChannels.Count; i++)
+            for (int i = NumRawChannels; i < SWChannels.Count; i++)
             {
                 SWChannels[i].SendChannel = buSend[i];
             }
@@ -288,7 +288,7 @@ namespace FeedbackDataLib.Modules
 
         private void InitModuleSpecific()
         {
-            CADS1294x_CONFIG1 c1 = new ()
+            CADS1294x_CONFIG1 c1 = new()
             {
                 ClkEn = CADS1294x_CONFIG1.clkEn.OscillatorClockDisabled,
                 DaisyEn = CADS1294x_CONFIG1.daisyEn.MultipleReadbackMode,
@@ -298,7 +298,7 @@ namespace FeedbackDataLib.Modules
 
             CONFIG1 = [c1];
 
-            CADS1294x_CONFIG2 c2 = new ()
+            CADS1294x_CONFIG2 c2 = new()
             {
                 TestSource = CADS1294x_CONFIG2.testSource.TEST_SIGNAL_INTERNAL,
                 TestAmp = CADS1294x_CONFIG2.testAmp.TEST_AMP_2X_VREF_DIV_2400,
@@ -358,7 +358,7 @@ namespace FeedbackDataLib.Modules
         public override void SetModuleSpecific(byte[] ModuleSpecific)
         {
             this.ModuleSpecific = ModuleSpecific;
-            
+
             /*int i = 0;
             byte enumExGADS_command = ModuleSpecific[i]; i++;
             if (enumExGADS_command == 0)

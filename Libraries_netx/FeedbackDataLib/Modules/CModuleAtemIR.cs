@@ -1,7 +1,7 @@
 ﻿namespace FeedbackDataLib.Modules
 {
     [Serializable()]    //Set this attribute to all the classes that want to serialize
-    public class CModuleRespI: CModuleAtem
+    public class CModuleRespI : CModuleAtem
     {
         public CModuleRespI()
         {
@@ -15,20 +15,20 @@
                 "Atem-Amplitude [1]",
                 "Atem-Unused"
                 ];
-            cSWChannelTypes = new enumSWChannelType[]
-            {
+            cSWChannelTypes =
+            [
                 enumSWChannelType.cSWChannelTypeAtemIRDig0,
                 enumSWChannelType.cSWChannelTypeAtemIRDig1,
                 enumSWChannelType.cSWChannelTypeAtemIRDig2,
                 enumSWChannelType.cSWChannelTypeAtemIRDig3
-            };
+            ];
         }
 
         public override void Update_ModuleTypeFromDevice(ushort ModuleTypeFromDevice)
         {
             base.Update_ModuleTypeFromDevice(ModuleTypeFromDevice);
             //Make Infrared Atemsensor to Atemsensor 2.12.2014
-             ModuleTypeNumber = (byte)enumModuleType.cModuleAtem;
+            ModuleTypeNumber = (byte)enumModuleType.cModuleAtem;
         }
 
         #region Atem_IR_Params

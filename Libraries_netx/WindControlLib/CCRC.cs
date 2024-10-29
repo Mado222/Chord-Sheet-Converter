@@ -27,8 +27,8 @@ namespace WindControlLib
         private byte[] _Table = new byte[256];
         public byte[] Table
         {
-            get { return this._Table; }
-            set { this._Table = value; }
+            get { return _Table; }
+            set { _Table = value; }
         }
 
         private readonly CRC8_POLY polynomial;
@@ -36,8 +36,8 @@ namespace WindControlLib
         public CCRC8(CRC8_POLY polynomial)
         {
             this.polynomial = polynomial;
-            this._Table = new byte[256];
-            this.GenerateTable(polynomial);
+            _Table = new byte[256];
+            GenerateTable(polynomial);
         }
 
 
@@ -58,7 +58,7 @@ namespace WindControlLib
             {
                 if (LastByteIsCRC)
                 {
-                    CRC_soll = data[data.Length - 1];
+                    CRC_soll = data[^1];
                     CRC_ist = Calc_CRC8(data, data.Length - 2);
                 }
                 else
@@ -106,7 +106,7 @@ namespace WindControlLib
 
         public byte Calc_CRC8(byte[] data)
         {
-           return Calc_CRC8(data, data.Length - 1);
+            return Calc_CRC8(data, data.Length - 1);
         }
 
 
@@ -125,7 +125,7 @@ namespace WindControlLib
         {
             if (polynomial == CRC8_POLY.CRC_8_PIC_16_18)
             {
-                byte[] crc_array_Pic_16_18 = {
+                byte[] crc_array_Pic_16_18 = [
                     0x00, 0x5e, 0xbc, 0xe2, 0x61, 0x3f, 0xdd, 0x83,
                     0xc2, 0x9c, 0x7e, 0x20, 0xa3, 0xfd, 0x1f, 0x41,
                     0x9d, 0xc3, 0x21, 0x7f, 0xfc, 0xa2, 0x40, 0x1e,
@@ -158,12 +158,12 @@ namespace WindControlLib
                     0x2b, 0x75, 0x97, 0xc9, 0x4a, 0x14, 0xf6, 0xa8,
                     0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7,
                     0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
-                };
+                ];
                 Buffer.BlockCopy(crc_array_Pic_16_18, 0, _Table, 0, crc_array_Pic_16_18.Length);
             }
             else if (polynomial == CRC8_POLY.CRC_MinistimProgrammer)
             {
-                byte[] crc_array_MinistimProgrammer = {
+                byte[] crc_array_MinistimProgrammer = [
                     0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15,
                     0x38, 0x3F, 0x36, 0x31, 0x24, 0x23, 0x2A, 0x2D,
                     0x70, 0x77, 0x7E, 0x79, 0x6C, 0x6B, 0x62, 0x65,
@@ -196,7 +196,7 @@ namespace WindControlLib
                     0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83,
                     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB,
                     0xE6, 0xE1, 0xE8, 0xEF, 0xFA, 0xFD, 0xF4, 0xF3
-                };
+                ];
                 Buffer.BlockCopy(crc_array_MinistimProgrammer, 0, _Table, 0, crc_array_MinistimProgrammer.Length);
             }
             else

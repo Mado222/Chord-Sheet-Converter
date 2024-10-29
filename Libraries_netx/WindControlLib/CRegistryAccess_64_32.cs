@@ -20,7 +20,7 @@ namespace WindControlLib
     {
         public static string[] Read_Subkeys_64bitRegistryFrom32bitApp(string RegKey)
         {
-            string[] ret = new string[0];
+            string[] ret = [];
             if (Environment.Is64BitOperatingSystem)
             {
                 RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);

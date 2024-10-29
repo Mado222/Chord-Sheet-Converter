@@ -11,7 +11,7 @@ namespace XBeeLib
     /// </summary>
     public static class CXBATCommands
     {
-        
+
         /// <summary>
         /// important Commands - for entering the command mode / response
         /// </summary>
@@ -35,11 +35,11 @@ namespace XBeeLib
         // Software Reset. Responds immediately with an OK then performs a hard reset ~100ms later.
         public const string XBAT_SotfwareReset = "ATFR\r";
 
-        
+
         /// <summary>
         /// AT Commands for Networking and Security
         /// </summary>
-        
+
         //Channel
         public const string XBAT_GetChannel = "ATCH\r";
         public static string XBAT_SetChannel(byte channel)
@@ -78,7 +78,7 @@ namespace XBeeLib
             return "ATDH " + H.ToString("X8") + "\r";
         }
 
-        
+
         /// <summary>
         /// Sets the Destination Address 
         /// </summary>
@@ -104,7 +104,7 @@ namespace XBeeLib
         {
             return "ATMY " + Address.ToString("X4") + "\r";
         }
-        
+
         /// <summary>
         /// constant value (0xFFFF) to disable reception of packets with 16bit addresses 
         /// </summary>
@@ -194,7 +194,7 @@ namespace XBeeLib
         //Destination Node
         public static string XBAT_GetDestinationNode(string nodeId)
         {
-            if(nodeId.Length>20)
+            if (nodeId.Length > 20)
                 return "ATDN " + nodeId.Substring(0, 20) + "\r";
             else
                 return "ATDN " + nodeId + "\r";
@@ -223,7 +223,7 @@ namespace XBeeLib
         public const string XBAT_GetScanDuration = "ATSD\r";
         public static string XBAT_SetScanDuration(byte bitfield)
         {
-            return "ATSD " + bitfield.ToString("X2") +"\r";
+            return "ATSD " + bitfield.ToString("X2") + "\r";
         }
 
         //End Device Association
@@ -287,7 +287,7 @@ namespace XBeeLib
         /// <summary>
         /// AT Commands - RF Interfacing
         /// </summary>
-        
+
         //Power Level
         public const string XBAT_GetPowerLevel = "ATPL\r";
         public static string XBAT_SetPowerLevel(byte number)
@@ -305,12 +305,12 @@ namespace XBeeLib
         /// <summary>
         /// AT Commands - Sleep (Low Power)
         /// </summary>
-       
+
         //Sleep Mode
         public const string XBAT_GetSleepMode = "ATSM\r";
         public static string XBAT_SetSleepMode(XBSleepMode mode)
         {
-            byte i = (byte) mode;
+            byte i = (byte)mode;
             /*
             switch (mode)
             {
@@ -367,27 +367,27 @@ namespace XBeeLib
         /// </summary>
         public static class XBBaudRates
         {
-            private static readonly uint[] _DefaultBaud = new uint[] { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200};
-            public static uint GetBaudRate (uint XBReturned_BD_Value)
+            private static readonly uint[] _DefaultBaud = [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200];
+            public static uint GetBaudRate(uint XBReturned_BD_Value)
             {
                 if (XBReturned_BD_Value < _DefaultBaud.Length)
                     return _DefaultBaud[XBReturned_BD_Value];
                 return XBReturned_BD_Value;
             }
 
-            public static uint Get_BD_Value (uint BaudRate)
+            public static uint Get_BD_Value(uint BaudRate)
             {
                 for (uint i = 0; i < _DefaultBaud.Length; i++)
                 {
-                    if (BaudRate== _DefaultBaud[i])
+                    if (BaudRate == _DefaultBaud[i])
                         return i;
                 }
                 //No Standard Baud Rate
                 return BaudRate;
             }
         }
-        
-        
+
+
         /// <summary>
         /// Creates string to set Baud rate
         /// </summary>
@@ -463,7 +463,7 @@ namespace XBeeLib
         /// <summary>
         /// AT Commands - I/O-Setttings
         /// </summary>
-       
+
         //DIO Configuration (for D8-D0)
         public static string XBAT_GetDIOConfiguration(uint linenumber)
         {
@@ -585,7 +585,7 @@ namespace XBeeLib
         /// <summary>
         /// AT Commands - Diagnostics
         /// </summary>
-        
+
         //Firmware Version
         public const string XBAT_GetFirmwareVersion = "ATVR\r";
 
@@ -636,7 +636,7 @@ namespace XBeeLib
         {
             return "ATCC " + number.ToString("X2") + "\r";
         }
- 
+
     }
 
     /// <summary>

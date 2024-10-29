@@ -39,10 +39,10 @@ namespace BMTCommunicationLib
                         int ReadRes = Seriell32.Read(ref buffer, ptr, DataToReceive, 100);
                         if (ReadRes == DataToReceive)
                         {
-                            CDataIn DI = new CDataIn();
+                            CDataIn DI = new();
                             if (Parse4Byte(buffer, ref DI))
                             {
-                                if (DI.HW_cn== CommandChannelNo)
+                                if (DI.HW_cn == CommandChannelNo)
                                 {
                                     //DI.
                                     if (DI.Value == SequToReturn.Length)

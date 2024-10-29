@@ -54,7 +54,7 @@ namespace ComponentsLib_GUI
             }
             set
             {
-                Text = (string) value;
+                Text = (string)value;
             }
         }
 
@@ -143,7 +143,7 @@ namespace ComponentsLib_GUI
             switch (keyData & Keys.KeyCode)
             {
                 case Keys.Right:
-                {
+                    {
                         if (Controls[1] is TextBox textBox)
                         {
                             // If the end of the selection is at the end of the string,
@@ -155,10 +155,10 @@ namespace ComponentsLib_GUI
                             }
                         }
                         break;
-                }
+                    }
 
                 case Keys.Left:
-                {
+                    {
                         if (Controls[1] is TextBox textBox)
                         {
                             // If the end of the selection is at the begining of the string
@@ -171,7 +171,7 @@ namespace ComponentsLib_GUI
                             }
                         }
                         break;
-                }
+                    }
 
                 case Keys.Down:
                     // If the current value hasn't reached its minimum yet, handle the key. Otherwise let
@@ -193,7 +193,7 @@ namespace ComponentsLib_GUI
 
                 case Keys.Home:
                 case Keys.End:
-                {
+                    {
                         // Let the grid handle the key if the entire text is selected.
                         if (Controls[1] is TextBox textBox)
                         {
@@ -203,10 +203,10 @@ namespace ComponentsLib_GUI
                             }
                         }
                         break;
-                }
+                    }
 
                 case Keys.Delete:
-                {
+                    {
                         // Let the grid handle the key if the carret is at the end of the text.
                         if (Controls[1] is TextBox textBox && (textBox.SelectionLength > 0 ||
                                 textBox.SelectionStart < textBox.Text.Length))
@@ -214,7 +214,7 @@ namespace ComponentsLib_GUI
                             return true;
                         }
                         break;
-                }
+                    }
             }
             return !dataGridViewWantsInputKey;
         }
@@ -227,7 +227,7 @@ namespace ComponentsLib_GUI
 
             bool userEdit = UserEdit;
             try
-            {   
+            {
                 // Prevent the Value from being set to Maximum or Minimum when the cell is being painted.
                 UserEdit = (context & DataGridViewDataErrorContexts.Display) == 0;
                 return Value.ToString((ThousandsSeparator ? "N" : "F") + DecimalPlaces.ToString());

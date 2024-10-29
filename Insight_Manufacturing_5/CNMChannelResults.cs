@@ -32,12 +32,12 @@ namespace Insight_Manufacturing5_net8
         public int noSamplesIgnored_in_the_Beginning = 0;
         public int SamplesAdded = 0;
 
-        public List<double> Scaledvalues = new List<double>();
+        public List<double> Scaledvalues = new();
 
-        private readonly CRingpuffer cache_hex = new CRingpuffer(10000);
+        private readonly CRingpuffer cache_hex = new(10000);
         private double[] _hexvals = null;
 
-        private readonly List<double> cache_scaled = new List<double>();
+        private readonly List<double> cache_scaled = new();
         private double[] _scaledvals = null;
 
         public double Umean => CalcMean(sumData);
@@ -157,7 +157,7 @@ namespace Insight_Manufacturing5_net8
 
                 if (idx_falling > 0 && idx_rising >= 0)
                 {
-                    List<double> sv = new List<double>(scaledvals);
+                    List<double> sv = new(scaledvals);
                     sv.RemoveRange(idx_falling, sv.Count - idx_falling);
                     sv.RemoveRange(0, idx_rising);
                     ret = sv.ToArray();
@@ -190,7 +190,7 @@ namespace Insight_Manufacturing5_net8
 
         public CVals_Statistics Get_Vals_Statistics(IEnumerable<double> vals)
         {
-            CVals_Statistics ret = new CVals_Statistics();
+            CVals_Statistics ret = new();
             if (vals != null)
             {
                 ret.ueff = MathNet.Numerics.Statistics.Statistics.RootMeanSquare(vals);

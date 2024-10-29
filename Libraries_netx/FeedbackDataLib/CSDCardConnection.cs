@@ -69,15 +69,15 @@ namespace FeedbackDataLib
         public int DataBits { get; set; }
         public Handshake Handshake { get; set; }
 
-        private readonly CByteRingpuffer InBufferSD = new CByteRingpuffer(1024);
-        private readonly CByteRingpuffer OutBufferSD = new CByteRingpuffer(1024);
+        private readonly CByteRingpuffer InBufferSD = new(1024);
+        private readonly CByteRingpuffer OutBufferSD = new(1024);
 
 
         public int Read(ref byte[] buffer, int offset, int count)
         {
 
             int cntbytes = 0;
-            
+
             for (int i = 0; i < count; i++)
             {
                 if (InBufferSD.StoredBytes == 0)
@@ -167,13 +167,15 @@ namespace FeedbackDataLib
         public DateTime StartTime
         {
             get { return _StartTime; }
-            set { _StartTime = value;
-            SyncTime = StartTime;
+            set
+            {
+                _StartTime = value;
+                SyncTime = StartTime;
             }
         }
 
 
-        private TimeSpan _SyncInterval = new TimeSpan(0, 0, 0, 1, 0);
+        private TimeSpan _SyncInterval = new(0, 0, 0, 1, 0);
         /// <summary>
         /// Interval where the Sync events are coming from NM
         /// </summary>

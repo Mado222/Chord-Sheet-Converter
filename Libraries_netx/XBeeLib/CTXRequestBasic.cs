@@ -23,7 +23,7 @@ namespace XBeeLib
             }
         }
 
-        protected List<byte> _rfData = new List<byte>();
+        protected List<byte> _rfData = new();
         public List<byte> rfData
         {
             get { return _rfData; }
@@ -49,7 +49,7 @@ namespace XBeeLib
 
                     CTXStatusResponse responseNew = (CTXStatusResponse)response;
 
-                    if (this.frameId == responseNew.frameId)
+                    if (frameId == responseNew.frameId)
                     {
                         IsResponseCorrect = true;
                     }

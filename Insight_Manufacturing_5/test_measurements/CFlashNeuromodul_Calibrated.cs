@@ -23,7 +23,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         {
             ModuleTestResult = enModuleTestResult.Fail;
 
-            CIPE_Neuromodul_PIC24 Neuromodule_handle_hexfile = new CIPE_Neuromodul_PIC24(IPE_Neuromodul_PIC24.mc_programmer);
+            CIPE_Neuromodul_PIC24 Neuromodule_handle_hexfile = new(IPE_Neuromodul_PIC24.mc_programmer);
             Neuromodule_handle_hexfile.ReportMeasurementProgress -= Neuromodule_handle_hexfile_ReportMeasurementProgress;
             Neuromodule_handle_hexfile.ReportMeasurementProgress += Neuromodule_handle_hexfile_ReportMeasurementProgress;
 

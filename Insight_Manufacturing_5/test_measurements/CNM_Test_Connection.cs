@@ -2,6 +2,7 @@
 using ComponentsLib_GUI;
 using FeedbackDataLib;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {
@@ -37,7 +38,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             //c:\Users\xxxxx\AppData\Local\Insight\RemoteDevice.xml
             //c: \Users\xxxxx\AppData\Local\Insight\LocalDevice.xml
 
-            CXBeeConnection xbc = new CXBeeConnection();
+            CXBeeConnection xbc = new();
             string rd = "";
             string ld = "";
             xbc.GetConfigPath(ref ld, ref rd);
@@ -86,7 +87,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                 if (ConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee && Test_kabel == false)
                 {
                     //Sicherheitshalber checken, ob die Konfigurationsfiles angelegt wurden
-                    CXBeeConnection xbc = new CXBeeConnection();
+                    CXBeeConnection xbc = new();
                     string rd = "";
                     string ld = "";
                     xbc.GetConfigPath(ref ld, ref rd);
@@ -130,8 +131,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         {
             try
             {
-                dsManufacturing _dsManufacturing = new dsManufacturing();
-                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter();
+                dsManufacturing _dsManufacturing = new();
+                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new();
 
                 neurodevicesTableAdapter.FillBy_SerialNumber(_dsManufacturing.Neurodevices, SerialNumber);
                 if (_dsManufacturing.Neurodevices.Count == 1)

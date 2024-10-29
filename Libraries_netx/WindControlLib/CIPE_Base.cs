@@ -27,7 +27,7 @@ namespace WindControlLib
         {
             bool ret = false;
 
-            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo
+            System.Diagnostics.ProcessStartInfo psi = new()
             {
                 ///Prozess-Konfiguration//////////////////////////
                 FileName = GetMPLABX_ipecmd_Path() //@"c:\Program Files (x86)\Microchip\MPLABX\v5.30\mplab_platform\mplab_ipe\c" 
@@ -45,7 +45,7 @@ namespace WindControlLib
                 psi.RedirectStandardOutput = true;
 
                 //Prozess-Start///////////////////////////////////
-                Process ipecmd = new Process
+                Process ipecmd = new()
                 {
                     StartInfo = psi
                 };
@@ -72,7 +72,7 @@ namespace WindControlLib
 
         private class CMicrochip_reg_key
         {
-            public List<string> SubkeyNames = new List<string>();
+            public List<string> SubkeyNames = new();
             public string RegKey = "";
 
             public CMicrochip_reg_key(string[] subkeyNames, string regKey)
@@ -88,18 +88,18 @@ namespace WindControlLib
             }
         }
 
-        public string GetMPLABX_ipecmd_Path()
+        public static string GetMPLABX_ipecmd_Path()
         {
             string path = @"c:\Program Files\Microchip\MPLABX\v6.00\mplab_platform\mplab_ipe\ipecmd.exe";
             if (File.Exists(path))
                 return path;
-            
-            List<CMicrochip_reg_key> Microchip_reg_keys = new List<CMicrochip_reg_key>();
-            
+
+            List<CMicrochip_reg_key> Microchip_reg_keys = new();
+
             //Achtung ob von 32 oder 64 bit SW darauf zugegriffen wird ... ohne Massnahmen 
             //liest 32bit SW immer von "SOFTWARE\WOW6432Node\Microchip"
             //siehe CRegistryAccess_64_32
-            List<string> Regkeys = new List<string>(new string[] {
+            List<string> Regkeys = new(new string[] {
                  @"SOFTWARE\WOW6432Node\Microchip",
                 @"SOFTWARE\Microchip" //location >= MPLABX Version 5.45
             });
@@ -145,23 +145,23 @@ namespace WindControlLib
             return path;
         }
 
-        public string Add_File_to_CommandLineParameters(string CommandLineParameters, string file_name)
+        public static string Add_File_to_CommandLineParameters(string CommandLineParameters, string file_name)
         {
             string ret = CommandLineParameters + @"""" + file_name + @"""";
             return ret;
         }
 
-        public List<CMicrochip_Programmer> Get_Available_Programmers ()
+        public List<CMicrochip_Programmer> Get_Available_Programmers()
         {
-            List<CMicrochip_Programmer> ret = new List<CMicrochip_Programmer>();
+            List<CMicrochip_Programmer> ret = new();
             string status = "";
 
             if (Operate_IPE("-T", ref status))
             {
                 if (status.Contains(@"Available Tool List"))
                 {
-                    List<string> res = new List<string>(Regex.Split(status, "\r\n|\r|\n"));
-                    string[] seperator = new string[] { "  " };
+                    List<string> res = new(Regex.Split(status, "\r\n|\r|\n"));
+                    string[] seperator = ["  "];
                     for (int i = 0; i < res.Count; i++)
                     {
                         if (res[i].Contains("ICD") | res[i].ToLower().Contains("pickit"))
@@ -182,7 +182,7 @@ namespace WindControlLib
             return ret;
         }
 
-        private bool Check_IPE_Output(string progress, string error, ref string StatusString)
+        private static bool Check_IPE_Output(string progress, string error, ref string StatusString)
         {
             StatusString = "";// "Progress: " + progress;
             if (error != "")

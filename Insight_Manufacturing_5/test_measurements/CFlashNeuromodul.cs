@@ -76,7 +76,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             return ret;
         }
 
-        private void Icd3_ReportMeasurementProgress(object sender, string text, System.Drawing.Color col)
+        private void Icd3_ReportMeasurementProgress(object sender, string text, Color col)
         {
             OnReportMeasurementProgress(text, col);
         }

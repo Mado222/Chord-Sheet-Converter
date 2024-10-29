@@ -42,7 +42,7 @@ namespace XBeeLib
         /// </summary>
         public override byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new List<byte>
+            List<byte> FrameData = new()
             {
                 //FrameData Byte 0
                 APID,

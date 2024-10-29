@@ -3,6 +3,7 @@ using FeedbackDataLib;
 using Math_Net_nuget;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {
@@ -51,9 +52,9 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                         //Test Sinus
                         _ret = EvaluateAGainValue_Ueff_Percent_Saturation(againValue, AllResults[i].ChannelResults[0]);
 
-                        if (isLogFileOpen)
+                        if (IsLogFileOpen)
                         {
-                            CPeakDetect cp = new CPeakDetect();
+                            CPeakDetect cp = new();
                             AllResults[i].ChannelResults[0].Get_hexVals_Statistics();
                             double[] data = new double[AllResults[i].ChannelResults[0].hexvals.Length];
                             Array.Copy(AllResults[i].ChannelResults[0].hexvals, data, AllResults[i].ChannelResults[0].hexvals.Length);

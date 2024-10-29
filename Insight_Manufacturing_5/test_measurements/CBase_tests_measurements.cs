@@ -112,12 +112,9 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         }
 
     #region Events
-    public delegate void ReportMeasurementProgressEventHandler(object sender, string text, System.Drawing.Color col);
+    public delegate void ReportMeasurementProgressEventHandler(object sender, string text, Color col);
         public event ReportMeasurementProgressEventHandler ReportMeasurementProgress;
-        public virtual void OnReportMeasurementProgress(string text, System.Drawing.Color col)
-        {
-            ReportMeasurementProgress?.Invoke(this, text, col);
-        }
+        public virtual void OnReportMeasurementProgress(string text, Color col) => ReportMeasurementProgress?.Invoke(this, text, col);
 
         public delegate void MeasurementFinishedEventHandler(object sender);
         public event MeasurementFinishedEventHandler MeasurementFinished;
@@ -217,8 +214,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public virtual bool Add_TestDetails_toDB(string Test_Details)
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new();
 
             Test_Details = Job_Message + ": " + Test_Details + Environment.NewLine;
 

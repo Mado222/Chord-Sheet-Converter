@@ -87,8 +87,8 @@ namespace FeedbackDataLib
 
     public partial class CRS232Receiver2 : ICommunication, IDisposable
     {
-  
-        private TimeSpan DataReceiverTimeout = new (0, 0, 0, 2, 0);
+
+        private TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
         private TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 0, 500);
         private byte _CommandChannelNo = 0; //Wird nur im Konstruktor beschrieben
 
@@ -123,17 +123,17 @@ namespace FeedbackDataLib
         /// <summary>
         /// Object to lock buffers
         /// </summary>
-        public readonly object RS232Lock = new ();
+        public readonly object RS232Lock = new();
 
         private readonly CFifoBuffer<byte[]> RPCommand = new();
-        private readonly CFifoBuffer<byte[]> RPDataOut = new ();
-        private readonly CFifoBuffer<byte[]> RPDeviceCommunicationToPC = new ();
+        private readonly CFifoBuffer<byte[]> RPDataOut = new();
+        private readonly CFifoBuffer<byte[]> RPDeviceCommunicationToPC = new();
         private bool DataSent = false;
 
         /// <summary>
         /// Speichert CDataIn Werte
         /// </summary>
-        private readonly CFifoBuffer <CDataIn> Data = new ();
+        private readonly CFifoBuffer<CDataIn> Data = new();
 
         /// <summary>
         /// Datenarray in dem die empfangenen Daten gespeichert werden: Groesse: _AnzReturnBlocks*_RS232Values
@@ -148,7 +148,7 @@ namespace FeedbackDataLib
         private enumConnectionStatus _ConnectionStatus = enumConnectionStatus.Not_Connected;
         private enumConnectionStatus _ConnectionStatusOld = enumConnectionStatus.Not_Connected;
 
-       
+
         /// <summary>
         /// Gets or sets the ConnectionStatus
         /// </summary>
@@ -171,7 +171,7 @@ namespace FeedbackDataLib
             }
         }
 
-        
+
         /// <summary>
         /// RS232 receiver thread, started in TryToConnect
         /// </summary>
@@ -200,7 +200,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// ={ 0x11, 0xFA };//CommandCode, cConnectToDevice
         /// </summary>
-        public byte[] ConnectSequToSend=[];
+        public byte[] ConnectSequToSend = [];
 
         /// <summary>
         /// = { 0xFA, 0, 0 };//cConnectToDevice, 0, 0
@@ -225,10 +225,7 @@ namespace FeedbackDataLib
         {
             if (Seriell32 != null)
             {
-                if (tryToConnectWorker != null)
-                {
-                    tryToConnectWorker.CancelAsync();
-                }
+                tryToConnectWorker?.CancelAsync();
                 Stop_RS232ReceiverThread();
                 Seriell32.Close();  //1st Close, 4th close
             }
@@ -270,16 +267,16 @@ namespace FeedbackDataLib
         /// </remarks>
         public void Connect_via_tryToConnectWorker()
         {
-            
+
             if (tryToConnectWorker == null)
             {
                 tryToConnectWorker = new BackgroundWorker();
-                tryToConnectWorker.DoWork += new DoWorkEventHandler(tryToConnectWorker_DoWork);
+                tryToConnectWorker.DoWork += new DoWorkEventHandler(TryToConnectWorker_DoWork);
                 tryToConnectWorker.WorkerSupportsCancellation = true;
             }
             if (!tryToConnectWorker.IsBusy)
                 tryToConnectWorker.RunWorkerAsync();
-            
+
         }
 
         public void Send_to_Sleep()

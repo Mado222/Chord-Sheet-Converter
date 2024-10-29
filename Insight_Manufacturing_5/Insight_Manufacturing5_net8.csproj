@@ -74,4 +74,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\Daten\Visual Studio 23_net8\VS8_Insight\Insight_Manufacturing_5\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\Daten\Visual Studio 23_net8\VS8_Insight\Insight_Manufacturing_5\.editorconfig" />
+  </ItemGroup>
+
 </Project>

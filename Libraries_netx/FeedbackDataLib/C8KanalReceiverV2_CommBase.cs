@@ -14,7 +14,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// CRC8 Algorithm
         /// </summary>
-        protected CCRC8 CRC8 = new CCRC8(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
+        protected CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
 
         /// <summary>
         /// Converter for Device clock
@@ -29,18 +29,18 @@ namespace FeedbackDataLib
         /// <summary>
         /// RS232Receiver
         /// </summary>
-        public CRS232Receiver2? RS232Receiver;
+        public CRS232Receiver2? RS232Receiver = null;
 
         /// <summary>
         /// All Information about 8 Channel Device
         /// </summary>
         /// <remarks>Zugriff: [0,1,...]</remarks>
-        public C8KanalDevice2? Device;       //Fasst die verfügbaren Kanäle zusammen
+        public C8KanalDevice2 Device = new();       //Fasst die verfügbaren Kanäle zusammen
 
         /// <summary>
         /// NM Battery Status in %
         /// </summary>
-        public uint BatteryPercentage { get; private set; }
+        public uint BatteryPercentage { get; private set; } = 0;
 
         /// <summary>
         /// The number of SW channels sent by Neuromaster
@@ -87,13 +87,16 @@ namespace FeedbackDataLib
         /// </summary>
         private readonly CBatteryVoltage BatteryVoltage = new();
 
+        public string ComPortName { get; private set; } = "";
+
 
         /// <summary>
         /// Enables or disables the DataReady event
         /// </summary>
         public bool EnableDataReadyEvent
         {
-            get {
+            get
+            {
                 if (RS232Receiver != null)
                 {
                     return RS232Receiver.EnableDataReadyEvent;
@@ -121,7 +124,7 @@ namespace FeedbackDataLib
         /// 0xFFFF ... input amplifier is pos saturated
         /// if output stage is saturated, 0x0001 and 0xFFFE
         /// </remarks>
-        public event DataReadyEventHandler DataReady;
+        public event DataReadyEventHandler? DataReady = null;
         protected virtual void OnDataReady(List<CDataIn> DataIn)
         {
             //Add Virtual ID / added Dec. 2013
@@ -222,7 +225,7 @@ namespace FeedbackDataLib
 
         public delegate void Vaso_InfoSpecific_UpdatedEventHandler();
         /// <summary>Occurs when Module Specific Information from Vaso is updated.</summary>
-        public event Vaso_InfoSpecific_UpdatedEventHandler Vaso_InfoSpecific_Updated;
+        public event Vaso_InfoSpecific_UpdatedEventHandler? Vaso_InfoSpecific_Updated;
         protected virtual void OnVaso_InfoSpecific_Updated()
         {
             Vaso_InfoSpecific_Updated?.Invoke();
@@ -243,16 +246,22 @@ namespace FeedbackDataLib
             BatteryVoltage = new CBatteryVoltage();
         }
 
+        /// <param name="ComPortName">
+        /// "COM1","COM2
+        /// </param>
+        public C8KanalReceiverV2_CommBase(string ComPortName)
+        {
+            C8KanalReceiverV2_Construct();
+            this.ComPortName = ComPortName;
+        }
+
         /// <summary>
         /// Closes this instance.
         /// </summary>
         public virtual void Close()
         {
-            if (RS232Receiver != null)
-            {
-                //SendCloseConnection();
-                RS232Receiver.Close();  //1st Close
-            }
+            //SendCloseConnection();
+            RS232Receiver?.Close();  //1st Close
         }
 
         /// <summary>
@@ -260,15 +269,7 @@ namespace FeedbackDataLib
         /// </summary>
         public void Connect_via_tryToConnectWorker()
         {
-            RS232Receiver.Connect_via_tryToConnectWorker();
-        }
-
-        /// <param name="ComPortName">
-        /// "COM1","COM2
-        /// </param>
-        public C8KanalReceiverV2_CommBase(string ComPortName)
-        {
-            C8KanalReceiverV2_Construct();
+            RS232Receiver?.Connect_via_tryToConnectWorker();
         }
 
         /// <summary>
@@ -328,7 +329,7 @@ namespace FeedbackDataLib
         {
             List<CDataIn> _DataIn = [];
 
-            
+
             foreach (CDataIn di in DataIn)
             {
                 //27.1.2020
@@ -432,7 +433,7 @@ namespace FeedbackDataLib
             DateTime earliestStartingTime = dt_absolute;
 
             int idx_latestEndTime = 0;
-            DateTime latestEndTime = data_in[0][data_in[0].Count - 1].DT_absolute;
+            DateTime latestEndTime = data_in[0][^1].DT_absolute;
 
             data_value_scaled = [];
             data_time = [];
@@ -457,10 +458,10 @@ namespace FeedbackDataLib
 
                 //Check Ending times of channels ... 
                 //Find the channel with latest ending time
-                if (data_in[i][data_in[i].Count - 1].DT_absolute < latestEndTime)
+                if (data_in[i][^1].DT_absolute < latestEndTime)
                 {
                     idx_latestEndTime = i;
-                    latestEndTime = data_in[i][data_in[i].Count - 1].DT_absolute;
+                    latestEndTime = data_in[i][^1].DT_absolute;
                 }
             }
 
@@ -590,7 +591,9 @@ namespace FeedbackDataLib
         /// <returns>Connection status</returns>
         public enumConnectionStatus GetConnectionStatus()
         {
-            return RS232Receiver.GetConnectionStatus();
+            if (RS232Receiver is not null)
+                return RS232Receiver.GetConnectionStatus();
+            return enumConnectionStatus.Not_Connected;
         }
 
         /// <summary>
@@ -605,16 +608,16 @@ namespace FeedbackDataLib
         /// <returns></returns>
         protected bool ModuleCommand(byte HWChannelNumber, byte ModuleCommand, byte[] ByteOut, ref byte[] ByteIn)
         {
-            return _ModuleCommand(HWChannelNumber, ModuleCommand, ByteOut, ref ByteIn, C8KanalReceiverCommandCodes.cWrRdModuleCommand);
+            return this.ModuleCommand(HWChannelNumber, ModuleCommand, ByteOut, ref ByteIn, C8KanalReceiverCommandCodes.cWrRdModuleCommand);
         }
 
-        private bool _ModuleCommand(byte HWChannelNumber, byte ModuleCommand, byte[]? ByteOut, ref byte[]? ByteIn, byte CommandCode)
+        private bool ModuleCommand(byte HWChannelNumber, byte ModuleCommand, byte[] ByteOut, ref byte[] ByteIn, byte CommandCode)
         {
             int l = 0;
             if (ByteOut != null) l = ByteOut.Length;
 
             int m = 0;
-            if (ByteIn != null)
+            if (ByteIn != null && ByteIn.Length > 0)
                 m = ByteIn.Length;
             else
                 ByteIn = [];
@@ -625,7 +628,7 @@ namespace FeedbackDataLib
             OutBuf[1] = (byte)(l + 1);
             OutBuf[2] = (byte)m;
             OutBuf[3] = ModuleCommand;
-            if (ByteOut != null)
+            if (ByteOut != null && ByteOut.Length > 0)
             {
                 Buffer.BlockCopy(ByteOut, 0, OutBuf, 4, l);
             }
@@ -698,7 +701,7 @@ namespace FeedbackDataLib
         /// according to Device.ModuleInfos[HW_cn].SWChannels[SW_cn].SWConfigChannel
         /// </summary>
         /// <param name="HW_cn">Hardware Channel number</param>
-        private bool _SetConfigModule(int HW_cn)
+        private bool SetConfigModule(int HW_cn)
         {
             bool ret;
             byte[] InData = [];
@@ -715,7 +718,7 @@ namespace FeedbackDataLib
         /// <param name="HW_cn">Hardware channel number</param>
         /// <returns>true if successful</returns>
         /// <remarks>Checks if ModuleType != cModuleTypeEmpty</remarks>
-        public bool SetConfigModule(int HW_cn)
+        public bool SetConfigModules(int HW_cn)
         {
             bool ret = true;
             //Check if Module is connected
@@ -723,7 +726,7 @@ namespace FeedbackDataLib
             {
                 if (Device.ModuleInfos[HW_cn].ModuleType != enumModuleType.cModuleTypeEmpty)
                 {
-                    ret = _SetConfigModule(HW_cn);
+                    ret = SetConfigModule(HW_cn);
                 }
             }
             else
@@ -747,7 +750,7 @@ namespace FeedbackDataLib
 
             for (int HW_cn = 0; HW_cn < Device.ModuleInfos.Count; HW_cn++)
             {
-                if (!SetConfigModule(HW_cn))
+                if (!SetConfigModules(HW_cn))
                 {
                     ret = false;
                     break;
@@ -776,14 +779,14 @@ namespace FeedbackDataLib
                     CDelay.Delay_ms(1000);   //Damit Impedanzmessung fertig wird dauert ca 600ms
 
                     //4x lesen
-                    for (int i  = 0; i<4; i++)
+                    for (int i = 0; i < 4; i++)
                     {
-                        byte [] btin = GetModuleInfoSpecific(HW_cn, false);
+                        byte[] btin = GetModuleInfoSpecific(HW_cn, false);
                         if (btin != null)
                         {
                             ElectrodeImp.Update(btin);
                         }
-                        else 
+                        else
                             ret = false;
                     }
                 }
@@ -911,7 +914,6 @@ namespace FeedbackDataLib
             const int overhead = 4; //CommandCode, Command, Length, CRC
             int bytestosend = overhead + AdditionalDataToSend.Length;
             byte[] buf = new byte[bytestosend];
-            byte[] inbuf;
 
             buf[0] = C8KanalReceiverCommandCodes.CommandCode;
             buf[1] = C8KanalRecCommandCode;
@@ -920,14 +922,14 @@ namespace FeedbackDataLib
             Buffer.BlockCopy(AdditionalDataToSend, 0, buf, overhead - 1, AdditionalDataToSend.Length);
 
             //Calc CRC
-            buf[buf.Length - 1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
-
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            byte[] inbuf;
             //empty command buffer
             do
             {
                 inbuf = RS232Receiver.GetCommand;
             }
-            while (inbuf != null);
+            while (inbuf.Length > 0);
 
 
             bool ret;
@@ -936,6 +938,7 @@ namespace FeedbackDataLib
                 if (InData.Length > 0)
                 {
                     //Wait for Size of Data to receive
+                    inbuf = [];
                     if (WaitCommandResponse(ref inbuf))
                     {
                         ret = false;
@@ -1002,14 +1005,16 @@ namespace FeedbackDataLib
             //Auf bytes die ueber den Kommandokanal kommen warten
             //int TimeOut = WaitCommandResponseTimeOut / ThreadSleepTime;
             DateTime dt = DateTime.Now + new TimeSpan(0, 0, 0, 0, WaitCommandResponseTimeOut);
-            while (DateTime.Now < dt)
+            if (RS232Receiver is not null)
             {
-                buf = RS232Receiver.GetCommand;
-                if (buf != null)
+                while (DateTime.Now < dt)
                 {
-                    return true;
+                    buf = RS232Receiver.GetCommand;
+                    if (buf.Length > 0)
+                    {
+                        return true;
+                    }
                 }
-                //Thread.Sleep(10);
             }
             return false;
         }

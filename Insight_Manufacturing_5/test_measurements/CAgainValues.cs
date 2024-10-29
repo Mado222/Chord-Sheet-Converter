@@ -6,13 +6,13 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 {
     public class CAgainValues
     {
-        public List<CAgainValue> AgainValues = new List<CAgainValue>();
-        private List<double> _f = new List<double>();
-        private List<double> _Vppin = new List<double>();
-        private List<double> _MeasureTime_s = new List<double>();
-        private List<int> _noSamplesIgnored_in_the_Beginning = new List<int>();
-        private List<double> _Ueff_soll = new List<double>();
-        private List<enMeasureType> _Measure_Type = new List<enMeasureType>();
+        public List<CAgainValue> AgainValues = new();
+        private List<double> _f = new();
+        private List<double> _Vppin = new();
+        private List<double> _MeasureTime_s = new();
+        private List<int> _noSamplesIgnored_in_the_Beginning = new();
+        private List<double> _Ueff_soll = new();
+        private List<enMeasureType> _Measure_Type = new();
 
         public double[] f { get => _f.ToArray(); }
         public double[] Vppin { get => _Vppin.ToArray(); }
@@ -65,7 +65,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             double Measure_duration_s_or_periodes_neg, double SampleInt_ms, double Ignore_Time_percent = -1, int noSamplesIgnored_in_the_Beginning = -1)
         {
             double MeasureTime_s = Eval_MeasureTime_s (f_Again, Measure_duration_s_or_periodes_neg);
-            CAgainValue agv = new CAgainValue(f_Again, vppin_Again, _ModuleType, MeasureTime_s);
+            CAgainValue agv = new(f_Again, vppin_Again, _ModuleType, MeasureTime_s);
             agv.InitAgain(again_soll_db,againAgain_Tolerance_db);
 
             Add_vals(SampleInt_ms, Ignore_Time_percent, noSamplesIgnored_in_the_Beginning, MeasureTime_s, agv);
@@ -75,7 +75,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             double Measure_duration_s_or_periodes_neg, double SampleInt_ms, double Ignore_Time_percent = -1, int noSamplesIgnored_in_the_Beginning = -1)
         {
             double MeasureTime_s = Eval_MeasureTime_s(f_Again, Measure_duration_s_or_periodes_neg);
-            CAgainValue agv = new CAgainValue(f_Again, vppin, _ModuleType, MeasureTime_s);
+            CAgainValue agv = new(f_Again, vppin, _ModuleType, MeasureTime_s);
             agv.InitSinus(Ueff_soll, sinus_tolerance_percent);
 
             Add_vals(SampleInt_ms, Ignore_Time_percent, noSamplesIgnored_in_the_Beginning, MeasureTime_s, agv);
@@ -86,7 +86,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             double Measure_duration_s_or_periodes_neg, double SampleInt_ms, double Ignore_Time_percent = -1, int noSamplesIgnored_in_the_Beginning = -1)
         {
             double MeasureTime_s = Eval_MeasureTime_s(f_Again, Measure_duration_s_or_periodes_neg);
-            CAgainValue agv = new CAgainValue(f_Again, vppin_Again, _ModuleType, MeasureTime_s);
+            CAgainValue agv = new(f_Again, vppin_Again, _ModuleType, MeasureTime_s);
             agv.InitNotch(must_be_smaller_than);
             
             Add_vals(SampleInt_ms, Ignore_Time_percent, noSamplesIgnored_in_the_Beginning, MeasureTime_s, agv);
@@ -96,7 +96,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             double Measure_duration_s_or_periodes_neg, double SampleInt_ms, double Ignore_Time_percent = -1, int noSamplesIgnored_in_the_Beginning = -1)
         {
             double MeasureTime_s = Eval_MeasureTime_s(f_Again, Measure_duration_s_or_periodes_neg);
-            CAgainValue agv = new CAgainValue(f_Again, vppin, _ModuleType, MeasureTime_s);
+            CAgainValue agv = new(f_Again, vppin, _ModuleType, MeasureTime_s);
             agv.InitArbitratry(ArbitraryFile, hr_bpm_soll, Tolerance_percent);
 
             Add_vals(SampleInt_ms, Ignore_Time_percent, noSamplesIgnored_in_the_Beginning, MeasureTime_s, agv);
@@ -253,7 +253,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             bool ret = false;
             if (fY6900.IsOpen)
             {
-                if (fY6900.SetOutput_Off(true))
+                if (fY6900.SetOutputOff(true))
                 {
                     if (ArbitraryFile == "")
                     {
@@ -268,7 +268,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
                     if (fY6900.SetFrequency(f_Hz, true))
                         if (fY6900.SetVss(Vppin, true))
-                            if (fY6900.SetOutput_On(true))
+                            if (fY6900.SetOutputOn(true))
                                 ret = true;
                 }
             }

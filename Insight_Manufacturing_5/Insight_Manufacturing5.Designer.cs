@@ -1,4 +1,5 @@
 ﻿using ComponentsLib_GUI;
+using FeedbackDataLib_GUI;
 using Insight_Manufacturing5_net8.dataSources;
 
 namespace Insight_Manufacturing5_net8
@@ -89,7 +90,7 @@ namespace Insight_Manufacturing5_net8
             btCalValstoDB = new Button();
             dgv_SWChannelInfo = new DataGridView();
             tmrGui = new System.Windows.Forms.Timer(components);
-            cFlowChartDX1 = new FeedbackDataLib_GUI.ucFlowChartDX_NM();
+            cFlowChartDX1 = new FeedbackDataLib_GUI.UcFlowChartDX_NM();
             cbComPortSelector = new ComboBox();
             tabMeasurements.SuspendLayout();
             tabProgNeuroModul.SuspendLayout();
@@ -847,7 +848,7 @@ namespace Insight_Manufacturing5_net8
         private System.Windows.Forms.DataGridViewTextBoxColumn Measurement_Duration;
         private System.Windows.Forms.TabPage tabFY6900;
         private ComponentsLib_GUI.CToggleButton cToggleButton_COM;
-        private FeedbackDataLib_GUI.ucFlowChartDX_NM cFlowChartDX1;
+        private FeedbackDataLib_GUI.UcFlowChartDX_NM cFlowChartDX1;
         private System.Windows.Forms.NumericUpDown numericUpDownAmplitude;
         private System.Windows.Forms.Button btSetAmplitude;
         private System.Windows.Forms.NumericUpDown numericUpDownFrequqency;

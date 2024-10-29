@@ -50,7 +50,7 @@ namespace XBeeLib
             if (listEnum.MoveNext())
             {
                 frameId = listEnum.Current;
-                
+
                 //Status
                 if (listEnum.MoveNext())
                 {

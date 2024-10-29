@@ -7,7 +7,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
     public class CMulti_Temp : CMulti_Read_NM_base
     {
         //Test Temperaturschrank
-        public static readonly bool[] SendChannel_Multi_only_temp = { false, true, false, false };
+        public static readonly bool[] SendChannel_Multi_only_temp = [false, true, false, false];
 
         private frm_Multi_Temp f_Multi_Temp = null;
         double Temp_ist = 0;
@@ -105,8 +105,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override void Save_Results_to_DB()
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter ();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
             neuromodule_DatenTableAdapter.FillBy_SerialNumber_Order_Desc_by_Date(_dsManufacturing.Neuromodule_Daten, SerialNumber);
 
             if (_dsManufacturing.Neuromodule_Daten.Count > 0)

@@ -13,10 +13,10 @@ namespace BMTCommunication
     {
 
         //RSSI range: 0x17-0x5C (XBee)
-        private const float _RSSI_percent_max = (float)100;
-        private const float _RSSI_percent_min = (float)0;
-        private const float _RSSI_max = (float)-0x17;
-        private const float _RSSI_min = (float)-0x5C;
+        private const float _RSSI_percent_max = 100;
+        private const float _RSSI_percent_min = 0;
+        private const float _RSSI_max = -0x17;
+        private const float _RSSI_min = -0x5C;
 
         private const float _RSSI_k = (_RSSI_percent_max - _RSSI_percent_min) / (_RSSI_max - _RSSI_min);
         private const float _RSSI_d = _RSSI_percent_max - _RSSI_k * _RSSI_max;
@@ -48,14 +48,14 @@ namespace BMTCommunication
         {
             get
             {
-                float f = (float)-_RSSI;
+                float f = -_RSSI;
                 f = _RSSI_k * f + _RSSI_d; //[%]
                 return (byte)f;
             }
         }
 
-        private CXBeeSeries1 _XBeeSeries1;
-        public CXBeeSeries1 XBeeSeries1
+        private CXBeeSeries1? _XBeeSeries1;
+        public CXBeeSeries1? XBeeSeries1
         {
             get { return _XBeeSeries1; }
         }
@@ -65,15 +65,15 @@ namespace BMTCommunication
         private int _BaudRateDefault_LocalDevice = 0;
         private readonly int NoRetriesinWrite = 10;
         private bool PairingSuceeded = false;
-        byte frameID = 0;
+        byte frameID;
         private readonly CFifoBuffer<CTXStatusResponse> TXStatusResponseBuffer = new();
         private readonly CFifoBuffer<byte> XBRFDataBuffer = new();
 
-        private byte[] _ConnectSequToSend;
-        private byte[] _ConnectToReturn;
+        private byte[] _ConnectSequToSend =[];
+        private byte[] _ConnectToReturn = [];
         private byte _CommandChannelNo;
 
-        private CHighPerformanceDateTime hp_Timer;
+        private CHighPerformanceDateTime hp_Timer = new();
 
         public CXBeeConnection()
         {
@@ -83,27 +83,27 @@ namespace BMTCommunication
         public CXBeeConnection(ISerialPort SerialPort, int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = SerialPort;
-            this.InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
+            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
         }
 
         public CXBeeConnection(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = new CSerialPortWrapper();
-            this.InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
+            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
         }
 
 
         /// <summary>
         /// Thread instead of using the SerialDataReceivedEvent
         /// </summary>
-        private BackgroundWorker SerialDataReceived_BackgroundWorker;
+        private BackgroundWorker SerialDataReceived_BackgroundWorker = new ();
         private void InitSerielPort(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
-            //_SerialPort.SerialDataReceivedEvent += new SerialDataReceivedEventHandler(_SerialPort_SerialDataReceivedEvent);
             SerialDataReceived_BackgroundWorker = new BackgroundWorker
             {
                 WorkerSupportsCancellation = true
             };
+            
             SerialDataReceived_BackgroundWorker.DoWork += new DoWorkEventHandler(SerialDataReceived_DoWork);
 
 
@@ -117,7 +117,6 @@ namespace BMTCommunication
         }
 
         void SerialDataReceived_DoWork(object sender, DoWorkEventArgs e)
-        //void _SerialPort_SerialDataReceivedEvent(object sender, SerialDataReceivedEventArgs e)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "SerialDataReceived_BackgroundWorker";
@@ -129,7 +128,7 @@ namespace BMTCommunication
 
             while (!SerialDataReceived_BackgroundWorker.CancellationPending)
             {
-                if (_SerialPort.IsOpen)
+                if (_SerialPort is not null && _SerialPort.IsOpen)
                 {
                     if (PairingSuceeded && (_SerialPort.BytesToRead > 0))
                     {
@@ -164,39 +163,9 @@ namespace BMTCommunication
             set { _ConfigureEndDeviceTo = value; }
         }
 
-
-        /*
-        private string _DriverName;
-        public string DriverName
-        {
-            get { return _DriverName; }
-            set { _DriverName = value; }
-        }*/
-
-        /*
-        private CXBNodeInformation GetDefaultRemoteConfiguration_BackRelaxer()
-        {
-            CXBNodeInformation ni = new CXBNodeInformation();
-
-            ni.APIMode = XBAPIMode.Disabled;
-            ni.CE_CoordinatorEnable = 0;    //CE 
-            ni.A1_EndDeviceAssociation = 0xC; //A1 ParameterXBeeSeries1.LocalDevice.SerialNumber;
-            ni.A2_CoordinatorAssociation = 0;
-            //def.MY_MyAddress = CXBAPICommands.Default16BitAddress;
-            //Wir bleiben im 16 bit Addressing beim End-Deviceni.MY_MyAddress = 0;
-            ni.NI_NodeIdentifier = "";
-            ni.SP_CyclicSleepPeriode = 0xf;
-            ni.ST_TimeBeforeSleep = 0xA;
-            ni.SM_SleepMode = XBSleepMode.PinDoze;
-            ni.SO_SleepOption = 0;
-            ni.BaudRate = (uint) _BaudRateDefault_RemoteDevice;
-            ni.R0_PacketizationTimeout = 10;
-            return ni;
-        }*/
-
         private CXBNodeInformation GetDefaultRemoteConfiguration_Neuromaster()
         {
-            CXBNodeInformation ni = new CXBNodeInformation
+            CXBNodeInformation ni = new()
             {
                 APIMode = XBAPIMode.Disabled,
                 CE_CoordinatorEnable = 0,    //CE 
@@ -219,7 +188,7 @@ namespace BMTCommunication
 
         private CXBNodeInformation GetDefaultLocalConfiguration()
         {
-            CXBNodeInformation ni = new CXBNodeInformation
+            CXBNodeInformation ni = new()
             {
                 APIMode = XBAPIMode.Enabled,
                 CE_CoordinatorEnable = 1,  //CE
@@ -258,17 +227,20 @@ namespace BMTCommunication
             try
             {
                 //Find out if pairing is necessary
-                if (IsOpen)
+                if (_XBeeSeries1 is not null && IsOpen)
                 {
-                    CXBNodeInformation LocalDevice = new CXBNodeInformation();
-                    CXBNodeInformation RemoteDevice = new CXBNodeInformation();
+                    CXBNodeInformation? LocalDevice = new();
+                    CXBNodeInformation? RemoteDevice = new();
                     PairingSuceeded = false;
                     int cnt = _pairing_retries;
                     if (ReadConfigData(ref LocalDevice, ref RemoteDevice))
                     {
-                        //Assume Remote and Local Device have saved configutation
-                        _XBeeSeries1.LocalDevice = (CXBNodeInformation)LocalDevice.Clone();
-                        _XBeeSeries1.CurrentEndDevice = (CXBNodeInformation)RemoteDevice.Clone();
+                        if (LocalDevice is not null && RemoteDevice is not null && _XBeeSeries1 is not null)
+                        {
+                            //Assume Remote and Local Device have saved configutation
+                            _XBeeSeries1.LocalDevice = (CXBNodeInformation?)LocalDevice.Clone();
+                            _XBeeSeries1.CurrentEndDevice = (CXBNodeInformation?)RemoteDevice.Clone();
+                        }
 
                         //Actual Configuration and Saved File is equal
                         //Test, if everything works properly
@@ -282,7 +254,7 @@ namespace BMTCommunication
                         }
                     }
 
-                    if (!PairingSuceeded)
+                    if (!PairingSuceeded && _XBeeSeries1 is not null && _XBeeSeries1.LocalDevice is not null)
                     {
                         //Not a valid connection - reason can be manyfold => start the whole pairing process
                         _XBeeSeries1.CurrentEndDevice = new CXBNodeInformation();
@@ -310,7 +282,7 @@ namespace BMTCommunication
                     LastErrorString = "Start_XBee_Pairing: IsOpen==false";
                 }
             }
-            catch (Exception ee)
+            catch (Exception)
             {
                 //log.Error("XBPairing: " + ee.Message);
                 PairingSuceeded = false;
@@ -322,37 +294,6 @@ namespace BMTCommunication
             return PairingSuceeded;
         }
 
-        /*
-        private bool Enter_EnergySavingMode(CXBNodeInformation LocalDevice, UInt64 RemoteAddress)
-        {
-            bool PairingSucceeded = false;
-            //Set it back to 0 but dont save to eeprom
-            int res = _XBeeSeries1.XBSendAPIString_CheckOKResponse(CXBATCommands.XBAT_SetCyclicSleepPeriod(0), true);
-            if (res > 0)
-            {
-                if (Check4Neuromaster_XBEE())
-                {
-                    //Now set appropriate Sleeping Parameters on Local device
-                    //for energy saving mode (Without writing to EEPROM!)
-                    if (_XBeeSeries1.XBSendAPIString_CheckOKResponse(CXBATCommands.XBAT_SetCyclicSleepPeriod(15), false) > 0)
-                    {
-                        if (_XBeeSeries1.XBSendAPIString_CheckOKResponse(CXBATCommands.XBAT_SetTimeBeforeSleep(0xa), false) > 0)
-                        {
-                            //Write to Nonvolatile memory
-                            if (_XBeeSeries1.XBSendAPIString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory, true) > 0)
-                            {
-                                _XBeeSeries1.LocalDevice.SP_CyclicSleepPeriode = 15;
-                                _XBeeSeries1.LocalDevice.ST_TimeBeforeSleep = 0xa;
-                                PairingSucceeded = true;
-                            }
-                        }
-                    }
-                }
-            }
-            return PairingSucceeded;
-        }*/
-
-
         /// <summary>
         /// //Local is assumed to be configured and paired, test it
         /// </summary>
@@ -363,43 +304,44 @@ namespace BMTCommunication
             return CNeuromaster.Check4Neuromaster(this, _ConnectSequToSend, _ConnectToReturn, _CommandChannelNo);
         }
 
-        //private static readonly ILog log = LogManager.GetLogger(typeof(CXBeeConnection));
-
-
         public bool InitXBee()
         {
-            bool ret = true;
-            try
+            if (_SerialPort is not null)
             {
-                if (_XBeeSeries1 == null)
+                bool ret = true;
+                try
+                {
+                    if (_XBeeSeries1 == null)
+                    {
+                        Close();
+                        _XBeeSeries1 = new CXBeeSeries1(_SerialPort)
+                        {
+                            DisplayMessages = false
+                        };
+                        //Does the whole pairing process
+                        ret = Start_XBee_Pairing();
+                    }
+                    else
+                    {
+                        LastErrorString = "_XBeeSeries1 != null";
+                    }
+                }
+                catch (Exception ee)
+                {
+                    LastErrorString = ee.Message;
+                    ret = false;
+                }
+                finally
                 {
                     Close();
-                    _XBeeSeries1 = new CXBeeSeries1(_SerialPort)
-                    {
-                        DisplayMessages = false
-                    };
-                    //Does the whole pairing process
-                    ret = Start_XBee_Pairing();
                 }
-                else
-                {
-                    LastErrorString = "_XBeeSeries1 != null";
-                }
+                return ret;
             }
-            catch (Exception ee)
-            {
-                LastErrorString = ee.Message;
-                ret = false;
-            }
-            finally
-            {
-                Close();
-            }
-            return ret;
+            return false;
         }
 
 
-        public void GetConfigPath(ref string LocalDevPath, ref string RemoteDevPath)
+        public static void GetConfigPath(ref string LocalDevPath, ref string RemoteDevPath)
         {
             //string fullPath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string fullPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Insight";
@@ -410,7 +352,7 @@ namespace BMTCommunication
             RemoteDevPath = fullPath + @"\RemoteDevice.xml";
         }
 
-        private bool SaveConfigData(CXBNodeInformation LocalDevice, CXBNodeInformation RemoteDevice)
+        private static bool SaveConfigData(CXBNodeInformation LocalDevice, CXBNodeInformation RemoteDevice)
         {
             /* Create a StreamWriter to write with. First create a FileStream
                object, and create the StreamWriter specifying an Encoding to use. */
@@ -420,9 +362,9 @@ namespace BMTCommunication
                 string RemoteDevPath = "";
                 GetConfigPath(ref LocalDevPath, ref RemoteDevPath);
 
-                FileStream fs = new FileStream(LocalDevPath, FileMode.Create);
+                FileStream fs = new(LocalDevPath, FileMode.Create);
                 TextWriter writer = new StreamWriter(fs);
-                XmlSerializer ser = new XmlSerializer(typeof(CXBNodeInformation));
+                XmlSerializer ser = new(typeof(CXBNodeInformation));
                 ser.Serialize(writer, LocalDevice);
                 writer.Close();
                 fs = new FileStream(RemoteDevPath, FileMode.Create);
@@ -437,7 +379,7 @@ namespace BMTCommunication
             return true;
         }
 
-        private bool ReadConfigData(ref CXBNodeInformation LocalDevice, ref CXBNodeInformation RemoteDevice)
+        private static bool ReadConfigData(ref CXBNodeInformation? LocalDevice, ref CXBNodeInformation? RemoteDevice)
         {
             bool ret = false;//19.09.2023
             try
@@ -448,10 +390,10 @@ namespace BMTCommunication
 
                 if (File.Exists(LocalDevPath))
                 {
-                    FileStream fs = new FileStream(LocalDevPath, FileMode.Open);
+                    FileStream fs = new(LocalDevPath, FileMode.Open);
                     TextReader reader = new StreamReader(fs);
-                    XmlSerializer ser = new XmlSerializer(typeof(CXBNodeInformation));
-                    LocalDevice = (CXBNodeInformation)ser.Deserialize(reader);
+                    XmlSerializer ser = new(typeof(CXBNodeInformation));
+                    LocalDevice = (CXBNodeInformation?)ser.Deserialize(reader);
                     reader.Close();
 
                     if (File.Exists(RemoteDevPath))
@@ -459,7 +401,7 @@ namespace BMTCommunication
                         fs = new FileStream(RemoteDevPath, FileMode.Open);
                         reader = new StreamReader(fs);
                         ser = new XmlSerializer(typeof(CXBNodeInformation));
-                        RemoteDevice = (CXBNodeInformation)ser.Deserialize(reader);
+                        RemoteDevice = (CXBNodeInformation?)ser.Deserialize(reader);
                         reader.Close();
                         ret = true; //19.09.2023
                     }
@@ -478,12 +420,12 @@ namespace BMTCommunication
         /// <returns></returns>
         public int ReadSeriellBufferUntilEmpty()
         {
-            if (_SerialPort.IsOpen)
+            if (_SerialPort is not null && _SerialPort.IsOpen && _XBeeSeries1 is not null)
             {
                 while (_SerialPort.BytesToRead > 0)
                 {
-                    CRXPacketBasic barp = null;
-                    object o = _XBeeSeries1.XBGetResponse();
+                    CRXPacketBasic? barp = null;
+                    object? o = _XBeeSeries1.XBGetResponse();
                     if (o != null)
                     {
                         if (o.GetType() == typeof(CRXPacket16))
@@ -577,15 +519,18 @@ namespace BMTCommunication
         /// <remarks>if Write failes its is repeated - NoRetriesinWrite times </remarks>
         public bool Write(byte[] buffer, int offset, int count)
         {
-            int c = 0;
-            while (c < NoRetriesinWrite)   //try to resend Message
+            if (_XBeeSeries1 is not null && _XBeeSeries1.CurrentEndDevice is not null)
             {
-                if (Write(buffer, offset, count, _XBeeSeries1.CurrentEndDevice.SerialNumber, true))
+                int c = 0;
+                while (c < NoRetriesinWrite)   //try to resend Message
                 {
-                    return true;
+                    if (Write(buffer, offset, count, _XBeeSeries1.CurrentEndDevice.SerialNumber, true))
+                    {
+                        return true;
+                    }
+                    Thread.Sleep(50);   //Sonst Probleme mit den Verzögerungen
+                    c++;
                 }
-                Thread.Sleep(50);   //Sonst Probleme mit den Verzögerungen
-                c++;
             }
             return false;
         }
@@ -604,7 +549,7 @@ namespace BMTCommunication
         {
             bool ret = true;
             //LocalNodeInformation is empty
-            CTXRequest64 TXRequest64 = new CTXRequest64(EndDevSerialNumber);
+            CTXRequest64 TXRequest64 = new(EndDevSerialNumber);
             if (CheckXBeeresponse)
             {
                 TXRequest64.options = TXRequestOptions.noOption;    //Activate Response Packet
@@ -617,8 +562,6 @@ namespace BMTCommunication
                 TXRequest64.frameId = 0; //No response
 
             }
-            //debug
-            //DiscardInBuffer();
             byte[] buf = new byte[count];
             if ((offset != 0) || (count != buffer.Length))
             {
@@ -629,36 +572,35 @@ namespace BMTCommunication
                 buf = buffer;
             }
 
-            buf = TXRequest64.Get_TX_TransmmitRequest_DataFrame(_XBeeSeries1.LocalDevice.APIMode, buf);
-            _SerialPort.Write(buf, 0, buf.Length);
-            //Debug.WriteLine("frameID sent: " + frameID.ToString());
-
-            //Waitfor TX Transmit status with correct frame ID
-            if (CheckXBeeresponse)
+            if (_XBeeSeries1 is not null && _XBeeSeries1.LocalDevice is not null && _SerialPort is not null)
             {
-                DateTime dt = DateTime.Now + new TimeSpan(0, 0, 0, 0, 300); //300ms muss länger als der längste Befehl sein (getconfig)
-                while (DateTime.Now < dt)
-                //while (true)
-                {
-                    if (!PairingSuceeded)   //Moved here 23.7.2014
-                        ReadSeriellBufferUntilEmpty();
+                buf = TXRequest64.Get_TX_TransmmitRequest_DataFrame(_XBeeSeries1.LocalDevice.APIMode, buf);
+                _SerialPort.Write(buf, 0, buf.Length);
 
-                    while (TXStatusResponseBuffer.Count > 0)
+                //Waitfor TX Transmit status with correct frame ID
+                if (CheckXBeeresponse)
+                {
+                    DateTime dt = DateTime.Now + new TimeSpan(0, 0, 0, 0, 300); //300ms muss länger als der längste Befehl sein (getconfig)
+                    while (DateTime.Now < dt)
                     {
-                        CTXStatusResponse txsr = (CTXStatusResponse)TXStatusResponseBuffer.Pop();
-                        if (txsr.frameId == frameID)
+                        if (!PairingSuceeded)   //Moved here 23.7.2014
+                            ReadSeriellBufferUntilEmpty();
+
+                        while (TXStatusResponseBuffer.Count > 0)
                         {
-                            if (txsr.TXStatus != TXStatusOptions.Success)
+                            CTXStatusResponse? txsr = TXStatusResponseBuffer.Pop();
+                            if (txsr is not null && txsr.frameId == frameID)
                             {
-                                ret = false;
+                                if (txsr.TXStatus != TXStatusOptions.Success)
+                                {
+                                    ret = false;
+                                }
+                                goto Finish;
                             }
-                            goto Finish;
                         }
                     }
-                    //if (!PairingSuceeded)
-                    //ReadSeriellBufferUntilEmpty();
+                    ret = false;
                 }
-                ret = false;
             }
         Finish:
             return ret;
@@ -675,6 +617,8 @@ namespace BMTCommunication
         /// <remarks>see public int Read(ref byte[] buffer, int offset, int count, int WaitMax_ms)</remarks>
         public int Read(ref byte[] buffer, int offset, int count)
         {
+            if (_SerialPort is null) return 0;
+
             if (_SerialPort.ReadTimeout == -1)
             {
                 return Read(ref buffer, offset, count, 50);
@@ -727,31 +671,25 @@ namespace BMTCommunication
         public void DiscardInBuffer()
         {
             XBRFDataBuffer.Clear();
-            if (_SerialPort.IsOpen)
+            if (_SerialPort is not null &&  _SerialPort.IsOpen)
                 _SerialPort.DiscardInBuffer();
         }
 
         public void DiscardOutBuffer()
         {
-            if (_SerialPort.IsOpen)
+            if (_SerialPort is not null && _SerialPort.IsOpen)
                 _SerialPort.DiscardOutBuffer();
         }
 
 
-        public int BytesToRead
-        {
-            get
-            {
-                return XBRFDataBuffer.Count;
-            }
-        }
+        public int BytesToRead => XBRFDataBuffer.Count;
 
         public string PortName
         {
-            get { return _SerialPort.PortName; }
+            get { return _SerialPort?.PortName ?? string.Empty; }
             set
             {
-                if (value != "")
+                if (!string.IsNullOrEmpty(value) && _SerialPort != null)
                 {
                     _SerialPort.PortName = value;
                 }
@@ -760,13 +698,24 @@ namespace BMTCommunication
 
         public int BaudRate
         {
-            get { return _SerialPort.BaudRate; }
-            set { _SerialPort.BaudRate = value; }
+            get { return _SerialPort?.BaudRate ?? 0; } // Return a default value (e.g., 0) if _SerialPort is null
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.BaudRate = value;
+                }
+            }
         }
+
 
         public bool IsOpen
         {
-            get { return _SerialPort.IsOpen; }
+            get
+            {
+                if (_SerialPort is null) return false;
+                return _SerialPort.IsOpen;
+            }
         }
 
         public int ReadTimeout
@@ -829,7 +778,7 @@ namespace BMTCommunication
             get { return _SerialPort.DsrHolding; }
         }
 
-        public event SerialDataReceivedEventHandler SerialDataReceivedEvent;
+        public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
 
 
         private string _LastErrorString = "";
@@ -855,10 +804,7 @@ namespace BMTCommunication
                 //closeConnection();
                 Close();
                 _SerialPort.Dispose();
-                if (_XBeeSeries1 != null)
-                {
-                    _XBeeSeries1.Dispose();
-                }
+                _XBeeSeries1?.Dispose();
             }
             catch (Exception)
             {

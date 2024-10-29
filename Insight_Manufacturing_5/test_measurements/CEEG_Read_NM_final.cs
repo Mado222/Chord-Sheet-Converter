@@ -64,7 +64,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override enModuleTestResult isModule_OK()
         {
-            CEEG_Read_NM_base eegbase = new CEEG_Read_NM_base(_FY6900);
+            CEEG_Read_NM_base eegbase = new(_FY6900);
             eegbase.AllResults = AllResults;
             eegbase.AgainValues = AgainValues;
             eegbase.my_name = my_name;

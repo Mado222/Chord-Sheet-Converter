@@ -13,7 +13,7 @@ namespace FilteringLibrary
             return round_long_to_short(HP_Butter_2nd_int_red(sval));
         }
 
-        private short round_long_to_short(long l)
+        private static short round_long_to_short(long l)
         {
             if (l > short.MaxValue)
                 return short.MaxValue;
@@ -34,19 +34,19 @@ namespace FilteringLibrary
 
         //8120, -16239, 8120, 32477, -16095// b0 Q13(0.991), b1 Q13(-1.98), b2 Q13(0.991), a1 Q14(1.98), a2 Q14(-0.982)
 
-/*
-        private const Int16 HPi_b0 =8120;
-        private const Int16 HPi_b1= - 16239;
-        private const Int16 HPi_b2= 8120;
-        private const Int16 HPi_a1= 32477;
-        private const Int16 HPi_a2= - 16095;
+        /*
+                private const Int16 HPi_b0 =8120;
+                private const Int16 HPi_b1= - 16239;
+                private const Int16 HPi_b2= 8120;
+                private const Int16 HPi_a1= 32477;
+                private const Int16 HPi_a2= - 16095;
 
-        private const Int16 HPi_Feedback_shift=  14;
-        private const Int16 HPi_Output_shift=  14;
+                private const Int16 HPi_Feedback_shift=  14;
+                private const Int16 HPi_Output_shift=  14;
 
-        private const Int16 HPi_InputScale_shift=  15;
-        private const Int16 HPi_OutputScale_shift=  14;
-        */
+                private const Int16 HPi_InputScale_shift=  15;
+                private const Int16 HPi_OutputScale_shift=  14;
+                */
 
         /***********************************************************/
         /************* fg= 0.5 Hz, Sampling 500Hz ******************/
@@ -89,15 +89,15 @@ namespace FilteringLibrary
                 accumulator += (HPi_y2 * HPi_a2);
                 accumulator += (HPi_y1 * HPi_a1);
                 HPi_y2 = HPi_y1; // Shuffle right history buffer
-                HPi_y1 = (short)((int) accumulator >> HPi_Feedback_shift);
+                HPi_y1 = (short)((int)accumulator >> HPi_Feedback_shift);
             }
             // Write output
-            return HP_ScaleOutput((int) accumulator >> HPi_Output_shift);
+            return HP_ScaleOutput((int)accumulator >> HPi_Output_shift);
         }
 
-        private const long HPi_output_calibration_factor= ((long)1 << HPi_InputScale_shift) / ((long)1 << HPi_OutputScale_shift);
+        private const long HPi_output_calibration_factor = ((long)1 << HPi_InputScale_shift) / ((long)1 << HPi_OutputScale_shift);
 
-        long HP_ScaleOutput(long val)
+        static long HP_ScaleOutput(long val)
         {
             val *= HPi_output_calibration_factor;
             //val *= 1024;

@@ -55,11 +55,11 @@ namespace FeedbackDataLib_GUI
         /// <param name="ModuleInfo">The module information - can be null</param>
         public void OpenFile_for_writing(string FilePath, string Comment, List<CModuleBase> ModuleInfo)
         {
-            if (ModuleInfo!= null)
+            if (ModuleInfo != null)
             {
-               //CSave_Binary_Objects.WriteToBinaryFile<List<CModuleBase>>(Path.ChangeExtension(FilePath, ".cfg"), ModuleInfo);
+                //CSave_Binary_Objects.WriteToBinaryFile<List<CModuleBase>>(Path.ChangeExtension(FilePath, ".cfg"), ModuleInfo);
             }
-            
+
             FileWriter = new StreamWriter(FilePath, false);
             _File_Write_is_open = true;
             DateTime dt = DateTime.Now;
@@ -117,9 +117,9 @@ namespace FeedbackDataLib_GUI
                 {
                     FileReader = new StreamReader(path_datafile);
                     string line = FileReader.ReadLine();        //Datum
-                    string[] ss =  {" "};
-                    string[] ls =line.Split(ss, StringSplitOptions.None);
-                    Recorded_at = DateTime.Parse(ls[ls.Length - 2]+ " " + ls[ls.Length - 1]);
+                    string[] ss = [" "];
+                    string[] ls = line.Split(ss, StringSplitOptions.None);
+                    Recorded_at = DateTime.Parse(ls[^2] + " " + ls[^1]);
 
                     _ = FileReader.ReadLine();   //--------
                     line = FileReader.ReadLine();   //First line Comment;
@@ -172,13 +172,15 @@ namespace FeedbackDataLib_GUI
             //Resync .. [7]
 
 
-            CDatafromFile cdf = new CDatafromFile();
-            cdf.hwcn = Convert.ToInt16(splitline[5]); //hwcn
-            cdf.swcn = Convert.ToInt16(splitline[6]); //swcn
-            cdf.y_scaled = (Convert.ToDouble(splitline[3].Replace(".", ",")));  //scaled
-            cdf.y_unscaled = (Convert.ToDouble(splitline[4]));   //unscaled
-            cdf.dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date);
-            cdf.time_ms = ((int)Convert.ToDouble(splitline[2].Replace(".", ",")));
+            CDatafromFile cdf = new()
+            {
+                hwcn = Convert.ToInt16(splitline[5]), //hwcn
+                swcn = Convert.ToInt16(splitline[6]), //swcn
+                y_scaled = (Convert.ToDouble(splitline[3].Replace(".", ","))),  //scaled
+                y_unscaled = (Convert.ToDouble(splitline[4])),   //unscaled
+                dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date),
+                time_ms = ((int)Convert.ToDouble(splitline[2].Replace(".", ",")))
+            };
             return cdf;
         }
 
@@ -199,20 +201,22 @@ namespace FeedbackDataLib_GUI
             return null;
         }
 
-        public static CDatafromFile?ParseLinefrom_SDCardFile(string line, string? Date = null)
+        public static CDatafromFile? ParseLinefrom_SDCardFile(string line, string? Date = null)
         {
             return ParseLinefrom_SDCardFile(line.Split("\t".ToCharArray()), Date);
         }
 
         public static CDatafromFile? ParseLinefrom_SDCardFile(string[] splitline, string? Date = null)
         {
-            CDatafromFile cdf = new CDatafromFile();
-            cdf.hwcn = Convert.ToInt16(splitline[4]); //hwcn
-            cdf.swcn = Convert.ToInt16(splitline[5]); //swcn
-            cdf.y_scaled = (Convert.ToDouble(splitline[2]));  //scaled
-            cdf.y_unscaled = (Convert.ToDouble(splitline[3]));   //unscaled
-            cdf.dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date);
-            cdf.time_ms = ((int)Convert.ToDouble(splitline[1]));
+            CDatafromFile cdf = new()
+            {
+                hwcn = Convert.ToInt16(splitline[4]), //hwcn
+                swcn = Convert.ToInt16(splitline[5]), //swcn
+                y_scaled = (Convert.ToDouble(splitline[2])),  //scaled
+                y_unscaled = (Convert.ToDouble(splitline[3])),   //unscaled
+                dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date),
+                time_ms = ((int)Convert.ToDouble(splitline[1]))
+            };
             return cdf;
         }
 
@@ -256,7 +260,7 @@ namespace FeedbackDataLib_GUI
 
         public void CloseFile()
         {
-            if (_File_Write_is_open && FileWriter!= null)
+            if (_File_Write_is_open && FileWriter != null)
             {
                 FileWriter.Close();
                 _File_Write_is_open = false;
@@ -272,11 +276,11 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// y_scaled: Calculated in GetValues
         /// </summary>
-        public List<double> y_scaled = new ();
+        public List<double> y_scaled = new();
         /// <summary>
         /// y_unscaled: Calculated in GetValues
         /// </summary>
-        public List<double> y_unscaled = new ();
+        public List<double> y_unscaled = new();
         /// <summary>
         /// dt: Calculated in GetValues
         /// </summary>
@@ -284,7 +288,7 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// time_ms: Calculated in GetValues
         /// </summary>
-        public List<int> time_ms = new ();
+        public List<int> time_ms = new();
 
         /// <summary>
         /// Get all values of one specific channel
@@ -398,14 +402,14 @@ namespace FeedbackDataLib_GUI
 
         public static async Task<List<List<CValueChannel>>> GetAllValues(string FilePath, int Rowstoignore = 6, bool NMrecorded = true, List<CModuleBase> ModuleInfo = null)
         {
-            List<List<CValueChannel>> ret = new List<List<CValueChannel>>();
+            List<List<CValueChannel>> ret = new();
             int[,] sr = new int[7, 4];
             int[,] cnt_time_ms = new int[7, 4];
 
             for (int i = 0; i < 7; i++)
             {
-                List<CValueChannel> cv = new List<CValueChannel>();
-                List<int> _sr = new List<int>();
+                List<CValueChannel> cv = new();
+                List<int> _sr = new();
                 for (int j = 0; j < 4; j++)
                 {
                     cv.Add(new CValueChannel());

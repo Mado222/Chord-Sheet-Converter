@@ -8,6 +8,7 @@ using Insight_Manufacturing5_net8.dataSources;
 using System.Media;
 using WindControlLib;
 using System.Runtime.Versioning;
+using Insight_Manufacturing5_net8.test_measurements;
 
 
 namespace Insight_Manufacturing5_net8
@@ -36,7 +37,7 @@ namespace Insight_Manufacturing5_net8
         /// <summary>
         /// Alle möglichen Measurements
         /// </summary>
-        public CMeasurements measurements = new CMeasurements();
+        public CMeasurements measurements = new();
 
         /// <summary>
         /// Function Generator - used to avoid turning it on and off during serial Measurements
@@ -67,7 +68,7 @@ namespace Insight_Manufacturing5_net8
         /// <summary>
         /// Database Access
         /// </summary>
-        dsManufacturing _dsManufacturing = new dsManufacturing();
+        dsManufacturing _dsManufacturing = new();
         dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter;
         dataSources.dsManufacturingTableAdapters.TableAdapterManager tableAdapterManager;
         BindingSource neuromodule_KalibrierdatenBindingSource;
@@ -165,7 +166,7 @@ namespace Insight_Manufacturing5_net8
         {
             if (txtStatus.InvokeRequired)
             {
-                Invoke(new AddTextThreadSafeDelegate(AddTextThreadSafe), new object[] { control, txt });
+                Invoke(new AddTextThreadSafeDelegate(AddTextThreadSafe), [control, txt]);
             }
             else
             {
@@ -260,7 +261,7 @@ namespace Insight_Manufacturing5_net8
         {
                 //Read Information from Module connected to ICD
                 InsightModuleTestBoardV1.ICD_Connect();
-                CIPE_Neuromodul_PIC24 nhx = new CIPE_Neuromodul_PIC24(programmer_info);
+                CIPE_Neuromodul_PIC24 nhx = new(programmer_info);
                 //CIPE_Neuromodul_PIC24 nhx = programmer_info;
                 nhx.ReportMeasurementProgress += Nhx_ReportMeasurementProgress;
                 string SerialNumber = "";
@@ -271,7 +272,7 @@ namespace Insight_Manufacturing5_net8
                 nhx.Get_Serial_Number_from_connected_Module(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, Selected_Module);
                 txtSerialNo.Text = SerialNumber;
 
-                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new CIPE_Neuromodul_PIC24(programmer_info);
+                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new(programmer_info);
                 dgv_SWChannelInfo.DataSource = cNeuromodule_Handle_Hexfile.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
                 dgv_SWChannelInfo.Refresh();
             
@@ -282,7 +283,7 @@ namespace Insight_Manufacturing5_net8
             if (Selected_Module == enumModuleType.cNeuromaster)
             {
                 MessageBox.Show("Neuromaster mit Neurolink verbinden und einschalten.", "Nächster Schritt:", MessageBoxButtons.OK);
-                CRead_Neuromaster uc = new CRead_Neuromaster(FY6900);
+                CRead_Neuromaster uc = new(FY6900);
                 uc.ReportMeasurementProgress += Measurement_Object_ReportMeasurementProgress;
 
                 txtStatus.Clear();
@@ -291,7 +292,7 @@ namespace Insight_Manufacturing5_net8
                 {
                     if (uc.Connect_DataReceiver(false) == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
                     {
-                        CNMFirmwareVersion NMFirmwareVersion = new CNMFirmwareVersion();
+                        CNMFirmwareVersion NMFirmwareVersion = new();
                         uc.DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
 
                         txtStatus.AddStatusString("Neuromaster: " + NMFirmwareVersion.uuid.ToString() + " connected", Color.Blue);
@@ -313,7 +314,7 @@ namespace Insight_Manufacturing5_net8
             }
             else if (Selected_Module == enumModuleType.cNeurolink)
             {
-                C8KanalReceiverV2 Datareceiver_NL = new C8KanalReceiverV2(); ;
+                C8KanalReceiverV2 Datareceiver_NL = new(); ;
 
                 txtStatus.Clear();
                 txtStatus.AddStatusString("Searching for Neurolink  ....", Color.Green);
@@ -330,7 +331,7 @@ namespace Insight_Manufacturing5_net8
             }
             else
                 {
-                    CRead_Neuromaster readNM = new CRead_Neuromaster(FY6900);
+                    CRead_Neuromaster readNM = new(FY6900);
                     readNM.ReportMeasurementProgress += Measurement_Object_ReportMeasurementProgress;
                     try
                     {
@@ -379,7 +380,7 @@ namespace Insight_Manufacturing5_net8
 
         private void btReadhexFile_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog
+            OpenFileDialog openFileDialog1 = new()
             {
                 InitialDirectory = @"c:\Insight Manufacturing\Combined Hex",
                 Filter = "hex files (*.hex)|*.hex|All files (*.*)|*.*",
@@ -390,7 +391,7 @@ namespace Insight_Manufacturing5_net8
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtStatus.Clear();
-                CIPE_Neuromodul_PIC24 nm = new CIPE_Neuromodul_PIC24(programmer_info);
+                CIPE_Neuromodul_PIC24 nm = new(programmer_info);
                 string tempPath = openFileDialog1.FileName;
 
                 CIPE_Neuromodul_PIC24.CModuleInformation cmi = nm.Get_FullInfo(tempPath);
@@ -403,7 +404,7 @@ namespace Insight_Manufacturing5_net8
                 txtStatus.AddStatusString("SW Version: " + cmi.SWVersion, Color.Blue);
                 txtStatus.AddStatusString("Bootloader Version: " + cmi.BLVersion, Color.Blue);
 
-                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new CIPE_Neuromodul_PIC24(programmer_info);
+                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new(programmer_info);
                 dgv_SWChannelInfo.DataSource = cNeuromodule_Handle_Hexfile.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
                 dgv_SWChannelInfo.Refresh();
             }
@@ -578,7 +579,7 @@ namespace Insight_Manufacturing5_net8
 
         private void btShowDatabase_Click(object sender, EventArgs e)
         {
-            frmDatabase frm = new frmDatabase();
+            frmDatabase frm = new();
             frm.ShowDialog();
 
             //frmDatabase2 frm2 = new();
@@ -732,7 +733,7 @@ namespace Insight_Manufacturing5_net8
 
 #if !DEBUG1
                     Update_from_Testboard(def);
-                    frm_image_text fit = new frm_image_text(
+                    frm_image_text fit = new(
                         "Offsetspannung überprüfen:",
                         "Offset_300mV_600.jpg",
                         "Bitte Batterien / Offsetspannung überprüfen (295mV... 305mV)");
@@ -781,7 +782,7 @@ namespace Insight_Manufacturing5_net8
         CFlashNeuromodul_Calibrated flashNeuromodul_Calibrated;
 
         CRead_Neuromaster ucread;
-        readonly List<CRead_Neuromaster> uccheck = new List<CRead_Neuromaster>();
+        readonly List<CRead_Neuromaster> uccheck = new();
         CRead_Neuromaster? ucagain = null;
 
         frmAmplitudeGain frmAgain;
@@ -793,13 +794,13 @@ namespace Insight_Manufacturing5_net8
 
         #region Neuromodule_Radio_Buttons
 
-        private readonly List<myRadioButton> rbbModuleSelection = new List<myRadioButton>();
+        private readonly List<myRadioButton> rbbModuleSelection = new();
         private enumModuleType Selected_Module = enumModuleType.cModuleMultisensor;
 
         /// <summary>
         /// RadioButton with ModuleType Property
         /// </summary>
-        /// <seealso cref="System.Windows.Forms.RadioButton" />
+        /// <seealso cref="RadioButton" />
         private class myRadioButton : RadioButton
         {
             private enumModuleType _ModuleType;
@@ -835,7 +836,7 @@ namespace Insight_Manufacturing5_net8
             {
                 enumModuleType mt = enVals[i];
 
-                myRadioButton rb = new myRadioButton
+                myRadioButton rb = new()
                 {
                     Text = mt.ToString().Replace("cModule", ""),
                     ModuleType = mt,
@@ -912,7 +913,7 @@ namespace Insight_Manufacturing5_net8
                 {
                     HexFilePath = filePaths[0];
 
-                    CIPE_Neuromodul_PIC24 ICD3 = new CIPE_Neuromodul_PIC24(programmer_info);
+                    CIPE_Neuromodul_PIC24 ICD3 = new(programmer_info);
                     Firmware_Version = ICD3.Get_SWVersion_from_hexFile(HexFilePath, Selected_Module);
                     lblFWVersion.Text = lblFWVersionBasicText + Firmware_Version;
 
@@ -1299,7 +1300,7 @@ namespace Insight_Manufacturing5_net8
                         if (!Directory.Exists(p))
                             Directory.CreateDirectory(p);
 
-                        RichTextBox rt = new RichTextBox();
+                        RichTextBox rt = new();
                         rt.Clear();
                         if (File.Exists(f))
                         {
@@ -1417,7 +1418,7 @@ namespace Insight_Manufacturing5_net8
         {
             if (InvokeRequired)
             {
-                Invoke(new UdpateAmplitudeDelegate(UdpateAmplitudeGain), new object[] { f, v_db, ueff_out });
+                Invoke(new UdpateAmplitudeDelegate(UdpateAmplitudeGain), [f, v_db, ueff_out]);
             }
             else
             {
@@ -1445,7 +1446,7 @@ namespace Insight_Manufacturing5_net8
             CRead_Neuromaster crnm = (CRead_Neuromaster)sender;
             if (cFlowChartDX1.InvokeRequired)
             {
-                Invoke(new Setup_NeuromoduleGraphDelegate(Setup_NeuromoduleGraph), new object[] { sender, ModuleInfo });
+                Invoke(new Setup_NeuromoduleGraphDelegate(Setup_NeuromoduleGraph), [sender, ModuleInfo]);
             }
             else
             {
@@ -1459,24 +1460,24 @@ namespace Insight_Manufacturing5_net8
             }
         }
 
-        private void Ucread_DataReady_xy(object sender, double y_calibrated, WindControlLib.CDataIn DataIn)
+        private void Ucread_DataReady_xy(object sender, double y_calibrated, CDataIn DataIn)
         {
             Update_NeuromoduleGraph(sender, y_calibrated, DataIn);
         }
 
-        delegate void Update_NeuromoduleGraphDelegate(object sender, double y_calibrated, WindControlLib.CDataIn DataIn);
-        void Update_NeuromoduleGraph(object sender, double y_calibrated, WindControlLib.CDataIn DataIn)
+        delegate void Update_NeuromoduleGraphDelegate(object sender, double y_calibrated, CDataIn DataIn);
+        void Update_NeuromoduleGraph(object sender, double y_calibrated, CDataIn DataIn)
         {
 
             if (cFlowChartDX1.InvokeRequired)
             {
-                Invoke(new Update_NeuromoduleGraphDelegate(Update_NeuromoduleGraph), new object[] { sender, y_calibrated, DataIn });
+                Invoke(new Update_NeuromoduleGraphDelegate(Update_NeuromoduleGraph), [sender, y_calibrated, DataIn]);
             }
             else
             {
                 try
                 {
-                    CYvsTimeData c = new CYvsTimeData(1)
+                    CYvsTimeData c = new(1)
                     {
                         xData = DataIn.DT_absolute
                     };
@@ -1581,8 +1582,8 @@ namespace Insight_Manufacturing5_net8
         {
             try
             {
-                dsManufacturing _dsManufacturing = new dsManufacturing();
-                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter();
+                dsManufacturing _dsManufacturing = new();
+                dataSources.dsManufacturingTableAdapters.NeurodevicesTableAdapter neurodevicesTableAdapter = new();
 
                 neurodevicesTableAdapter.FillBy_SerialNumber(_dsManufacturing.Neurodevices, SerialNumber);
                 if (_dsManufacturing.Neurodevices.Count == 1)

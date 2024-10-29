@@ -18,7 +18,7 @@ namespace FeedbackDataLib
         /// </summary>
         List<byte> DataInBuffer = [];
 
-        private CHighPerformanceDateTime hp_Timer = new CHighPerformanceDateTime();
+        private CHighPerformanceDateTime hp_Timer = new();
 
         private const int Length_of_DataPack = 4;
 
@@ -26,13 +26,13 @@ namespace FeedbackDataLib
 
         private DateTime FakeTime_Start;
         private TimeSpan FakeTime_Incement;
-        
+
         /// <summary>
         /// Just to hold and process Sample Interval
         /// </summary>
         private class CSkalData
         {
-            public TimeSpan SmpleInt_ms = new TimeSpan(0,0,0,0,20);
+            public TimeSpan SmpleInt_ms = new(0, 0, 0, 0, 20);
             public TimeSpan SinceLastSync;
             public void IncrSinceLastSync()
             {
@@ -46,7 +46,7 @@ namespace FeedbackDataLib
         private CSkalData[][] ChanData = new CSkalData[C8KanalReceiverV2_CommBase.max_num_HWChannels][];
 
         private bool _isFakeTime = false;
-        
+
         /// <summary>
         /// true if fake time is generated
         /// Set_FakeTime must be called 
@@ -92,7 +92,7 @@ namespace FeedbackDataLib
             //Check for a valid packet
             while (DataInBuffer.Count >= numByteRead)
             {
-                CDataIn di = new CDataIn();
+                CDataIn di = new();
                 if (CInsightDataEnDecoder.Parse4Byte([.. DataInBuffer.GetRange(0, 4)], ref di))
                 {
                     //it is a valid packet
@@ -107,7 +107,7 @@ namespace FeedbackDataLib
                         if (DataInBuffer.Count >= Length_of_DataPack + numAdditionalBytes)
                         {
                             //Enough bytes are here, read them
-                            byte[] buf = DataInBuffer.GetRange(Length_of_DataPack, numAdditionalBytes).ToArray();
+                            byte[] buf = [.. DataInBuffer.GetRange(Length_of_DataPack, numAdditionalBytes)];
                             //Check for commands that must be processed here
                             switch (buf[0])
                             {
@@ -141,7 +141,7 @@ namespace FeedbackDataLib
                         if (di.SyncFlag == 1)
                         {
                             //Now we need a 5th byte ... is it already there??
-                            if (DataInBuffer.Count >= Length_of_DataPack+1)
+                            if (DataInBuffer.Count >= Length_of_DataPack + 1)
                             {
                                 //Yes, we can proceed
                                 int sync = DataInBuffer[Length_of_DataPack];   //byte wit idx 4 = 5th byte
@@ -169,7 +169,7 @@ namespace FeedbackDataLib
                             else
                             {
                                 //5th byte not yet in, go for another loop
-                                numByteRead = Length_of_DataPack+1;
+                                numByteRead = Length_of_DataPack + 1;
                             }
                         } //if (di.SyncFlag == 1)
                         else

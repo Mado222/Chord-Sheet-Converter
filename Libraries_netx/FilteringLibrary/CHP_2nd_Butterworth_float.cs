@@ -7,7 +7,7 @@
         public CHP_2nd_Butterworth_float(enFilter_Params filter_Params, enFilter_Form Filter_Form)
         {
             this.filter_Params = filter_Params;
-            this.filter_Form = filter_Form;
+            filter_Form = filter_Form;
             InitFilter();
         }
 
@@ -60,14 +60,14 @@ Generated code is based on the following filter design:
 </micro.DSP.FilterDocument>*/
 
         //Gilt für Form1 und 2
-        static double[] HP_coefficients_HP_fg_0o5_100Hz = {
+        static double[] HP_coefficients_HP_fg_0o5_100Hz = [
             0.9780304792065595, -1.956060958413119, 0.9780304792065595, 1.9555782403150355, -0.9565436765112033 // b0, b1, b2, a1, a2
-        };
+        ];
 
         private void InitFilter()
         {
             // Scaled for floating point
-            switch (this.filter_Params)
+            switch (filter_Params)
             {
                 case enFilter_Params.HP_fg_0o5_100Hz:
                     HP_coefficients = HP_coefficients_HP_fg_0o5_100Hz;

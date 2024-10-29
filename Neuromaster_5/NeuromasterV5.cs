@@ -2,7 +2,7 @@
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using FeedbackDataLib_GUI;
-using Math_Net_nuget;
+using MathNetNuget;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using WindControlLib;
@@ -30,12 +30,12 @@ namespace Neuromaster_V5
         /// <summary>
         /// Result of the last attempt to connect to Neuromaster
         /// </summary>
-        private C8KanalReceiverV2.enumConnectionResult LastConnectionResult = C8KanalReceiverV2.enumConnectionResult.No_Active_Neurolink;
+        private C8KanalReceiverV2.EnumConnectionResult LastConnectionResult = C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink;
 
         /// <summary>
         /// Ringpuffer for Status Messages (used from tmrStatusMessages)
         /// </summary>
-        private CRingpuffer StatusMessages = new CRingpuffer(100);
+        private readonly CRingpuffer StatusMessages = new(100);
 
         /// <summary>
         /// Index of the currently selected module
@@ -47,9 +47,9 @@ namespace Neuromaster_V5
         /// </summary>
         private int BU_idx_SelectedModule = -1;
 
-        private readonly CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new CNeuromaster_Textfile_Importer_Exporter();
+        private readonly CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new();
 
-        private CFFT_MathNet FFT_MathNet = new();
+        //private readonly CFFT_MathNet FFT_MathNet = new();
 
         private bool ConfigSetOK = false;
 
@@ -69,15 +69,17 @@ namespace Neuromaster_V5
             ucSignalAnalysers.Add(ucSignalAnalyser1);
             tlpMeasure.Controls.Add(ucSignalAnalyser1, 0, 0);
 
-            tmrUpdateFFT = new System.Windows.Forms.Timer();
-            tmrUpdateFFT.Interval = 1000;
-            tmrUpdateFFT.Enabled = true;
+            tmrUpdateFFT = new System.Windows.Forms.Timer
+            {
+                Interval = 1000,
+                Enabled = true
+            };
             tmrUpdateFFT.Tick += TmrUpdateFFT_Tick;
         }
 
         private void Init_Graphs()
         {
-            if (LastConnectionResult != C8KanalReceiverV2.enumConnectionResult.Connected_via_SDCard)
+            if (LastConnectionResult != C8KanalReceiverV2.EnumConnectionResult.Connected_via_SDCard)
             {
                 cFlowChartDX1.Dock = DockStyle.Fill;
                 cFlowChartDX1.Visible = true;
@@ -88,52 +90,52 @@ namespace Neuromaster_V5
                 cFlowChartDX1.Visible = false;
                 cFlowChartDX1.Enabled = false;
 
-                Color[] colors = { Color.White, Color.White, Color.White, Color.White };
+                //Color[] colors = [Color.White, Color.White, Color.White, Color.White];
 
             }
             Setup_tlpMeasure();
         }
 
 
-        enum enDisplayState
+        enum EnDisplayState
         {
             None,
             Module,
             Raw,
             Default
         }
-        private enDisplayState DisplayState = enDisplayState.None;
+        private EnDisplayState DisplayState = EnDisplayState.None;
 
 
         private void SetupFlowChart()
         {
-            if (rawChannelsToolStripMenuItem.Checked && (DisplayState != enDisplayState.Raw))
+            if (rawChannelsToolStripMenuItem.Checked && (DisplayState != EnDisplayState.Raw))
             {
                 Init_Graphs();
-                DisplayState = enDisplayState.Raw;
+                DisplayState = EnDisplayState.Raw;
             }
 
-            else if (predefinedChannelsToolStripMenuItem.Checked && (DisplayState != enDisplayState.Default))
+            else if (predefinedChannelsToolStripMenuItem.Checked && (DisplayState != EnDisplayState.Default))
             {
                 cFlowChartDX1.SetupFlowChart_for_Module_Default(DataReceiver.Connection.Device.ModuleInfos);
                 Init_Graphs();
-                DisplayState = enDisplayState.Default;
+                DisplayState = EnDisplayState.Default;
             }
             else if (selectedModuleToolStripMenuItem.Checked)
             {
                 cFlowChartDX1.SetupFlowChart_for_Module(cChannelsControlV2x11.GetModuleInfo(idx_SelectedModule));
                 Init_Graphs();
-                DisplayState = enDisplayState.Module;
+                DisplayState = EnDisplayState.Module;
             }
 
             //In SD Card Mode show cashed data
-            if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_SDCard)
+            if (LastConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_SDCard)
             {
                 if (SDCardData != null)
                 {
                     for (int swcn = 0; swcn < DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].SWChannels.Count; swcn++)
                     {
-                        List<CYvsTimeData> ret = SDCardData.GetChannelData(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn, swcn);
+                        _ = SDCardData.GetChannelData(DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn, swcn);
                     }
                 }
             }
@@ -202,8 +204,7 @@ namespace Neuromaster_V5
 
             if (_frmSaveData != null)
             {
-                if (Neuromaster_Textfile_Importer_Exporter != null)
-                    Neuromaster_Textfile_Importer_Exporter.CloseFile();
+                Neuromaster_Textfile_Importer_Exporter?.CloseFile();
 
                 _frmSaveData.Close();
             }
@@ -215,7 +216,7 @@ namespace Neuromaster_V5
         /// <summary>
         /// Disconnect from Neuromaster
         /// </summary>
-        private void tbConnect_ToState1(object sender, EventArgs e)
+        private void TbConnect_ToState1(object sender, EventArgs e)
         {
             if (DataReceiver.Connection.SendCloseConnection())  //4.8.2014
             {
@@ -243,37 +244,33 @@ namespace Neuromaster_V5
         {
             EnDisComponents(false);
             tbConnect.GoToState1(false);    //Just set Button to Red
-            if (DataReceiver != null)
-                DataReceiver.Close_All();
+            DataReceiver?.Close_All();
         }
 
 
         /// <summary>
         /// Connect to Neuromaster
         /// </summary>
-        private void tbConnect_ToState2(object sender, EventArgs e)
+        private void TbConnect_ToState2(object sender, EventArgs e)
         {
             tbConnect.AcceptChange = false;
             StartConnection();
         }
 
-        Stopwatch stopwatch = new();
+        readonly Stopwatch stopwatch = new();
         private void StartConnection()
         {
             stopwatch.Reset();
             stopwatch.Start();
             DontReconnectOntbConnect_ToState1 = false;
-            C8KanalReceiverV2.enumConnectionResult? conres;
+            C8KanalReceiverV2.EnumConnectionResult conres;
 
-            if (DataReceiver == null)
-            {
-                DataReceiver = new C8KanalReceiverV2();
-            }
+            DataReceiver ??= new C8KanalReceiverV2();
 
             if (sDCardToolStripMenuItem.Checked)
             {
                 //SD Card mode
-                conres = DataReceiver.Init_via_SDCard();
+                _ = DataReceiver.Init_via_SDCard();
                 //!!!! Now Connect
                 LastConnectionResult = DataReceiver.Connect();
                 AddEvents();
@@ -287,8 +284,8 @@ namespace Neuromaster_V5
                 else //if (rbVirtCom.Checked)
                     conres = DataReceiver.Init_via_VirtualCom();
 
-                if ((conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable) ||
-                    conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                if ((conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable) ||
+                    conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                 {
 
                     AddStatusString("Neurolink: " + DataReceiver.NeurolinkSerialNumber + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Blue);
@@ -298,44 +295,44 @@ namespace Neuromaster_V5
 
                     switch (LastConnectionResult)
                     {
-                        case C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee:
+                        case C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee:
                             {
                                 AddStatusString("XBee Connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
                                 AddEvents();
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable:
+                        case C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable:
                             {
                                 AddStatusString("USB cable connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
                                 AddEvents();
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.Error_during_Port_scan:
+                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
                             {
                                 AddStatusString("Error during Port scan." + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Red);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.Error_during_USBcable_connection:
+                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_USBcable_connection:
                             {
                                 AddStatusString("Error_during_USBcable_connection" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.Error_during_XBee_connection:
+                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_XBee_connection:
                             {
                                 AddStatusString("Error_during_XBee_connection" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.More_than_one_Neurolink_detected:
+                        case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
                             {
                                 AddStatusString("Please connect only one Neurolink" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.No_Active_Neurolink:
+                        case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
                             {
                                 AddStatusString("No active Neurolink found." + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.Error_read_ErrorString:
+                        case C8KanalReceiverV2.EnumConnectionResult.Error_read_ErrorString:
                             {
                                 AddStatusString(DataReceiver.LastErrorString, Color.Orange);
                                 break;
@@ -351,17 +348,17 @@ namespace Neuromaster_V5
                 {
                     switch (conres)
                     {
-                        case C8KanalReceiverV2.enumConnectionResult.Error_during_Port_scan:
+                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
                             {
                                 AddStatusString("Error during Port scan.", Color.Red);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.More_than_one_Neurolink_detected:
+                        case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
                             {
                                 AddStatusString("Please connect only one Neurolink", Color.Orange);
                                 break;
                             }
-                        case C8KanalReceiverV2.enumConnectionResult.No_Active_Neurolink:
+                        case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
                             {
                                 AddStatusString("No active Neurolink found.", Color.Orange);
                                 break;
@@ -435,9 +432,9 @@ namespace Neuromaster_V5
         /// </remarks>
         void Connection_DeviceToPC_BufferFull()
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action(Connection_DeviceToPC_BufferFull));
+                Invoke(new Action(Connection_DeviceToPC_BufferFull));
             }
             else
             {
@@ -454,9 +451,9 @@ namespace Neuromaster_V5
         /// <exception cref="System.NotImplementedException"></exception>
         void Connection_DeviceToPC_BatteryStatus(uint Battery_Voltage_mV, uint percentage, uint Supply_Voltage_mV)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action<uint, uint, uint>(Connection_DeviceToPC_BatteryStatus), Battery_Voltage_mV, percentage, Supply_Voltage_mV);
+                Invoke(new Action<uint, uint, uint>(Connection_DeviceToPC_BatteryStatus), Battery_Voltage_mV, percentage, Supply_Voltage_mV);
             }
             else
             {
@@ -466,18 +463,6 @@ namespace Neuromaster_V5
                 AddStatusString(txtBattery, "Supply Voltage: " + Supply_Voltage_mV.ToString() + "mV", Color.Violet);
             }
         }
-
-        /// <summary>
-        /// Actual Neuro-Module Configuration differs from that stored on the SD Card
-        /// Event fires only after connecting to the NM
-        /// </summary>
-
-        void Connection_DeviceToPC_NeuroModuleConfigurationChanged()
-        {
-            //4.8.2014
-            AddStatusString("Actual Neuro-Module Configuration differs from that stored on the SD Card", Color.Red);
-        }
-
 
         #endregion
 
@@ -501,25 +486,18 @@ namespace Neuromaster_V5
 
         private void AddStatusString(RichTextBox txtStatus, string text, Color Col)
         {
-            CTextCol tc = new CTextCol(txtStatus, text, Col);
+            CTextCol tc = new(txtStatus, text, Col);
             StatusMessages.Push(tc);
         }
 
-        private class CTextCol
+        private class CTextCol(RichTextBox txtBox, string text, Color Col)
         {
-            public string text = "";
-            public Color col = Color.Black;
-            public RichTextBox txtBox = null;
-
-            public CTextCol(RichTextBox txtBox, string text, Color Col)
-            {
-                this.txtBox = txtBox;
-                this.text = text;
-                this.col = Col;
-            }
+            public string text = text;
+            public Color col = Col;
+            public RichTextBox txtBox = txtBox;
         }
 
-        private void tmrStatusMessages_Tick(object sender, EventArgs e)
+        private void TmrStatusMessages_Tick(object sender, EventArgs e)
         {
             while (StatusMessages.StoredObjects > 0)
             {
@@ -668,7 +646,7 @@ namespace Neuromaster_V5
             }
         }
 
-        CVasoProcessor VasoProcessor = new CVasoProcessor();
+        //readonly CVasoProcessor VasoProcessor = new CVasoProcessor();
 
 
         /// <summary>
@@ -682,7 +660,7 @@ namespace Neuromaster_V5
             foreach (CDataIn ci in DataChannel)
             {
                 cChannelsControlV2x11.SetChannelActivity(ci.HW_cn);
-                CYvsTimeData c = new CYvsTimeData(1);
+                CYvsTimeData c = new(1);
 
                 if (relativeToolStripMenuItem.Checked)
                     c.xData = ci.DT_relative;
@@ -698,7 +676,7 @@ namespace Neuromaster_V5
                 /////////// ***** /////////////
                 // Normal Processing
                 /////////// ***** /////////////
-                if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_SDCard)
+                if (LastConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_SDCard)
                 {
                     //Daten zwischenspeichern
                     if (SDCardData != null)
@@ -734,7 +712,7 @@ namespace Neuromaster_V5
         /// <summary>
         /// Read the current Module-configuration (which modules are connected) from Neuromaster
         /// </summary>
-        private void btGetConfigModules_Click(object sender, EventArgs e)
+        private void BtGetConfigModules_Click(object sender, EventArgs e)
         {
             ConfigSetOK = false;
             if (DataReceiver.Connection.ScanModules())
@@ -767,7 +745,7 @@ namespace Neuromaster_V5
                     Init_Graphs();
 
                     //Is EEG dabei?
-                    for (int i = 0; i< DataReceiver.Connection.Device.ModuleInfos.Count; i++)
+                    for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos.Count; i++)
                     {
                         if (DataReceiver.Connection.Device.ModuleInfos[i].ModuleType == enumModuleType.cModuleEEG)
                             tmrUpdateFFT.Start();
@@ -818,7 +796,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void btRestoreLastConfig_Click(object sender, EventArgs e)
+        private void BtRestoreLastConfig_Click(object sender, EventArgs e)
         {
             //RestoreOldConfiguration();
             if (LastSaveLoadFilename != "")
@@ -829,18 +807,19 @@ namespace Neuromaster_V5
         }
 
 
-        private void btSetConfig_Click(object sender, EventArgs e)
+        private void BtSetConfig_Click(object sender, EventArgs e)
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
             ConfigSetOK = false;
             //DataReceiver.Connection.Device.ModuleInfos[HW_cn] = cChannelsControlV2x11.GetModuleInfo(HW_cn);
 
             //Update Modules 
-            var target = DataReceiver.Connection.Device.ModuleInfos[HW_cn];
+            //var target = DataReceiver.Connection.Device.ModuleInfos[HW_cn];
             var source = cChannelsControlV2x11.GetModuleInfo(HW_cn);
-            DataReceiver.Connection.Device.ModuleInfos[HW_cn].Update_SWChannels(source.SWChannels);
+            if (source != null)
+                DataReceiver.Connection.Device.ModuleInfos[HW_cn].Update_SWChannels(source.SWChannels);
 
-            if (DataReceiver.Connection.SetConfigModule(HW_cn))
+            if (DataReceiver.Connection.SetConfigModules(HW_cn))
             {
                 AddStatusString("Config set: " + HW_cn.ToString(), Color.Green);
                 pbXBeeChannelCapacity.Value = DataReceiver.Connection.GetChannelCapcity();
@@ -853,7 +832,7 @@ namespace Neuromaster_V5
         }
 
 
-        private void btSetAllConfig_Click(object sender, EventArgs e)
+        private void BtSetAllConfig_Click(object sender, EventArgs e)
         {
             SetAllConfig();
         }
@@ -876,9 +855,9 @@ namespace Neuromaster_V5
         }
 
 
-        private void btGetClock_Click(object sender, EventArgs e)
+        private void BtGetClock_Click(object sender, EventArgs e)
         {
-            DateTime dt = new DateTime();
+            DateTime dt = new();
             if (DataReceiver.Connection.GetClock(ref dt))
             {
                 if (dt != null)
@@ -897,7 +876,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void btSetClock_Click(object sender, EventArgs e)
+        private void BtSetClock_Click(object sender, EventArgs e)
         {
             if (DataReceiver.Connection.SetClock(DateTime.Now))
             {
@@ -910,7 +889,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void cChannelsControlV2x11_ModuleRowChanged(object sender, CModuleBase ModuleInfo)
+        private void CChannelsControlV2x11_ModuleRowChanged(object sender, CModuleBase ModuleInfo)
         {
 
             for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos.Count; i++)
@@ -943,7 +922,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void cChannelsControlV2x11_SWChannelRowChanged(object sender, CSWChannel SelectedSWChannel)
+        private void CChannelsControlV2x11_SWChannelRowChanged(object sender, CSWChannel SelectedSWChannel)
         {
             //Set Axis
             SetupFlowChart();
@@ -983,7 +962,7 @@ namespace Neuromaster_V5
         //CheckBox[] cbChannelActive;
         //List<CSignalFilter_OnlineFilter> SignalFilters = new List<CSignalFilter_OnlineFilter>();
 
-        private static Version version = new Version(Application.ProductVersion);
+        private static readonly Version version = new(Application.ProductVersion);
         public static Version Version
         {
             get
@@ -1014,12 +993,12 @@ namespace Neuromaster_V5
 
         string LastSaveLoadFilename = "";
 
-        private void btSaveConfig_Click(object sender, EventArgs e)
+        private void BtSaveConfig_Click(object sender, EventArgs e)
         {
             //Save Config
             if (saveFileDialog_xml.ShowDialog() == DialogResult.OK)
             {
-                FileStream fs = new FileStream(saveFileDialog_xml.FileName, FileMode.Create);
+                FileStream fs = new(saveFileDialog_xml.FileName, FileMode.Create);
                 TextWriter writer = new StreamWriter(fs);
 
                 XmlSerializer ser = new(typeof(CSWConfigValues[][]));
@@ -1031,7 +1010,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void btLoadConfig_Click(object sender, EventArgs e)
+        private void BtLoadConfig_Click(object sender, EventArgs e)
         {
             //Load Config
             if (openFileDialog_xml.ShowDialog() == DialogResult.OK)
@@ -1046,7 +1025,7 @@ namespace Neuromaster_V5
         {
             if (File.Exists(path_xml_file))
             {
-                FileStream fs = new FileStream(path_xml_file, FileMode.Open);
+                FileStream fs = new(path_xml_file, FileMode.Open);
                 TextReader reader = new StreamReader(fs);
                 XmlSerializer ser = new(typeof(CSWConfigValues[][]));
                 CSWConfigValues[][]? ModuleInfo = (CSWConfigValues[][])ser.Deserialize(reader);
@@ -1061,7 +1040,7 @@ namespace Neuromaster_V5
         }
 
 
-        private void btAllCnhan0On_Click(object sender, EventArgs e)
+        private void BtAllCnhan0On_Click(object sender, EventArgs e)
         {
             //bool changed = false;
             AllChannelsOff();
@@ -1084,10 +1063,10 @@ namespace Neuromaster_V5
             }
             SetAllConfig();
         }
- 
+
         private void AllDefaultOn_Click(object sender, EventArgs e)
         {
-            UcFlowChartDX_NM.CDefaultChannels Def = new UcFlowChartDX_NM.CDefaultChannels();
+            UcFlowChartDX_NM.CDefaultChannels Def = new();
             AllChannelsOff();
 
             for (int HW_cn = 0; HW_cn < DataReceiver.Connection.Device.ModuleInfos.Count; HW_cn++)
@@ -1133,9 +1112,9 @@ namespace Neuromaster_V5
             AddStatusString("Port is open: " + DataReceiver.FTDI_D2xx.IsOpen.ToString(), Color.Black);
         }
 
-        private void btGetSDCardInfo_Click(object sender, EventArgs e)
+        private void BtGetSDCardInfo_Click(object sender, EventArgs e)
         {
-            CSDCardInfo SDCardInfo = new CSDCardInfo();
+            CSDCardInfo SDCardInfo = new();
 
             if (DataReceiver.Connection.GetSDCardInfo(ref SDCardInfo))
             {
@@ -1148,9 +1127,9 @@ namespace Neuromaster_V5
                 AddStatusString("Failed to read SD Card!", Color.Red);
         }
 
-        private void btGetFirmwareVersion_Click(object sender, EventArgs e)
+        private void BtGetFirmwareVersion_Click(object sender, EventArgs e)
         {
-            CNMFirmwareVersion NMFirmwareVersion = new CNMFirmwareVersion();
+            CNMFirmwareVersion NMFirmwareVersion = new();
             DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
 
             AddStatusString("NM UID: " + NMFirmwareVersion.uuid, Color.DarkOliveGreen);
@@ -1159,15 +1138,15 @@ namespace Neuromaster_V5
         }
 
 
-        cSDCardData SDCardData;
-        Stopwatch SDStopWatch = new Stopwatch();
+        CSDCardData SDCardData;
+        readonly Stopwatch SDStopWatch = new();
         private void ReadBackSDCard()
         {
             if (openFileDialog_nmc.ShowDialog() == DialogResult.OK)
             {
                 //DirectoryInfo dir = new DirectoryInfo(folderBrowserDialog1.SelectedPath);
                 string path_nmc = openFileDialog_nmc.FileName;
-                SDCardData = new cSDCardData();
+                SDCardData = new CSDCardData();
 
                 //DataReceiver
 
@@ -1201,7 +1180,7 @@ namespace Neuromaster_V5
 
                         SDStopWatch.Reset();
                         SDStopWatch.Start();
-                        
+
                         tmrSDDataReader.Enabled = true; //Timer, der die Daten stück für stück reinholt initialisieren
 
 
@@ -1228,7 +1207,7 @@ namespace Neuromaster_V5
         //const int bytes_to_read_from_file = 512;
         byte[] SDFiledata;
         const long numSDBytes_toread = 512;
-        private void tmrSDDataReader_Tick(object sender, EventArgs e)
+        private void TmrSDDataReader_Tick(object sender, EventArgs e)
         {
             if (SDFiledata.Length > 0)
             {
@@ -1245,9 +1224,9 @@ namespace Neuromaster_V5
                 if (read != SDFiledata.Length)
                 {
                     //Angenommenen Daten vorne wegnehmen = nicht angenommene Daten nach vorne kopieren
-                    List<byte> TempData = new List<byte>(SDFiledata);
+                    List<byte> TempData = new(SDFiledata);
                     TempData.RemoveRange(0, read);
-                    SDFiledata = TempData.ToArray();
+                    SDFiledata = [.. TempData];
                     //Buffer.BlockCopy(SDFiledata, read, SDFiledata, 0, SDFiledata.Length - read);
                 }
                 else
@@ -1275,35 +1254,16 @@ namespace Neuromaster_V5
         /// Dieser Kanal bestimmt minTime, maxTime
         /// Nur Daten in diesem Zeitintervall werden akzeptiert
         /// </summary>
-        class cSDCardData
+        class CSDCardData
         {
-            private List<CYvsTimeData>[][] _SDCardData;
+            private readonly List<CYvsTimeData>[][] _SDCardData;
 
+            public DateTime MaxTime { get; set; } = DateTime.MinValue;
 
-            private DateTime _maxTime = DateTime.MinValue;
-            public DateTime maxTime
-            {
-                get { return _maxTime; }
-                set { _maxTime = value; }
-            }
+            public DateTime MinTime { get; set; } = DateTime.MinValue;
+            public int MaxnumVals_perChannel { get; set; } = 10000;
 
-
-            private DateTime _minTime = DateTime.MinValue;
-            public DateTime minTime
-            {
-                get { return _minTime; }
-                set { _minTime = value; }
-            }
-
-
-            private int _maxnumVals_perChannel = 10000;
-            public int maxnumVals_perChannel
-            {
-                get { return _maxnumVals_perChannel; }
-                set { _maxnumVals_perChannel = value; }
-            }
-
-            public cSDCardData()
+            public CSDCardData()
             {
                 _SDCardData = new List<CYvsTimeData>[C8KanalReceiverV2_CommBase.max_num_HWChannels][];
                 for (int i = 0; i < C8KanalReceiverV2_CommBase.max_num_HWChannels; i++)
@@ -1311,22 +1271,22 @@ namespace Neuromaster_V5
                     _SDCardData[i] = new List<CYvsTimeData>[C8KanalReceiverV2_CommBase.max_num_SWChannels];
                     for (int j = 0; j < C8KanalReceiverV2_CommBase.max_num_SWChannels; j++)
                     {
-                        _SDCardData[i][j] = new List<CYvsTimeData>();
+                        _SDCardData[i][j] = [];
                     }
                 }
             }
 
             public void Add(int HW_cn, int SW_cn, CYvsTimeData data)
             {
-                maxTime = data.xData;
-                if (minTime == DateTime.MinValue) minTime = data.xData;
+                MaxTime = data.xData;
+                if (MinTime == DateTime.MinValue) MinTime = data.xData;
                 _SDCardData[HW_cn][SW_cn].Add(data);
-                if (_SDCardData[HW_cn][SW_cn].Count > maxnumVals_perChannel)
+                if (_SDCardData[HW_cn][SW_cn].Count > MaxnumVals_perChannel)
                 {
                     _SDCardData[HW_cn][SW_cn].RemoveAt(0);
-                    minTime = _SDCardData[HW_cn][SW_cn][0].xData;
+                    MinTime = _SDCardData[HW_cn][SW_cn][0].xData;
                 }
-                else if (_SDCardData[HW_cn][SW_cn][0].xData < minTime)
+                else if (_SDCardData[HW_cn][SW_cn][0].xData < MinTime)
                 {
                     _SDCardData[HW_cn][SW_cn].RemoveAt(0);
                 }
@@ -1334,7 +1294,7 @@ namespace Neuromaster_V5
 
             public List<CYvsTimeData> GetChannelData(int HW_cn, int SW_cn)
             {
-                List<CYvsTimeData> ret = new List<CYvsTimeData>();
+                List<CYvsTimeData> ret = [];
                 if (HW_cn < _SDCardData.Length)
                     if (SW_cn < _SDCardData[HW_cn].Length)
                     {
@@ -1344,7 +1304,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void btGetModuleSpecific_Click(object sender, EventArgs e)
+        private void BtGetModuleSpecific_Click(object sender, EventArgs e)
         {
             GetModuleSpecific();
         }
@@ -1394,7 +1354,7 @@ namespace Neuromaster_V5
         }
 
 
-        private void btSetModuleSpecific_Click(object sender, EventArgs e)
+        private void BtSetModuleSpecific_Click(object sender, EventArgs e)
         {
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
 
@@ -1437,7 +1397,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void selectedModuleToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SelectedModuleToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sender == selectedModuleToolStripMenuItem)
             {
@@ -1460,7 +1420,7 @@ namespace Neuromaster_V5
             SetupFlowChart();
         }
 
-        private void scaledToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ScaledToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sender == scaledToolStripMenuItem)
             {
@@ -1474,7 +1434,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void absolutToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AbsolutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sender == absolutToolStripMenuItem)
             {
@@ -1488,7 +1448,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void d2XXToolStripMenuItem_Click(object sender, EventArgs e)
+        private void D2XXToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (sender == d2XXToolStripMenuItem)
             {
@@ -1511,17 +1471,17 @@ namespace Neuromaster_V5
         }
 
 
-        private void readBackToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ReadBackToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ReadBackSDCard();
         }
 
-        private void resyncTimeBaseToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ResyncTimeBaseToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DataReceiver.Connection.Device.Resync();
         }
 
-        private void statusToolStripMenuItem_Click(object sender, EventArgs e)
+        private void StatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //CVID_PID vp = new CVID_PID();
             //vp.VID_PID = "VID_0403&PID_6001";
@@ -1530,52 +1490,58 @@ namespace Neuromaster_V5
         }
 
 
-        private void resetPortToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ResetPortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetPort();
-            GetFTDIStatus("Reset Ports: ", Color.Green);
+            if (DataReceiver is not null && DataReceiver.FTDI_D2xx != null)
+            {
+                _ = DataReceiver.FTDI_D2xx.ResetPort();
+                GetFTDIStatus("Reset Ports: ", Color.Green);
+            }
         }
 
-        private void resetDeviceToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ResetDeviceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.ResetDevice();
-            GetFTDIStatus("Reset Device: ", Color.Green);
+            if (DataReceiver is not null && DataReceiver.FTDI_D2xx != null)
+            {
+                _ = DataReceiver.FTDI_D2xx.ResetDevice();
+                GetFTDIStatus("Reset Device: ", Color.Green);
+            }
         }
 
-        private void cyclePortToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CyclePortToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.CyclePort();
-            GetFTDIStatus("Cycle Port: ", Color.Green);
+            if (DataReceiver is not null && DataReceiver.FTDI_D2xx != null)
+            {
+                _ = DataReceiver.FTDI_D2xx.CyclePort();
+                GetFTDIStatus("Cycle Port: ", Color.Green);
+            }
         }
 
         frmSaveData _frmSaveData;
         //ComponentsLib.CToggleButton ctbSaving = new ComponentsLib.CToggleButton();
-        private void saveDataToFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveDataToFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_frmSaveData == null)
             {
                 _frmSaveData = new frmSaveData();
-                _frmSaveData.StopSaving += _frmSaveData_StopSaving;
-                _frmSaveData.StartSaving += _frmSaveData_StartSaving;
+                _frmSaveData.StopSaving += FrmSaveData_StopSaving;
+                _frmSaveData.StartSaving += FrmSaveData_StartSaving;
             }
             _frmSaveData.Show();
         }
 
         //--> Noch nicht fertig programmiert Liest nur cfg zurück aber noch keine Daten
-        private void readDataFromFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ReadDataFromFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (openFileDialog_cfg.ShowDialog() == DialogResult.OK)
             {
                 string cfgPath = openFileDialog_cfg.FileName;
                 DateTime recorded = DateTime.Now;
                 string Comment = "";
-                List<CModuleBase> cm = new List<CModuleBase>(); ;
+                List<CModuleBase> cm = []; ;
                 if (Neuromaster_Textfile_Importer_Exporter.Open_File_for_reading(cfgPath, ref recorded, ref Comment, ref cm))
                 {
-                    if (DataReceiver == null)
-                    {
-                        DataReceiver = new C8KanalReceiverV2();
-                    }
+                    DataReceiver ??= new C8KanalReceiverV2();
 
                     //DataReceiver.Connection.Device.ModuleInfos = cm;
                     cChannelsControlV2x11.SetModuleInfos(cm);
@@ -1598,13 +1564,14 @@ namespace Neuromaster_V5
         TimeSpan tsFileTimeDiv;
         string DateRecorded = "";
 
-        private void tmrFileDataReader_Tick(object sender, EventArgs e)
+        private void TmrFileDataReader_Tick(object sender, EventArgs e)
         {
             CNeuromaster_Textfile_Importer_Exporter.CDatafromFile cdf = Neuromaster_Textfile_Importer_Exporter.GetNextValueFrom_SDCardFile(DateRecorded);
             cChannelsControlV2x11.SetChannelActivity(cdf.hwcn);
-            CYvsTimeData c = new CYvsTimeData(1);
-
-            c.xData = cdf.dt_absolute + tsFileTimeDiv;
+            CYvsTimeData c = new(1)
+            {
+                xData = cdf.dt_absolute + tsFileTimeDiv
+            };
 
             if (scaledToolStripMenuItem.Checked)
                 c.yData[0] = cdf.y_scaled;
@@ -1623,7 +1590,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void _frmSaveData_StartSaving()
+        private void FrmSaveData_StartSaving()
         {
             //Start saving
             try
@@ -1640,20 +1607,20 @@ namespace Neuromaster_V5
             }
         }
 
-        private void _frmSaveData_StopSaving()
+        private void FrmSaveData_StopSaving()
         {
             //Stop saving
             Neuromaster_Textfile_Importer_Exporter.CloseFile();
         }
 
-        private void btGetElectrodeInfo_Click(object sender, EventArgs e)
+        private void BtGetElectrodeInfo_Click(object sender, EventArgs e)
         {
-            int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
+            _ = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
         }
 
-        private void convertToTxtToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ConvertToTxtToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            frmSDCardReader frmSDCardReader = new frmSDCardReader();
+            frmSDCardReader frmSDCardReader = new();
             frmSDCardReader.ShowDialog();
         }
 
@@ -1669,7 +1636,7 @@ namespace Neuromaster_V5
                     {
                         if (num_raw_EEG_Channels < 0)
                         {
-                            num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].numRawChannels;
+                            num_raw_EEG_Channels = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].NumRawChannels;
 
                         }
 
@@ -1731,9 +1698,9 @@ namespace Neuromaster_V5
         #region USB_Connect_Disconnect
         private void DataReceiver_DeviceDisconnected(string PID_VID)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action<string>(DataReceiver_DeviceDisconnected), PID_VID);
+                Invoke(new Action<string>(DataReceiver_DeviceDisconnected), PID_VID);
             }
             else
             {
@@ -1743,11 +1710,11 @@ namespace Neuromaster_V5
             }
         }
 
-        private void DataReceiver_DeviceConnected(C8KanalReceiverV2.enumConnectionResult ConnectionResult)
+        private void DataReceiver_DeviceConnected(C8KanalReceiverV2.EnumConnectionResult ConnectionResult)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                this.Invoke(new Action<C8KanalReceiverV2.enumConnectionResult>(DataReceiver_DeviceConnected), ConnectionResult);
+                Invoke(new Action<C8KanalReceiverV2.EnumConnectionResult>(DataReceiver_DeviceConnected), ConnectionResult);
             }
             else
             {

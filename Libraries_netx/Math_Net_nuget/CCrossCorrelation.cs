@@ -1,7 +1,7 @@
 ﻿using MathNet.Numerics.Statistics;
 using System;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
     public static class StatsHelper
     {
@@ -13,7 +13,7 @@ namespace Math_Net_nuget
             return Correlation.Pearson(s1, s2);
         }
 
-        
+
         public static LagCorr CrossCorrelation(double[] x1, double[] x2)
         {
             if (x1.Length != x2.Length)

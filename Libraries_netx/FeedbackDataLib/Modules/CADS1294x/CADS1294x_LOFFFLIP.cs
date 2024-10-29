@@ -4,7 +4,7 @@
     /************************** LOFF ***************************
     /***************************************************************/
     [Serializable]
-   public class CADS1294x_LOFFFLIP
+    public class CADS1294x_LOFFFLIP
     {
         private byte registerValue;
 

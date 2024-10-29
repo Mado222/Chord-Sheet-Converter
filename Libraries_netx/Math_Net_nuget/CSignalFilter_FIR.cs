@@ -1,11 +1,11 @@
 ﻿using MathNet.Filtering;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
-    public class CSignalFilter_FIR: CSignalFilter_Base
+    public class CSignalFilterFIR : CSignalFilterBase
     {
 
-        public CSignalFilter_FIR(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order=2):
+        public CSignalFilterFIR(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order = 2) :
             base(SignalFilterType, fg, sampleRate, order)
         {
 
@@ -40,5 +40,5 @@ namespace Math_Net_nuget
     }
 
 }
-    
+
 

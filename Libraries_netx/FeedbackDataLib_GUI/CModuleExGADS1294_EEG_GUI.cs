@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace FeedbackDataLib_GUI
 {
-    internal class CModuleExGADS1294_EEG_GUI: CModuleExGADS1294_EEG
+    internal class CModuleExGADS1294_EEG_GUI : CModuleExGADS1294_EEG
     {
         private frmSpectrum frmSpectrum;
-        public CModuleExGADS1294_EEG_GUI(): base() 
+        public CModuleExGADS1294_EEG_GUI() : base()
         {
             frmSpectrum = new frmSpectrum();
             frmSpectrum.Show();

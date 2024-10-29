@@ -36,7 +36,7 @@ namespace XBeeLib
         /// <param name="recFrameData">frame data</param>
         public override void initResponse(List<byte> recFrameData)
         {
-            modemStatus = (ModemStatus) recFrameData[0];
+            modemStatus = (ModemStatus)recFrameData[0];
         }
 
     }

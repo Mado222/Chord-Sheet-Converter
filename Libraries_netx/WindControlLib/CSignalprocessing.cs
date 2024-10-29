@@ -74,7 +74,7 @@ namespace WindControlLib
         public int ThrNextReductionSamples = 0;
         public double ThrReductionPercentage = 0.7;
 
-        private void UpdateVals()
+        private static void UpdateVals()
         {
             //MaxNeg1 = new TimeSpan(0, 0, 0, 0, (int)60000 / MinAR);	 //[ms] max Dauer Phase1
             //MaxNeg2 = new TimeSpan(0, 0, 0, 0, (int)60000 / MinAR);	 //[ms] max Dauer Phase2
@@ -97,28 +97,28 @@ namespace WindControlLib
         const int neg2 = 2;		//Spannung hat RThrNeg2 überschritten
         const int pos1 = 3;	    //Spannung hat RThrPos1 überschritten
 
-        private readonly CDataIn AMax = new CDataIn();
+        private readonly CDataIn AMax = new();
 
 
-        private CDataIn AMaxLast = new CDataIn();
+        private CDataIn AMaxLast = new();
         public CDataIn MaxLast
         {
             get { return AMaxLast; }
             set { AMaxLast = value; }
         }
 
-        private CDataIn AMinLast = new CDataIn();
+        private CDataIn AMinLast = new();
         public CDataIn MinLast
         {
             get { return AMinLast; }
             set { AMinLast = value; }
         }
-        
-        private readonly CDataIn AMin = new CDataIn();
-        
-        private readonly CDataIn Begin_neg1 = new CDataIn();	//Beginn der 1. Phase
-        private readonly CDataIn Begin_neg2 = new CDataIn();	//Beginn der 2. Phase
-        private readonly CDataIn Begin_pos1 = new CDataIn();
+
+        private readonly CDataIn AMin = new();
+
+        private readonly CDataIn Begin_neg1 = new();	//Beginn der 1. Phase
+        private readonly CDataIn Begin_neg2 = new();	//Beginn der 2. Phase
+        private readonly CDataIn Begin_pos1 = new();
 
         private byte RPhase;
 
@@ -150,7 +150,7 @@ namespace WindControlLib
         //Wenn ThrNextReductionSamples == CountThrReductionSamples wird AThrNeg1 = AThrNeg1* ThrReductionPercentage berechnet
         private int CountThrReductionSamples = 0;
 
-        private CConfigMinMaxSuche _ConfigMinMaxSuche = new CConfigMinMaxSuche();
+        private CConfigMinMaxSuche _ConfigMinMaxSuche = new();
         public CConfigMinMaxSuche ConfigMinMaxSuche
         {
             get { return _ConfigMinMaxSuche; }
@@ -185,10 +185,10 @@ namespace WindControlLib
                         if (CountThrReductionSamples >= _ConfigMinMaxSuche.ThrNextReductionSamples)
                         {
                             CountThrReductionSamples = 0;
-                            AThrNeg1 = (int)(((double)AThrNeg1) * _ConfigMinMaxSuche.ThrReductionPercentage);
-                            AThrNeg2 = (int)(((double)AThrNeg2) * _ConfigMinMaxSuche.ThrReductionPercentage);
-                            AThrPos1 = (int)(((double)AThrPos1) * _ConfigMinMaxSuche.ThrReductionPercentage);
-                            AThrPos2 = (int)(((double)AThrPos2) * _ConfigMinMaxSuche.ThrReductionPercentage);
+                            AThrNeg1 = (int)(AThrNeg1 * _ConfigMinMaxSuche.ThrReductionPercentage);
+                            AThrNeg2 = (int)(AThrNeg2 * _ConfigMinMaxSuche.ThrReductionPercentage);
+                            AThrPos1 = (int)(AThrPos1 * _ConfigMinMaxSuche.ThrReductionPercentage);
+                            AThrPos2 = (int)(AThrPos2 * _ConfigMinMaxSuche.ThrReductionPercentage);
                         }
                         break;
                     }
@@ -249,8 +249,8 @@ namespace WindControlLib
                                 AThrNeg2 = AMinLast.Value / 4;
 
                                 //Ausgangswerte berechnen
-                                double dicmax = (((TimeSpan)(AMax.TS_Since_LastSync - AMaxLast.TS_Since_LastSync)).TotalMilliseconds);
-                                double dicmin = (((TimeSpan)(AMin.TS_Since_LastSync - AMinLast.TS_Since_LastSync)).TotalMilliseconds);
+                                double dicmax = ((AMax.TS_Since_LastSync - AMaxLast.TS_Since_LastSync).TotalMilliseconds);
+                                double dicmin = ((AMin.TS_Since_LastSync - AMinLast.TS_Since_LastSync).TotalMilliseconds);
                                 double dic = (dicmax + dicmin) / 2; //MW aus Abstand der Max und der Min
                                 if (dic != 0) _Rate = dic / 60000;      //gleich auch 1/x
                                 _VSS = (AMax.Value - AMin.Value);
@@ -289,7 +289,7 @@ namespace WindControlLib
         private double _k = 0;
         public double k
         {
-            get { return _k;}
+            get { return _k; }
         }
 
         private double _d = 0;
@@ -297,7 +297,7 @@ namespace WindControlLib
         {
             get { return _d; }
         }
-        
+
         public CLinearInterpolation(double x1, double y1, double x2, double y2)
         {
             SetParameters(x1, y1, x2, y2);
@@ -306,7 +306,7 @@ namespace WindControlLib
         public void SetParameters(double x1, double y1, double x2, double y2)
         {
             _k = (y1 - y2) / (x1 - x2);
-            _d = y1 -(_k * x1);
+            _d = y1 - (_k * x1);
         }
 
         public double GetX(double y)

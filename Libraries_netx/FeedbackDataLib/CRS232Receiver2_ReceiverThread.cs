@@ -233,7 +233,7 @@ namespace FeedbackDataLib
         private int mustbeinbuf = -1;
         private int issync = 0;
         private int isEP = 0;
-        private byte []? PrecheckBuffer(ref CFifoBuffer<byte> RS232inBytes)
+        private byte[]? PrecheckBuffer(ref CFifoBuffer<byte> RS232inBytes)
         {
             if (RS232inBytes.Count >= 1)
             {
@@ -266,7 +266,7 @@ namespace FeedbackDataLib
                     {
                         if (isEP == 1)
                         {
-                            int numExtradata = (RS232inBytes.Peek(mustbeinbuf - 2) >> 4) &0x07;
+                            int numExtradata = (RS232inBytes.Peek(mustbeinbuf - 2) >> 4) & 0x07;
                             if (numExtradata > 0)
                                 mustbeinbuf += numExtradata;
                         }
@@ -279,19 +279,19 @@ namespace FeedbackDataLib
                 }
             }
             else
-            { 
-                RS232inBytes.Pop(); 
+            {
+                RS232inBytes.Pop();
             }
             return null;
         }
-        
+
         private void Stop_RS232ReceiverThread()
         {
             if (RS232ReceiverThread != null)
             {
                 if (RS232ReceiverThread.IsBusy)
                 {
-                    this.RS232ReceiverThread.CancelAsync();
+                    RS232ReceiverThread.CancelAsync();
                     //Warten bis thread fertig, aber nicht länger als 3 Sekunden
                     DateTime EndWait = DateTime.Now + new TimeSpan(0, 0, 0, 3, 0);
                     while (RS232ReceiverThread.IsBusy && (DateTime.Now < EndWait)) ;  //Warten bis thread fertig

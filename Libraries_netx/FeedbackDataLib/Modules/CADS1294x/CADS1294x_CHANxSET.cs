@@ -7,7 +7,7 @@
     public class CADS1294x_CHANxSET
     {
         private byte registerValue;
-        private CADS1294x_Gain gainControl = new CADS1294x_Gain();
+        private CADS1294x_Gain gainControl = new();
 
         // Properties for each field in the register using corresponding enums and the GainControl class
         public MUX Mux
@@ -18,7 +18,7 @@
 
         public int GetAmplification()
         {
-            return gainControl.GetAmplification((CADS1294x_Gain.Gain)((registerValue >> 4) & 0x07));
+            return CADS1294x_Gain.GetAmplification((CADS1294x_Gain.Gain)((registerValue >> 4) & 0x07));
         }
 
         public void SetAmplification(int value)
@@ -29,7 +29,7 @@
 
         public void SetAmplification(CADS1294x_Gain.Gain gain)
         {
-            int ampl=gainControl.GetAmplification(gain);
+            int ampl = CADS1294x_Gain.GetAmplification(gain);
             var gainEnum = gainControl.GetBitMaskFromAmplification(ampl);
             registerValue = (byte)((registerValue & ~(0x07 << 4)) | (((byte)gainEnum & 0x07) << 4));
         }
@@ -52,14 +52,14 @@
         {
             var currentGainEnum = (CADS1294x_Gain.Gain)((registerValue >> 4) & 0x07);
             var newGainEnum = gainControl.IncreaseGain(currentGainEnum);
-            SetAmplification(gainControl.GetAmplification(newGainEnum));
+            SetAmplification(CADS1294x_Gain.GetAmplification(newGainEnum));
         }
 
         public void DecreaseGain()
         {
             var currentGainEnum = (CADS1294x_Gain.Gain)((registerValue >> 4) & 0x07);
             var newGainEnum = gainControl.DecreaseGain(currentGainEnum);
-            SetAmplification(gainControl.GetAmplification(newGainEnum));
+            SetAmplification(CADS1294x_Gain.GetAmplification(newGainEnum));
         }
 
         // Constructor

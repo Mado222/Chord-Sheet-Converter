@@ -4,7 +4,7 @@
     {
         public CStatusText()
         {
-            this.ScrollBars = RichTextBoxScrollBars.Vertical;
+            ScrollBars = RichTextBoxScrollBars.Vertical;
         }
 
         /// <summary>
@@ -47,13 +47,13 @@
         /// <param name="LineBreak_Post">if set to <c>true</c> [line break post].</param>
         public void AddStatusStringNoDateTime(string text, bool LineBreak_Pre, Color Col, bool LineBreak_Post = false)
         {
-            bool buAddTime = this.AddTime;
-            bool buAddDate = this.AddDate;
-            this.AddTime = false;
-            this.AddDate = false;
+            bool buAddTime = AddTime;
+            bool buAddDate = AddDate;
+            AddTime = false;
+            AddDate = false;
             AddStatusString(text, LineBreak_Pre, Col, LineBreak_Post);
-            this.AddTime = buAddTime;
-            this.AddDate = buAddDate;
+            AddTime = buAddTime;
+            AddDate = buAddDate;
         }
 
         public void AddStatusStringNoDateTime(string text, Color Col)
@@ -82,27 +82,27 @@
         /// </remarks>
         public void AddStatusString(string text, bool LineBreak_Pre, Color Col, bool LineBreak_Post = false)
         {
-            if (this.InvokeRequired)
+            if (InvokeRequired)
             {
-                AddStatusStringDelegate addStatusString = new AddStatusStringDelegate(AddStatusString);
-                Invoke(addStatusString, new object[] { text, Col });
+                AddStatusStringDelegate addStatusString = new(AddStatusString);
+                Invoke(addStatusString, [text, Col]);
             }
             else
             {
                 if (ClearLines != 0)
                 {
-                    if (this.Lines.Length >= ClearLines) this.Clear();
+                    if (Lines.Length >= ClearLines) Clear();
                 }
 
                 /*MaxLines check*/
-                if (MaxLines > 0 && this.Lines.Length > MaxLines)
+                if (MaxLines > 0 && Lines.Length > MaxLines)
                 {
-                    List<string> lines = new List<string>(this.Lines);
+                    List<string> lines = new(Lines);
                     while (lines.Count >= MaxLines)
                     {
                         lines.RemoveAt(0);
                     }
-                    this.Lines = lines.ToArray();
+                    Lines = [.. lines];
                 }
 
                 string pref = "";
@@ -126,22 +126,22 @@
 
                 try
                 {
-                    this.SelectionColor = Col;
-                    this.AppendText(pref + text);
+                    SelectionColor = Col;
+                    AppendText(pref + text);
 
                     if (LineBreak_Post) AddLineBreak();
-                    this.ScrollToCaret();
+                    ScrollToCaret();
                 }
                 catch { }
                 finally { }
             }
         }
 
-        private void AddLineBreak ()
+        private void AddLineBreak()
         {
             try
             {
-                this.AppendText(Environment.NewLine);
+                AppendText(Environment.NewLine);
             }
             catch (Exception) { }
             finally { }

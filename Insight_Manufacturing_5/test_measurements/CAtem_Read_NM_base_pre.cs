@@ -2,6 +2,7 @@
 using FeedbackDataLib;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {

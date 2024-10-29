@@ -108,7 +108,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
             Save_Calibration_Values(id_neuromodule_kalibrierdaten);
 
-            dsManufacturing _dsManufacturing = new dsManufacturing();
+            dsManufacturing _dsManufacturing = new();
             dsManufacturing.Neuromodule_DatenRow nrow = _dsManufacturing.Neuromodule_Daten.NewNeuromodule_DatenRow();
             Add_MeasuementResults_to_Row(ref nrow, AllResults[0]);
 
@@ -123,7 +123,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             nrow.SerialNumber = SerialNumber;
             nrow.Bemerkung = my_name;
 
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
 
             _dsManufacturing.Neuromodule_Daten.Rows.Add(nrow);
             neuromodule_DatenTableAdapter.Update(_dsManufacturing.Neuromodule_Daten);

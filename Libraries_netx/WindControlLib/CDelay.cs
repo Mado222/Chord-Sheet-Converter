@@ -8,7 +8,7 @@ namespace WindControlLib
 {
     public class CDelay
     {
-        static readonly CHighPerformanceDateTime hptimer = new CHighPerformanceDateTime();
+        static readonly CHighPerformanceDateTime hptimer = new();
         public static void Delay_ms(int delayms)
         {
             DateTime dt = hptimer.Now + new TimeSpan(0, 0, 0, 0, delayms);

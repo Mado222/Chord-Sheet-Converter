@@ -14,7 +14,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             my_name = "Check Multi SCL";
         }
 
-        public override void Process_NM_Data(WindControlLib.CDataIn DataIn, int swcn = 0)
+        public override void Process_NM_Data(CDataIn DataIn, int swcn = 0)
         {
             base.Process_NM_Data(DataIn, 0);
         }
@@ -36,8 +36,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override void Save_Results_to_DB()
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
 
             neuromodule_DatenTableAdapter.FillBy_SerialNumber_Order_Desc_by_Date(_dsManufacturing.Neuromodule_Daten, SerialNumber);
             //zum datumsmäßig letzten Datensatz hinzufügen

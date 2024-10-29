@@ -42,11 +42,11 @@ namespace BMTCommunicationLib
 
         public static byte[] EncodeData(byte command, byte[] payload)
         {
-            CCRC8 CRC8 = new CCRC8(CCRC8.CRC8_POLY.CRC8_CCITT);
+            CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
             byte[] buffer = new byte[payload.Length + 2];
             buffer[0] = command;
             Buffer.BlockCopy(payload, 0, buffer, 1, payload.Length);
-            buffer[buffer.Length - 1] = CRC8.Calc_CRC8(buffer, buffer.Length - 2);
+            buffer[^1] = CRC8.Calc_CRC8(buffer, buffer.Length - 2);
             return buffer;
         }
 

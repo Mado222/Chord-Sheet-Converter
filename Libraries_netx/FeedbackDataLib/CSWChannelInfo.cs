@@ -99,12 +99,12 @@ namespace FeedbackDataLib
                 .. BitConverter.GetBytes(SkalValue_k),
                 .. BitConverter.GetBytes(Offset_d),
             ];
-            return Buf.ToArray();
+            return [.. Buf];
         }
 
         public static uint get_size_of()
         {
-            CSWChannelInfo c = new CSWChannelInfo();
+            CSWChannelInfo c = new();
             int ptr = 0;
             foreach (var propert in c.GetType().GetProperties())
             {

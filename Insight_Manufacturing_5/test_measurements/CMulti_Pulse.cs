@@ -7,13 +7,13 @@ namespace Insight_Manufacturing5_net8.tests_measurements
     public class CMulti_Pulse : CMulti_Read_NM_base
     {
         //Test mit "Wuff Wuff Maschine
-        public static readonly bool[] SendChannel_Multi_Pulse = { false, false, true, true }; //Pulse raw, Pulse_bpm
+        public static readonly bool[] SendChannel_Multi_Pulse = [false, false, true, true]; //Pulse raw, Pulse_bpm
         public static double Multi_Pulse_soll_bpm = 60;
         public static double Multi_Pulse_soll_min_bpm = 57;
         public static double Multi_Pulse_soll_max_bpm = 63;
 
         public static double MeasureTime_Multi_Pulse_s = 20;
-        public static readonly double[] MeasureTime_Multi_s_Pulse = { MeasureTime_Multi_Pulse_s, MeasureTime_Multi_Pulse_s }; //SCL Lo, Hi measure time
+        public static readonly double[] MeasureTime_Multi_s_Pulse = [MeasureTime_Multi_Pulse_s, MeasureTime_Multi_Pulse_s]; //SCL Lo, Hi measure time
 
         public CMulti_Pulse(CFY6900 FY6900) : base(FY6900)
         {
@@ -24,7 +24,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             Pre_Job_Message = "Multisensor auf Puls-Tester legen";
         }
 
-        public override void Process_NM_Data(WindControlLib.CDataIn DataIn, int swcn = 0)
+        public override void Process_NM_Data(CDataIn DataIn, int swcn = 0)
         {
             base.Process_NM_Data(DataIn, 2);
         }
@@ -52,8 +52,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public override void Save_Results_to_DB()
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
 
 
             neuromodule_DatenTableAdapter.FillBy_SerialNumber_Order_Desc_by_Date(_dsManufacturing.Neuromodule_Daten, SerialNumber);

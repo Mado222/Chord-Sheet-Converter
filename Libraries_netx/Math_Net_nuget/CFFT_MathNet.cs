@@ -4,31 +4,31 @@ using WindControlLib;
 using System.Linq;
 using MathNet.Numerics.IntegralTransforms;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
     /// <summary>
     /// FFT class
     /// </summary>
-    public class CFFT_MathNet
+    public class CFFTMathNet
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CFFT_MathNet"/> class.
+        /// Initializes a new instance of the <see cref="CFFTMathNet"/> class.
         /// </summary>
-        public CFFT_MathNet()
+        public CFFTMathNet()
         {
         }
 
         /// <summary>
         /// Zur Amplitude gehörende Zeitwerte
         /// </summary>
-        public double[] Data_x;
+        public double[] Data_x = [];
 
-       
+
         /// <summary>
         /// Amplitude des Signals
         /// </summary>
-        public double[] Data_y;
- 
+        public double[] Data_y = [];
+
 
         /// <summary>
         /// Amplitude des 2. Signals
@@ -37,7 +37,7 @@ namespace Math_Net_nuget
         /// For correlation. MUST have Data_x as time base.
         /// Use: ResampleData_to_xBase
         /// </remarks>
-        public double[] Data_y2;
+        public double[] Data_y2 = [];
 
         /// <summary>
         /// Smplingrate [1/s]
@@ -69,30 +69,27 @@ namespace Math_Net_nuget
         /// <summary>
         /// Amplitudenspektrum, SPITZENWERT
         /// </summary>
-        public double[] fftAmplitudePeak { get; private set; }
+        public double[] FftAmplitudePeak { get; private set; } = [];
 
         /// <summary>
         /// Sets fftAmplitude[0]=0
         /// </summary>
-        public void SetDCZero()
-        {
-            fftAmplitudePeak[0]=0;
-        }
+        public void SetDCZero() => FftAmplitudePeak[0] = 0;
 
         /// <summary>
         /// Amplitudenspektrum, RMS
         /// </summary>
-        public double[] fftAmplitudeRMS
+        public double[] FftAmplitudeRMS
         {
             get
             {
-                if (fftAmplitudePeak != null)
+                if (FftAmplitudePeak != null)
                 {
-                    double[] ret = new double[fftAmplitudePeak.Length];
+                    double[] ret = new double[FftAmplitudePeak.Length];
                     double sqrt2 = Math.Sqrt(2);
                     for (int i = 1; i < ret.Length; i++)
-                        ret[i] = fftAmplitudePeak[i] / sqrt2;
-                    ret[0] = fftAmplitudePeak[0];
+                        ret[i] = FftAmplitudePeak[i] / sqrt2;
+                    ret[0] = FftAmplitudePeak[0];
                     return ret;
                 }
                 return null;
@@ -110,7 +107,7 @@ namespace Math_Net_nuget
         /// See: "FFT Zusammenfassung.docx", verified with SigView
         /// </remarks>
         /* --- removed 31.10.2017 --- does NOT have a sample rate INDEPENDENT result */
-        public double[] fftAmplitudePowerDensity
+        public static double[] FftAmplitudePowerDensity
         {
             get
             {
@@ -141,14 +138,14 @@ namespace Math_Net_nuget
         /// 
         /// See: "FFT Zusammenfassung.docx", verified with SigView
         /// </remarks>
-        public double[] fftAmplitudePower
+        public double[] FftAmplitudePower
         {
             get
             {
-                double[] ret = new double[fftAmplitudePeak.Length];
+                double[] ret = new double[FftAmplitudePeak.Length];
                 for (int i = 0; i < ret.Length; i++)
                 {
-                    ret[i] = Math.Pow(fftAmplitudePeak[i], 2);
+                    ret[i] = Math.Pow(FftAmplitudePeak[i], 2);
                     ret[i] /= 2;   // /2
                 }
                 ret[0] += ret[0];   //*2
@@ -156,14 +153,10 @@ namespace Math_Net_nuget
             }
         }
 
-        private double[] _fftFrequ;
         /// <summary>
         /// Zugehörige Frequenzachse
         /// </summary>
-        public double[] fftFrequ
-        {
-            get { return _fftFrequ; }
-        }
+        public double[] FftFrequ { get; private set; } = [];
 
 
         #region Spline
@@ -171,44 +164,44 @@ namespace Math_Net_nuget
         /// Resamples y_data, x_data using spline Interpolation
         /// Results in Data_x (new time äquidistant time base), Data_y
         /// </summary>
-        /// <param name="y_data">y data</param>
-        /// <param name="x_data">x data</param>
+        /// <param name="yData">y data</param>
+        /// <param name="xData">x data</param>
         /// <param name="NumberOfPoints">Number of points to generate from data</param>
         /// <remarks>
         /// Data points MUST be equidistant
         /// </remarks>
-        public void ResampleData(double[] y_data, double[] x_data, int NumberOfPoints)
+        public void ResampleData(double[] yData, double[] xData, int NumberOfPoints)
         {
-            ResampleData(ref y_data, ref x_data, NumberOfPoints);
-            Data_x = x_data;
-            Data_y = y_data;
+            ResampleData(ref yData, ref xData, NumberOfPoints);
+            Data_x = xData;
+            Data_y = yData;
         }
 
-        public void ResampleData(ref double[] y_data, ref double[] x_data, int NumberOfPoints)
+        public static void ResampleData(ref double[] yData, ref double[] xData, int NumberOfPoints)
         {
-            double x_FirstPoint = x_data[0];
-            double x_LastPoint = x_data[x_data.Length - 1];
+            double x_FirstPoint = xData[0];
+            double x_LastPoint = xData[^1];
 
             double IntervalLength = x_LastPoint - x_FirstPoint;
-            double incr = (double)(IntervalLength / (double)(y_data.Length - 1));
+            double incr = (double)(IntervalLength / (yData.Length - 1));
 
 
             //Make x-base
-            double[] x = new double[y_data.Length];
+            double[] x = new double[yData.Length];
             double d = x_FirstPoint;
-            for (int i = 0; i < y_data.Length; i++)
+            for (int i = 0; i < yData.Length; i++)
             {
                 x[i] = d;
                 d += incr;
             }
 
             //MathNet.Numerics.Interpolation.IInterpolation sp = MathNet.Numerics.Interpolation.CubicSpline.InterpolateAkimaSorted(x_data, y_data);
-            MathNet.Numerics.Interpolation.IInterpolation sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(x_data, y_data);
+            var sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(xData, yData);
 
-            incr = (double)(IntervalLength / (double)(NumberOfPoints - 1));
+            incr = (double)(IntervalLength / (NumberOfPoints - 1));
             d = x_FirstPoint;
 
-            double [] Data_x = new double[NumberOfPoints];
+            double[] Data_x = new double[NumberOfPoints];
             double[] Data_y = new double[NumberOfPoints];
 
             for (int i = 0; i < NumberOfPoints; i++)
@@ -218,35 +211,34 @@ namespace Math_Net_nuget
                 d += incr;
             }
 
-            y_data = Data_y;
-            x_data = Data_x;
-            
+            yData = Data_y;
+            xData = Data_x;
+
         }
 
         /// <summary>
         /// Resamples Data with differnt time base according to Data_X and stores result in Data_y2
         /// </summary>
-        /// <param name="y_data">The y_data.</param>
-        /// <param name="x_data">The x_data.</param>
+        /// <param name="yData">The y_data.</param>
+        /// <param name="xData">The x_data.</param>
         /// <remarks>
         /// Be carful that timeranges of Data_x and the provided x_data match
         /// if deviation is more than 10% of the range an error is thrown
         /// </remarks>
-        public void ResampleData(double[] y_data, double[] x_data)
+        public void ResampleData(double[] yData, double[] xData)
         {
             //Make x-base
-            double IntervalLengthIn_10 = (x_data[x_data.Length-1] - x_data[0])*0.1;
-            //double IntervalLengthx = (Data_x[Data_x.Length-1] - Data_x[0]);
+            double IntervalLengthIn_10 = (xData[^1] - xData[0]) * 0.1;
 
-            if ((x_data[x_data.Length-1] > (Data_x[Data_x.Length-1]+ IntervalLengthIn_10))  ||
-                (x_data[0] > (Data_x[0]- IntervalLengthIn_10)))
+            if ((xData[^1] > (Data_x[^1] + IntervalLengthIn_10)) ||
+                (xData[0] > (Data_x[0] - IntervalLengthIn_10)))
             {
-                throw (new Exception ("x ranges do not match"));
+                throw (new Exception("x ranges do not match"));
             }
 
             //AkimaSplineInterpolation sp = new AkimaSplineInterpolation();
             //sp.Init(x_data, y_data);
-            MathNet.Numerics.Interpolation.IInterpolation sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(x_data, y_data);
+            var sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(xData, yData);
 
             Data_y2 = new double[Data_x.Length];
 
@@ -260,13 +252,13 @@ namespace Math_Net_nuget
         /// <summary>
         /// Resamples according to Data_X and stores result in Data_y2
         /// </summary>
-        /// <param name="y_data">The y_data.</param>
-        public void ResampleData_to_xBase (double[] y_data)
+        /// <param name="yData">The y_data.</param>
+        public void ResampleDataToXBase(double[] yData)
         {
             //AkimaSplineInterpolation sp = new AkimaSplineInterpolation();
             //sp.Init(Data_x, y_data);
 
-            MathNet.Numerics.Interpolation.IInterpolation sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(Data_x, y_data);
+            var sp = MathNet.Numerics.Interpolation.LinearSpline.InterpolateSorted(Data_x, yData);
 
             Data_y2 = new double[Data_x.Length];
 
@@ -276,12 +268,12 @@ namespace Math_Net_nuget
             }
         }
 
-        
+
         #endregion
 
         #region FFT
 
-     
+
         /// <summary>
         /// FFT from Data_x, Data_y
         /// Result in fftAmplitudePeak, fftAmplitudeRMS, fftAmplitudePower, fftFrequ
@@ -309,19 +301,19 @@ namespace Math_Net_nuget
             //1) Berechnung des Amplitudenbetrags ampl= sqrt(re^2+img^2) / halbe Sampleanzahl bei Matlab-Konvention !!!!!!
             //2) Gleichzeitig generieren eines zugehörigen arrays mit den Frequenzen
 
-            _fftFrequ = Fourier.FrequencyScale(_Data_cx.Length, SamplingRate);
+            FftFrequ = Fourier.FrequencyScale(_Data_cx.Length, SamplingRate);
 
             //scaleFFT();
-            double HalfeNoSamples = ((double)(_Data_cx.Length / 2));
+            double HalfeNoSamples = _Data_cx.Length / 2;
 
-            fftAmplitudePeak = new double[_Data_cx.Length / 2];
+            FftAmplitudePeak = new double[_Data_cx.Length / 2];
 
             //Amplitude Spectrum
             for (int i = 0; i < _Data_cx.Length / 2; i++)     //Betrag eines jeden berechneten Spektrumanteils berechnen nur bis Length/2, da negative Frequqnzen unerheblich
             {
-                fftAmplitudePeak[i] = _Data_cx[i].Magnitude / HalfeNoSamples;
+                FftAmplitudePeak[i] = _Data_cx[i].Magnitude / HalfeNoSamples;
             }
-            fftAmplitudePeak[0] /= 2;  //Sonst ist DC um Fator 2 zu groß
+            FftAmplitudePeak[0] /= 2;  //Sonst ist DC um Fator 2 zu groß
         }
 
 
@@ -345,12 +337,12 @@ namespace Math_Net_nuget
         /// </summary>
         /// <param name="percent">Percentage of datapoints that will be treated with Hanning window at the beginning AND the end</param>
         /// <param name="mean">Mean value of the IPIS (Hannin supresses to this value and NOT 0)</param>
-        public void Hanning_Percent(double percent, double mean)
+        public void HanningPercent(double percent, double mean)
         {
             double TwoPi = Math.PI * 2;
 
-            int numDataToProcess_halbe = (int) ((double) Data_y.Length * percent / 100);
-            int numDataToProcess = 2*numDataToProcess_halbe;
+            int numDataToProcess_halbe = (int)(Data_y.Length * percent / 100);
+            int numDataToProcess = 2 * numDataToProcess_halbe;
 
             int idxUpperSlope = Data_y.Length - numDataToProcess_halbe;
 
@@ -407,18 +399,18 @@ namespace Math_Net_nuget
             //pow = (1/2 * Sqrt(Summe aller Uspitze^2))^2
 
             double pow = 0;
-            if ((fftAmplitudePeak == null) || fftAmplitudePeak.Length == 0)
+            if ((FftAmplitudePeak == null) || FftAmplitudePeak.Length == 0)
             {
                 throw new Exception("FFT must run first");
             }
 
-            for (int i = 1; i < _fftFrequ.Length; i++)
+            for (int i = 1; i < FftFrequ.Length; i++)
             {
-                if (_fftFrequ[i] >= flower)
+                if (FftFrequ[i] >= flower)
                 {
-                    if (_fftFrequ[i] <= fupper)
+                    if (FftFrequ[i] <= fupper)
                     {
-                        pow += Math.Pow(fftAmplitudePeak[i], 2);
+                        pow += Math.Pow(FftAmplitudePeak[i], 2);
                     }
                 }
             }
@@ -426,7 +418,7 @@ namespace Math_Net_nuget
             pow /= 4;
             //ggf DC dazu
             if (flower == 0)
-                pow += Math.Pow(fftAmplitudePeak[0], 2);
+                pow += Math.Pow(FftAmplitudePeak[0], 2);
 
             return pow;
         }
@@ -449,7 +441,7 @@ namespace Math_Net_nuget
             return Math.Sqrt(GetPower(fupper, flower));
         }
 
-        
+
         /*
         private void scaleFFT()
         {
@@ -491,7 +483,7 @@ namespace Math_Net_nuget
                 }
                 R[tau] = sum;
             }
-           return R;
+            return R;
         }
 
         /// <summary>
@@ -506,7 +498,7 @@ namespace Math_Net_nuget
         /// </remarks>
         public double[] CrossCorrelation(double[] funct2)
         {
-            return CrossCorrelation (Data_y, funct2);
+            return CrossCorrelation(Data_y, funct2);
         }
 
         /// <summary>
@@ -520,7 +512,7 @@ namespace Math_Net_nuget
         /// <remarks>
         /// funct 1 and funct 2 must have same no of samples
         /// </remarks>
-        public double[] CrossCorrelation(double[] funct1, double[] funct2)
+        public static double[] CrossCorrelation(double[] funct1, double[] funct2)
         {
             double[] R = new double[funct1.Length];
             for (int tau = 0; tau < funct1.Length; tau++)
@@ -530,7 +522,7 @@ namespace Math_Net_nuget
             return R;
         }
 
-        public double CrossCorrelation(double[] funct1, double[] funct2, int tau)
+        public static double CrossCorrelation(double[] funct1, double[] funct2, int tau)
         {
             double sum;
 
@@ -553,7 +545,7 @@ namespace Math_Net_nuget
         /// <remarks>
         /// funct 1 and funct 2 must have same no of samples
         /// </remarks>
-        public double[] CrossCorrelationNormalized(double[] funct1, double[] funct2)
+        public static double[] CrossCorrelationNormalized(double[] funct1, double[] funct2)
         {
             double[] R = new double[funct1.Length];
 
@@ -579,7 +571,7 @@ namespace Math_Net_nuget
         /// <param name="stddev">(standard deviation function 1)*(standard deviation function 2)</param>
         /// <param name="tau">tau</param>
         /// <returns></returns>
-        private double CrossCorrelationNormalized(double[] funct1, double[] funct2, double mean1, double mean2, double stddev, int tau)
+        private static double CrossCorrelationNormalized(double[] funct1, double[] funct2, double mean1, double mean2, double stddev, int tau)
         {
             double sum;
             sum = 0;
@@ -599,25 +591,25 @@ namespace Math_Net_nuget
                 }
             }
             sum /= stddev;
-            return sum / (double)funct1.Length;
+            return sum / funct1.Length;
         }
 
-        public double [] CrossCorrelationNormalized(double[] funct1, double[] funct2, int tau1, int tau2)
+        public static double[] CrossCorrelationNormalized(double[] funct1, double[] funct2, int tau1, int tau2)
         {
-            double[] R = new double[tau2 - tau1 +1];
+            double[] R = new double[tau2 - tau1 + 1];
 
             //Calculate mean and Standarddeviation
             CalcAvgStdv(funct1, out double mean1, out double stddev1);
             CalcAvgStdv(funct2, out double mean2, out double stddev2);
             double stddev = stddev1 * stddev2;
 
-            int cnt = 0;    
+            int cnt = 0;
             for (int tau = tau1; tau < tau2; tau++)
-                {
-                    R[cnt] = CrossCorrelationNormalized(funct1, funct2, mean1, mean2, stddev, tau);
-                    cnt++;
-                }
-            
+            {
+                R[cnt] = CrossCorrelationNormalized(funct1, funct2, mean1, mean2, stddev, tau);
+                cnt++;
+            }
+
             return R;
         }
 
@@ -627,18 +619,18 @@ namespace Math_Net_nuget
         /// <summary>
         /// Normalizes Data_y to +/- 1
         /// </summary>
-        public void Normalize(ref double[] y_data)
+        public static void Normalize(ref double[] yData)
         {
             double MaxVal = 0;
-            foreach (double d in y_data)
+            foreach (double d in yData)
             {
                 if (Math.Abs(d) > MaxVal)
-                { MaxVal= d; }
+                { MaxVal = d; }
             }
 
-            for (int i = 0; i < y_data.Length; i++)
+            for (int i = 0; i < yData.Length; i++)
             {
-                y_data[i] /= MaxVal;
+                yData[i] /= MaxVal;
             }
         }
 
@@ -648,12 +640,12 @@ namespace Math_Net_nuget
         /// <param name="values">values</param>
         /// <param name="Avg">Average</param>
         /// <param name="Stdv">Stddev</param>
-        public void CalcAvgStdv(double[] values, out double Avg, out double Stdv)
+        public static void CalcAvgStdv(double[] values, out double Avg, out double Stdv)
         {
             //Average
             if (values.Length > 0)
             {
-                List<double> doubleList = new List<double>(values);
+                List<double> doubleList = new(values);
                 Avg = doubleList.Average(); // --> Requires Linq
 
                 //Standard Deviation
@@ -675,5 +667,5 @@ namespace Math_Net_nuget
     }
 
 }
-    
+
 

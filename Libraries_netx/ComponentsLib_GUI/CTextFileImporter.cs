@@ -13,15 +13,15 @@
         /// Rows and columns
         /// null if function failed
         /// </returns>
-        public static List<string[]>? ImportTextFile(ref string pathToFile, string splitter, int numHeaderRows, ref string Header)
+        public static List<string[]> ImportTextFile(ref string pathToFile, string splitter, int numHeaderRows, ref string Header)
         {
-            List<string[]>? importedData = [];
+            List<string[]> importedData = [];
 
             bool cont = true;
 
             if (pathToFile == "")
             {
-                OpenFileDialog openFileDialog1 = new OpenFileDialog();
+                OpenFileDialog openFileDialog1 = new();
                 if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     pathToFile = openFileDialog1.FileName;
@@ -36,7 +36,7 @@
                 string? line;
                 try
                 {
-                    StreamReader readFile = new StreamReader(pathToFile);
+                    StreamReader readFile = new(pathToFile);
                     //Remove Header
                     Header = "";
                     for (int i = 0; i < numHeaderRows; i++)
@@ -53,7 +53,7 @@
                 }
                 catch
                 {
-                    importedData = null;
+                    importedData = [];
                 }
             }
             return importedData;

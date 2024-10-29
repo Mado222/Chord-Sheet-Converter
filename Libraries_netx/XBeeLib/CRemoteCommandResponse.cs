@@ -85,12 +85,12 @@ namespace XBeeLib
             status = (RXCommandResponseStatus)listEnum.Current;
 
             //Value   
-            List<byte> ByteListOfValue = new List<byte>();
+            List<byte> ByteListOfValue = new();
             while (listEnum.MoveNext())
             {
                 ByteListOfValue.Add(listEnum.Current);
             }
-            valueOfCommand = ByteListOfValue.ToArray();
+            valueOfCommand = [.. ByteListOfValue];
 
         }
 

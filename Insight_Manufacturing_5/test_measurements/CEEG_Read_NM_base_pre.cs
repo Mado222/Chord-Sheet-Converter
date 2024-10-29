@@ -3,6 +3,7 @@ using FeedbackDataLib;
 using Math_Net_nuget;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.test_measurements;
 
 namespace Insight_Manufacturing5_net8.tests_measurements
 {
@@ -69,7 +70,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                     CAgainValue againValue = AgainValues.AgainValues[i];
 
                     //Get Data
-                    dsManufacturing _dsManufacturing = new dsManufacturing();
+                    dsManufacturing _dsManufacturing = new();
                     dsManufacturing.Neuromodule_DatenRow nrow = _dsManufacturing.Neuromodule_Daten.NewNeuromodule_DatenRow();
 
                     Add_MeasuementResults_to_Row(ref nrow, AllResults[i], againValue);
@@ -80,9 +81,9 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                     if (!EvaluateAGainValue_Ueff_Percent_Saturation(againValue, AllResults[i].ChannelResults[0]))
                         ret = enModuleTestResult.Fail;
 
-                    if (isLogFileOpen)
+                    if (IsLogFileOpen)
                     {
-                        CPeakDetect cp = new CPeakDetect();
+                        CPeakDetect cp = new();
                         AllResults[i].ChannelResults[0].Get_hexVals_Statistics();  //hexvals sind 0
                         double[] data = new double[AllResults[i].ChannelResults[0].hexvals.Length];
                         Array.Copy(AllResults[i].ChannelResults[0].hexvals, data, AllResults[i].ChannelResults[0].hexvals.Length);

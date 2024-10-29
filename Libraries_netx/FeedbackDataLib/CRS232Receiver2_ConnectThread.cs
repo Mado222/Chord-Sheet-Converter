@@ -16,7 +16,7 @@ namespace FeedbackDataLib
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e">DoWorkEventArgs</param>
-        void tryToConnectWorker_DoWork(object sender, DoWorkEventArgs e)
+        void TryToConnectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "tryToConnectWorker";
@@ -45,8 +45,7 @@ namespace FeedbackDataLib
                         IsConnected = false;
                         //Thread stoppen
                         Stop_RS232ReceiverThread();
-                        if (Seriell32 != null)
-                            Seriell32.Close();
+                        Seriell32?.Close();
                         //log.Error(ee.Message, ee);
                         tryToConnectWorker.CancelAsync();   //In diesem Falle nicht weiter probieren
                     }
@@ -79,7 +78,7 @@ namespace FeedbackDataLib
                     {
                         ConnectionStatus = enumConnectionStatus.Not_Connected;
                         IsConnected = false;
-                        if (Seriell32 != null) Seriell32.Close();
+                        Seriell32?.Close();
                         //ggf Thread stoppen
                         Stop_RS232ReceiverThread();
                     }

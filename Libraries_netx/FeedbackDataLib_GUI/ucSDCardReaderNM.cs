@@ -12,10 +12,10 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// Ringpuffer for Status Messages (used from tmrStatusMessages)
         /// </summary>
-        private CRingpuffer StatusMessages = new CRingpuffer(2048);
+        private CRingpuffer StatusMessages = new(2048);
 
         //Handles the Deecoding
-        CSDCardImport SDCardImporter = new CSDCardImport();
+        CSDCardImport SDCardImporter = new();
 
         public SDCardReaderNM()
         {
@@ -25,14 +25,14 @@ namespace FeedbackDataLib_GUI
             SDCardImporter.ImportInfo += new CSDCardImport.ImportInfoEventHandler(SDCardImporter_ImportInfo);
         }
 
-       
+
         //Initialises the Import
         private void btReadBack_Click(object sender, EventArgs e)
         {
             //Start Import and get Configuration
             SDCardImporter.Sync_Packet_has_4_bytes = cbSync_has_4bytes.Checked;
             string sourcePath = txtSourcePath.Text;
-            char[] charsToTrim = { '*', ' ', '\'', '\"' };
+            char[] charsToTrim = ['*', ' ', '\'', '\"'];
             sourcePath = sourcePath.Trim(charsToTrim);
 
             List<CModuleBase> mi = SDCardImporter.StartImport(sourcePath);
@@ -41,7 +41,7 @@ namespace FeedbackDataLib_GUI
                 string destPath = sourcePath;
                 //Make fielname
                 string[] ss = destPath.Split(new char[] { '\\' }, System.StringSplitOptions.RemoveEmptyEntries);
-                string fn = ss[ss.Length - 2] + "_"+ ss[ss.Length - 1];
+                string fn = ss[^2] + "_" + ss[^1];
                 fn = fn.Replace("-", "");
 
                 /*
@@ -53,7 +53,7 @@ namespace FeedbackDataLib_GUI
                 destPath += @"\" + fn + ".txt";
                 txtDestination.Text = destPath;
             }
-            
+
             //Update GUI
             if (mi != null)
             {
@@ -72,17 +72,17 @@ namespace FeedbackDataLib_GUI
             backgroundWorker1.RunWorkerAsync();
             AddStatusString("Job Started");
         }
-        
-      
+
+
         //Does the importing work
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             //Variables for progress report
             long cnt_progress = 0;
             long cnt_runs = 0;
-                        
+
             //To measure execution time
-            Stopwatch stopw = new ();
+            Stopwatch stopw = new();
 
             try
             {
@@ -99,7 +99,7 @@ namespace FeedbackDataLib_GUI
                         {
                             cnt_progress += ten_percent_filelength;
                             double d = SDCardImporter.BytesRead;
-                            d = d / (double)SDCardImporter.DataFileLength * 100;
+                            d = d / SDCardImporter.DataFileLength * 100;
                             backgroundWorker1.ReportProgress((int)d);
                         }
 
@@ -173,7 +173,7 @@ namespace FeedbackDataLib_GUI
 
         private void AddStatusString(RichTextBox txtStatus, string text, Color Col)
         {
-            CTextCol tc = new CTextCol(text, Col);
+            CTextCol tc = new(text, Col);
             StatusMessages.Push(tc);
         }
 
@@ -204,7 +204,7 @@ namespace FeedbackDataLib_GUI
             AddStatusString(Info, col);
         }
 
-        
+
         private void btCancleJob_Click(object sender, EventArgs e)
         {
             backgroundWorker1.CancelAsync();
@@ -213,7 +213,7 @@ namespace FeedbackDataLib_GUI
         ///////////////////
         /// Routiners for file handling
         /// ///////////////////
-        
+
         //For file to write to
         private StreamWriter sw;
         private bool OpenFile()
@@ -249,10 +249,7 @@ namespace FeedbackDataLib_GUI
         private void CloseFile()
         {
             //Stop saving
-            if (sw != null)
-            {
-                sw.Close();
-            }
+            sw?.Close();
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
@@ -289,5 +286,5 @@ namespace FeedbackDataLib_GUI
         }
 
 
-   }
+    }
 }

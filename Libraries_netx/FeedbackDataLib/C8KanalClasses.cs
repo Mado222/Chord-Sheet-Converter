@@ -42,13 +42,13 @@ namespace FeedbackDataLib
         public float EEGBeta { get; set; } = 0;
         public float EEGBeta_soll { get; set; }
     }
-        
+
     /// <summary>
     /// DateTime that Implements time.h (from GNUC)
     /// </summary>
     public class CCDateTime
     {
-                #region time.h
+        #region time.h
         /* FROM: <TIME.H> DATE AND TIME FUNCTIONS*/
         private short tm_sec;/*seconds after the minute ( 0 to 61 )*/  /*allows for up to two leap seconds*/
         private short tm_min;/*minutes after the hour ( 0 to 59 )*/
@@ -62,7 +62,7 @@ namespace FeedbackDataLib
         /* If tm_isdst is a positive value, Daylight Savings is in effect. If it is 
          * zero, Daylight Saving time is not in effect. If it is a negative value, the
          * status of Daylight Saving Time is not known.*/
-                #endregion
+        #endregion
 
         /// <summary>
         /// Gets or sets the dt.
@@ -145,7 +145,7 @@ namespace FeedbackDataLib
             b = BitConverter.GetBytes(tm_wday); buf.AddRange(b);
             b = BitConverter.GetBytes(tm_yday); buf.AddRange(b);
             b = BitConverter.GetBytes(tm_isdst); buf.AddRange(b);
-            buffer = buf.ToArray();
+            buffer = [.. buf];
         }
     }
 
@@ -293,11 +293,11 @@ namespace FeedbackDataLib
         /// </summary>
         public enum enSDCardType
         {
-            CT_MMC=0x01,                      /* MMC ver 3 */
-            CT_SD1=0x02,                      /* SD ver 1 */
-            CT_SD2=0x04,                      /* SD ver 2 */
-            CT_SDC= CT_SD1|CT_SD2,          /* SD */
-            CT_BLOCK= 0x08                    /* Block addressing */
+            CT_MMC = 0x01,                      /* MMC ver 3 */
+            CT_SD1 = 0x02,                      /* SD ver 1 */
+            CT_SD2 = 0x04,                      /* SD ver 2 */
+            CT_SDC = CT_SD1 | CT_SD2,          /* SD */
+            CT_BLOCK = 0x08                    /* Block addressing */
         }
 
         /// <summary>

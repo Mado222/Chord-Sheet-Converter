@@ -18,7 +18,7 @@ namespace FeedbackDataLib
             //Für MPLAB x -> siehe OneNote "ICD3 Command Line"
             //cmd_Read_Neuromodul_EEG_To_File = @"/P33FJ128GP802 /V3.25 /GF";    //Add FileName with "" with no space - see Add_File_to_CommandLineParameters
             //cmd_Read_Neuromodul_To_File = @"/P24FJ64GA102 /V3.25 /GF";
-            return "-" + get_processor_type(ModuleType) + " " + mc_programmer.CMDLine_string + @" -W -GF"; 
+            return "-" + get_processor_type(ModuleType) + " " + mc_programmer.CMDLine_string + @" -W -GF";
         }
 
         //ipecmd.exe -TPPK3 -P18F4550 -M –F"c:/demo.hex"
@@ -30,10 +30,10 @@ namespace FeedbackDataLib
             //-M  ... Program entire device
             //-W  ... Power target from tool
             //-F<file>
-            return @"-" + get_processor_type(ModuleType) + " " + mc_programmer.CMDLine_string + " -W -OL -M -F"; 
+            return @"-" + get_processor_type(ModuleType) + " " + mc_programmer.CMDLine_string + " -W -OL -M -F";
         }
 
-        public static string get_processor_type (enumModuleType ModuleType)
+        public static string get_processor_type(enumModuleType ModuleType)
         {
             if (ModuleType == enumModuleType.cNeuromaster)
             {
@@ -65,7 +65,7 @@ namespace FeedbackDataLib
 
         public CIPE_Neuromodul_PIC24(CMicrochip_Programmer Microchip_Programmer)
         {
-            this.mc_programmer = Microchip_Programmer;
+            mc_programmer = Microchip_Programmer;
         }
 
 
@@ -136,13 +136,13 @@ namespace FeedbackDataLib
             bool ret;
             string cmd = cmd_Flash_Neuromodul(ModuleType);
             //if (ModuleType == enumModuleType.cNeuromaster) cmd = cmd_Flash_Neuromaster;
-            ret = base.Operate_IPE(base.Add_File_to_CommandLineParameters(cmd, HexFilePath_Target), ref StatusString);
+            ret = base.Operate_IPE(Add_File_to_CommandLineParameters(cmd, HexFilePath_Target), ref StatusString);
             return ret;
         }
 
         public bool ReadHexFile(string path_file_to_read, ref string StatusString, enumModuleType ModuleType)
         {
-            return base.Operate_IPE(base.Add_File_to_CommandLineParameters(cmd_Read_Neuromodul_to_file(ModuleType), path_file_to_read), ref StatusString);
+            return base.Operate_IPE(Add_File_to_CommandLineParameters(cmd_Read_Neuromodul_to_file(ModuleType), path_file_to_read), ref StatusString);
         }
 
 
@@ -152,9 +152,9 @@ namespace FeedbackDataLib
         /// <param name="MemoryLocation">The memory location.</param>
         /// <param name="SerialNumber">The serial number.</param>
         /// <returns></returns>
-        private bool Copy_hexFile_AddSerial(string HexFilePath_Base, string HexFilePath_Target, int MemoryLocation, string SerialNumber = "")
+        private static bool Copy_hexFile_AddSerial(string HexFilePath_Base, string HexFilePath_Target, int MemoryLocation, string SerialNumber = "")
         {
-            WindControlLib.CPIC24_IntelHex cih = new CPIC24_IntelHex();
+            WindControlLib.CPIC24_IntelHex cih = new();
 
             if (File.Exists(HexFilePath_Base))
             {
@@ -162,13 +162,13 @@ namespace FeedbackDataLib
                 {
                     if (SerialNumber != "")
                     {
-                        List<byte> bt = new List<byte>(Encoding.ASCII.GetBytes(SerialNumber))
+                        List<byte> bt = new(Encoding.ASCII.GetBytes(SerialNumber))
                         {
                             0  //Null terminierter String
                         };
                         cih.Make_MemoryMirror();
                         //Todo Funktioniert das f PIC24?? vorher Add_Data_to_MemoryMirror
-                        cih.Add_to_MemoryMirror(bt.ToArray(), (uint)MemoryLocation, true);
+                        cih.Add_to_MemoryMirror([.. bt], (uint)MemoryLocation, true);
                     }
                     cih.WriteHexFile_from_Memory(HexFilePath_Target);
                     return true;
@@ -186,7 +186,7 @@ namespace FeedbackDataLib
         /// <param name="MemoryLocation">The memory location.</param>
         /// <param name="numbytestoread">The numbytestoread.</param>
         /// <returns></returns>
-        private string Read_string_from_hexFile(string readHexfilePath, int MemoryLocation, int numbytestoread)
+        private static string Read_string_from_hexFile(string readHexfilePath, int MemoryLocation, int numbytestoread)
         {
             string ret = "";
 
@@ -210,9 +210,9 @@ namespace FeedbackDataLib
         /// <param name="MemoryLocation">The memory location.</param>
         /// <param name="numbytestoread">The numbytestoread.</param>
         /// <returns></returns>
-        private List<byte> Read_byte_from_hexFile(string readHexfilePath, int MemoryLocation, int numbytestoread)
+        private static List<byte> Read_byte_from_hexFile(string readHexfilePath, int MemoryLocation, int numbytestoread)
         {
-            CPIC24_IntelHex cih = new ();
+            CPIC24_IntelHex cih = new();
             List<byte> b = [];
             if (File.Exists(readHexfilePath))
             {
@@ -244,7 +244,7 @@ namespace FeedbackDataLib
         /// <param name="readHexfilePath">The read hexfile path.</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <returns></returns>
-        public string Get_HWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
+        public static string Get_HWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
             //Neuromodul:
             //#define HWVERSION				(TYPE << 8) | CONF_HWVERSION
@@ -287,7 +287,7 @@ namespace FeedbackDataLib
         /// <param name="readHexfilePath">The read hexfile path.</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <returns></returns>
-        public string Get_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
+        public static string Get_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
             return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.BOOTLOADER_SW_ADDRESS, 2));
         }
@@ -296,7 +296,7 @@ namespace FeedbackDataLib
         /// <param name="readHexfilePath">The read hexfile path.</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <returns></returns>
-        public string Get_Bootloader_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
+        public static string Get_Bootloader_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
             if (ModuleType == enumModuleType.cNeuromaster)
                 return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_NM_BOOTLOADER_BL_ADDRESS, 2));
@@ -311,7 +311,7 @@ namespace FeedbackDataLib
         /// <param name="b">The b.</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <returns></returns>
-        private string Decode_SWVersion(List<byte> b)
+        private static string Decode_SWVersion(List<byte> b)
         {
             string s = "";
 
@@ -347,7 +347,7 @@ namespace FeedbackDataLib
             if (tempPath == "")
                 tempPath = System.IO.Path.GetTempPath() + "read_hex.hex";
 
-            if (this.ReadHexFile(tempPath, ref StatusString, ModuleType))
+            if (ReadHexFile(tempPath, ref StatusString, ModuleType))
             {
                 SerialNumber = Get_SerialNumber_from_hexFile(tempPath, ModuleType);
                 SWVersion = Get_SWVersion_from_hexFile(tempPath, ModuleType);
@@ -399,7 +399,7 @@ namespace FeedbackDataLib
                     else
                     {
                         string[] ss = HWVersion_Full.Split('.');
-                        return (enumModuleType) Convert.ToUInt32(ss[0]);
+                        return (enumModuleType)Convert.ToUInt32(ss[0]);
                     }
                 }
             }
@@ -430,7 +430,7 @@ namespace FeedbackDataLib
         {
 
             //try Neuromodul
-            CModuleInformation ModuleInfo = new CModuleInformation();
+            CModuleInformation ModuleInfo = new();
             enumModuleType _ModuleType = enumModuleType.cModuleAtem;
             _Get_ModuleInfo(hexPath, _ModuleType, ref ModuleInfo);
             ModuleInfo.isNeuromaster = false;
@@ -472,12 +472,12 @@ namespace FeedbackDataLib
         /// <param name="Path_new_combined_hex_file">The path to new combined hex file.</param>
         /// <param name="ChannelInfo">The channel information.</param>
         /// <param name="ModuleType">Type of the module.</param>
-        public void Make_Combined_Hex_File_with_new_ChannelInfo(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
+        public static void Make_Combined_Hex_File_with_new_ChannelInfo(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
         {
             //Get correct Memory location
             uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
 
-            CPIC24_IntelHex ih_module = new CPIC24_IntelHex();
+            CPIC24_IntelHex ih_module = new();
             ih_module.OpenHexFile(Path_Original_combined_hex_file);
             ih_module.Make_MemoryMirror();
 
@@ -487,17 +487,17 @@ namespace FeedbackDataLib
                 mem_vals_list.AddRange(ChannelInfo[i].GetBytes());
             }
 
-            ih_module.Add_to_MemoryMirror(mem_vals_list.ToArray(), MemoryLocation, true);
+            ih_module.Add_to_MemoryMirror([.. mem_vals_list], MemoryLocation, true);
             //Speichern
             ih_module.WriteHexFile_from_Memory(Path_new_combined_hex_file);
         }
 
-        public void Make_Combined_Hex_File_with_SerialNumber(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
+        public static void Make_Combined_Hex_File_with_SerialNumber(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
         {
             //Get correct Memory location
             uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
 
-            CPIC24_IntelHex ih_module = new CPIC24_IntelHex();
+            CPIC24_IntelHex ih_module = new();
             ih_module.OpenHexFile(Path_Original_combined_hex_file);
             ih_module.Make_MemoryMirror();
 
@@ -507,7 +507,7 @@ namespace FeedbackDataLib
                 mem_vals_list.AddRange(ChannelInfo[i].GetBytes());
             }
 
-            ih_module.Add_to_MemoryMirror(mem_vals_list.ToArray(), MemoryLocation, true);
+            ih_module.Add_to_MemoryMirror([.. mem_vals_list], MemoryLocation, true);
             //Speichern
             ih_module.WriteHexFile_from_Memory(Path_new_combined_hex_file);
         }
@@ -519,10 +519,10 @@ namespace FeedbackDataLib
         /// <param name="Path_Original_combined_hex_file">The path to unaltered combined hexadecimal file.</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <returns></returns>
-        public CSWChannelInfo[] Get_ChannelInfo_from_Combined_hex_file(string Path_Original_combined_hex_file, enumModuleType ModuleType)
+        public static CSWChannelInfo[] Get_ChannelInfo_from_Combined_hex_file(string Path_Original_combined_hex_file, enumModuleType ModuleType)
         {
             CSWChannelInfo[] swcis = new CSWChannelInfo[4];
-            CPIC24_IntelHex ih_module = new CPIC24_IntelHex();
+            CPIC24_IntelHex ih_module = new();
 
             //Get correct Memory location
             uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
@@ -554,7 +554,7 @@ namespace FeedbackDataLib
             string status = "";
 
             OnReportMeasurementProgress("Reading PIC .... ", Color.Black);
-            bool ret = this.Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, ModuleType);
+            bool ret = Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, ModuleType);
             OnReportMeasurementProgress(status, Color.Black);
 
             if (!ret)
@@ -564,13 +564,13 @@ namespace FeedbackDataLib
                 {
                     //try PIC24
                     OnReportMeasurementProgress("dsPIC33 failed, trying PIC24", Color.Red);
-                    ret = this.Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, enumModuleType.cModuleAtem);
+                    ret = Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, enumModuleType.cModuleAtem);
                 }
                 else
                 {
                     //try DSPIC
                     OnReportMeasurementProgress("PIC24 failed, trying dsPIC33", Color.Red);
-                    ret = this.Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, enumModuleType.cModuleEEG);
+                    ret = Get_SerialNumber_from_FlashedFirmware(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, ref status, false, enumModuleType.cModuleEEG);
                 }
             }
 
@@ -581,7 +581,7 @@ namespace FeedbackDataLib
                 OnReportMeasurementProgress("Hardware Version: " + HWVersion, Color.Blue);
                 //string[] s = { "a", "b" };
 
-                string[] ss = HWVersion.Split(new char[] { '.' });
+                string[] ss = HWVersion.Split(['.']);
 
                 enumModuleType t = (enumModuleType)Convert.ToInt16(ss[0]);
 

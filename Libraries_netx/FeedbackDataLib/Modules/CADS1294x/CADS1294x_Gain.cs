@@ -21,7 +21,7 @@ namespace FeedbackDataLib.Modules.CADS1294x
         }
 
         // Get the amplification value from a bitmask
-        public int GetAmplification(Gain gain)
+        public static int GetAmplification(Gain gain)
         {
             return gain switch
             {

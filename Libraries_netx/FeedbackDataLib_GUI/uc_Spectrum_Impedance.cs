@@ -112,7 +112,7 @@ namespace FeedbackDataLib_GUI
 
             plotModel.InvalidatePlot(true);
             if (cbAutoscale.Checked)
-                nudYmax.Value = (int)GetYMAX();
+                nudYmax.Value = GetYMAX();
 
             //plotView1.Refresh();
         }
@@ -177,7 +177,7 @@ namespace FeedbackDataLib_GUI
         {
             if (!cbAutoscale.Checked)
             {
-                nudYmax.Value = (int)GetYMAX();
+                nudYmax.Value = GetYMAX();
                 return;
             }
             SetYMAX(double.NaN);

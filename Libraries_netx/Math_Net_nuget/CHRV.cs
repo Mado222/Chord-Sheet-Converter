@@ -1,7 +1,7 @@
 ﻿using WindControlLib;
 using ComponentsLib_GUI;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
     /// <summary>
     /// Class, using Math_net functions (Math.net Library (http://www.mathdotnet.com/) to calculate HRV related parameters
@@ -28,7 +28,14 @@ namespace Math_Net_nuget
     /// </remarks>
     public class CHRV
     {
-        private readonly CFFT_MathNet FFT_MathNet;
+        private readonly CFFTMathNet FFT_MathNet;
+        private double hRMean_Stdv;
+        private double hRMean_bpm;
+        private double rMSSD_ms;
+        private int nN50;
+        private double pNN50;
+        private double rRMean_ms;
+        private double rRMean_Stdv;
 
         /// <summary>
         /// 22.11.2012
@@ -67,7 +74,7 @@ namespace Math_Net_nuget
         /// </summary>
         public CHRV()
         {
-            FFT_MathNet = new CFFT_MathNet();
+            FFT_MathNet = new CFFTMathNet();
 
             RSA = new CFrequencyRange(0.15, 0.4, Calibration_factor_RSA_LF_VLF_ULF);
             LF = new CFrequencyRange(0.04, 0.15, Calibration_factor_RSA_LF_VLF_ULF);
@@ -76,14 +83,10 @@ namespace Math_Net_nuget
         }
 
 
-        private string _LastTextfielPath;
         /// <summary>
         /// File that was loaded last
         /// </summary>
-        public string LastTextfielPath
-        {
-            get { return _LastTextfielPath; }
-        }
+        public string LastTextfielPath { get; private set; } = "";
 
         /// <summary>
         /// Gets the RESAMPLED data
@@ -92,10 +95,7 @@ namespace Math_Net_nuget
         /// Set_RR_Inter_Beat_Interval must run first
         /// In practice, the NN and RR intervals appear to be the same and, thus, the term RR is preferred here.
         /// </remarks>
-        public double[] IPI_resampled
-        {
-            get { return FFT_MathNet.Data_y; }
-        }
+        public double[] IPIResampled => FFT_MathNet.Data_y;
 
         /// <summary>
         /// Gets related time to Resampled_RR_Inter_Beat_Interval
@@ -103,10 +103,7 @@ namespace Math_Net_nuget
         /// <remarks>
         /// Set_RR_Inter_Beat_Interval must run first
         /// </remarks>
-        public double[] IPI_time_resampled
-        {
-            get { return FFT_MathNet.Data_x; }
-        }
+        public double[] IPITimeResampled => FFT_MathNet.Data_x;
 
         /// <summary>
         /// Gets the FFT amplitude of the RR_Inter_Beat_Interval/Data_x Dataset
@@ -114,18 +111,12 @@ namespace Math_Net_nuget
         /// <remarks>
         /// ProcessIPI must run first
         /// </remarks>
-        public double[] fft_RR_Amplitude
-        {
-            get { return FFT_MathNet.fftAmplitudePeak; }
-        }
+        public double[] FftRRAmplitude => FFT_MathNet.FftAmplitudePeak;
 
         /// <summary>
         /// Gets the FFT power of the RR_Inter_Beat_Interval/Data_x Dataset
         /// </summary>
-        public double[] fft_RR_Power
-        {
-            get { return FFT_MathNet.fftAmplitudePower; }
-        }
+        public double[] FftRRPower => FFT_MathNet.FftAmplitudePower;
 
         /// <summary>
         /// Gets the FFT Frequency of the RR_Inter_Beat_Interval/Data_x Dataset
@@ -133,22 +124,15 @@ namespace Math_Net_nuget
         /// <remarks>
         /// ProcessIPI must run first
         /// </remarks>
-        public double[] fft_RR_Frequ
-        {
-            get { return FFT_MathNet.fftFrequ; }
-        }
+        public double[] FftRRFrequ => FFT_MathNet.FftFrequ;
 
-        private double _fft_DC;
         /// <summary>
         /// DC of the FFT
         /// </summary>
         /// <remarks>
         /// ProcessIPI must run first, independent of SupressDC parameter
         /// </remarks>
-        public double fft_DC
-        {
-            get { return _fft_DC; }
-        }
+        public double FftDC { get; private set; }
 
         /// <summary>
         /// Power in the RR curve with DC
@@ -156,13 +140,7 @@ namespace Math_Net_nuget
         /// <remarks>
         /// ProcessIPI must run first, independent of SupressDC parameter
         /// </remarks>
-        public double fft_RR_Power_withDC
-        {
-            get
-            {
-                return FFT_MathNet.GetPower(fft_RR_Frequ[fft_RR_Frequ.Length - 1], fft_RR_Frequ[0]);
-            }
-        }
+        public double FftRRPowerWithDC => FFT_MathNet.GetPower(FftRRFrequ[^1], FftRRFrequ[0]);
 
         /// <summary>
         /// Power in the RR curve without DC
@@ -170,13 +148,7 @@ namespace Math_Net_nuget
         /// <remarks>
         /// ProcessIPI must run first, independent of SupressDC parameter
         /// </remarks>
-        public double fft_RR_Power_noDC
-        {
-            get
-            {
-                return FFT_MathNet.GetPower(fft_RR_Frequ[fft_RR_Frequ.Length - 1], fft_RR_Frequ[1]);
-            }
-        }
+        public double FftRRPowerNoDC => FFT_MathNet.GetPower(FftRRFrequ[^1], FftRRFrequ[1]);
 
         /// <summary>
         /// Gets the RSA (Respiratory Sinus Arrhythmia), Power [ms^2]
@@ -200,42 +172,25 @@ namespace Math_Net_nuget
         public CFrequencyRange ULF { get; }
 
 
-        private double _RRMean_ms;
         /// <summary>
         /// Mean RR intervall [ms]
         /// </summary>
-        public double RRMean_ms
-        {
-            get { return _RRMean_ms; }
-        }
+        public double RRMeanMs { get => rRMean_ms; private set => rRMean_ms = value; }
 
-        private double _RRMean_Stdv;
         /// <summary>
         /// Standard deviation of RRMean_ms
         /// </summary>
-        public double RRMean_Stdv
-        {
-            get { return _RRMean_Stdv; }
-            set { _RRMean_Stdv = value; }
-        }
+        public double RRMeanStdv { get => rRMean_Stdv; private set => rRMean_Stdv = value; }
 
-        private double _HRMean_bpm;
         /// <summary>
         /// Mean HR [bpm]
         /// </summary>
-        public double HRMean_bpm
-        {
-            get { return _HRMean_bpm; }
-        }
+        public double HRMeanBpm { get => hRMean_bpm; private set => hRMean_bpm = value; }
 
-        private double _HRMean_Stdv;
         /// <summary>
         /// Standard deviation of HRMean_bpm
         /// </summary>
-        public double HRMean_Stdv
-        {
-            get { return _HRMean_Stdv; }
-        }
+        public double HRMeanStdv { get => hRMean_Stdv; private set => hRMean_Stdv = value; }
 
         public double[] Breath
         {
@@ -243,32 +198,20 @@ namespace Math_Net_nuget
             set { FFT_MathNet.Data_y = value; }
         }
 
-        private double _RMSSD;
         /// <summary>
         /// RMSSD [ms]
         /// </summary>
-        public double RMSSD_ms
-        {
-            get { return _RMSSD; }
-        }
+        public double RMSSDMs { get => rMSSD_ms; private set => rMSSD_ms = value; }
 
-        private int _NN50;
         /// <summary>
         /// NN50.
         /// </summary>
-        public int NN50
-        {
-            get { return _NN50; }
-        }
+        public int NN50 { get => nN50; private set => nN50 = value; }
 
-        private double _pNN50;
         /// <summary>
         /// pNN50.
         /// </summary>
-        public double pNN50
-        {
-            get { return _pNN50; }
-        }
+        public double PNN50 { get => pNN50; private set => pNN50 = value; }
 
         /// <summary>
         /// Processes IPI and IPI_time with standard settings for HRV (SupressDC= true)
@@ -288,7 +231,7 @@ namespace Math_Net_nuget
         /// </remarks>
         /// </summary>
         /// <param name="BPM">BPM</param>
-        public void BPM_to_IPI_s(ref double [] BPM)
+        public static void BPMToIPIS(ref double[] BPM)
         {
             for (int i = 0; i < BPM.Length; i++)
             {
@@ -304,9 +247,9 @@ namespace Math_Net_nuget
         /// </summary>
         /// <param name="BPM">BPMs</param>
         /// <param name="RelatedTime">Realted time, can be null</param>
-        public void BPM_to_IPI_s_remove_0s(ref List<double> BPM, ref List<DateTime> RelatedTime)
+        public static void BPMToIPISRemove0s(ref List<double> BPM, ref List<DateTime> RelatedTime)
         {
-            for (int i = BPM.Count-1; i >-1 ; i--)
+            for (int i = BPM.Count - 1; i > -1; i--)
             {
                 if (BPM[i] != 0)
                 {
@@ -316,10 +259,7 @@ namespace Math_Net_nuget
                 {
                     //Remove value
                     BPM.RemoveAt(i);
-                    if (RelatedTime != null)
-                    {
-                        RelatedTime.RemoveAt(i);
-                    }
+                    RelatedTime?.RemoveAt(i);
                 }
             }
         }
@@ -327,18 +267,18 @@ namespace Math_Net_nuget
         /// <summary>
         /// Converts BPM to seconds and removes 0 values
         /// </summary>
-        /// <param name="BPM_time">BPM related time</param>
+        /// <param name="BPMTime">BPM related time</param>
         /// <param name="BPM">BPMs</param>
-        /// <param name="IPI_s">IPI [s]</param>
-        /// <param name="IPI_time_s">IPI_time - relative</param>
-        /// <param name="IPI_time_related">Related Time from BPM</param>
-        public void BPM_to_IPI_s_remove_0s(DateTime[] BPM_time, double[] BPM, ref double[] IPI_s, ref double[] IPI_time_s, ref DateTime[] IPI_time_related)
+        /// <param name="IPIS">IPI [s]</param>
+        /// <param name="IPITimeS">IPI_time - relative</param>
+        /// <param name="IPITimeRelated">Related Time from BPM</param>
+        public static void BPM_to_IPI_s_remove_0s(DateTime[] BPMTime, double[] BPM, ref double[] IPIS, ref double[] IPITimeS, ref DateTime[] IPITimeRelated)
         {
-            List<double> _IPI_s = new List<double>();
-            List<double> _IPI_time_s = new List<double>();
-            List<DateTime> _IPI_time_related = new List<DateTime>();
+            List<double> _IPI_s = [];
+            List<double> _IPI_time_s = [];
+            List<DateTime> _IPI_time_related = [];
 
-            double _IPI_time_s_cnt =0;
+            double _IPI_time_s_cnt = 0;
             bool firstpoint = true;
 
             for (int i = 0; i < BPM.Length; i++)
@@ -347,7 +287,7 @@ namespace Math_Net_nuget
                 {
                     double ipi = 60 / BPM[i];
                     _IPI_s.Add(ipi);
-                    _IPI_time_related.Add(BPM_time[i]);
+                    _IPI_time_related.Add(BPMTime[i]);
 
                     if (firstpoint)
                     {
@@ -363,12 +303,12 @@ namespace Math_Net_nuget
                 }
             }
 
-            IPI_s = _IPI_s.ToArray();
-            IPI_time_s = _IPI_time_s.ToArray();
-            IPI_time_related = _IPI_time_related.ToArray();
+            IPIS = [.. _IPI_s];
+            IPITimeS = [.. _IPI_time_s];
+            IPITimeRelated = [.. _IPI_time_related];
         }
 
-        
+
         /// <summary>
         /// Processes IPI and IPI_time
         /// Powerspectrum [s^2] is calculated
@@ -381,10 +321,10 @@ namespace Math_Net_nuget
         {
             FFT_MathNet.FFT();
             //double[] fftPow = FFT_MathNet.fftAmplitudePowerDensity;   //Power Spektrum Density
-            double[] fftPow = FFT_MathNet.fftAmplitudePower;          //Power Spektrum
-            double[] fftFrequ = FFT_MathNet.fftFrequ;
+            double[] fftPow = FFT_MathNet.FftAmplitudePower;          //Power Spektrum
+            double[] fftFrequ = FFT_MathNet.FftFrequ;
 
-            _fft_DC = fftPow[0];
+            FftDC = fftPow[0];
             //Skip DC
             if (SupressDC)
             {
@@ -408,80 +348,80 @@ namespace Math_Net_nuget
                 ULF.Add(f, y);
                 VLF.Add(f, y);
             }
-            RSA.value *= 1000000;  //[ms^2]
-            LF.value *= 1000000;
-            VLF.value *= 1000000;
-            ULF.value *= 1000000;
+            RSA.Value *= 1000000;  //[ms^2]
+            LF.Value *= 1000000;
+            VLF.Value *= 1000000;
+            ULF.Value *= 1000000;
         }
 
 
         /// <summary>
         /// Set the date for further calculations, calculates RRMean_ms, RRMEan_Stdv, RMSSD, NN50, pNN50, HRMean, HRMean_StdDv
         /// </summary>
-        /// <param name="Hanninng_Percentage">Percentage of datapoints that will be treated with Hanning window at the beginning AND the end</param>
-        /// <param name="IPI_ms">Interbeat interval [ms]</param>
-        /// <param name="IPI_time">Related Time to RR_Inter_Beat_Interval</param>
+        /// <param name="HanninngPercentage">Percentage of datapoints that will be treated with Hanning window at the beginning AND the end</param>
+        /// <param name="IPIMs">Interbeat interval [ms]</param>
+        /// <param name="IPITime">Related Time to RR_Inter_Beat_Interval</param>
         /// <remarks>
         /// Values with IPI_s == 0 are removed
         /// RR_Inter_Beat_Interval data are resampled equidistantly
         /// Number of resampled values is next power of 2 (for FFT)
         /// Resampled data is stored in FFT_MathNet object
         /// </remarks>
-        public void Set_IPI_ms(double Hanninng_Percentage, double[] IPI_ms, double[] IPI_time)
+        public void SetIPIMs(double HanninngPercentage, double[] IPIMs, double[] IPITime)
         {
-            for (int i = 0; i < IPI_ms.Length; i++)
-                IPI_ms[i] /= 1000;
+            for (int i = 0; i < IPIMs.Length; i++)
+                IPIMs[i] /= 1000;
 
-            Set_IPI_s(Hanninng_Percentage, IPI_ms, IPI_time);
+            SetIPIS(HanninngPercentage, IPIMs, IPITime);
         }
 
 
         /// <summary>
         /// Set the date for further calculations, calculates RRMean_ms, RRMEan_Stdv, RMSSD, NN50, pNN50, HRMean, HRMean_StdDv
         /// </summary>
-        /// <param name="Hanninng_Percentage">Percentage of datapoints that will be treated with Hanning window at the beginning AND the end</param>
-        /// <param name="IPI_s">Interbeat interval [s]</param>
-        /// <param name="IPI_time">Related Time to RR_Inter_Beat_Interval</param>
+        /// <param name="HanninngPercentage">Percentage of datapoints that will be treated with Hanning window at the beginning AND the end</param>
+        /// <param name="IPIS">Interbeat interval [s]</param>
+        /// <param name="IPITime">Related Time to RR_Inter_Beat_Interval</param>
         /// <remarks>
         /// Values with IPI_s == 0 are removed
         /// RR_Inter_Beat_Interval data are resampled equidistantly
         /// Number of resampled values is next power of 2 (for FFT)
         /// Resampled data is stored in FFT_MathNet object
         /// </remarks>
-        public void Set_IPI_s(double Hanninng_Percentage, double[] IPI_s, double[] IPI_time)
+        public void SetIPIS(double HanninngPercentage, double[] IPIS, double[] IPITime)
         {
             //Values are not equidistant ... make them and generate eqidistant time base; upsample to vals with next power of two
-            int numVals = CMyTools.getNearestPowerofTwoVal(IPI_s.Length);
+            int numVals = CMyTools.getNearestPowerofTwoVal(IPIS.Length);
 
             //Calculate from original, uninterpolated values
 
             //Check for 0 in IPI_s
-            List<double> IPI_s_Without0 = new List<double>();
-            for (int i = 0; i < IPI_s.Length; i++)
+            List<double> IPI_s_Without0 = [];
+            for (int i = 0; i < IPIS.Length; i++)
             {
-                if (IPI_s[i] > 0)
-                    IPI_s_Without0.Add(IPI_s[i]);
+                if (IPIS[i] > 0)
+                    IPI_s_Without0.Add(IPIS[i]);
             }
 
             //FFT_MathNet.CalcAvgStdv(IPI_s, out _RRMean_ms, out _RRMean_Stdv);
-            FFT_MathNet.CalcAvgStdv(IPI_s_Without0.ToArray(), out _RRMean_ms, out _RRMean_Stdv);
-            _RRMean_ms *= 1000; //[ms]
-            _RRMean_Stdv *= 1000;//[ms]
+            CFFTMathNet.CalcAvgStdv([.. IPI_s_Without0], out rRMean_ms, out rRMean_Stdv);
+            RRMeanMs *= 1000; //[ms]
+            RRMeanStdv *= 1000;//[ms]
 
             //HR
             double[] HR_Without0 = new double[IPI_s_Without0.Count];
             for (int i = 0; i < HR_Without0.Length; i++)
                 HR_Without0[i] = 1 / IPI_s_Without0[i] * 60;
 
-            FFT_MathNet.CalcAvgStdv(HR_Without0, out _HRMean_bpm, out _HRMean_Stdv);
+            CFFTMathNet.CalcAvgStdv(HR_Without0, out hRMean_bpm, out hRMean_Stdv);
 
-            _RMSSD = CalcRMSSD(IPI_s_Without0.ToArray(), out _NN50, out _pNN50);
+            RMSSDMs = CalcRMSSD_ms([.. IPI_s_Without0], out nN50, out pNN50);
 
-            FFT_MathNet.ResampleData(IPI_s, IPI_time, numVals); //Writes values to Data_x, Data_y
+            FFT_MathNet.ResampleData(IPIS, IPITime, numVals); //Writes values to Data_x, Data_y
 
-            if (Hanninng_Percentage != 0)
+            if (HanninngPercentage != 0)
             {
-                FFT_MathNet.Hanning_Percent(Hanninng_Percentage, _RRMean_ms / 1000);
+                FFT_MathNet.HanningPercent(HanninngPercentage, RRMeanMs / 1000);
             }
         }
 
@@ -489,84 +429,84 @@ namespace Math_Net_nuget
         /// <summary>
         /// Set the date for further calculations, calculates RRMean_ms, RRMEan_Stdv, RMSSD, NN50, pNN50, HRMean, HRMean_StdDv
         /// </summary>
-        /// <param name="IPI_ms">Interbeat interval [ms]</param>
-        /// <param name="IPI_time">Related Time to RR_Inter_Beat_Interval</param>
+        /// <param name="IPIMs">Interbeat interval [ms]</param>
+        /// <param name="IPITime">Related Time to RR_Inter_Beat_Interval</param>
         /// <remarks>
         /// RR_Inter_Beat_Interval data are resampled equidistantly
         /// Number of resampled values is next power of 2 (for FFT)
         /// Resampled data is stored in FFT_MathNet object
         /// </remarks>
-        public void Set_IPI_ms(double[] IPI_ms, double[] IPI_time)
+        public void SetIPIMs(double[] IPIMs, double[] IPITime)
         {
-            Set_IPI_ms(Default_Hanning_Percentage_in_SetIPI, IPI_ms, IPI_time);
+            SetIPIMs(Default_Hanning_Percentage_in_SetIPI, IPIMs, IPITime);
         }
 
         /// <summary>
         /// Set the date for further calculations, calculates RRMean_ms, RRMEan_Stdv, RMSSD, NN50, pNN50, HRMean, HRMean_StdDv
         /// </summary>
-        /// <param name="IPI_s">Interbeat interval [s]</param>
-        /// <param name="IPI_time">Related Time to RR_Inter_Beat_Interval</param>
+        /// <param name="IPIS">Interbeat interval [s]</param>
+        /// <param name="IPITime">Related Time to RR_Inter_Beat_Interval</param>
         /// <remarks>
         /// Values with IPI_s == 0 are removed
         /// RR_Inter_Beat_Interval data are resampled equidistantly
         /// Number of resampled values is next power of 2 (for FFT)
         /// Resampled data is stored in FFT_MathNet object
         /// </remarks>
-        public void Set_IPI_s(double[] IPI_s, double[] IPI_time)
+        public void SetIPIS(double[] IPIS, double[] IPITime)
         {
-            Set_IPI_s(Default_Hanning_Percentage_in_SetIPI, IPI_s, IPI_time);
+            SetIPIS(Default_Hanning_Percentage_in_SetIPI, IPIS, IPITime);
         }
 
         /// <summary>
         /// Set the date for further calculations, calculates RRMean_ms, RRMEan_Stdv, RMSSD, NN50, pNN50, HRMean, HRMean_StdDv
         /// Rebuilds time base from IPIs
         /// </summary>
-        /// <param name="IPI_s">Interbeat interval [s]</param>
+        /// <param name="IPIS">Interbeat interval [s]</param>
         /// <remarks>
         /// Values with IPI_s == 0 are removed
         /// RR_Inter_Beat_Interval data are resampled equidistantly
         /// Number of resampled values is next power of 2 (for FFT)
         /// Resampled data is stored in FFT_MathNet object
         /// </remarks>
-        public void Set_IPI_s(double[] IPI_s)
+        public void SetIPIS(double[] IPIS)
         {
-            Set_IPI_s(Default_Hanning_Percentage_in_SetIPI, IPI_s, Rebuild_IPI_time_s_from_IPI(IPI_s));
+            SetIPIS(Default_Hanning_Percentage_in_SetIPI, IPIS, RebuildIPITimeSFromIPI(IPIS));
         }
 
-        public enum enumIPIDataType
+        public enum EnumIPIDataType
         {
-            IPI_ms,
-            IPI_s,
-            IPI_bpm
+            IPIMs,
+            IPIS,
+            IPIBpm
         }
 
-        public enum enumIPITimeType
+        public enum EnumIPITimeType
         {
             /// <summary>
             /// INT64 standard time: 634819178526493027
             /// </summary>
-            IPITime_INT64_StandardTime,
+            IPITimeINT64StandardTime,
 
             /// <summary>
             /// Time String: 00:00:00.0000
             /// </summary>
-            IPITime_TimeString
+            IPITimeTimeString
         }
 
         /// <summary>
         /// Only for backwards compatibility
         /// </summary>
-        public int Import_IPI_from_Text_File(string pathToFile, int colNumIPI, enumIPIDataType IPIDataType, ref double[] IPI, ref double[] IPI_time, ref DateTime[] IPI_time_related, ref string Header)
+        public int ImportIPIFromTextFile(string pathToFile, int colNumIPI, EnumIPIDataType IPIDataType, ref double[] IPI, ref double[] IPITime, ref DateTime[] IPITimeRelated, ref string Header)
         {
-            return Import_IPI_from_Text_File(pathToFile, colNumIPI, IPIDataType, enumIPITimeType.IPITime_INT64_StandardTime, ref IPI, ref IPI_time, ref IPI_time_related, 1, ref Header, (int)IPImin_ms, (int)IPImax_ms);
+            return ImportIPIFromTextFile(pathToFile, colNumIPI, IPIDataType, EnumIPITimeType.IPITimeINT64StandardTime, ref IPI, ref IPITime, ref IPITimeRelated, 1, ref Header, (int)IPImin_ms, (int)IPImax_ms);
         }
 
         /// <summary>
         /// Only for backwards compatibility
         /// </summary>
-        public int Import_IPI_from_Text_File(string pathToFile, int colNumIPI, enumIPIDataType IPIDataType, enumIPITimeType IPITimeType, ref double[] IPI_s, ref double[] IPI_time, ref DateTime[] IPI_time_related, int numHeaderRows, ref string Header)
+        public int ImportIPIFromTextFile(string pathToFile, int colNumIPI, EnumIPIDataType IPIDataType, EnumIPITimeType IPITimeType, ref double[] IPIS, ref double[] IPITime, ref DateTime[] IPITimeRelated, int numHeaderRows, ref string Header)
         {
-            return Import_IPI_from_Text_File(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPI_s, ref IPI_time, ref IPI_time_related, numHeaderRows, ref Header, (int)IPImin_ms, (int)IPImax_ms);
+            return ImportIPIFromTextFile(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPIS, ref IPITime, ref IPITimeRelated, numHeaderRows, ref Header, (int)IPImin_ms, (int)IPImax_ms);
         }
 
 
@@ -577,24 +517,24 @@ namespace Math_Net_nuget
         /// <param name="colNumIPI">Column number of the IPI data</param>
         /// <param name="IPIDataType">Type of the IPI data.</param>
         /// <param name="IPITimeType">Type of the IPI time.</param>
-        /// <param name="IPI_s">IPI</param>
-        /// <param name="IPI_time">IPI_time</param>
-        /// <param name="IPI_time_related">Related Time from the orignal import</param>
+        /// <param name="IPIS">IPI</param>
+        /// <param name="IPITime">IPI_time</param>
+        /// <param name="IPITimeRelated">Related Time from the orignal import</param>
         /// <param name="numHeaderRows">Number of header rows</param>
         /// <param name="Header">Header line (first line) of the file</param>
-        /// <param name="IPImin_ms">Values lower IPImin_ms will be set to IPImin_ms; =0 no checking </param>
-        /// <param name="IPImax_ms">Values lower IPImax_ms will be set to IPImax_ms; =0 no checking</param>
+        /// <param name="IPIminMs">Values lower IPImin_ms will be set to IPImin_ms; =0 no checking </param>
+        /// <param name="IPImaxMs">Values lower IPImax_ms will be set to IPImax_ms; =0 no checking</param>
         /// <returns>
         /// -1 if function failes
         /// </returns>
-        public int Import_IPI_from_Text_File(string pathToFile, int colNumIPI, enumIPIDataType IPIDataType, enumIPITimeType IPITimeType, ref double[] IPI_s, ref double[] IPI_time, ref DateTime[] IPI_time_related, int numHeaderRows, ref string Header, int IPImin_ms, int IPImax_ms)
+        public int ImportIPIFromTextFile(string pathToFile, int colNumIPI, EnumIPIDataType IPIDataType, EnumIPITimeType IPITimeType, ref double[] IPIS, ref double[] IPITime, ref DateTime[] IPITimeRelated, int numHeaderRows, ref string Header, int IPIminMs, int IPImaxMs)
         {
             DateTime[] IPI_org_DateTime = new DateTime[1];
             double[] IPI_org_s = new double[1];
 
-            int ret = Generic_IPI_Text_File_Importer(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPI_org_s, ref IPI_org_DateTime, numHeaderRows, ref Header, IPImin_ms, IPImax_ms);
+            int ret = GenericIPITextFileImporter(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPI_org_s, ref IPI_org_DateTime, numHeaderRows, ref Header, IPIminMs, IPImaxMs);
 
-            bool b = Import_IPI_s_Data(IPI_org_DateTime, IPI_org_s, ref IPI_s, ref IPI_time, ref IPI_time_related);
+            bool b = ImportIPISData(IPI_org_DateTime, IPI_org_s, ref IPIS, ref IPITime, ref IPITimeRelated);
 
             if (!b)
                 ret = -1;
@@ -610,8 +550,8 @@ namespace Math_Net_nuget
         /// <param name="colNumIPI">Column number of the IPI data</param>
         /// <param name="IPIDataType">Type of the IPI data.</param>
         /// <param name="IPITimeType">Type of the IPI time.</param>
-        /// <param name="IPI_s">IPI</param>
-        /// <param name="IPI_time">IPI_time</param>
+        /// <param name="IPIS">IPI</param>
+        /// <param name="IPITime">IPI_time</param>
         /// <param name="numHeaderRows">Number of header rows</param>
         /// <param name="Header">Header line(s) of the file</param>
         /// <returns>
@@ -621,9 +561,9 @@ namespace Math_Net_nuget
         /// Time is assumed to be in the first column
         /// Macht Basis PlausibilitätsCheck über IPImin_ms und IPImax_ms
         /// </remarks>
-        public int Generic_IPI_Text_File_Importer(string pathToFile, int colNumIPI, enumIPIDataType IPIDataType, enumIPITimeType IPITimeType, ref double[] IPI_s, ref DateTime[] IPI_time, int numHeaderRows, ref string Header)
+        public int GenericIPITextFileImporter(string pathToFile, int colNumIPI, EnumIPIDataType IPIDataType, EnumIPITimeType IPITimeType, ref double[] IPIS, ref DateTime[] IPITime, int numHeaderRows, ref string Header)
         {
-            return Generic_IPI_Text_File_Importer(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPI_s, ref IPI_time, numHeaderRows, ref Header, (int)IPImin_ms, (int)IPImax_ms);
+            return GenericIPITextFileImporter(pathToFile, colNumIPI, IPIDataType, IPITimeType, ref IPIS, ref IPITime, numHeaderRows, ref Header, (int)IPImin_ms, (int)IPImax_ms);
         }
 
         /// <summary>
@@ -633,12 +573,12 @@ namespace Math_Net_nuget
         /// <param name="colNumIPI">Column number of the IPI data</param>
         /// <param name="IPIDataType">Type of the IPI data.</param>
         /// <param name="IPITimeType">Type of the IPI time.</param>
-        /// <param name="IPI_s">IPI</param>
-        /// <param name="IPI_time">IPI_time</param>
+        /// <param name="IPIS">IPI</param>
+        /// <param name="IPITime">IPI_time</param>
         /// <param name="numHeaderRows">Number of header rows</param>
         /// <param name="Header">Header line(s) of the file</param>
-        /// <param name="IPImin_ms">Values lower IPImin_ms will be set to IPImin_ms; =0 no checking </param>
-        /// <param name="IPImax_ms">Values lower IPImax_ms will be set to IPImax_ms; =0 no checking</param>
+        /// <param name="IPIminMs">Values lower IPImin_ms will be set to IPImin_ms; =0 no checking </param>
+        /// <param name="IPImaxMs">Values lower IPImax_ms will be set to IPImax_ms; =0 no checking</param>
         /// <returns>
         /// -1 if function failes
         /// </returns>
@@ -646,21 +586,23 @@ namespace Math_Net_nuget
         /// Time is assumed to be in the first column
         /// Macht Basis PlausibilitätsCheck über IPImin_ms und IPImax_ms
         /// </remarks>
-        public int Generic_IPI_Text_File_Importer(string pathToFile, int colNumIPI, enumIPIDataType IPIDataType, enumIPITimeType IPITimeType, ref double[] IPI_s, ref DateTime[] IPI_time, int numHeaderRows, ref string Header, int IPImin_ms, int IPImax_ms)
+        public int GenericIPITextFileImporter(string pathToFile, int colNumIPI, EnumIPIDataType IPIDataType, EnumIPITimeType IPITimeType, ref double[] IPIS, ref DateTime[] IPITime, int numHeaderRows, ref string Header, int IPIminMs, int IPImaxMs)
         {
-            double IPImin_s = IPImin_ms; IPImin_s /= 1000;
-            double IPImax_s = IPImax_ms; IPImax_s /= 1000;
+            double IPImin_s = IPIminMs; IPImin_s /= 1000;
+            double IPImax_s = IPImaxMs; IPImax_s /= 1000;
 
             const int idxCol_Time = 0;
             int ret = -1;
             DateTime dt_old = DateTime.MinValue;
-            _LastTextfielPath = pathToFile;
+            string LastTextfielPath = pathToFile;
 
-            List<string[]> importedData = CTextFileImporter.ImportTextFile(ref _LastTextfielPath, ";", numHeaderRows, ref Header);
+            List<string[]> importedData = CTextFileImporter.ImportTextFile(ref LastTextfielPath, ";", numHeaderRows, ref Header);
+            this.LastTextfielPath = LastTextfielPath;
+            
             if (importedData != null)
             {
-                List<double> IPI_temp = new List<double>();
-                List<DateTime> IPI_time_temp = new List<DateTime>();
+                List<double> IPI_temp = [];
+                List<DateTime> IPI_time_temp = [];
 
                 if (importedData.Count > 2)
                 {
@@ -676,36 +618,36 @@ namespace Math_Net_nuget
 
                                 switch (IPIDataType)
                                 {
-                                    case enumIPIDataType.IPI_bpm:
+                                    case EnumIPIDataType.IPIBpm:
                                         {
                                             d = 60 / d;
                                             break;
                                         }
-                                    case enumIPIDataType.IPI_s:
+                                    case EnumIPIDataType.IPIS:
                                         {
                                             break;
                                         }
-                                    case enumIPIDataType.IPI_ms:
+                                    case EnumIPIDataType.IPIMs:
                                         {
                                             d /= 1000;  // d *= 1000; Ausgebessert 13.10.2015
                                             break;
                                         }
                                 }
 
-                                if ((d < IPImin_s) && (IPImin_ms > 0))
+                                if ((d < IPImin_s) && (IPIminMs > 0))
                                     d = IPImin_s;
 
-                                if ((d > IPImax_s) && (IPImax_ms > 0))
+                                if ((d > IPImax_s) && (IPImaxMs > 0))
                                     d = IPImax_s;
 
                                 switch (IPITimeType)
                                 {
-                                    case enumIPITimeType.IPITime_INT64_StandardTime:
+                                    case EnumIPITimeType.IPITimeINT64StandardTime:
                                         {
                                             dt = new DateTime(Convert.ToInt64(importedData[i][idxCol_Time]));
                                             break;
                                         }
-                                    case enumIPITimeType.IPITime_TimeString:
+                                    case EnumIPITimeType.IPITimeTimeString:
                                         {
                                             // Time String: 00:00:00.0000
                                             // String händisch zerlegen
@@ -728,8 +670,8 @@ namespace Math_Net_nuget
                         }
                     }
                 }
-                IPI_s = IPI_temp.ToArray();
-                IPI_time = IPI_time_temp.ToArray();
+                IPIS = [.. IPI_temp];
+                IPITime = [.. IPI_time_temp];
             }
             return ret;
         }
@@ -740,14 +682,14 @@ namespace Math_Net_nuget
         /// <returns>
         /// Converted Data
         /// </returns>
-        public double[] Convert_IPI_time_DateTime_to_s(DateTime[] IPI_time_DateTime)
+        public static double[] ConvertIPITimeDateTimeToS(DateTime[] IPITimeDateTime)
         {
-            double[] IPI_time = new double[IPI_time_DateTime.Length];
-            DateTime begin = IPI_time_DateTime[0];
+            double[] IPI_time = new double[IPITimeDateTime.Length];
+            DateTime begin = IPITimeDateTime[0];
 
-            for (int i = 0; i < IPI_time_DateTime.Length; i++)
+            for (int i = 0; i < IPITimeDateTime.Length; i++)
             {
-                IPI_time[i] = ((double)((IPI_time_DateTime[i] - begin).TotalMilliseconds)) / ((double)1000);
+                IPI_time[i] = ((double)((IPITimeDateTime[i] - begin).TotalMilliseconds)) / 1000;
             }
             return IPI_time;
         }
@@ -860,24 +802,24 @@ namespace Math_Net_nuget
         /// works from end of file to begin, finally reverses data
         /// IPI [ms]
         /// </summary>
-        /// <param name="IPI_time_import">Related time</param>
-        /// <param name="IPI_import_ms">IPI from device [ms]</param>
-        /// <param name="IPI_ms">IPI [ms]</param>
-        /// <param name="IPI_time_s">IPI_time [s]</param>
-        /// <param name="IPI_time_related">Related Time from the orignal import</param>
+        /// <param name="IPITimeImport">Related time</param>
+        /// <param name="IPIImportMs">IPI from device [ms]</param>
+        /// <param name="IPIMs">IPI [ms]</param>
+        /// <param name="IPITimeS">IPI_time [s]</param>
+        /// <param name="IPITimeRelated">Related Time from the orignal import</param>
         /// <returns></returns>
-        public bool Import_IPI_ms_Data(DateTime[] IPI_time_import, double[] IPI_import_ms, ref double[] IPI_ms, ref double[] IPI_time_s, ref DateTime[] IPI_time_related)
+        public static bool ImportIPIMsData(DateTime[] IPITimeImport, double[] IPIImportMs, ref double[] IPIMs, ref double[] IPITimeS, ref DateTime[] IPITimeRelated)
         {
-            for (int i = 0; i < IPI_import_ms.Length; i++)
+            for (int i = 0; i < IPIImportMs.Length; i++)
             {
-                IPI_import_ms[i] /= 1000;
+                IPIImportMs[i] /= 1000;
             }
 
-            bool b = Import_IPI_s_Data(IPI_time_import, IPI_import_ms, ref IPI_ms, ref IPI_time_s, ref IPI_time_related);
+            bool b = ImportIPISData(IPITimeImport, IPIImportMs, ref IPIMs, ref IPITimeS, ref IPITimeRelated);
 
-            for (int i = 0; i < IPI_ms.Length; i++)
+            for (int i = 0; i < IPIMs.Length; i++)
             {
-                IPI_ms[i] *= 1000;
+                IPIMs[i] *= 1000;
             }
 
             return b;
@@ -889,16 +831,16 @@ namespace Math_Net_nuget
         /// works from end of file to begin, finally reverses data
         /// IPI [s]
         /// </summary>
-        /// <param name="IPI_time_import">Related time</param>
-        /// <param name="IPI_import_s">IPI from device [s]</param>
-        /// <param name="IPI_s">IPI [s]</param>
-        /// <param name="IPI_time_s">IPI_time</param>
-        /// <param name="IPI_time_related">Related Time from the orignal import</param>
+        /// <param name="IPITimeImport">Related time</param>
+        /// <param name="IPIImportS">IPI from device [s]</param>
+        /// <param name="IPIS">IPI [s]</param>
+        /// <param name="IPITimeS">IPI_time</param>
+        /// <param name="IPITimeRelated">Related Time from the orignal import</param>
         /// <returns></returns>
-        public bool Import_IPI_s_Data(DateTime[] IPI_time_import, double[] IPI_import_s, ref double[] IPI_s, ref double[] IPI_time_s, ref DateTime[] IPI_time_related)
+        public static bool ImportIPISData(DateTime[] IPITimeImport, double[] IPIImportS, ref double[] IPIS, ref double[] IPITimeS, ref DateTime[] IPITimeRelated)
         {
-            DateTime[] Time_with_File_inconsistencies = null;
-            return Import_IPI_s_Data(IPI_time_import, IPI_import_s, ref IPI_s, ref IPI_time_s, ref IPI_time_related, ref Time_with_File_inconsistencies);
+            DateTime[] Time_with_File_inconsistencies = [];
+            return ImportIPISData(IPITimeImport, IPIImportS, ref IPIS, ref IPITimeS, ref IPITimeRelated, ref Time_with_File_inconsistencies);
         }
 
 
@@ -907,33 +849,33 @@ namespace Math_Net_nuget
         /// works from end of file to begin, finally reverses data
         /// IPI [s]
         /// </summary>
-        /// <param name="IPI_time_import">Related time</param>
-        /// <param name="IPI_import_s">IPI from device [s]</param>
-        /// <param name="IPI_s">IPI [s]</param>
-        /// <param name="IPI_time_s">IPI_time</param>
-        /// <param name="IPI_time_related">Related Time from the orignal import</param>
-        /// <param name="Time_with_File_inconsistencies">Detected inconsistencies, Variable can be null</param>
+        /// <param name="IPITimeImport">Related time</param>
+        /// <param name="IPIImportS">IPI from device [s]</param>
+        /// <param name="IPIS">IPI [s]</param>
+        /// <param name="IPITimeS">IPI_time</param>
+        /// <param name="IPITimeRelated">Related Time from the orignal import</param>
+        /// <param name="TimeWithFileInconsistencies">Detected inconsistencies, Variable can be null</param>
         /// <returns></returns>
-        public bool Import_IPI_s_Data(DateTime[] IPI_time_import, double[] IPI_import_s, ref double[] IPI_s, ref double[] IPI_time_s, ref DateTime[] IPI_time_related, ref DateTime[] Time_with_File_inconsistencies)
+        public static bool ImportIPISData(DateTime[] IPITimeImport, double[] IPIImportS, ref double[] IPIS, ref double[] IPITimeS, ref DateTime[] IPITimeRelated, ref DateTime[] TimeWithFileInconsistencies)
         {
 
             bool ret = false;
-            List<double> IPI_temp = new List<double>(); //Time generated from IPIS
-            List<DateTime> _IPI_time_related = new List<DateTime>();    //Related Time from the orignal import
-            List<DateTime> List_Time_with_File_inconsistencies = new List<DateTime>();
+            List<double> IPI_temp = []; //Time generated from IPIS
+            List<DateTime> _IPI_time_related = [];    //Related Time from the orignal import
+            List<DateTime> List_Time_with_File_inconsistencies = [];
 
             //Check for correct array sizes
-            if ((IPI_time_import.Length == IPI_import_s.Length) && (IPI_import_s.Length > 2))
+            if ((IPITimeImport.Length == IPIImportS.Length) && (IPIImportS.Length > 2))
             {
-                int j = IPI_import_s.Length - 4;
+                int j = IPIImportS.Length - 4;
 
                 //Suche sinnvollen Anfang ... Datensatz wo IPI das 1. Mal springt
                 bool FirstChange = false;
                 while (!FirstChange)
                 {
-                    if (Convert.ToInt32(IPI_import_s[j - 1] * 1000) != Convert.ToInt32(IPI_import_s[j] * 1000))   //Double auf Gleichheit vergleichen -> keine gute Idee
+                    if (Convert.ToInt32(IPIImportS[j - 1] * 1000) != Convert.ToInt32(IPIImportS[j] * 1000))   //Double auf Gleichheit vergleichen -> keine gute Idee
                     {
-                        if ((IPI_import_s[j - 1] > IPImin_s) && (IPI_import_s[j - 1] < IPImax_s) && (IPI_import_s[j] > IPImin_s) && (IPI_import_s[j] < IPImax_s))
+                        if ((IPIImportS[j - 1] > IPImin_s) && (IPIImportS[j - 1] < IPImax_s) && (IPIImportS[j] > IPImin_s) && (IPIImportS[j] < IPImax_s))
                         {
                             FirstChange = true;
                         }
@@ -945,25 +887,25 @@ namespace Math_Net_nuget
 
                 //Beginnwerte festlegen index [0]
                 j++;    //Richtigen Wert aus obigem Vergleich
-                double IPI_Start_s = (IPI_import_s[j]); //[s] Here we start the search
+                double IPI_Start_s = (IPIImportS[j]); //[s] Here we start the search
                 IPI_temp.Add(IPI_Start_s);
-                _IPI_time_related.Add(IPI_time_import[j]);
+                _IPI_time_related.Add(IPITimeImport[j]);
 
-                DateTime dt_running = IPI_time_import[j];
+                DateTime dt_running = IPITimeImport[j];
                 DateTime dt_next = dt_running - new TimeSpan(0, 0, 0, 0, Convert.ToInt32(IPI_Start_s * 1000));  //nach dieser Zeit muss der nächste Herzschlag kommen
 
                 DateTime dt_next_prev = dt_next;   //prevoius search time
                 j--;    //Auf nächsten Wert zeigen
                 while (j > 3)
                 {
-                    if (IPI_time_import[j] <= dt_next) //search for index next to dt_next
+                    if (IPITimeImport[j] <= dt_next) //search for index next to dt_next
                     {
                         //Genau hier müsste der nächste Wert stehen ....
 
                         //Sicherheitshalber im Umkreis von +-3 Werten schauen, ob hier im Umfeld ein Sprung ist, dann ggf darauf Rücksicht nehmen
                         for (int i = 3; i >= -2; i--)
                         {
-                            if (IPI_import_s[j + i] != IPI_import_s[j + i - 1])
+                            if (IPIImportS[j + i] != IPIImportS[j + i - 1])
                             {
                                 j += i; //Take Value closer to the end
                                 break;
@@ -971,15 +913,15 @@ namespace Math_Net_nuget
                         }
 
                         //Fehler im File? Ist der neue Zeitwert größer als der vorhergehende?
-                        if (IPI_time_import[j] > dt_next_prev)
+                        if (IPITimeImport[j] > dt_next_prev)
                         {
                             //Fehler im File; fürhrt zu Endlosschleife
                             //Rückwärts nächste Sprungstelle suchen .... resynchronisieren
-                            List_Time_with_File_inconsistencies.Add(IPI_time_import[j]);
+                            List_Time_with_File_inconsistencies.Add(IPITimeImport[j]);
                             j--;
                             while (j > 3)
                             {
-                                if (IPI_import_s[j] != IPI_import_s[j - 1])
+                                if (IPIImportS[j] != IPIImportS[j - 1])
                                 {
                                     //Neue Sprungstelle gefunden
                                     break;
@@ -990,32 +932,32 @@ namespace Math_Net_nuget
 
                         dt_next_prev = dt_next;
 
-                        dt_running = IPI_time_import[j];
-                        double dIPI_s = IPI_import_s[j];
+                        dt_running = IPITimeImport[j];
+                        double dIPI_s = IPIImportS[j];
                         IPI_temp.Add(dIPI_s);
-                        _IPI_time_related.Add(IPI_time_import[j]);
+                        _IPI_time_related.Add(IPITimeImport[j]);
 
                         dt_next = dt_running - new TimeSpan(0, 0, 0, 0, Convert.ToInt32(dIPI_s * 1000));  //Prozent ist schon vom vorhergehenden Wert dabei
                     }
                     j--;
                 }
 
-                IPI_s = new double[IPI_temp.Count];
-                IPI_time_related = new DateTime[IPI_temp.Count];
+                IPIS = new double[IPI_temp.Count];
+                IPITimeRelated = new DateTime[IPI_temp.Count];
 
                 j = IPI_temp.Count - 1;
 
                 //Swap Arrays
                 for (int i = 0; i < IPI_temp.Count; i++)
                 {
-                    IPI_s[i] = IPI_temp[j];
-                    IPI_time_related[i] = _IPI_time_related[j];
+                    IPIS[i] = IPI_temp[j];
+                    IPITimeRelated[i] = _IPI_time_related[j];
                     j--;
                 }
 
                 //Rebuild time base
-                IPI_time_s = Rebuild_IPI_time_s_from_IPI(IPI_s);
-                Time_with_File_inconsistencies = List_Time_with_File_inconsistencies.ToArray();
+                IPITimeS = RebuildIPITimeSFromIPI(IPIS);
+                TimeWithFileInconsistencies = [.. List_Time_with_File_inconsistencies];
                 ret = true;
             }
 
@@ -1025,20 +967,20 @@ namespace Math_Net_nuget
         /// <summary>
         /// Rebuild_s the IPI time from the IPIs
         /// </summary>
-        /// <param name="IPI_s">IPI [s]</param>
+        /// <param name="IPIS">IPI [s]</param>
         /// <returns></returns>
-        public double[] Rebuild_IPI_time_s_from_IPI(double[] IPI_s)
+        public static double[] RebuildIPITimeSFromIPI(double[] IPIS)
         {
 
-            double[] IPI_time_s = new double[IPI_s.Length];
+            double[] IPI_time_s = new double[IPIS.Length];
             IPI_time_s[0] = 0;
-            for (int i = 1; i < IPI_s.Length - 1; i++)
+            for (int i = 1; i < IPIS.Length - 1; i++)
             {
-                IPI_time_s[i] = IPI_time_s[i - 1] + IPI_s[i + 1];
+                IPI_time_s[i] = IPI_time_s[i - 1] + IPIS[i + 1];
             }
 
             //Damit letzter Wert auch noch Sinn ergibt
-            IPI_time_s[IPI_time_s.Length - 1] = IPI_time_s[IPI_time_s.Length - 2] + IPI_s[IPI_time_s.Length - 1];
+            IPI_time_s[^1] = IPI_time_s[^2] + IPIS[IPI_time_s.Length - 1];
 
             return IPI_time_s;
         }
@@ -1131,9 +1073,9 @@ namespace Math_Net_nuget
         /// </summary>
         /// <param name="values">Values</param>
         /// <param name="NN50">NN50</param>
-        /// <param name="pNN50">pNN50</param>
+        /// <param name="PNN50">pNN50</param>
         /// <returns>RMSSD</returns>
-        private double CalcRMSSD(double[] values, out int NN50, out double pNN50)
+        private static double CalcRMSSD_ms(double[] values, out int NN50, out double PNN50)
         {
             double RMSSD = 0;
             NN50 = 0;
@@ -1143,10 +1085,10 @@ namespace Math_Net_nuget
                 RMSSD += diff * diff;
                 if (Math.Abs(diff) > 0.05) NN50++;
             }
-            double l = (values.Length - 1);
+            double l = values.Length - 1;
             RMSSD /= l;
             RMSSD = Math.Sqrt(RMSSD) * 1000;  //ms
-            pNN50 = (double)NN50 / l * 100;
+            PNN50 = NN50 / l * 100;
             return RMSSD;
         }
 
@@ -1156,85 +1098,85 @@ namespace Math_Net_nuget
         /// <summary>
         /// Artefact supression in IPI [ms] (with Arrays)
         /// </summary>
-        /// <param name="IPI_ms">IPI [ms]</param>
-        /// <param name="IPI_time">Related time</param>
+        /// <param name="IPIMs">IPI [ms]</param>
+        /// <param name="IPITime">Related time</param>
         /// <param name="numIntervallsBeforAfter">Number of values wich are observed before and after the processed value</param>
         /// <param name="AcceptedPercentageDeviation">Accepted percentage of deviation between the current value and the mean values of numIntervallsBeforAfter</param>
         /// <param name="sdevBefore">Standard deviation of intervalls before. Can be null</param>
         /// <param name="sdevAfter">TStandard deviation of intervalls after. Can be null</param>
         /// <param name="numValsCorrected">Number of values corrected</param>
         /// <param name="IPIisCorrected">true: This value was corrected</param>
-        public void IPIArtifactSuppression_ms(ref double[] IPI_ms, ref double[] IPI_time, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref bool[] IPIisCorrected)
+        public static void IPIArtifactSuppression_ms(ref double[] IPIMs, ref double[] IPITime, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref bool[] IPIisCorrected)
         {
-            List<double> Int = new List<double>(IPI_ms);
-            List<double> time = new List<double>(IPI_time);
-            List<bool> iPIisCorrected = new List<bool>(IPIisCorrected);
+            List<double> Int = new(IPIMs);
+            List<double> time = new(IPITime);
+            List<bool> iPIisCorrected = new(IPIisCorrected);
 
-            IPIArtifactSuppression_ms(ref Int, ref time, numIntervallsBeforAfter, AcceptedPercentageDeviation, ref sdevBefore, ref sdevAfter, ref numValsCorrected, ref iPIisCorrected);
+            IPIArtifactSuppressionMs(ref Int, ref time, numIntervallsBeforAfter, AcceptedPercentageDeviation, ref sdevBefore, ref sdevAfter, ref numValsCorrected, ref iPIisCorrected);
 
-            IPI_ms = Int.ToArray();
-            IPI_time = time.ToArray();
-            IPIisCorrected = iPIisCorrected.ToArray();
+            IPIMs = [.. Int];
+            IPITime = [.. time];
+            IPIisCorrected = [.. iPIisCorrected];
         }
 
 
         /// <summary>
         /// Artefact supression in IPI [s] (with Arrays)
         /// </summary>
-        /// <param name="IPI_s">IPI [s]</param>
-        /// <param name="IPI_time_s">Related time [s]</param>
+        /// <param name="IPIS">IPI [s]</param>
+        /// <param name="IPITimeS">Related time [s]</param>
         /// <param name="numIntervallsBeforAfter">Number of values wich are observed before and after the processed value</param>
         /// <param name="AcceptedPercentageDeviation">Accepted percentage of deviation between the current value and the mean values of numIntervallsBeforAfter</param>
         /// <param name="sdevBefore">Standard deviation of intervalls before. Can be null</param>
         /// <param name="sdevAfter">TStandard deviation of intervalls after. Can be null</param>
         /// <param name="numValsCorrected">Number of values corrected</param>
         /// <param name="IPIisCorrected">true: This value was corrected</param>
-        public void IPIArtifactSuppression_s(ref double[] IPI_s, ref double[] IPI_time_s, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref bool[] IPIisCorrected)
+        public static void IPIArtifactSuppressionS(ref double[] IPIS, ref double[] IPITimeS, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref bool[] IPIisCorrected)
         {
-            List<double> Int = new List<double>(IPI_s);
-            List<double> time = new List<double>(IPI_time_s);
-            List<bool> iPIisCorrected = new List<bool>(IPIisCorrected);
+            List<double> Int = new(IPIS);
+            List<double> time = new(IPITimeS);
+            List<bool> iPIisCorrected = new(IPIisCorrected);
 
             IPIArtifactSuppression_s(ref Int, ref time, numIntervallsBeforAfter, AcceptedPercentageDeviation, ref sdevBefore, ref sdevAfter, ref numValsCorrected, ref iPIisCorrected);
 
-            IPI_s = Int.ToArray();
-            IPI_time_s = time.ToArray();
-            IPIisCorrected = iPIisCorrected.ToArray();
+            IPIS = [.. Int];
+            IPITimeS = [.. time];
+            IPIisCorrected = [.. iPIisCorrected];
         }
 
 
         /// <summary>
         /// Artefact supression in IPI [ms] (with Lists)
         /// </summary>
-        /// <param name="IPI_ms">IPI [ms]</param>
-        /// <param name="IPI_time_s">Related time [s]</param>
+        /// <param name="IPIMs">IPI [ms]</param>
+        /// <param name="IPITimeS">Related time [s]</param>
         /// <param name="numIntervallsBeforAfter">Number of values wich are observed before and after the processed value</param>
         /// <param name="AcceptedPercentageDeviation">Accepted percentage of deviation between the current value and the mean values of numIntervallsBeforAfter</param>
         /// <param name="sdevBefore">Standard deviation of intervalls before. Can be null</param>
         /// <param name="sdevAfter">TStandard deviation of intervalls after. Can be null</param>
         /// <param name="numValsCorrected">Number of values corrected</param>
         /// <param name="IPIisCorrected">true: This value was corrected</param>
-        public void IPIArtifactSuppression_ms(ref List<double> IPI_ms, ref List<double> IPI_time_s, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref List<bool> IPIisCorrected)
+        public static void IPIArtifactSuppressionMs(ref List<double> IPIMs, ref List<double> IPITimeS, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref List<bool> IPIisCorrected)
         {
-            for (int i = 0; i < IPI_ms.Count; i++)
+            for (int i = 0; i < IPIMs.Count; i++)
             {
-                IPI_ms[i] /= 1000;
+                IPIMs[i] /= 1000;
             }
 
             IPIArtifactSuppression_s(
-                ref IPI_ms, ref IPI_time_s, numIntervallsBeforAfter, AcceptedPercentageDeviation, ref sdevBefore, ref sdevAfter, ref numValsCorrected, ref IPIisCorrected);
+                ref IPIMs, ref IPITimeS, numIntervallsBeforAfter, AcceptedPercentageDeviation, ref sdevBefore, ref sdevAfter, ref numValsCorrected, ref IPIisCorrected);
 
-            for (int i = 0; i < IPI_ms.Count; i++)
+            for (int i = 0; i < IPIMs.Count; i++)
             {
-                IPI_ms[i] *= 1000;
+                IPIMs[i] *= 1000;
             }
         }
 
         /// <summary>
         /// Artefact supression in IPI [s] (with Arrays)
         /// </summary>
-        /// <param name="IPI_s">Values [s]</param>
-        /// <param name="IPI_time_s">Related time [s]</param>
+        /// <param name="IPIS">Values [s]</param>
+        /// <param name="IPITimeS">Related time [s]</param>
         /// <param name="numIntervallsBeforAfter">Number of values wich are observed before and after the processed value</param>
         /// <param name="AcceptedPercentageDeviation">Accepted percentage of deviation between the current value and the mean values of numIntervallsBeforAfter</param>
         /// <param name="sdevBefore">Standard deviation of intervalls before. Can be null</param>
@@ -1242,14 +1184,14 @@ namespace Math_Net_nuget
         /// <param name="numValsCorrected">Number of values corrected</param>
         /// <param name="IPIisCorrected">true: This value was corrected</param>
         /// <exception cref="System.Exception">Number of values must be &gt; 2* numIntervallsBeforAfter</exception>
-        public void IPIArtifactSuppression_s(ref List<double> IPI_s, ref List<double> IPI_time_s, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref List<bool> IPIisCorrected)
+        public static void IPIArtifactSuppression_s(ref List<double> IPIS, ref List<double> IPITimeS, int numIntervallsBeforAfter, double AcceptedPercentageDeviation, ref double[] sdevBefore, ref double[] sdevAfter, ref int numValsCorrected, ref List<bool> IPIisCorrected)
         {
             //Holds values before and after the investigated value
-            List<double> valsBefore = new List<double>();
-            List<double> valsAfter = new List<double>();
+            List<double> valsBefore = [];
+            List<double> valsAfter = [];
 
-            IPIisCorrected = new List<bool>();
-            for (int i = 0; i < IPI_s.Count; i++)
+            IPIisCorrected = [];
+            for (int i = 0; i < IPIS.Count; i++)
             {
                 IPIisCorrected.Add(false);
             }
@@ -1259,12 +1201,12 @@ namespace Math_Net_nuget
             //Standard deviation
             if ((sdevBefore != null) && (sdevAfter != null))
             {
-                sdevBefore = new double[IPI_s.Count - 2 * numIntervallsBeforAfter];
-                sdevAfter = new double[IPI_s.Count - 2 * numIntervallsBeforAfter];
+                sdevBefore = new double[IPIS.Count - 2 * numIntervallsBeforAfter];
+                sdevAfter = new double[IPIS.Count - 2 * numIntervallsBeforAfter];
                 CalcStdDev = true;
             }
 
-            if (IPI_s.Count < 2 * numIntervallsBeforAfter + 1)
+            if (IPIS.Count < 2 * numIntervallsBeforAfter + 1)
                 throw new Exception("Number of values must be > 2* numIntervallsBeforAfter");
 
             /*
@@ -1276,29 +1218,29 @@ namespace Math_Net_nuget
             //Initialise at the beginning of the file
             for (int i = 0; i < numIntervallsBeforAfter; i++)
             {
-                valsBefore.Add(IPI_s[i]);
+                valsBefore.Add(IPIS[i]);
             }
 
             for (int i = numIntervallsBeforAfter + 1; i <= numIntervallsBeforAfter + numIntervallsBeforAfter; i++)
             {
-                valsAfter.Add(IPI_s[i]);
+                valsAfter.Add(IPIS[i]);
             }
 
             double factorMax = 1 + (AcceptedPercentageDeviation / 100);
             double factorMin = 1 - (AcceptedPercentageDeviation / 100);
 
-            double[] RR_temp = new double[IPI_s.Count];
-            Buffer.BlockCopy(IPI_s.ToArray(), 0, RR_temp, 0, IPI_s.Count * sizeof(double));
+            double[] RR_temp = new double[IPIS.Count];
+            Buffer.BlockCopy(IPIS.ToArray(), 0, RR_temp, 0, IPIS.Count * sizeof(double));
 
             numValsCorrected = 0;
 
-            for (int i = numIntervallsBeforAfter; i < IPI_s.Count - numIntervallsBeforAfter; i++)
+            for (int i = numIntervallsBeforAfter; i < IPIS.Count - numIntervallsBeforAfter; i++)
             {
 
                 //avgBefore = valsBefore.Average();
                 //avgAfter = valsAfter.Average();
-                FFT_MathNet.CalcAvgStdv(valsAfter.ToArray(), out double avgAfter, out double _sdevAfter);
-                FFT_MathNet.CalcAvgStdv(valsBefore.ToArray(), out double avgBefore, out double _sdevBefore);
+                CFFTMathNet.CalcAvgStdv([.. valsAfter], out double avgAfter, out double _sdevAfter);
+                CFFTMathNet.CalcAvgStdv([.. valsBefore], out double avgBefore, out double _sdevBefore);
 
                 if (CalcStdDev)
                 {
@@ -1310,7 +1252,7 @@ namespace Math_Net_nuget
                 double avgMax = avg * factorMax;
                 double avgMin = avg * factorMin;
 
-                if ((IPI_s[i] < avgMax) && (IPI_s[i] > avgMin))
+                if ((IPIS[i] < avgMax) && (IPIS[i] > avgMin))
                 {
                     //Alles OK
                 }
@@ -1318,9 +1260,9 @@ namespace Math_Net_nuget
                 {
                     //Correct value
                     if (_sdevAfter > _sdevBefore)
-                        IPI_s[i] = avgBefore;
+                        IPIS[i] = avgBefore;
                     else
-                        IPI_s[i] = avgAfter;
+                        IPIS[i] = avgAfter;
 
                     IPIisCorrected[i] = true;
                     numValsCorrected++;
@@ -1334,10 +1276,10 @@ namespace Math_Net_nuget
             }
 
             //Trim array 
-            IPI_s.RemoveRange(IPI_s.Count - numIntervallsBeforAfter, numIntervallsBeforAfter);
-            IPI_s.RemoveRange(0, numIntervallsBeforAfter);
-            IPI_time_s.RemoveRange(IPI_time_s.Count - numIntervallsBeforAfter, numIntervallsBeforAfter);
-            IPI_time_s.RemoveRange(0, numIntervallsBeforAfter);
+            IPIS.RemoveRange(IPIS.Count - numIntervallsBeforAfter, numIntervallsBeforAfter);
+            IPIS.RemoveRange(0, numIntervallsBeforAfter);
+            IPITimeS.RemoveRange(IPITimeS.Count - numIntervallsBeforAfter, numIntervallsBeforAfter);
+            IPITimeS.RemoveRange(0, numIntervallsBeforAfter);
             IPIisCorrected.RemoveRange(IPIisCorrected.Count - numIntervallsBeforAfter, numIntervallsBeforAfter);
             IPIisCorrected.RemoveRange(0, numIntervallsBeforAfter);
 
@@ -1351,18 +1293,18 @@ namespace Math_Net_nuget
         /// <remarks>
         /// Details see function "CalcIPIDeviation_inBreathingIntervalls"
         /// </remarks>
-        public class CCalcIPIDeviation_inBreathingIntervalls_Results
+        public class CCalcIPIDeviationInBreathingIntervallsResults
         {
-            public List<double> maxAtem = new List<double>();
-            public List<double> maxAtemtime = new List<double>();
+            public List<double> maxAtem = [];
+            public List<double> maxAtemtime = [];
 
-            public List<double> minAtem = new List<double>();
-            public List<double> minAtemtime = new List<double>();
+            public List<double> minAtem = [];
+            public List<double> minAtemtime = [];
 
-            public List<double> deltaHRV = new List<double>();
-            public List<double> deltaHRV_time = new List<double>();
+            public List<double> deltaHRV = [];
+            public List<double> deltaHRV_time = [];
 
-            public double[] AtemNorm = null;
+            public double[] AtemNorm = [];
         }
 
 

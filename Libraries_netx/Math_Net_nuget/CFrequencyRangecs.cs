@@ -1,4 +1,4 @@
-﻿namespace Math_Net_nuget
+﻿namespace MathNetNuget
 {
     /// <summary>
     /// Encapsulates Parameters related to frequency ranges
@@ -8,12 +8,12 @@
         /// <summary>
         /// Lower frequency defining the frequency range
         /// </summary>
-        private double f_Low = 0;
+        private double f_Low;
 
         /// <summary>
         /// Higher frequency defining the frequency range
         /// </summary>
-        private double f_High = 0;
+        private double f_High;
 
         protected double Calibration_factor = 1;
 
@@ -21,7 +21,7 @@
         /// <summary>
         /// Value
         /// </summary>
-        public double value
+        public double Value
         {
             get { return _value * Calibration_factor; }
             set { _value = value / Calibration_factor; }
@@ -30,7 +30,7 @@
         /// <summary>
         /// Frequency related to Peak
         /// </summary>
-        public double Peak_Hz { get; set; } = 0;
+        public double PeakHz { get; set; } = 0;
 
         /// <summary>
         /// Max. value in the frequency range
@@ -42,22 +42,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="CFrequencyRange" /> class.
         /// </summary>
-        /// <param name="f_Low">f_Low</param>
-        /// <param name="f_High">f_High</param>
-        /// <param name="Calibration_factor">calibration_factor for value</param>
-        public CFrequencyRange(double f_Low, double f_High, double Calibration_factor)
+        /// <param name="fLow">f_Low</param>
+        /// <param name="fHigh">f_High</param>
+        /// <param name="CalibrationFactor">calibration_factor for value</param>
+        public CFrequencyRange(double fLow, double fHigh, double CalibrationFactor)
         {
-            Init("NoName", f_Low, f_High, Calibration_factor);
+            Init("NoName", fLow, fHigh, CalibrationFactor);
         }
-        public CFrequencyRange(string Name, double f_Low, double f_High, double Calibration_factor)
+        public CFrequencyRange(string Name, double fLow, double fHigh, double CalibrationFactor)
         {
-            Init(Name, f_Low, f_High, Calibration_factor);
+            Init(Name, fLow, fHigh, CalibrationFactor);
         }
-        public void Init (string Name, double f_Low, double f_High, double Calibration_factor)
+        public void Init(string Name, double fLow, double fHigh, double CalibrationFactor)
         {
-            this.f_High = f_High;
-            this.f_Low = f_Low;
-            this.Calibration_factor = Calibration_factor;
+            f_High = fHigh;
+            f_Low = fLow;
+            Calibration_factor = CalibrationFactor;
             this.Name = Name;
             _value = 0;
         }
@@ -69,7 +69,7 @@
         public void Reset()
         {
             _value = 0;
-            Peak_Hz = 0;
+            PeakHz = 0;
             Peak = 0;
         }
 
@@ -86,7 +86,7 @@
                 if (value > Peak)
                 {
                     Peak = value;
-                    Peak_Hz = f;
+                    PeakHz = f;
                 }
             }
         }

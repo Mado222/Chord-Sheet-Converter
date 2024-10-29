@@ -33,7 +33,7 @@ namespace PhidgetLib
             => ReportMeasurementProgress?.Invoke(this, text, col);
         #endregion
 
-        private List<DigitalOutput> ph_digitalOutputs = new List<DigitalOutput>();
+        private List<DigitalOutput> ph_digitalOutputs = new();
 
         public CPhidgetLib22()
         {
@@ -42,7 +42,7 @@ namespace PhidgetLib
                 //Prepare Phidget
                 for (int i = 0; i < 8; i++)
                 {
-                    DigitalOutput ph_digitalOutput = new DigitalOutput
+                    DigitalOutput ph_digitalOutput = new()
                     {
                         Channel = i,
                         DeviceSerialNumber = -1,

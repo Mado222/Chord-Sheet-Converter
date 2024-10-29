@@ -5,8 +5,9 @@ using FeedbackDataLib.Modules;
 using System.Data;
 using WindControlLib;
 using Insight_Manufacturing5_net8.dataSources;
+using Insight_Manufacturing5_net8.tests_measurements;
 
-namespace Insight_Manufacturing5_net8.tests_measurements
+namespace Insight_Manufacturing5_net8.test_measurements
 {
     /// <summary>
     /// Class to connect to Neuromaster
@@ -18,16 +19,16 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         //Testbedingungen bei Übersteuerung
         /***************************************/
         /// <summary>We consider it overload if more that overload_vals_per_peak are above or below thresholds</summary>
-        public static int overload_vals_per_peak = 3;
+        public const int overload_vals_per_peak = 3;
         /// <summary>A measured value above overload_threshold_max is counted as overload</summary>
-        public static int overload_threshold_max = 0xFFFD;
+        public const int overload_threshold_max = 0xFFFD;
         /// <summary>A measured value below overload_threshold_min is counted as overload</summary>
-        public static int overload_threshold_min = 0x0003;
+        public const int overload_threshold_min = 0x0003;
 
         #region Events
         public event DataReady_xy_EventHandler DataReady_xy;
 
-        public delegate void DataReady_xy_EventHandler(object sender, double y_calibrated, WindControlLib.CDataIn DataIn);
+        public delegate void DataReady_xy_EventHandler(object sender, double y_calibrated, CDataIn DataIn);
         public virtual void OnDataReady(double y_calibrated, CDataIn DataIn)
         {
             DataReady_xy?.Invoke(this, y_calibrated, DataIn);
@@ -64,7 +65,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         #endregion
 
         #region Properties
-        public FeedbackDataLib.C8KanalReceiverV2 DataReceiver;
+        public C8KanalReceiverV2 DataReceiver;
         public C8KanalReceiverV2.enumConnectionResult lastConRes;
 
         protected CFY6900 _FY6900;
@@ -147,7 +148,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                             }
                         }
 
-                        if ((cntGetConfig < GetDeviceConfig_Repeats) && (DataReceiver.Connection.Device.ModuleInfos != null) && !BootloaderError)
+                        if (cntGetConfig < GetDeviceConfig_Repeats && DataReceiver.Connection.Device.ModuleInfos != null && !BootloaderError)
                         {
                             if (DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].ModuleType == ConnectedModuleType)
                             {
@@ -169,7 +170,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                                         }
                                         OnModuleInfoAvailable(DataReceiver.Connection.Device.ModuleInfos[ModulePortNo]);
                                         //All Ready
-                                        AllResults = new List<CNMChannelResults>();
+                                        AllResults = [];
 
                                         if (AgainValues != null && AgainValues.Count > 0)
                                         {
@@ -260,73 +261,74 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             return isOK;
         }
 
-        public C8KanalReceiverV2.enumConnectionResult? Connect_DataReceiver(bool CloseAfterwards)
+        public C8KanalReceiverV2.enumConnectionResult Connect_DataReceiver(bool CloseAfterwards)
         {
-            if (DataReceiver == null)
-            {
-                DataReceiver = new C8KanalReceiverV2();
-            }
+            DataReceiver ??= new C8KanalReceiverV2();
 
             OnReportMeasurementProgress("Searching for Neurolink  ....", Color.Green);
             C8KanalReceiverV2.enumConnectionResult? conres = DataReceiver.Init_via_D2XX();
 
-            if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+            if (conres is not null)
             {
-                OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
-                C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
-                if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
                 {
-                    if (DataReceiver.Connection.ScanModules())
+                    OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
+                    C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
+                    if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
                     {
-                        OnReportMeasurementProgress("ScanModules OK", Color.Green);
-                    }
+                        if (DataReceiver.Connection.ScanModules())
+                        {
+                            OnReportMeasurementProgress("ScanModules OK", Color.Green);
+                        }
+                        else
+                        {
+                            OnReportMeasurementProgress("Scan Modules failed", Color.Red);
+                        }
+                    } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
                     else
                     {
                         OnReportMeasurementProgress("Scan Modules failed", Color.Red);
                     }
-                } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
-                else
-                {
-                    OnReportMeasurementProgress("Scan Modules failed", Color.Red);
                 }
-            }
-            else if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
-            {
-                OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
-                C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
-                if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                else if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
                 {
-                    if (DataReceiver.Connection.ScanModules())
+                    OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
+                    C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
+                    if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
                     {
-                        OnReportMeasurementProgress("ScanModules OK", Color.Green);
-                    }
+                        if (DataReceiver.Connection.ScanModules())
+                        {
+                            OnReportMeasurementProgress("ScanModules OK", Color.Green);
+                        }
+                        else
+                        {
+                            OnReportMeasurementProgress("Scan Modules failed", Color.Red);
+                        }
+                    } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
                     else
                     {
                         OnReportMeasurementProgress("Scan Modules failed", Color.Red);
+                        conres = C8KanalReceiverV2.enumConnectionResult.Error_during_XBee_connection;   //18.9.2023
                     }
-                } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
-                else
-                {
-                    OnReportMeasurementProgress("Scan Modules failed", Color.Red);
-                    conres = C8KanalReceiverV2.enumConnectionResult.Error_during_XBee_connection;   //18.9.2023
-                }
-            }
-            else
-            {
-                if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
-                {
-                    OnReportMeasurementProgress("Keine Verbindung zum Neuromaster. Eingeschaltet??", Color.Red);
                 }
                 else
                 {
-                    OnReportMeasurementProgress(conres.ToString(), Color.Red);
+                    if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                    {
+                        OnReportMeasurementProgress("Keine Verbindung zum Neuromaster. Eingeschaltet??", Color.Red);
+                    }
+                    else
+                    {
+                        OnReportMeasurementProgress(conres.ToString(), Color.Red);
+                    }
                 }
+
+                if (CloseAfterwards)
+                    DataReceiver.Close_All();
+            
+                return (C8KanalReceiverV2.enumConnectionResult) conres;
             }
-
-            if (CloseAfterwards)
-                DataReceiver.Close_All();
-
-            return conres;
+            return C8KanalReceiverV2.enumConnectionResult.NoConnection;
         }
 
         /// <summary>
@@ -372,7 +374,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             //Wait to settle
             if (WaitToSettle_ms > 0)
             {
-                OnReportMeasurementProgress("Waiting " + ((int)(WaitToSettle_ms / 1000)).ToString() + "s to settle ....", Color.Black);
+                OnReportMeasurementProgress("Waiting " + (WaitToSettle_ms / 1000).ToString() + "s to settle ....", Color.Black);
                 CDelay.Delay_ms_DoEvents(WaitToSettle_ms);
             }
 
@@ -446,7 +448,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         }
 
 
-        private void DataReceiver_DataReady(object sender, List<WindControlLib.CDataIn> DataRead)
+        private void DataReceiver_DataReady(object sender, List<CDataIn> DataRead)
         {
             if (AcceptData)
             {
@@ -491,8 +493,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
             Save_Calibration_Values(last_id_neuromodule_kalibrierdaten);
 
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_DatenTableAdapter neuromodule_DatenTableAdapter = new();
 
             //Save Measurement Data
             for (int i = 0; i < AgainValues.Count; i++)
@@ -516,8 +518,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
         public void Save_Calibration_Values(Guid id_neuromodule_kalibrierdaten)
         {
-            dsManufacturing _dsManufacturing = new dsManufacturing();
-            dataSources.dsManufacturingTableAdapters.Neuromodule_KalibrierdatenTableAdapter neuromodule_KalibrierdatenTableAdapter = new dataSources.dsManufacturingTableAdapters.Neuromodule_KalibrierdatenTableAdapter();
+            dsManufacturing _dsManufacturing = new();
+            dataSources.dsManufacturingTableAdapters.Neuromodule_KalibrierdatenTableAdapter neuromodule_KalibrierdatenTableAdapter = new();
 
             //Save CalibrationVals
             int i = 0;
@@ -667,14 +669,16 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         {
             if (AllResults != null)
             {
-                List<CSWChannelInfo> swi = new List<CSWChannelInfo>();
-                for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].SWChannels.Count; i++)
-                {
-                    swi.Add(DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].SWChannels[i].SWChannelInfo);
+                List<CSWChannelInfo> swi = [];
+                if (DataReceiver.Connection is not null) {
+                    for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].SWChannels.Count; i++)
+                    {
+                        swi.Add(DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].SWChannels[i].SWChannelInfo);
+                    }
+                    return Get_SWChannelInfo(swi, AllResults);  //Gets new calibrtion values
                 }
-                return Get_SWChannelInfo(swi, AllResults);  //Gets new calibrtion values
-            }
-            return null;
+                }
+            return [];
         }
 
         public virtual List<CSWChannelInfo> Get_SWChannelInfo(List<CSWChannelInfo> OldSWChannelInfos, List<CNMChannelResults> AllResults)
@@ -725,7 +729,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             {
                 double max = Value_soll * (1 + PlusTolerance_Percent / 100);
                 double min = Value_soll * (1 - MinusTolerane_Percent / 100);
-                if ((Value_ist < max) && (Value_ist > min))
+                if (Value_ist < max && Value_ist > min)
                     ret = true;
             }
             return ret;
@@ -758,54 +762,31 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             }
         }
 
-        protected void CloseLogFile()
-        {
-            if (sw_logFile != null)
-            {
-                sw_logFile.Close();
-            }
-        }
+        protected void CloseLogFile() => sw_logFile?.Close();
 
-        protected void WriteLogFile(string LogMessage)
-        {
-            if (sw_logFile != null)
-            {
-                sw_logFile.WriteLine(LogMessage);
-            }
-        }
+        protected void WriteLogFile(string LogMessage) => sw_logFile?.WriteLine(LogMessage);
 
-        public bool isLogFileOpen
-        {
-            get
-            {
-                if (sw_logFile != null) return true;
-                return false;
-            }
-        }
+        public bool IsLogFileOpen => sw_logFile != null;
         #endregion
         //Excel Helpers
 
-        private DataTable? Get_DataTable_from_Excel(string sheetname)
+        private static DataTable? Get_DataTable_from_Excel(string sheetname)
         {
-            DataTable? dt = new DataTable();
+            DataTable? dt = new();
             string strExeFilePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\Neuromodul_TestSettings.xlsx";
 
             try
             {
-                using (var stream = File.Open(strExeFilePath, FileMode.Open, FileAccess.Read))
+                using var stream = File.Open(strExeFilePath, FileMode.Open, FileAccess.Read);
+                using var reader = ExcelReaderFactory.CreateReader(stream);
+                var result = reader.AsDataSet(new ExcelDataSetConfiguration()
                 {
-                    using (var reader = ExcelReaderFactory.CreateReader(stream))
+                    ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
                     {
-                        var result = reader.AsDataSet(new ExcelDataSetConfiguration()
-                        {
-                            ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
-                            {
-                                UseHeaderRow = true
-                            }
-                        });
-                        dt = result.Tables[sheetname];
+                        UseHeaderRow = true
                     }
-                }
+                });
+                dt = result.Tables[sheetname];
             }
             catch (Exception ex)
             {
@@ -828,10 +809,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             int MeasureTime_s = 20;
             double Tolerance_Percent = 3.0;  //1 Atemzug pro Minute
 
-            SendChannels = new bool[] { true, true, false, false };   //Welche SW Kanäle werden übertragen
-            SampleInt_of_channels_ms = new int[] { 50, 50, 50, 50 }; //internal sampling = 128Hz -> 7.8ms
-            ChartMaximum = new double[] { 1, 50, 1, 1 };
-            ChartMinimum = new double[] { -1, 0, -1, -1 };
+            SendChannels = [true, true, false, false];   //Welche SW Kanäle werden übertragen
+            SampleInt_of_channels_ms = [50, 50, 50, 50]; //internal sampling = 128Hz -> 7.8ms
+            ChartMaximum = [1, 50, 1, 1];
+            ChartMinimum = [-1, 0, -1, -1];
 
             double SampleInt_ms = SampleInt_of_channels_ms[0];
 
@@ -859,10 +840,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
             //double ECG_at_notchfrequency = -30e-6;        //Notch values 
 
-            SendChannels = new bool[] { true, true, false, false };
-            SampleInt_of_channels_ms = new int[] { 2, 100, 100, 100 };
-            ChartMaximum = new double[] { 0.0005, 210, 1, 1 };
-            ChartMinimum = new double[] { -0.0005, 0, 0, 0 };
+            SendChannels = [true, true, false, false];
+            SampleInt_of_channels_ms = [2, 100, 100, 100];
+            ChartMaximum = [0.0005, 210, 1, 1];
+            ChartMinimum = [-0.0005, 0, 0, 0];
 
             double SampleInt_ms = SampleInt_of_channels_ms[0];
             double Ignore_Time_percent = 20;
@@ -901,7 +882,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                                 Measure_duration_s_or_periodes_neg, SampleInt_ms, Ignore_Time_percent);
                         }
 
-                        else if (row["ArbitraryFile"] != System.DBNull.Value)
+                        else if (row["ArbitraryFile"] != DBNull.Value)
                         {
                             //Arbitrary File
                             string af = (string)row["ArbitraryFile"];
@@ -1011,10 +992,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
 
             //double EMG_at_notchfrequency = -30e-6;        //Notch values 
 
-            SendChannels = new bool[] { true, true, false, false };   //Welche SW Kanäle werden übertragen
-            SampleInt_of_channels_ms = new int[] { 3, 50, 100, 100 };               //Zugehörige Abtastintervalle 
-            ChartMaximum = new double[] { 0.0005, 0.001, 1, 1 };
-            ChartMinimum = new double[] { -0.0005, 0, 0, 0 };
+            SendChannels = [true, true, false, false];   //Welche SW Kanäle werden übertragen
+            SampleInt_of_channels_ms = [3, 50, 100, 100];               //Zugehörige Abtastintervalle 
+            ChartMaximum = [0.0005, 0.001, 1, 1];
+            ChartMinimum = [-0.0005, 0, 0, 0];
 
             double SampleInt_ms = SampleInt_of_channels_ms[0];
             double Ignore_Time_percent = 20;
@@ -1096,7 +1077,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         ****************************************/
         public const double fnotch_EEG = 50;
         public const double Ueff_Soll_Notch_EEG = -3e-6;  //- da Notch Frequency
-        public readonly double[] f_calibration_EEG = new double[] { 4, 10, 14 };    //these f's are used for calculating the calibration factor{ 5, 10, 15 };    //these f's are used for calculating the calibration factor
+        public readonly double[] f_calibration_EEG = [4, 10, 14];    //these f's are used for calculating the calibration factor{ 5, 10, 15 };    //these f's are used for calculating the calibration factor
 
         public void Configure_EEG()
         {
@@ -1104,10 +1085,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             int Measure_duration_s_or_periodes_neg = -20;     //neg. value -> number of periodes
                                                               //int sinus_tolerance_percent = 15;    //20190821: war 10
 
-            SendChannels = new bool[] { true, false, false, false };
-            ChartMaximum = new double[] { 2e-5, 1e-10, 1e-10, 1e-10 };
-            ChartMinimum = new double[] { -2e-5, 0, 0, 0 };
-            SampleInt_of_channels_ms = new int[] { 8, 50, 50, 50 }; //internal sampling = 128Hz -> 7.8ms
+            SendChannels = [true, false, false, false];
+            ChartMaximum = [2e-5, 1e-10, 1e-10, 1e-10];
+            ChartMinimum = [-2e-5, 0, 0, 0];
+            SampleInt_of_channels_ms = [8, 50, 50, 50]; //internal sampling = 128Hz -> 7.8ms
             double Ignore_Time_percent = 30;
             //double Vppin_EEG = 0.85;
 #if DEBUGi
@@ -1209,11 +1190,11 @@ namespace Insight_Manufacturing5_net8.tests_measurements
         public const double Multi_TempR2_soll = 30100.0;        //Externer Testwiderstand2
 
         //Keywords for 
-        public static string[] Multi_Test_Details_keywords = { "SCL1", "SCL2", "SCL3", "Temp1", "Temp2", "Temp3", "BPM" };
+        public static readonly string[] Multi_Test_Details_keywords = ["SCL1", "SCL2", "SCL3", "Temp1", "Temp2", "Temp3", "BPM"];
 
         //Test von SCL3 - 1MOhm an Sensorkontakte
-        public static double MeasureTime_Multi_SCL3_s = 5;
-        public static readonly bool[] SendChannel_Multi_SCL = { true, false, false, false };
+        public const double MeasureTime_Multi_SCL3_s = 5;
+        public static readonly bool[] SendChannel_Multi_SCL = [true, false, false, false];
         public const double Multi_R3_soll = 1e6;
 
         public void Configure_Multi()
@@ -1224,11 +1205,11 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             MeasureTime_s = 3;
 #endif
 
-            SendChannels = new bool[] { true, true, false, false };
-            SampleInt_of_channels_ms = new int[] { 35, 200, 20, 200 };
-            ChartMaximum = new double[] { 5e-6, 40, 1, 100 };
-            ChartMinimum = new double[] { 0, 10, -1, 0 };
-            double?[] Sample_Ignore_Time_percent = new double?[] { 50, 0, 0, 50 }; //Die ersten 50% der SCL und bpm ignorieren
+            SendChannels = [true, true, false, false];
+            SampleInt_of_channels_ms = [35, 200, 20, 200];
+            ChartMaximum = [5e-6, 40, 1, 100];
+            ChartMinimum = [0, 10, -1, 0];
+            double?[] Sample_Ignore_Time_percent = [50, 0, 0, 50]; //Die ersten 50% der SCL und bpm ignorieren
 
             AgainValues = new CAgainValues(enumModuleType.cModuleMultisensor);
             AgainValues.Add_Sinus(1, 1, -1.5, 0.5, MeasureTime_s, SampleInt_of_channels_ms[0], (double)Sample_Ignore_Time_percent[0]);

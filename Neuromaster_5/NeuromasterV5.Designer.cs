@@ -102,7 +102,7 @@ namespace Neuromaster_V5
             openFileDialog_cfg = new OpenFileDialog();
             tmrFileDataReader = new System.Windows.Forms.Timer(components);
             tlpMeasure = new TableLayoutPanel();
-            ucSignalAnalyser1 = new Math_Net_nuget.ucSignalAnalyser();
+            ucSignalAnalyser1 = new MathNetNuget.ucSignalAnalyser();
             openFileDialog_nmc = new OpenFileDialog();
             panel1 = new Panel();
             cFlowChartDX1 = new UcFlowChartDX_NM();
@@ -120,28 +120,28 @@ namespace Neuromaster_V5
             resources.ApplyResources(btGetConfigModules, "btGetConfigModules");
             btGetConfigModules.Name = "btGetConfigModules";
             btGetConfigModules.UseVisualStyleBackColor = true;
-            btGetConfigModules.Click += btGetConfigModules_Click;
+            btGetConfigModules.Click += BtGetConfigModules_Click;
             // 
             // btSetConfig
             // 
             resources.ApplyResources(btSetConfig, "btSetConfig");
             btSetConfig.Name = "btSetConfig";
             btSetConfig.UseVisualStyleBackColor = true;
-            btSetConfig.Click += btSetConfig_Click;
+            btSetConfig.Click += BtSetConfig_Click;
             // 
             // btGetClock
             // 
             resources.ApplyResources(btGetClock, "btGetClock");
             btGetClock.Name = "btGetClock";
             btGetClock.UseVisualStyleBackColor = true;
-            btGetClock.Click += btGetClock_Click;
+            btGetClock.Click += BtGetClock_Click;
             // 
             // btSetClock
             // 
             resources.ApplyResources(btSetClock, "btSetClock");
             btSetClock.Name = "btSetClock";
             btSetClock.UseVisualStyleBackColor = true;
-            btSetClock.Click += btSetClock_Click;
+            btSetClock.Click += BtSetClock_Click;
             // 
             // pnControls
             // 
@@ -168,36 +168,36 @@ namespace Neuromaster_V5
             resources.ApplyResources(btGetElectrodeInfo, "btGetElectrodeInfo");
             btGetElectrodeInfo.Name = "btGetElectrodeInfo";
             btGetElectrodeInfo.UseVisualStyleBackColor = true;
-            btGetElectrodeInfo.Click += btGetElectrodeInfo_Click;
+            btGetElectrodeInfo.Click += BtGetElectrodeInfo_Click;
             // 
             // cChannelsControlV2x11
             // 
             cChannelsControlV2x11.BackColor = Color.FromArgb(224, 224, 224);
             resources.ApplyResources(cChannelsControlV2x11, "cChannelsControlV2x11");
             cChannelsControlV2x11.Name = "cChannelsControlV2x11";
-            cChannelsControlV2x11.ModuleRowChanged += cChannelsControlV2x11_ModuleRowChanged;
-            cChannelsControlV2x11.SWChannelRowChanged += cChannelsControlV2x11_SWChannelRowChanged;
+            cChannelsControlV2x11.ModuleRowChanged += CChannelsControlV2x11_ModuleRowChanged;
+            cChannelsControlV2x11.SWChannelRowChanged += CChannelsControlV2x11_SWChannelRowChanged;
             // 
             // btGetModuleSpecific
             // 
             resources.ApplyResources(btGetModuleSpecific, "btGetModuleSpecific");
             btGetModuleSpecific.Name = "btGetModuleSpecific";
             btGetModuleSpecific.UseVisualStyleBackColor = true;
-            btGetModuleSpecific.Click += btGetModuleSpecific_Click;
+            btGetModuleSpecific.Click += BtGetModuleSpecific_Click;
             // 
             // btSetModuleSpecific
             // 
             resources.ApplyResources(btSetModuleSpecific, "btSetModuleSpecific");
             btSetModuleSpecific.Name = "btSetModuleSpecific";
             btSetModuleSpecific.UseVisualStyleBackColor = true;
-            btSetModuleSpecific.Click += btSetModuleSpecific_Click;
+            btSetModuleSpecific.Click += BtSetModuleSpecific_Click;
             // 
             // btGetFirmwareVersion
             // 
             resources.ApplyResources(btGetFirmwareVersion, "btGetFirmwareVersion");
             btGetFirmwareVersion.Name = "btGetFirmwareVersion";
             btGetFirmwareVersion.UseVisualStyleBackColor = true;
-            btGetFirmwareVersion.Click += btGetFirmwareVersion_Click;
+            btGetFirmwareVersion.Click += BtGetFirmwareVersion_Click;
             // 
             // AllDefaultOn
             // 
@@ -211,14 +211,14 @@ namespace Neuromaster_V5
             resources.ApplyResources(btGetSDCardInfo, "btGetSDCardInfo");
             btGetSDCardInfo.Name = "btGetSDCardInfo";
             btGetSDCardInfo.UseVisualStyleBackColor = true;
-            btGetSDCardInfo.Click += btGetSDCardInfo_Click;
+            btGetSDCardInfo.Click += BtGetSDCardInfo_Click;
             // 
             // btAllCnhan0On
             // 
             resources.ApplyResources(btAllCnhan0On, "btAllCnhan0On");
             btAllCnhan0On.Name = "btAllCnhan0On";
             btAllCnhan0On.UseVisualStyleBackColor = true;
-            btAllCnhan0On.Click += btAllCnhan0On_Click;
+            btAllCnhan0On.Click += BtAllCnhan0On_Click;
             // 
             // gbClock
             // 
@@ -239,28 +239,28 @@ namespace Neuromaster_V5
             resources.ApplyResources(btLoadConfig, "btLoadConfig");
             btLoadConfig.Name = "btLoadConfig";
             btLoadConfig.UseVisualStyleBackColor = true;
-            btLoadConfig.Click += btLoadConfig_Click;
+            btLoadConfig.Click += BtLoadConfig_Click;
             // 
             // btSaveConfig
             // 
             resources.ApplyResources(btSaveConfig, "btSaveConfig");
             btSaveConfig.Name = "btSaveConfig";
             btSaveConfig.UseVisualStyleBackColor = true;
-            btSaveConfig.Click += btSaveConfig_Click;
+            btSaveConfig.Click += BtSaveConfig_Click;
             // 
             // btRestoreLastConfig
             // 
             resources.ApplyResources(btRestoreLastConfig, "btRestoreLastConfig");
             btRestoreLastConfig.Name = "btRestoreLastConfig";
             btRestoreLastConfig.UseVisualStyleBackColor = true;
-            btRestoreLastConfig.Click += btRestoreLastConfig_Click;
+            btRestoreLastConfig.Click += BtRestoreLastConfig_Click;
             // 
             // btSetAllConfig
             // 
             resources.ApplyResources(btSetAllConfig, "btSetAllConfig");
             btSetAllConfig.Name = "btSetAllConfig";
             btSetAllConfig.UseVisualStyleBackColor = true;
-            btSetAllConfig.Click += btSetAllConfig_Click;
+            btSetAllConfig.Click += BtSetAllConfig_Click;
             // 
             // gbConnectivitie
             // 
@@ -323,8 +323,8 @@ namespace Neuromaster_V5
             tbConnect.TextState1 = "Connect";
             tbConnect.TextState2 = "Disconnect";
             tbConnect.UseVisualStyleBackColor = false;
-            tbConnect.ToState2 += tbConnect_ToState2;
-            tbConnect.ToState1 += tbConnect_ToState1;
+            tbConnect.ToState2 += TbConnect_ToState2;
+            tbConnect.ToState1 += TbConnect_ToState1;
             // 
             // groupBox2
             // 
@@ -382,12 +382,12 @@ namespace Neuromaster_V5
             // 
             tmrStatusMessages.Enabled = true;
             tmrStatusMessages.Interval = 150;
-            tmrStatusMessages.Tick += tmrStatusMessages_Tick;
+            tmrStatusMessages.Tick += TmrStatusMessages_Tick;
             // 
             // tmrSDDataReader
             // 
             tmrSDDataReader.Interval = 5;
-            tmrSDDataReader.Tick += tmrSDDataReader_Tick;
+            tmrSDDataReader.Tick += TmrSDDataReader_Tick;
             // 
             // menuStrip1
             // 
@@ -408,19 +408,19 @@ namespace Neuromaster_V5
             d2XXToolStripMenuItem.CheckState = CheckState.Checked;
             d2XXToolStripMenuItem.Name = "d2XXToolStripMenuItem";
             resources.ApplyResources(d2XXToolStripMenuItem, "d2XXToolStripMenuItem");
-            d2XXToolStripMenuItem.Click += d2XXToolStripMenuItem_Click;
+            d2XXToolStripMenuItem.Click += D2XXToolStripMenuItem_Click;
             // 
             // virtualComToolStripMenuItem
             // 
             virtualComToolStripMenuItem.Name = "virtualComToolStripMenuItem";
             resources.ApplyResources(virtualComToolStripMenuItem, "virtualComToolStripMenuItem");
-            virtualComToolStripMenuItem.Click += d2XXToolStripMenuItem_Click;
+            virtualComToolStripMenuItem.Click += D2XXToolStripMenuItem_Click;
             // 
             // sDCardToolStripMenuItem
             // 
             sDCardToolStripMenuItem.Name = "sDCardToolStripMenuItem";
             resources.ApplyResources(sDCardToolStripMenuItem, "sDCardToolStripMenuItem");
-            sDCardToolStripMenuItem.Click += d2XXToolStripMenuItem_Click;
+            sDCardToolStripMenuItem.Click += D2XXToolStripMenuItem_Click;
             // 
             // displayedChannelsToolStripMenuItem
             // 
@@ -434,19 +434,19 @@ namespace Neuromaster_V5
             selectedModuleToolStripMenuItem.CheckState = CheckState.Checked;
             selectedModuleToolStripMenuItem.Name = "selectedModuleToolStripMenuItem";
             resources.ApplyResources(selectedModuleToolStripMenuItem, "selectedModuleToolStripMenuItem");
-            selectedModuleToolStripMenuItem.Click += selectedModuleToolStripMenuItem_Click;
+            selectedModuleToolStripMenuItem.Click += SelectedModuleToolStripMenuItem_Click;
             // 
             // rawChannelsToolStripMenuItem
             // 
             rawChannelsToolStripMenuItem.Name = "rawChannelsToolStripMenuItem";
             resources.ApplyResources(rawChannelsToolStripMenuItem, "rawChannelsToolStripMenuItem");
-            rawChannelsToolStripMenuItem.Click += selectedModuleToolStripMenuItem_Click;
+            rawChannelsToolStripMenuItem.Click += SelectedModuleToolStripMenuItem_Click;
             // 
             // predefinedChannelsToolStripMenuItem
             // 
             predefinedChannelsToolStripMenuItem.Name = "predefinedChannelsToolStripMenuItem";
             resources.ApplyResources(predefinedChannelsToolStripMenuItem, "predefinedChannelsToolStripMenuItem");
-            predefinedChannelsToolStripMenuItem.Click += selectedModuleToolStripMenuItem_Click;
+            predefinedChannelsToolStripMenuItem.Click += SelectedModuleToolStripMenuItem_Click;
             // 
             // scaleValuesToolStripMenuItem
             // 
@@ -460,13 +460,13 @@ namespace Neuromaster_V5
             scaledToolStripMenuItem.CheckState = CheckState.Checked;
             scaledToolStripMenuItem.Name = "scaledToolStripMenuItem";
             resources.ApplyResources(scaledToolStripMenuItem, "scaledToolStripMenuItem");
-            scaledToolStripMenuItem.Click += scaledToolStripMenuItem_Click;
+            scaledToolStripMenuItem.Click += ScaledToolStripMenuItem_Click;
             // 
             // unscaledToolStripMenuItem
             // 
             unscaledToolStripMenuItem.Name = "unscaledToolStripMenuItem";
             resources.ApplyResources(unscaledToolStripMenuItem, "unscaledToolStripMenuItem");
-            unscaledToolStripMenuItem.Click += scaledToolStripMenuItem_Click;
+            unscaledToolStripMenuItem.Click += ScaledToolStripMenuItem_Click;
             // 
             // timebaseToolStripMenuItem
             // 
@@ -480,19 +480,19 @@ namespace Neuromaster_V5
             absolutToolStripMenuItem.CheckState = CheckState.Checked;
             absolutToolStripMenuItem.Name = "absolutToolStripMenuItem";
             resources.ApplyResources(absolutToolStripMenuItem, "absolutToolStripMenuItem");
-            absolutToolStripMenuItem.Click += absolutToolStripMenuItem_Click;
+            absolutToolStripMenuItem.Click += AbsolutToolStripMenuItem_Click;
             // 
             // relativeToolStripMenuItem
             // 
             relativeToolStripMenuItem.Name = "relativeToolStripMenuItem";
             resources.ApplyResources(relativeToolStripMenuItem, "relativeToolStripMenuItem");
-            relativeToolStripMenuItem.Click += absolutToolStripMenuItem_Click;
+            relativeToolStripMenuItem.Click += AbsolutToolStripMenuItem_Click;
             // 
             // resyncTimeBaseToolStripMenuItem
             // 
             resyncTimeBaseToolStripMenuItem.Name = "resyncTimeBaseToolStripMenuItem";
             resources.ApplyResources(resyncTimeBaseToolStripMenuItem, "resyncTimeBaseToolStripMenuItem");
-            resyncTimeBaseToolStripMenuItem.Click += resyncTimeBaseToolStripMenuItem_Click;
+            resyncTimeBaseToolStripMenuItem.Click += ResyncTimeBaseToolStripMenuItem_Click;
             // 
             // fTDIToolStripMenuItem
             // 
@@ -504,25 +504,25 @@ namespace Neuromaster_V5
             // 
             statusToolStripMenuItem.Name = "statusToolStripMenuItem";
             resources.ApplyResources(statusToolStripMenuItem, "statusToolStripMenuItem");
-            statusToolStripMenuItem.Click += statusToolStripMenuItem_Click;
+            statusToolStripMenuItem.Click += StatusToolStripMenuItem_Click;
             // 
             // resetDeviceToolStripMenuItem
             // 
             resetDeviceToolStripMenuItem.Name = "resetDeviceToolStripMenuItem";
             resources.ApplyResources(resetDeviceToolStripMenuItem, "resetDeviceToolStripMenuItem");
-            resetDeviceToolStripMenuItem.Click += resetDeviceToolStripMenuItem_Click;
+            resetDeviceToolStripMenuItem.Click += ResetDeviceToolStripMenuItem_Click;
             // 
             // resetPortToolStripMenuItem
             // 
             resetPortToolStripMenuItem.Name = "resetPortToolStripMenuItem";
             resources.ApplyResources(resetPortToolStripMenuItem, "resetPortToolStripMenuItem");
-            resetPortToolStripMenuItem.Click += resetPortToolStripMenuItem_Click;
+            resetPortToolStripMenuItem.Click += ResetPortToolStripMenuItem_Click;
             // 
             // cyclePortToolStripMenuItem
             // 
             cyclePortToolStripMenuItem.Name = "cyclePortToolStripMenuItem";
             resources.ApplyResources(cyclePortToolStripMenuItem, "cyclePortToolStripMenuItem");
-            cyclePortToolStripMenuItem.Click += cyclePortToolStripMenuItem_Click;
+            cyclePortToolStripMenuItem.Click += CyclePortToolStripMenuItem_Click;
             // 
             // sDCardToolStripMenuItemTop
             // 
@@ -534,13 +534,13 @@ namespace Neuromaster_V5
             // 
             resources.ApplyResources(readBackToolStripMenuItem, "readBackToolStripMenuItem");
             readBackToolStripMenuItem.Name = "readBackToolStripMenuItem";
-            readBackToolStripMenuItem.Click += readBackToolStripMenuItem_Click;
+            readBackToolStripMenuItem.Click += ReadBackToolStripMenuItem_Click;
             // 
             // convertToTxtToolStripMenuItem
             // 
             convertToTxtToolStripMenuItem.Name = "convertToTxtToolStripMenuItem";
             resources.ApplyResources(convertToTxtToolStripMenuItem, "convertToTxtToolStripMenuItem");
-            convertToTxtToolStripMenuItem.Click += convertToTxtToolStripMenuItem_Click;
+            convertToTxtToolStripMenuItem.Click += ConvertToTxtToolStripMenuItem_Click;
             // 
             // saveDataToFileToolStripMenuItem
             // 
@@ -552,13 +552,13 @@ namespace Neuromaster_V5
             // 
             saveDataToFileToolStripMenuItem1.Name = "saveDataToFileToolStripMenuItem1";
             resources.ApplyResources(saveDataToFileToolStripMenuItem1, "saveDataToFileToolStripMenuItem1");
-            saveDataToFileToolStripMenuItem1.Click += saveDataToFileToolStripMenuItem_Click;
+            saveDataToFileToolStripMenuItem1.Click += SaveDataToFileToolStripMenuItem_Click;
             // 
             // readDataFromFileToolStripMenuItem
             // 
             readDataFromFileToolStripMenuItem.Name = "readDataFromFileToolStripMenuItem";
             resources.ApplyResources(readDataFromFileToolStripMenuItem, "readDataFromFileToolStripMenuItem");
-            readDataFromFileToolStripMenuItem.Click += readDataFromFileToolStripMenuItem_Click;
+            readDataFromFileToolStripMenuItem.Click += ReadDataFromFileToolStripMenuItem_Click;
             // 
             // openFileDialog_cfg
             // 
@@ -569,7 +569,7 @@ namespace Neuromaster_V5
             // tmrFileDataReader
             // 
             tmrFileDataReader.Interval = 5;
-            tmrFileDataReader.Tick += tmrFileDataReader_Tick;
+            tmrFileDataReader.Tick += TmrFileDataReader_Tick;
             // 
             // tlpMeasure
             // 
@@ -663,7 +663,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.Button btGetFirmwareVersion;
         private System.Windows.Forms.Timer tmrSDDataReader;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private Math_Net_nuget.ucSignalAnalyser ucSignalAnalyser1;
+        private MathNetNuget.ucSignalAnalyser ucSignalAnalyser1;
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private System.Windows.Forms.RichTextBox txtStatus;

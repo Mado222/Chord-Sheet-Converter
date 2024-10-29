@@ -30,7 +30,7 @@ namespace FeedbackDataLib_GUI
             int idx_Track = Link_Track_ModuleConfig.Get_idx_Track(HWChannelNumber, SWChannelNumber);
             if (idx_Track >= 0)
             {
-                this.AddPoint(idx_Track, cYvsTimeData);
+                AddPoint(idx_Track, cYvsTimeData);
             }
         }
 
@@ -55,7 +55,8 @@ namespace FeedbackDataLib_GUI
                         cnt_active_swchannels++;
                         double max = ModuleInfo.SWChannels[i].SkalMax;
                         double min = ModuleInfo.SWChannels[i].SkalMin;
-                        if (double.IsInfinity(max) || double.IsInfinity(min)) {
+                        if (double.IsInfinity(max) || double.IsInfinity(min))
+                        {
                             max = 10000;
                             min = -10000;
                         }
@@ -71,8 +72,8 @@ namespace FeedbackDataLib_GUI
                 }
             }
         }
-          
-       
+
+
         public void SetupFlowChart_for_Module_Default(List<CModuleBase> ModuleInfos)
         {
             Stop();

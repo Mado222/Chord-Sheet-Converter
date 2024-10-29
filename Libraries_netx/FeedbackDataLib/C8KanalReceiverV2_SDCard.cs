@@ -42,10 +42,10 @@ namespace FeedbackDataLib
             {
                 try
                 {
-                    FileStream fs = new FileStream(SDCardConnection.PathToConfigFile,
+                    FileStream fs = new(SDCardConnection.PathToConfigFile,
                                       FileMode.Open,
                                       FileAccess.Read);
-                    BinaryReader br = new BinaryReader(fs);
+                    BinaryReader br = new(fs);
                     long numBytes = new FileInfo(SDCardConnection.PathToConfigFile).Length;
                     byte[] AllData = br.ReadBytes((int)numBytes);
                     br.Close();
@@ -71,7 +71,7 @@ namespace FeedbackDataLib
         }
 
         //private CByteRingpuffer InBufferSD = new CByteRingpuffer(1024);
-        public void ProcessData()
+        public static void ProcessData()
         {
 
         }
@@ -148,7 +148,7 @@ namespace FeedbackDataLib
         public bool CheckConnection_Start_trytoConnectWorker()
         {
             //Jetzt Verbinding herstellen
-            this.Connect_via_tryToConnectWorker();
+            Connect_via_tryToConnectWorker();
             return true;
         }
 

@@ -26,7 +26,7 @@ namespace XBeeLib
 
         public const byte StartDelimiter = 0x7E;
         public const ushort Default16BitAddress = 0xFFFE;
-       
+
     }
 
 }

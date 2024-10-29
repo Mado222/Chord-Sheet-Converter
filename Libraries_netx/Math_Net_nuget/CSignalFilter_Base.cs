@@ -1,8 +1,8 @@
 ﻿using MathNet.Filtering;
 
-namespace Math_Net_nuget
+namespace MathNetNuget
 {
-    public class CSignalFilter_Base
+    public class CSignalFilterBase
     {
         public enum enumSignalFilterType
         {
@@ -20,7 +20,7 @@ namespace Math_Net_nuget
         protected MathNet.Filtering.OnlineFilter _SignalFilter;
 
 
-        public CSignalFilter_Base(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order=2)
+        public CSignalFilterBase(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order = 2)
         {
             this.sampleRate = sampleRate;
             this.fg = fg;
@@ -30,5 +30,5 @@ namespace Math_Net_nuget
     }
 }
 
-    
+
 
