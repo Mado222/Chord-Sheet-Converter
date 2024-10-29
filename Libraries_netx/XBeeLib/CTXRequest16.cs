@@ -46,13 +46,13 @@ namespace XBeeLib
         /// </summary>
         override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new()
-            {
+            List<byte> FrameData =
+            [
                 //FrameData Byte 0
                 APID,
                 //FrameData Byte 1
                 frameId
-            };
+            ];
 
             //FrameData Byte 2-3: 16 Bit Destination Address
             byte[] be = BitConverter.GetBytes(_DestinationAddress16);

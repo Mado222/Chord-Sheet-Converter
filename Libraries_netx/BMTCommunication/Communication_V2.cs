@@ -1,12 +1,8 @@
-/*
-*/
-
 using WindControlLib;
-using BMTCommunicationLib;
 
 namespace BMTCommunication
 {
-    public enum enumConnectionStatus : int
+    public enum EnumConnectionStatus : int
     {
         Not_Connected,
         Connected,
@@ -19,7 +15,7 @@ namespace BMTCommunication
         USB_reconnected
     }
 
-    public enum enumTimQueryStatus : int
+    public enum EnumTimQueryStatus : int
     {
         no_Special,
         isSync
@@ -52,14 +48,12 @@ namespace BMTCommunication
         //Properties
         int ReceiverTimerInterval { get; }
         bool EnableDataReadyEvent { get; set; }
-        //int DeviceID { get; set;}       //Siehe Datenprotokoll
-        //bool CheckDeviceID { get; set;}	//Es werden nur Daten mit DeviceID weitergegeben
         bool EnableDataReceiving { get; set; }  //Die dieses Interface implementierende Komponente empfängt keine Daten!
         byte[] GetCommand { get; }
 
         //Methodes
         void GetData(ref List<CDataIn> Data);
-        enumConnectionStatus GetConnectionStatus();
+        EnumConnectionStatus GetConnectionStatus();
         int SendByteData(byte[] DataOut, int NumData);      //Ermölicht den direkten Zugriff auf die Kommunikation
         int GetByteData(ref byte[] DataIn, int NumData, int Offset);        //Rückgabe der tatsächlich gelesenen Daten
         int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut);

@@ -10,20 +10,20 @@ namespace FeedbackDataLib
         /// <summary>
         /// RS232 worker thread, started in tryToConnectWorker_DoWork
         /// </summary>
-        private BackgroundWorker RS232DataDistributorThread;
+        private BackgroundWorker? RS232DataDistributorThread;
 
         /// <summary>
         /// This thread continously gets the data from the RS232ReceiverThread and raises OnDataReadyComm
         /// Thread is required since RS232WorkerThread should not call events due to unpredictable time delays
         /// </summary>
-        void RS232DataDistributorThread_DoWork(object sender, DoWorkEventArgs e)
+        private void RS232DataDistributorThread_DoWork(object sender, DoWorkEventArgs e)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232DataDistributorThread";
 
             try
             {
-                while (!RS232DataDistributorThread.CancellationPending)
+                while (RS232DataDistributorThread != null && !RS232DataDistributorThread.CancellationPending)
                 {
                     if (RPDeviceCommunicationToPC is not null)
                     {
@@ -31,7 +31,6 @@ namespace FeedbackDataLib
                         if (RPDeviceCommunicationToPC.Count > 0)
                         {
                             //Fire event
-
                             OnDeviceCommunicationToPC(buf: RPDeviceCommunicationToPC.Pop());
                         }
                     }

@@ -16,23 +16,33 @@ namespace FeedbackDataLib
         /// </remarks>
         /// <param name="sender"></param>
         /// <param name="e">DoWorkEventArgs</param>
-        void TryToConnectWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void TryToConnectWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "tryToConnectWorker";
+
+            if (tryToConnectWorker is null)
+            {
+                throw new InvalidOperationException("The connection worker has not been initialized.");
+            }
+
+            if (Seriell32 is null)
+            {
+                throw new InvalidOperationException("The serial connection is not set.");
+            }
 
             while (!tryToConnectWorker.CancellationPending)
             {
                 if (!IsConnected)
                 {
-                    ConnectionStatus = enumConnectionStatus.Connecting;
+                    ConnectionStatus = EnumConnectionStatus.Connecting;
                     try
                     {
-                        if (Seriell32.IsOpen)
+                        if (Seriell32 != null && Seriell32.IsOpen)
                             Seriell32.Close();
-                        if (!Seriell32.Open())
+                        if (Seriell32 != null && !Seriell32.GetOpen())
                         {
-                            ConnectionStatus = enumConnectionStatus.PortError;
+                            ConnectionStatus = EnumConnectionStatus.PortError;
                             IsConnected = false;
                             //Thread stoppen
                             Stop_RS232ReceiverThread();
@@ -41,7 +51,7 @@ namespace FeedbackDataLib
                     }
                     catch (Exception)
                     {
-                        ConnectionStatus = enumConnectionStatus.PortError;
+                        ConnectionStatus = EnumConnectionStatus.PortError;
                         IsConnected = false;
                         //Thread stoppen
                         Stop_RS232ReceiverThread();
@@ -60,7 +70,9 @@ namespace FeedbackDataLib
                             //Thread starten
                             //LastAliveSignal = DateTime.Now;
                             RS232ReceiverThread = new BackgroundWorker();
+#pragma warning disable CS8622
                             RS232ReceiverThread.DoWork += new DoWorkEventHandler(RS232ReceiverThread_DoWork);
+#pragma warning restore CS8622
                             RS232ReceiverThread.WorkerSupportsCancellation = true;
                             RS232ReceiverThread.RunWorkerAsync();
 
@@ -76,7 +88,7 @@ namespace FeedbackDataLib
                     }
                     if (!IsConnected)
                     {
-                        ConnectionStatus = enumConnectionStatus.Not_Connected;
+                        ConnectionStatus = EnumConnectionStatus.Not_Connected;
                         IsConnected = false;
                         Seriell32?.Close();
                         //ggf Thread stoppen
@@ -87,7 +99,7 @@ namespace FeedbackDataLib
             if (IsConnected)
             {
                 //CDelay.Delay_ms(3000);
-                ConnectionStatus = enumConnectionStatus.Connected;
+                ConnectionStatus = EnumConnectionStatus.Connected;
             }
 #if DEBUG
             Debug.WriteLine("tryToConnectWorker Closed");
@@ -108,7 +120,7 @@ namespace FeedbackDataLib
                 if (!WasOpen)
                 {
                     //Open
-                    if (!Seriell32.Open())
+                    if (!Seriell32.GetOpen())
                         return false;
                 }
                 bool ret = CNeuromaster.Check4Neuromaster(Seriell32, ConnectSequToSend, ConnectSequToReturn, _CommandChannelNo);

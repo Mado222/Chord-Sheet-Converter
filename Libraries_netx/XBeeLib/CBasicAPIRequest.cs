@@ -55,11 +55,11 @@ namespace XBeeLib
         virtual protected byte[] MakeBasicDataFrame(List<byte> FrameData, XBAPIMode ApiMode)
         {
 
-            List<byte> CompleteAPICommand = new()
-            {
+            List<byte> CompleteAPICommand =
+            [
                 //API Command Byte 0: Start Delimiter
                 CXBAPICommands.StartDelimiter
-            };
+            ];
 
             //API Command Byte 1: Length MSB, Byte 2: Length LSB
             byte[] be = BitConverter.GetBytes((ushort)FrameData.Count);

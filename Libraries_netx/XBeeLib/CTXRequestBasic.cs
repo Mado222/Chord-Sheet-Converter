@@ -23,7 +23,7 @@ namespace XBeeLib
             }
         }
 
-        protected List<byte> _rfData = new();
+        protected List<byte> _rfData = [];
         public List<byte> rfData
         {
             get { return _rfData; }

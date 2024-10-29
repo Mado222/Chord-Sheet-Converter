@@ -391,7 +391,7 @@ namespace MathNetNuget
         public void SetIPIS(double HanninngPercentage, double[] IPIS, double[] IPITime)
         {
             //Values are not equidistant ... make them and generate eqidistant time base; upsample to vals with next power of two
-            int numVals = CMyTools.getNearestPowerofTwoVal(IPIS.Length);
+            int numVals = CMyTools.GetNearestPowerofTwoVal(IPIS.Length);
 
             //Calculate from original, uninterpolated values
 

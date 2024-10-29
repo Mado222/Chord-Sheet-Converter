@@ -13,7 +13,8 @@ namespace BMTCommunicationLib
         int BaudRate { get; set; }
         bool IsOpen { get; }
         void Close();
-        bool Open();
+        bool GetOpen();
+
         int ReadTimeout { get; set; }
         int WriteTimeout { get; set; }
         StopBits StopBits { get; set; }
@@ -34,7 +35,7 @@ namespace BMTCommunicationLib
         bool DtrEnable { get; set; }
         bool RtsEnable { get; set; }
         bool DsrHolding { get; }
-        DateTime Now(enumTimQueryStatus TimQueryStatus);
+        DateTime Now(EnumTimQueryStatus TimQueryStatus);
     }
 
 
@@ -105,7 +106,7 @@ namespace BMTCommunicationLib
             }
         }
 
-        public virtual bool Open()
+        public virtual bool GetOpen()
         {
             if (_SerialPort == null) return false;
 
@@ -123,7 +124,6 @@ namespace BMTCommunicationLib
 
             return _SerialPort?.IsOpen ?? false;
         }
-
 
         public int ReadTimeout
         {
@@ -306,7 +306,7 @@ namespace BMTCommunicationLib
             set => _lastErrorString = value;
         }
 
-        public DateTime Now(enumTimQueryStatus timQueryStatus) => hp_Timer.Now;
+        public DateTime Now(EnumTimQueryStatus timQueryStatus) => hp_Timer.Now;
 
 
         #endregion

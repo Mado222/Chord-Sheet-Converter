@@ -68,7 +68,7 @@ namespace ComponentsLib_GUI
                 _Seriell32 ??= new CSerialPortWrapper();
                 _Seriell32.PortName = ComPort;
                 _Seriell32.BaudRate = 115200;
-                _Seriell32.Open();
+                _Seriell32.GetOpen();
                 if (_Seriell32.IsOpen)
                 {
                     //Check for Generator

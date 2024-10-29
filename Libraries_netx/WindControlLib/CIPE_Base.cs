@@ -72,7 +72,7 @@ namespace WindControlLib
 
         private class CMicrochip_reg_key
         {
-            public List<string> SubkeyNames = new();
+            public List<string> SubkeyNames = [];
             public string RegKey = "";
 
             public CMicrochip_reg_key(string[] subkeyNames, string regKey)
@@ -94,7 +94,7 @@ namespace WindControlLib
             if (File.Exists(path))
                 return path;
 
-            List<CMicrochip_reg_key> Microchip_reg_keys = new();
+            List<CMicrochip_reg_key> Microchip_reg_keys = [];
 
             //Achtung ob von 32 oder 64 bit SW darauf zugegriffen wird ... ohne Massnahmen 
             //liest 32bit SW immer von "SOFTWARE\WOW6432Node\Microchip"
@@ -153,7 +153,7 @@ namespace WindControlLib
 
         public List<CMicrochip_Programmer> Get_Available_Programmers()
         {
-            List<CMicrochip_Programmer> ret = new();
+            List<CMicrochip_Programmer> ret = [];
             string status = "";
 
             if (Operate_IPE("-T", ref status))

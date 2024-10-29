@@ -20,7 +20,7 @@ namespace FeedbackDataLib
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CSerialModule_MDB
     {
-        public string SerialNumber { get; set; }
+        public string SerialNumber { get; set; } = "";
         public enumModuleType Type { get; set; } = enumModuleType.cModuleTypeEmpty;
         public float Ampl1 { get; set; } = 0;
         public float Ampl1_soll { get; set; }
@@ -67,7 +67,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Gets or sets the dt.
         /// </summary>
-        public DateTime dt
+        public DateTime Dt
         {
             get { return _dt; }
             set { UpdateFromDateTime(value); }
@@ -155,20 +155,14 @@ namespace FeedbackDataLib
     public class CNMFirmwareVersion
     {
 
-        private byte[] _uuid = new byte[16];
+        private readonly byte[] _uuid = new byte[16];
         /// <summary>
         /// UUID set in Neuromaster during programing the boot loader
         /// ASCII chars
         /// </summary>
         /// <remarks>
         /// </remarks>
-        public string uuid
-        {
-            get
-            {
-                return System.Text.Encoding.ASCII.GetString(_uuid);
-            }
-        }
+        public string Uuid => System.Text.Encoding.ASCII.GetString(_uuid);
 
         public ushort _HWVersion = 0;
 
@@ -264,6 +258,7 @@ namespace FeedbackDataLib
         private int _free_sector_count;
         private ushort _sector_size; //unsigned short 
         private byte _type;          //unsigned char
+
         private byte _error;     //unsigned char
 
         /// <summary>
@@ -291,7 +286,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Possible SD Card types according to used PIC library
         /// </summary>
-        public enum enSDCardType
+        public enum EnSDCardType
         {
             CT_MMC = 0x01,                      /* MMC ver 3 */
             CT_SD1 = 0x02,                      /* SD ver 1 */
@@ -303,18 +298,9 @@ namespace FeedbackDataLib
         /// <summary>
         /// SD Card types according to used PIC library
         /// </summary>
-        public enSDCardType SDCardType
+        public EnSDCardType SDCardType
         {
-            get { return (enSDCardType)_type; }
-        }
-
-
-        /// <summary>
-        /// Sector_size of the SD card
-        /// </summary>
-        private ushort Sector_size
-        {
-            get { return _sector_size; }
+            get { return (EnSDCardType)_type; }
         }
 
         /// <summary>
@@ -331,6 +317,4 @@ namespace FeedbackDataLib
             return ptr;
         }
     }
-
-
 }

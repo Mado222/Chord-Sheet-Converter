@@ -205,8 +205,8 @@ vergebenen ids gibt, weiss ich nicht.
         /// </remarks>
         public static List<CComPortInfo> GetComPortInfo(string Driver_Device_Description_SearchString, string PID_VID_SerachString, string CurrentControlSet_SearchString)
         {
-            List<CComPortInfo> temp = new();
-            List<CComPortInfo> ret = new();
+            List<CComPortInfo> temp = [];
+            List<CComPortInfo> ret = [];
 
             //lower case
             Driver_Device_Description_SearchString = Driver_Device_Description_SearchString.ToLower();
@@ -311,12 +311,12 @@ vergebenen ids gibt, weiss ich nicht.
                         if (rk != null)
                         {
                             string[] AllEntriesOfMainDir = rk.GetSubKeyNames();
-                            List<string> SelectedEntriesOfMainDir = new();
+                            List<string> SelectedEntriesOfMainDir = [];
 
                             //Select only relevant Subkeys
                             foreach (string entry in AllEntriesOfMainDir)
                             {
-                                if (entry.ToLower().Contains(CurrentControlSet_SearchString.ToLower()))
+                                if (entry.Contains(CurrentControlSet_SearchString, StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     SelectedEntriesOfMainDir.Add(entry);
                                 }
@@ -437,7 +437,7 @@ vergebenen ids gibt, weiss ich nicht.
         /// <returns>list of available COM Ports, containing the search string</returns>
         public static List<string> GetActiveComPorts(string SearchString)
         {
-            List<string> ret = new();
+            List<string> ret = [];
             try
             {
                 ManagementObjectSearcher searcher = new("root\\CIMV2", "SELECT * FROM Win32_PnPEntity");

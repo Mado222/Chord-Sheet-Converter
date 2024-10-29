@@ -10,14 +10,10 @@ namespace ComponentsLib_GUI
     /// <summary>
     /// Defines the editing control for the DataGridViewNumericUpDownCell custom cell type.
     /// </summary>
-    class DataGridViewNumericUpDownEditingControl : NumericUpDown, IDataGridViewEditingControl
+    public class DataGridViewNumericUpDownEditingControl : NumericUpDown, IDataGridViewEditingControl
     {
-        // Needed to forward keyboard messages to the child TextBox control.
-        [System.Runtime.InteropServices.DllImport("USER32.DLL", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
-
         // The grid that owns this editing control
-        private DataGridView dataGridView;
+        private DataGridView dataGridView = new ();
         // Stores whether the editing control's value has changed or not
         private bool valueChanged;
         // Stores the row index in which the editing control resides
@@ -37,10 +33,16 @@ namespace ComponentsLib_GUI
         /// <summary>
         /// Property which caches the grid that uses this editing control
         /// </summary>
-        public virtual DataGridView EditingControlDataGridView
+        public virtual DataGridView? EditingControlDataGridView
         {
             get => dataGridView;
-            set => dataGridView = value;
+            set
+            {
+                if (value != null)
+                {
+                    dataGridView = value;
+                }
+            }
         }
 
         /// <summary>
@@ -337,11 +339,15 @@ namespace ComponentsLib_GUI
         {
             if (Controls[1] is TextBox textBox)
             {
-                _ = SendMessage(textBox.Handle, m.Msg, m.WParam, m.LParam);
+                // Set focus to the inner TextBox control
+                textBox.Focus();
+
+                // Return true to indicate the message was processed
                 return true;
             }
             else
             {
+                // Fall back to the base method if no inner TextBox control is found
                 return base.ProcessKeyEventArgs(ref m);
             }
         }

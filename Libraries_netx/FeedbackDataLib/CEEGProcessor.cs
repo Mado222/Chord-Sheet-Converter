@@ -65,7 +65,7 @@ namespace FeedbackDataLib
 
         private void Update()
         {
-            num_samples_to_calc = CMyTools.getNearestPowerofTwoVal(fftWindowWidth_ms / sampleInt_ms);
+            num_samples_to_calc = CMyTools.GetNearestPowerofTwoVal(fftWindowWidth_ms / sampleInt_ms);
             fftWindowWidth_ms = num_samples_to_calc * sampleInt_ms;
             RP = new CRingpuffer(num_samples_to_calc)
             { IgnoreOverflowDuringPush = true };
@@ -139,7 +139,7 @@ namespace FeedbackDataLib
 
         public double Get_EEG_Band_Value(int idx_Band)
         {
-            return _CEEG_Spectrum.EEG_Bands[idx_Band].value;
+            return _CEEG_Spectrum.EEG_Bands[idx_Band].Value;
         }
     }
 }

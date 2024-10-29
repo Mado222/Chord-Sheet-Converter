@@ -1,5 +1,4 @@
 ﻿using FeedbackDataLib.Modules;
-using System.Collections.Generic;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -20,8 +19,9 @@ namespace FeedbackDataLib
             return moduleInfos;
         }
 
-
+#pragma warning disable CS0067
         public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
+#pragma warning restore CS0067
 
         public C8KanalDevice2()
         {
@@ -66,7 +66,7 @@ namespace FeedbackDataLib
         /// Count Modules of same type and Generate/Set Virtual ID
         /// </remarks>
         //public void UbpdateModuleInfoFrom_ByteArray(byte[] InBuf, bool Update_from_xml_File)
-        public bool UbpdateModuleInfoFrom_ByteArray(byte[] InBuf)
+        public bool UpdateModuleInfoFrom_ByteArray(byte[] InBuf)
         {
             uint[] cntTypes = new uint[Enum.GetNames(typeof(enumModuleType)).Length];
 

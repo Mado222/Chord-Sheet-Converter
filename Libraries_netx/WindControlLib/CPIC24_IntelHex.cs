@@ -26,7 +26,7 @@ namespace WindControlLib
         public override void Add_to_MemoryMirror(byte[] Data, uint BeginAddress, bool Overwrite, byte Addedchar = 0)
         {
             //Add zero values
-            List<byte> mem_vals_list = new();
+            List<byte> mem_vals_list = [];
 
             int cnt = 0;
             while (cnt < Data.Length - 1)

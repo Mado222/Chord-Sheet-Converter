@@ -43,7 +43,7 @@ namespace XBeeLib
             set { _IsPANBroadcast = value; }
         }
 
-        protected List<byte> _rfData = new();
+        protected List<byte> _rfData = [];
         /// <summary>
         /// received RF data
         /// </summary>
@@ -72,7 +72,7 @@ namespace XBeeLib
                 IsPANBroadcast = true;
 
             //RF-Data 
-            List<byte> ByteListOfRFData = new();
+            List<byte> ByteListOfRFData = [];
             while (listEnum.MoveNext())
             {
                 ByteListOfRFData.Add(listEnum.Current);

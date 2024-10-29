@@ -191,7 +191,7 @@ namespace WindControlLib
         {
             lock (CRingpufferLock)
             {
-                List<double> _AllData = new();
+                List<double> _AllData = [];
                 if (BufFilled)
                 {
                     int TempReadPtr = WritePtr;
@@ -282,6 +282,7 @@ namespace WindControlLib
             }
         }
 
+        /*
         private void DecrementPointer(ref int ptr)
         {
             ptr--;
@@ -289,7 +290,7 @@ namespace WindControlLib
             {
                 ptr = intsize - 1;
             }
-        }
+        }*/
     }
 
     /// <summary>
@@ -457,13 +458,9 @@ namespace WindControlLib
     /// Daten Klasse zur Darstellung y1...yx vs. time
     /// und Farbe des Punktes
     /// </summary>
-    public class CYvsTimeDataColor : CYvsTimeData
+    public class CYvsTimeDataColor(int ysize) : CYvsTimeData(ysize)
     {
         public Color DotColor;
-
-        public CYvsTimeDataColor(int ysize) : base(ysize)
-        {
-        }
 
         public virtual void Copy(CYvsTimeDataColor c)
         {

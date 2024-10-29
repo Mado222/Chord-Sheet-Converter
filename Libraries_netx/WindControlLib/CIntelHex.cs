@@ -102,8 +102,8 @@ namespace WindControlLib
             bool EOFRecord;
             int LineNo_in_HexFileLines = -1;
 
-            HexFile = new List<CHexfileEntry>();
-            HexFileTextLines = new List<string>();
+            HexFile = [];
+            HexFileTextLines = [];
 
             System.IO.StreamReader InFile = new(HEXFileName);
 
@@ -243,7 +243,7 @@ namespace WindControlLib
                     if ((HexFile[i].MemoryLocation <= StartAddress) && (HexFile[i + 1].MemoryLocation > StartAddress))
                     {
                         int cnt = 0; //Data.Length;
-                        List<int> Edited_HexFile_Entries = new();
+                        List<int> Edited_HexFile_Entries = [];
 
                         //Record gefunden, jetzt ersetzen wir die Bytes
                         while ((cnt < Data.Length) && (i < HexFile.Count))
@@ -447,7 +447,7 @@ namespace WindControlLib
         {
             System.IO.StreamWriter OutFile = new(HEXFileName, false);
             //Walk through memory in Blocks of 16
-            List<byte> line = new();
+            List<byte> line = [];
 
             ushort ExtendedAdress = 0;
             ushort LastExtendedAdress = 0;
@@ -465,9 +465,9 @@ namespace WindControlLib
                 }
 
 
-                List<byte[]> accessedBlocks = new();
+                List<byte[]> accessedBlocks = [];
                 List<byte> acessedblock = null;
-                List<ushort> accessedBlocks_startAdresses = new();
+                List<ushort> accessedBlocks_startAdresses = [];
 
 
                 for (int ptrBlock = 0; ptrBlock < 16; ptrBlock++)
@@ -476,7 +476,7 @@ namespace WindControlLib
                     {
                         if (acessedblock == null)
                         {
-                            acessedblock = new List<byte>();
+                            acessedblock = [];
                             accessedBlocks_startAdresses.Add((ushort)(i + ptrBlock));
                         }
                         acessedblock.Add(HexMemoryMirror.value[i + ptrBlock]);
@@ -530,13 +530,13 @@ namespace WindControlLib
         {
             //OutFile.WriteLine(":02 0000 04 0000 fa");
 
-            List<byte> line = new()
-            {
+            List<byte> line =
+            [
                 2,    //Always bytes
                 0,    //Adress is 0x0000
                 0,
                 4    //Type
-            };
+            ];
             byte[] adr = BitConverter.GetBytes(HigherByte);
             line.Add(adr[1]);   //Big Endian
             line.Add(adr[0]);

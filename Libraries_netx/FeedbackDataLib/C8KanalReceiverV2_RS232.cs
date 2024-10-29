@@ -61,15 +61,6 @@ namespace FeedbackDataLib
             get { return _RS232_Neurolink_BaudRate; }
         }
 
-
-        /// <summary>
-        /// Base Constructor
-        /// </summary>
-        public C8KanalReceiverV2_RS232()
-        {
-            //Base constructor must be empty that the derived class does not call 
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="C8KanalReceiverV2_RS232" /> class.
         /// </summary>
@@ -147,8 +138,8 @@ namespace FeedbackDataLib
 
         public void Dispose()
         {
-            //throw new NotImplementedException();
             Close();
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -352,7 +352,7 @@ namespace BMTCommunication
             //if (logger.IsInfoEnabled) logger.Info("Getting the string through serial port...");
             string s = string.Empty;
 
-            List<byte> bt = new();
+            List<byte> bt = [];
             byte[] inBuf = new byte[1];
             bool finished = false;
             int numberByteRead;
@@ -621,7 +621,7 @@ namespace BMTCommunication
         /// </summary>
         public List<CXBNodeInformation> XBNodeDiscoverAPI2()
         {
-            List<CXBNodeInformation> NodeInfos = new();
+            List<CXBNodeInformation> NodeInfos = [];
             if (XBCheckCommandMode(true) == 1)
             {
                 //Send ATND Command
@@ -664,7 +664,7 @@ namespace BMTCommunication
 
             int NTmsec = _NodeDiscoverTime * 100 + 300;                //+300ms tolerance
 
-            List<CXBNodeInformation> NodeInfos = new();
+            List<CXBNodeInformation> NodeInfos = [];
 
             if (LocalDevice.APIMode == XBAPIMode.Disabled)
             {
@@ -719,7 +719,7 @@ namespace BMTCommunication
                     //Read Rec Signal Strength
                     NodeInfo.RecSignalStrength = listEnum.Current;
 
-                    List<byte> helpList = new();
+                    List<byte> helpList = [];
                     while (listEnum.MoveNext() && listEnum.Current != 0x00)
                     {
                         helpList.Add(listEnum.Current);
@@ -2065,7 +2065,7 @@ namespace BMTCommunication
                 //Todo: Seriell32 bedient jetzt die DTR Leitung ... sollte aber nicht sein!!!
                 //sollte auf open und close in CXBee connection zugreifen
 
-                if (!Seriell32.IsOpen) Seriell32.Open();
+                if (!Seriell32.IsOpen) Seriell32.GetOpen();
                 if (Seriell32.IsOpen)
                 {
                     //Port OK, now check Baud
@@ -2096,7 +2096,7 @@ namespace BMTCommunication
                 }
             }
 
-            if (!Seriell32.IsOpen) Seriell32.Open();
+            if (!Seriell32.IsOpen) Seriell32.GetOpen();
             if (Seriell32.IsOpen)
             {
                 ret = false; //18.10.2023
@@ -2106,7 +2106,7 @@ namespace BMTCommunication
                     //Check BaudRate - is it the Default BaudRate?
                     if (Seriell32.BaudRate != LocalDeviceDefault_Configuration.BaudRate)
                     {
-                        if (!Seriell32.IsOpen) Seriell32.Open();
+                        if (!Seriell32.IsOpen) Seriell32.GetOpen();
                         if (Seriell32.IsOpen)
                         {
                             //We have to set default Baud Rate
@@ -2164,7 +2164,7 @@ namespace BMTCommunication
             if (NILocal.CompareTo(LocalDevice) != 0)
             {
                 //So we have to set Parameters for Local Device
-                if (!Seriell32.IsOpen) Seriell32.Open();
+                if (!Seriell32.IsOpen) Seriell32.GetOpen();
                 if (Seriell32.IsOpen)
                 {
                     if (XBConfigureLocalDevice(NILocal) > 0)  //Set Params
@@ -2203,7 +2203,7 @@ namespace BMTCommunication
         {
             bool ret = false;
             //Node Discover
-            if (!Seriell32.IsOpen) Seriell32.Open();
+            if (!Seriell32.IsOpen) Seriell32.GetOpen();
             List<CXBNodeInformation> NodeInfos = XBNodeDiscoverAPI();
 
 
@@ -2329,7 +2329,7 @@ namespace BMTCommunication
 
                 try
                 {
-                    Seriell32.Open();
+                    Seriell32.GetOpen();
                 }
                 catch (Exception)
                 {

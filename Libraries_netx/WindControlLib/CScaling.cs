@@ -180,9 +180,9 @@ namespace WindControlLib
                     double[] _pref_deltaTiks = new double[pref_deltaTiks.Length];
                     Array.Copy(pref_deltaTiks, _pref_deltaTiks, pref_deltaTiks.Length);
 
-                    List<double> dif = new();
-                    List<int> list_idx_pref_deltaTiks = new();
-                    List<int> list_no_Tiks = new();
+                    List<double> dif = [];
+                    List<int> list_idx_pref_deltaTiks = [];
+                    List<int> list_no_Tiks = [];
 
                     while (dif.Count < 1)
                     {

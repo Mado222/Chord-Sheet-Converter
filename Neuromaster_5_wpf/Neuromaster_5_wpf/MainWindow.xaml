@@ -1,0 +1,72 @@
+﻿<Window x:Class="Neuromaster_5_wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Neuromaster_5_wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid x:Name="gridMain">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+            <Menu>
+                <!-- Connection Menu -->
+                <MenuItem Header="Connection">
+                    <MenuItem x:Name="miD2xx" Header="D2XX" Click="miConnection_Click" IsChecked="true" />
+                    <MenuItem x:Name="miVirtualCom" Header="Virtual COM" Click="miConnection_Click"/>
+                    <MenuItem x:Name="miSDCard" Header="SD Card" Click="miConnection_Click"/>
+                </MenuItem>
+
+                <!-- Displayed Channels Menu -->
+                <MenuItem Header="Displayed Channels">
+                    <MenuItem x:Name="miSelectedModule" Header="Selected Module" Click="miDisplayChannels_Clicked" />
+                    <MenuItem x:Name="miRawChannels" Header="Raw Channels" Click="miDisplayChannels_Clicked" />
+                    <MenuItem x:Name="miPredefinedChannels" Header="Predefined Channels" Click="miDisplayChannels_Clicked"/>
+                </MenuItem>
+
+                <!-- Scale Values Menu -->
+                <MenuItem Header="Scale Values">
+                    <MenuItem Header="Scaled" />
+                    <MenuItem Header="Unscaled" />
+                </MenuItem>
+
+                <!-- Timebase Menu -->
+                <MenuItem Header="Timebase">
+                    <MenuItem Header="Absolut" />
+                    <MenuItem Header="Relative" />
+                </MenuItem>
+
+                <!-- Resync Timebase Menu -->
+                <MenuItem Header="Resync Timebase" />
+
+                <!-- FTDI Menu -->
+                <MenuItem Header="FTDI">
+                    <MenuItem Header="Status" />
+                    <MenuItem Header="Reset Device" />
+                    <MenuItem Header="Reset Port" />
+                    <MenuItem Header="Cycle Port" />
+                </MenuItem>
+
+                <!-- SD Card Menu -->
+                <MenuItem Header="SD Card">
+                    <MenuItem Header="Read Back" />
+                    <MenuItem Header="Convert to Txt" />
+                </MenuItem>
+
+                <!-- Save Data to File Menu -->
+                <MenuItem Header="Save Data to File">
+                    <MenuItem Header="Save Data to File" />
+                    <MenuItem Header="Read Data from File" />
+                </MenuItem>
+            </Menu>
+        </StackPanel>
+
+    </Grid>
+</Window>

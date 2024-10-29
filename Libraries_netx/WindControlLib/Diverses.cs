@@ -59,7 +59,7 @@ namespace WindControlLib
         /// </summary>
         /// <param name="val">Value to test</param>
         /// <returns>next higher number thats a power of 2</returns>
-        public static int getNearestPowerofTwoVal(double val)
+        public static int GetNearestPowerofTwoVal(double val)
         {
             double Exp = Math.Log(val, 2);
             return (int)Math.Pow(2, Math.Ceiling(Exp));    //Always round to next higher Integer
@@ -89,7 +89,7 @@ namespace WindControlLib
         /// <param name="dblArray">The double array to get the 
         /// average from.</param>
         /// <returns>The average of the double array</returns>
-        public static double getAverageFromDoubleArray(double[] dblArray)
+        public static double GetAverageFromDoubleArray(double[] dblArray)
         {
             double dblResult = 0;
             foreach (double dblValue in dblArray)
@@ -203,25 +203,17 @@ namespace WindControlLib
         public static byte MakeBCDByte(byte val)
         {
             string s = val.ToString("00");
-            return (byte)((Convert.ToByte(Convert.ToByte(s.Substring(0, 1)) << 4)) | Convert.ToByte(s.Substring(1, 1)));
+            return (byte)((Convert.ToByte(Convert.ToByte(s[..1]) << 4)) | Convert.ToByte(s.Substring(1, 1)));
         }
-        public static int FromIntBytestoInt(byte Low, byte High)
+        public static int FromIntBytestoInt(byte low, byte high)
         {
-            int res = (High << 8) + Low;
-            if (res > 0x7fff) res = (0x10000 - res) * -1;
-            return res;
+            int res = (high << 8) | low;
+            return res > 0x7FFF ? res - 0x10000 : res;
         }
         public static void FromInttoIntBytes(int val, ref byte Low, ref byte High)
         {
-
-            if (val < 0)
-            {
-                //2er komplement
-                //val=val*-1;
-                //val=(~(val*-1)+1);
-            }
-            High = CMyConvert.HighByte(val);
-            Low = CMyConvert.LowByte(val);
+            High =HighByte(val);
+            Low = LowByte(val);
         }
 
         public static int FromUIntBytestoInt(byte Low, byte High)
@@ -254,7 +246,7 @@ namespace WindControlLib
             }
             byte[] buf = new byte[idx];
             Buffer.BlockCopy(chars, 0, buf, 0, idx);
-            char[] c = System.Text.Encoding.UTF8.GetChars(chars, 0, idx);
+            char[] c = Encoding.UTF8.GetChars(chars, 0, idx);
             return new string(c);
         }
 
@@ -299,7 +291,7 @@ namespace WindControlLib
         public static byte[] StringToByteArray(string str, int digits_to_group)
         {
             int i = 0;
-            List<byte> btl = new();
+            List<byte> btl = [];
             while (i + digits_to_group <= str.Length)
             {
                 btl.Add(Convert.ToByte((str.Substring(i, digits_to_group)), 16));
@@ -358,7 +350,7 @@ namespace WindControlLib
 
         public CIndexReferencer()
         {
-            idx1 = new List<int>();
+            idx1 = [];
             //idx2 = new List<int>();
         }
 
@@ -410,23 +402,17 @@ namespace WindControlLib
         ///////////////////////////////////////////////////////////////
 
         //The GetTickCount function retrieves the number of milliseconds that have elapsed since the system was started
-#if COMPACT
-        private const string RS232dll = "coredll.dll";		//fuer CE
-#else
-        private const string RS232dll = "kernel32.dll";		//fuer Windows
-#endif
-        [DllImport(RS232dll, SetLastError = true, EntryPoint = "GetTickCount")]
-        static extern uint GetTickCount();
+        private static long GetTickCount => Environment.TickCount64; // Declare the method as partial without a body
 
         public static void Wait(uint Waitms)
         {
             long tsoll, tist;
-            tist = GetTickCount();	//This function retrieves the number of milliseconds that have elapsed since Windows was started
+            tist = GetTickCount;	//This function retrieves the number of milliseconds that have elapsed since Windows was started
             tsoll = tist + Waitms;
 
             while (tist < tsoll)
             {
-                tist = GetTickCount();
+                tist = GetTickCount;
             }
         }
     }
@@ -471,33 +457,33 @@ namespace WindControlLib
 #else
     public class CSave_Binary_Objects
     {
-        public static void WriteToJsonFile<T>(string filePath, T objectToWrite, bool append = false)
+        private readonly JsonSerializerOptions options;
+        public CSave_Binary_Objects()
         {
-            var options = new JsonSerializerOptions
+            options = new()
             {
                 WriteIndented = true // Pretty print the JSON
             };
+        }
 
+        public void WriteToJsonFile<T>(string filePath, T objectToWrite, bool append = false)
+        {
             string jsonString = JsonSerializer.Serialize(objectToWrite, options);
 
             // Determine the file mode based on the append parameter
             FileMode mode = append ? FileMode.Append : FileMode.Create;
 
-            using (FileStream stream = new(filePath, mode))
-            using (StreamWriter writer = new(stream))
-            {
-                writer.Write(jsonString);
-            }
+            using FileStream stream = new(filePath, mode);
+            using StreamWriter writer = new(stream);
+            writer.Write(jsonString);
         }
 
-        public static T ReadFromJsonFile<T>(string filePath)
+        public static T? ReadFromJsonFile<T>(string filePath)
         {
-            using (FileStream stream = new(filePath, FileMode.Open))
-            using (StreamReader reader = new(stream))
-            {
-                string jsonString = reader.ReadToEnd();
-                return JsonSerializer.Deserialize<T>(jsonString);
-            }
+            using FileStream stream = new(filePath, FileMode.Open);
+            using StreamReader reader = new(stream);
+            string jsonString = reader.ReadToEnd();
+            return JsonSerializer.Deserialize<T>(jsonString);
         }
     }
 
@@ -517,16 +503,18 @@ namespace WindControlLib
             PID = pID;
         }
 
-        public string VID { get; set; }
-        public string PID { get; set; }
+        public string VID { get; set; } = "";
+        public string PID { get; set; } = "";
 
+
+        private static readonly string[] separator = ["&", "_"];
         //"VID_0403&PID_6010"
         public virtual string VID_PID
         {
             get { return ("VID_" + VID + "&PID_" + PID); }
             set
             {
-                string[] st = value.Split(new string[] { "&", "_" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] st = value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
                 VID = ""; PID = "";
                 if ((st != null) && (st.Length >= 4))
                 {

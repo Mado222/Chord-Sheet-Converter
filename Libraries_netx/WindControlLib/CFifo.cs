@@ -5,7 +5,7 @@
 
     public class CFifoBuffer<T>
     {
-        private Queue<T> queue;
+        private readonly Queue<T> queue;
         private readonly object lockObject = new();
 
         // Example: CFifoBuffer<byte> data_in;

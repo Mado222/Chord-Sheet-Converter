@@ -336,7 +336,7 @@ namespace BMTCommunicationLib
                 {
                     _ftStatus = myFtdiDevice.ResetDevice();
                     if (!IsOpen)
-                        Open();
+                        GetOpen();
                 }
             }
 #if DEBUG
@@ -358,7 +358,7 @@ namespace BMTCommunicationLib
 #endif
                     _ftStatus = myFtdiDevice.ResetPort();
                     if (!myFtdiDevice.IsOpen)
-                        Open();
+                        GetOpen();
                 }
             }
 
@@ -382,7 +382,7 @@ namespace BMTCommunicationLib
                         while (DateTime.Now < endoftrial)
                         {
                             //Reopen Port
-                            if (Open())
+                            if (GetOpen())
                             {
                                 _ftStatus = FTDI.FT_STATUS.FT_OK;
                                 break;
@@ -455,7 +455,7 @@ namespace BMTCommunicationLib
         /// Opens FTDI Device
         /// </summary>
         /// <returns></returns>
-        public bool Open()
+        public bool GetOpen()
         {
             bool res = false;
             //lock (FTDISettingsLock)
@@ -894,7 +894,7 @@ namespace BMTCommunicationLib
             set { _LastErrorString = value; }
         }
 
-        public DateTime Now(enumTimQueryStatus TimQueryStatus)
+        public DateTime Now(EnumTimQueryStatus TimQueryStatus)
         {
             return hp_Timer.Now;
         }

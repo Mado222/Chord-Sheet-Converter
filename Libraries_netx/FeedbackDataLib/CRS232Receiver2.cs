@@ -88,14 +88,14 @@ namespace FeedbackDataLib
     public partial class CRS232Receiver2 : ICommunication, IDisposable
     {
 
-        private TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
-        private TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 0, 500);
+        private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
+        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 0, 500);
         private byte _CommandChannelNo = 0; //Wird nur im Konstruktor beschrieben
 
         /// <summary>
         /// CRC8 Algorithm
         /// </summary>
-        public CCRC8? CRC8 = null;
+        public CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
 
         public bool SendKeepAlive { get; set; } = true;
 
@@ -143,16 +143,21 @@ namespace FeedbackDataLib
         /// <summary>
         /// Anzahl der Byte die bei einem RS232 Zugriff gelesen werden
         /// </summary>
-        private int _RS232BytetoRead = 4;
 
-        private enumConnectionStatus _ConnectionStatus = enumConnectionStatus.Not_Connected;
-        private enumConnectionStatus _ConnectionStatusOld = enumConnectionStatus.Not_Connected;
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0414
+        private readonly int _RS232BytetoRead = 4;
+#pragma warning restore CS0414
+#pragma warning restore IDE0051 // Remove unused private members
+
+        private EnumConnectionStatus _ConnectionStatus = EnumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus _ConnectionStatusOld = EnumConnectionStatus.Not_Connected;
 
 
         /// <summary>
         /// Gets or sets the ConnectionStatus
         /// </summary>
-        private enumConnectionStatus ConnectionStatus
+        private EnumConnectionStatus ConnectionStatus
         {
             get { return _ConnectionStatus; }
             set
@@ -161,7 +166,7 @@ namespace FeedbackDataLib
             }
         }
 
-        private void SetConnectionStatus(enumConnectionStatus value)
+        private void SetConnectionStatus(EnumConnectionStatus value)
         {
             _ConnectionStatus = value;
             if (_ConnectionStatus != _ConnectionStatusOld)
@@ -271,7 +276,9 @@ namespace FeedbackDataLib
             if (tryToConnectWorker == null)
             {
                 tryToConnectWorker = new BackgroundWorker();
+#pragma warning disable CS8622
                 tryToConnectWorker.DoWork += new DoWorkEventHandler(TryToConnectWorker_DoWork);
+#pragma warning restore CS8622
                 tryToConnectWorker.WorkerSupportsCancellation = true;
             }
             if (!tryToConnectWorker.IsBusy)
@@ -283,7 +290,7 @@ namespace FeedbackDataLib
         {
             if (Seriell32 != null)
             {
-                Seriell32.Open();
+                Seriell32.GetOpen();
                 Seriell32.DtrEnable = false;
                 Seriell32.Close();
             }
@@ -315,10 +322,11 @@ namespace FeedbackDataLib
         public event DeviceCommunicationToPCEventHandler? DeviceCommunicationToPC = null;
         protected virtual void OnDeviceCommunicationToPC(byte[]? buf)
         {
-            DeviceCommunicationToPC?.Invoke(this, buf);
+            if (buf != null)
+                DeviceCommunicationToPC?.Invoke(this, buf);
         }
 
-        public enumConnectionStatus GetConnectionStatus() => ConnectionStatus;
+        public EnumConnectionStatus GetConnectionStatus() => ConnectionStatus;
 
         /// <summary>
         /// Holt alle Daten vom Typ CDataIn aus dem internen Ringpuffer
@@ -360,8 +368,8 @@ namespace FeedbackDataLib
             }
             if (!DataSent)
                 return -1;
-            else
-                return 0;
+
+            return 0;
         }
         /// <summary>
         /// Liest direkt von System.IO.Ports.SerialPort
@@ -377,6 +385,11 @@ namespace FeedbackDataLib
         /// </summary>
         public int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut)
         {
+            if (Seriell32 is null)
+            {
+                throw new InvalidOperationException("The serial connection is not set.");
+            }
+
             int i = Seriell32.ReadTimeout;
             int res = Seriell32.Read(ref DataIn, Offset, NumData);
             Seriell32.ReadTimeout = i;
@@ -387,14 +400,14 @@ namespace FeedbackDataLib
         /// </summary>
         public void ClearReceiveBuffer()
         {
-            Seriell32.DiscardInBuffer();
+            Seriell32?.DiscardInBuffer();
         }
         /// <summary>
         /// Clears the transmit buffer.
         /// </summary>
         public void ClearTransmitBuffer()
         {
-            Seriell32.DiscardOutBuffer();
+            Seriell32?.DiscardOutBuffer();
         }
         /// <summary>
         /// Closes this instance.
@@ -413,6 +426,7 @@ namespace FeedbackDataLib
         public void Dispose()
         {
             CloseAll();
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -276,19 +276,19 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// y_scaled: Calculated in GetValues
         /// </summary>
-        public List<double> y_scaled = new();
+        public List<double> y_scaled = [];
         /// <summary>
         /// y_unscaled: Calculated in GetValues
         /// </summary>
-        public List<double> y_unscaled = new();
+        public List<double> y_unscaled = [];
         /// <summary>
         /// dt: Calculated in GetValues
         /// </summary>
-        public List<DateTime> dt = new();
+        public List<DateTime> dt = [];
         /// <summary>
         /// time_ms: Calculated in GetValues
         /// </summary>
-        public List<int> time_ms = new();
+        public List<int> time_ms = [];
 
         /// <summary>
         /// Get all values of one specific channel
@@ -362,11 +362,11 @@ namespace FeedbackDataLib_GUI
 
             public CValueChannel()
             {
-                time_ms1 = new List<double>();
-                time_ms_rebuilt1 = new List<double>(); ;
-                y_scaled1 = new List<double>();
-                y_unscaled1 = new List<double>();
-                dt1 = new List<DateTime>();
+                time_ms1 = [];
+                time_ms_rebuilt1 = []; ;
+                y_scaled1 = [];
+                y_unscaled1 = [];
+                dt1 = [];
             }
 
             public List<double> time_ms { get => time_ms1; }
@@ -402,14 +402,14 @@ namespace FeedbackDataLib_GUI
 
         public static async Task<List<List<CValueChannel>>> GetAllValues(string FilePath, int Rowstoignore = 6, bool NMrecorded = true, List<CModuleBase> ModuleInfo = null)
         {
-            List<List<CValueChannel>> ret = new();
+            List<List<CValueChannel>> ret = [];
             int[,] sr = new int[7, 4];
             int[,] cnt_time_ms = new int[7, 4];
 
             for (int i = 0; i < 7; i++)
             {
-                List<CValueChannel> cv = new();
-                List<int> _sr = new();
+                List<CValueChannel> cv = [];
+                List<int> _sr = [];
                 for (int j = 0; j < 4; j++)
                 {
                     cv.Add(new CValueChannel());

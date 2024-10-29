@@ -150,8 +150,13 @@ namespace FeedbackDataLib
         /// </summary>
         public bool CheckConnection_Start_trytoConnectWorker()
         {
+            if (XBeeConnection == null)
+            {
+                throw new InvalidOperationException("XBee connection is not initialized. Ensure that the connection is established before attempting this operation.");
+            }
+
             bool ret = false;
-            XBeeConnection.ConfigureEndDeviceTo = CXBeeConnection.enumConfigureEnDeviceTo.Neuromaster;
+            XBeeConnection.ConfigureEndDeviceTo = CXBeeConnection.EnumConfigureEnDeviceTo.Neuromaster;
             if (XBeeConnection.InitXBee())
             {
                 //Jetzt Verbinding herstellen
@@ -162,7 +167,14 @@ namespace FeedbackDataLib
             {
                 try
                 {
-                    _LastXBeeErrorString = XBeeConnection.XBeeSeries1.XBGetLastErrorTxt();
+                    if (XBeeConnection.XBeeSeries1 is not null)
+                    {
+                        _LastXBeeErrorString = XBeeConnection.XBeeSeries1.XBGetLastErrorTxt();
+                    }
+                    else
+                    {
+                        _LastXBeeErrorString = "XBeeConnection.XBeeSeries1 is null";
+                    }
                 }
                 catch
                 {

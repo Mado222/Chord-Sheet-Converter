@@ -57,7 +57,7 @@ namespace FeedbackDataLib
                         //ein sinnloses byte (vorletztes) und ein CRC byte am ende wegnehmen
                         Array.Resize(ref AllData, AllData.Length - 2);
 
-                        Device.UbpdateModuleInfoFrom_ByteArray(AllData);
+                        Device.UpdateModuleInfoFrom_ByteArray(AllData);
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
                         ret = true;
                     }

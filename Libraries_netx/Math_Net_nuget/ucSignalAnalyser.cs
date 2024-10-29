@@ -5,11 +5,10 @@ using WindControlLib;
 
 namespace MathNetNuget
 {
-#pragma warning disable CA1416 // Validate platform compatibility
-    public partial class ucSignalAnalyser : UserControl
+    public partial class UcSignalAnalyser : UserControl
     {
-        private CRingpuffer cache;
-        private System.Windows.Forms.Timer updater;
+        private CRingpuffer cache = new (1000);
+        private readonly System.Windows.Forms.Timer updater = new ();
         private string unit = "_";
 
         private string _HeaderText = "";
@@ -33,26 +32,26 @@ namespace MathNetNuget
             }
         }
 
-        public ucSignalAnalyser()
+        public UcSignalAnalyser()
         {
-            Init(1000);
+            Init(0);
         }
-        public ucSignalAnalyser(int cacheSizeSamples)
+        public UcSignalAnalyser(int cacheSizeSamples)
         {
-            if (cacheSizeSamples > 0)
+            if (cacheSizeSamples != 1000)
                 Init(cacheSizeSamples);
             else
-                Init(1000);
+                Init(0);
         }
 
-        private void Init(int cache_size_samples)
+        private void Init(int cache_size_samples = 0)
         {
             InitializeComponent();
             lblHeader.Text = _HeaderText;
             Setup_tlpMeasure();
-            cache = new CRingpuffer(cache_size_samples);
-            updater = new System.Windows.Forms.Timer();
-            updater.Tick += new EventHandler(updater_Tick);
+            if (cache_size_samples > 0)
+                cache = new CRingpuffer(cache_size_samples);
+            updater.Tick += new EventHandler(Updater_Tick);
         }
 
         void Setup_tlpMeasure()
@@ -75,7 +74,7 @@ namespace MathNetNuget
             }
             else
             {
-                int d = Height / (tlpMeasure.RowCount);
+                int d = Height / tlpMeasure.RowCount;
 
                 for (int i = 0; i < tlpMeasure.RowStyles.Count; i++)
                 {
@@ -84,7 +83,7 @@ namespace MathNetNuget
             }
         }
 
-        void updater_Tick(object sender, EventArgs e)
+        private void Updater_Tick(object? sender, EventArgs e)
         {
             UpdateVals();
         }
@@ -132,8 +131,6 @@ namespace MathNetNuget
 
 
     }
-#pragma warning restore CA1416 // Validate platform compatibility
-
 }
 
 

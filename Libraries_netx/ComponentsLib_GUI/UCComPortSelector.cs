@@ -16,7 +16,7 @@ namespace ComponentsLib_GUI
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.Container? components = null;
-        private ArrayList _ComNo = [];
+        private readonly List<int> ComNo = [];
         private static readonly string RegKey = "Software\\" + Application.CompanyName + "\\" + Application.ProductName + "\\";
         private const int _NumberofComPortstoInvestigate = 16;
 
@@ -92,13 +92,11 @@ namespace ComponentsLib_GUI
         /// <remarks>
         /// Also reads registry to find DefaultCom and sets index accordingly
         /// </remarks>
-        public void Init(string DriverName, WindControlLib.CVID_PID VIDPID = null)
+        public void Init(string DriverName, WindControlLib.CVID_PID? VIDPID= null)
         {
-            _ComNo = new ArrayList();
-
             //Alten Wert fuer COM aus der Registry holen
             string regkey = RegKey + Name + "\\";
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey(regkey, true);
+            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(regkey, true);
             if (rk == null)
             {
                 //Key existiert nicht also anlegen
@@ -107,38 +105,32 @@ namespace ComponentsLib_GUI
             }
             DefaultCom = (string)rk.GetValue("COMPort", "COM1");
             rk.Close();
-            rk = null;
 
             //Get Coms from registry
             //HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Ports
             string key = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Ports";
 
-            new System.Security.Permissions.RegistryPermission(System.Security.Permissions.PermissionState.Unrestricted).Assert();
             try
             {
-                // Access your key.
+                // Access the registry key directly without asserting permissions.
                 rk = Registry.LocalMachine.OpenSubKey(key, false);
             }
-            catch (Exception)
+            catch
             {
                 rk = null;
             }
-            finally
-            {
-                //System.Security.Permissions.RegistryPermission.RevertAssert(DriverName);
-                System.Security.Permissions.RegistryPermission.RevertAssert();
-            }
+
 
             int Index = 0;
             if (rk != null)
             {
                 string[] AllPorts;
-                List<string> ComNames = new();
+                List<string> ComNames = [];
 
                 if (DriverName == "" && VIDPID == null)
                 {
                     AllPorts = rk.GetValueNames();
-                    _ComNo.Clear();
+                    ComNo.Clear();
                     for (int i = 0; i < AllPorts.Length; i++)
                     {
                         if (AllPorts[i].Length > 4)
@@ -147,7 +139,7 @@ namespace ComponentsLib_GUI
                             {
                                 string s = AllPorts[i][..^1];
                                 ComNames.Add(s);
-                                _ComNo.Add(Convert.ToInt32(s[3..]));
+                                ComNo.Add(Convert.ToInt32(s[3..]));
                             }
                         }
                     }
@@ -160,7 +152,7 @@ namespace ComponentsLib_GUI
                     {
                         foreach (CComPortInfo ci in cpi)
                         {
-                            if (ci.FriendlyName.ToLower().Contains(DriverName.ToLower()))
+                            if (ci.FriendlyName.Contains(DriverName, StringComparison.CurrentCultureIgnoreCase))
                                 ComNames.Add(ci.ComName);
                         }
                     }
@@ -168,7 +160,7 @@ namespace ComponentsLib_GUI
                     {
                         foreach (CComPortInfo ci in cpi)
                         {
-                            if (ci.VID_PID.ToLower().Contains(VIDPID.VID_PID.ToLower()))
+                            if (ci.VID_PID.Contains(VIDPID.VID_PID, StringComparison.CurrentCultureIgnoreCase))
                                 ComNames.Add(ci.ComName);
                         }
                     }
@@ -192,12 +184,15 @@ namespace ComponentsLib_GUI
 
         public void DisplayCom(int ComNo)
         {
-            //Find Item
+            // Construct the search string once for efficiency
+            string comString = "Com " + Convert.ToString(ComNo);
+
+            // Find Item
             for (int i = 0; i < Items.Count; i++)
             {
-                if ((string)Items[i] == "Com " + Convert.ToString(ComNo))
+                if (Items[i] as string == comString)
                 {
-                    SelectedItem = "Com " + Convert.ToString(ComNo);
+                    SelectedItem = comString;
                     break;
                 }
             }
@@ -207,14 +202,11 @@ namespace ComponentsLib_GUI
         {
             get
             {
-                if (!DesignMode)
+                if (!DesignMode && ComNo?.Count > SelectedIndex)
                 {
-                    return (int)_ComNo[SelectedIndex];
+                    return ComNo[SelectedIndex];
                 }
-                else
-                {
-                    return 0;
-                }
+                return 0;
             }
         }
     }

@@ -2,6 +2,7 @@ using BMTCommunication;
 using BMTCommunicationLib;
 using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -39,7 +40,8 @@ namespace FeedbackDataLib
             Error_during_XBee_connection = 0x07,
             Error_during_USBcable_connection = 0x08,
             Error_read_ErrorString = 0x09,
-            Connected_via_SDCard = 0x0A
+            Connected_via_SDCard = 0x0A,
+            Error_read_SDCard = 0x0B
         }
 
         private const CFTDI_D2xx.FTDI_Types Accepted_FTDI_Single_Device = CFTDI_D2xx.FTDI_Types.FT_DEVICE_232R;
@@ -92,11 +94,11 @@ namespace FeedbackDataLib
         {
             get
             {
-                if (_ComPortInfo != null)
+                if (ComPortInfo != null)
                 {
                     CVID_PID pv = new()
                     {
-                        VID_PID = _ComPortInfo.VID_PID
+                        VID_PID = ComPortInfo.VID_PID
                     };
                     return pv.PID;
                 }
@@ -115,11 +117,11 @@ namespace FeedbackDataLib
         {
             get
             {
-                if (_ComPortInfo != null)
+                if (ComPortInfo != null)
                 {
                     CVID_PID pv = new()
                     {
-                        VID_PID = _ComPortInfo.VID_PID
+                        VID_PID = ComPortInfo.VID_PID
                     };
                     return pv.VID;
                 }
@@ -141,8 +143,8 @@ namespace FeedbackDataLib
         {
             get
             {
-                if (_ComPortInfo != null)
-                    return _ComPortInfo.VID_PID;
+                if (ComPortInfo != null)
+                    return ComPortInfo.VID_PID;
                 else
                 {
                     CVID_PID pv = new()
@@ -214,20 +216,20 @@ namespace FeedbackDataLib
         }
 
 
-        private enumConnectionStatus _ConnectionStatus = enumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus _ConnectionStatus = EnumConnectionStatus.Not_Connected;
         /// <summary>
         /// Connectionstatus
         /// </summary>
-        public enumConnectionStatus ConnectionStatus
+        public EnumConnectionStatus ConnectionStatus
         {
             get
             {
-                if (_ConnectionStatus == enumConnectionStatus.USB_disconnected ||
-                    _ConnectionStatus == enumConnectionStatus.USB_reconnected)
+                if (_ConnectionStatus == EnumConnectionStatus.USB_disconnected ||
+                    _ConnectionStatus == EnumConnectionStatus.USB_reconnected)
                     return _ConnectionStatus;
                 else
                 {
-                    if (Connection is null) return enumConnectionStatus.Not_Connected;
+                    if (Connection is null) return EnumConnectionStatus.Not_Connected;
                     return Connection.GetConnectionStatus();
                 }
             }
@@ -256,13 +258,7 @@ namespace FeedbackDataLib
             }
         }
 
-
-
-        private CComPortInfo _ComPortInfo = null;
-        public CComPortInfo ComPortInfo
-        {
-            get { return _ComPortInfo; }
-        }
+        public CComPortInfo? ComPortInfo { get; private set; } = null;
         #endregion
 
         #region events
@@ -271,7 +267,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Occurs when Neurolink is disconnected from USB
         /// </summary>
-        public event DeviceDisconnectedEventHandler DeviceDisconnected;
+        public event DeviceDisconnectedEventHandler? DeviceDisconnected;
         /// <summary>
         /// Occurs when Neurolink is disconnected from USB
         /// </summary>
@@ -285,7 +281,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// /// Occurs when Neurolink is re-connected to USB
         /// </summary>
-        public event DeviceConnectedEventHandler DeviceConnected;
+        public event DeviceConnectedEventHandler? DeviceConnected;
         protected virtual void OnDeviceConnected(EnumConnectionResult ConnectionResult)
         {
             DeviceConnected?.Invoke(ConnectionResult);
@@ -410,8 +406,11 @@ namespace FeedbackDataLib
 
                             _8KanalReceiverV2_XBee ??= new C8KanalReceiverV2_XBee(FTDI_D2xx_temp);
 
-                            _8KanalReceiverV2_XBee.RS232Receiver.Send_to_Sleep();
-                            _8KanalReceiverV2_XBee.Close();
+                            if (_8KanalReceiverV2_XBee is not null && _8KanalReceiverV2_XBee.RS232Receiver is not null)
+                            {
+                                _8KanalReceiverV2_XBee.RS232Receiver.Send_to_Sleep();
+                                _8KanalReceiverV2_XBee.Close();
+                            }
                             FTDI_D2xx_temp.Close();
                             FTDI_D2xx_temp.Dispose();
                             ret = EnumConnectionResult.Connected_via_USBCable;
@@ -498,7 +497,8 @@ namespace FeedbackDataLib
                             ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
                             _8KanalReceiverV2_RS232 = new C8KanalReceiverV2_RS232(com_RS232Connection);
 
-                            if (_8KanalReceiverV2_RS232.RS232Receiver.Check4Neuromaster_RS232())
+                            if (_8KanalReceiverV2_RS232 != null && _8KanalReceiverV2_RS232.RS232Receiver != null &&
+                                _8KanalReceiverV2_RS232.RS232Receiver.Check4Neuromaster_RS232())
                             {
                                 //RS232 Connection is OK
                                 ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
@@ -507,8 +507,11 @@ namespace FeedbackDataLib
                                 //Make sure that XBEE is in Sleep
                                 CFTDI_D2xx FTDI_D2xx_temp = new();
                                 _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(com_XBEeeConnection);
-                                _8KanalReceiverV2_XBee.RS232Receiver.Send_to_Sleep();
-                                _8KanalReceiverV2_XBee.Close();
+                                if (_8KanalReceiverV2_XBee != null && _8KanalReceiverV2_XBee.RS232Receiver != null)
+                                {
+                                    _8KanalReceiverV2_XBee.RS232Receiver.Send_to_Sleep();
+                                    _8KanalReceiverV2_XBee.Close();
+                                }
                             }
                         }
 
@@ -542,16 +545,16 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public EnumConnectionResult Init_via_USB_or_XBEE()
         {
-            List<string> coms_XBee = CGetComPorts.GetActiveComPorts(C8KanalReceiverV2_XBee.DriverSearchName);
+            List<string>? coms_XBee = CGetComPorts.GetActiveComPorts(C8KanalReceiverV2_XBee.DriverSearchName);
             List<string> coms_USBCable = [];
-            _ConnectionStatus = enumConnectionStatus.Not_Connected; //Egal auf welchen Wert nur nicht USB_xxx
+            _ConnectionStatus = EnumConnectionStatus.Not_Connected; //Egal auf welchen Wert nur nicht USB_xxx
 
             if ((coms_XBee == null) && (coms_USBCable == null))
             {
                 return EnumConnectionResult.Error_during_Port_scan;
             }
 
-            if ((coms_XBee.Count == 0) && (coms_USBCable.Count == 0))
+            if (coms_XBee != null && (coms_XBee.Count == 0) && (coms_USBCable.Count == 0))
             {
                 //Lets try another name
                 coms_USBCable = CGetComPorts.GetActiveComPorts("USB Serial Port");
@@ -559,7 +562,7 @@ namespace FeedbackDataLib
                     return EnumConnectionResult.No_Active_Neurolink;
             }
 
-            if ((coms_XBee.Count > 1) || (coms_USBCable.Count > 1))
+            if (coms_XBee != null && (coms_XBee.Count > 1) || (coms_USBCable.Count > 1))
             {
                 return EnumConnectionResult.More_than_one_Neurolink_detected;
             }
@@ -578,7 +581,7 @@ namespace FeedbackDataLib
                     {
                         if (c.ComName == coms_USBCable[0])
                         {
-                            _ComPortInfo = c;
+                            ComPortInfo = c;
                             break;
                         }
                     }
@@ -588,23 +591,27 @@ namespace FeedbackDataLib
             else
             {
                 //Connection via XBee possible
-                _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(coms_XBee[0]);
-                ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-
-                //Get more information about the COM Port
-                List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8KanalReceiverV2_XBee.DriverSearchName);
-                if ((ci != null) && (ci.Count >= 1))
+                if (coms_XBee != null && coms_XBee.Count > 0)
                 {
-                    foreach (CComPortInfo c in ci)
+                    _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(coms_XBee[0]);
+                    ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
+
+                    //Get more information about the COM Port
+                    List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8KanalReceiverV2_XBee.DriverSearchName);
+                    if ((ci != null) && (ci.Count >= 1))
                     {
-                        if (c.ComName == coms_XBee[0])
+                        foreach (CComPortInfo c in ci)
                         {
-                            _ComPortInfo = c;
-                            break;
+                            if (c.ComName == coms_XBee[0])
+                            {
+                                ComPortInfo = c;
+                                break;
+                            }
                         }
                     }
+                    return EnumConnectionResult.Connected_via_XBee;
                 }
-                return EnumConnectionResult.Connected_via_XBee;
+                return EnumConnectionResult.Error_during_XBee_connection;
             }
         }
 
@@ -618,62 +625,74 @@ namespace FeedbackDataLib
         /// </remarks>
         public EnumConnectionResult Connect()
         {
-            _ConnectionStatus = enumConnectionStatus.Not_Connected; //Egal auf welchen Wert nur nicht USB_xxx
+            _ConnectionStatus = EnumConnectionStatus.Not_Connected; //Egal auf welchen Wert nur nicht USB_xxx
             if (ConnectionType == EnumNeuromasterConnectionType.XBeeConnection)
             {
                 //Connect via XBee
-                bool XBeePairingScucceded;
-                try
+                if (_8KanalReceiverV2_XBee != null)
                 {
-                    XBeePairingScucceded = _8KanalReceiverV2_XBee.CheckConnection_Start_trytoConnectWorker();
-                }
-                catch
-                {
-                    return EnumConnectionResult.Error_during_XBee_connection;
-                }
+                    bool XBeePairingScucceded;
+                    try
+                    {
+                        XBeePairingScucceded = _8KanalReceiverV2_XBee.CheckConnection_Start_trytoConnectWorker();
+                    }
+                    catch
+                    {
+                        return EnumConnectionResult.Error_during_XBee_connection;
+                    }
 
-                if (XBeePairingScucceded)
-                {
-                    StartUSBMonitoring();
-                    return EnumConnectionResult.Connected_via_XBee;
+                    if (XBeePairingScucceded)
+                    {
+                        StartUSBMonitoring();
+                        return EnumConnectionResult.Connected_via_XBee;
+                    }
+                    else
+                    {
+                        LastErrorString = _8KanalReceiverV2_XBee.LastXBeeErrorString;
+                        return EnumConnectionResult.Error_read_ErrorString;
+                    }
                 }
-                else
-                {
-                    LastErrorString = _8KanalReceiverV2_XBee.LastXBeeErrorString;
-                    return EnumConnectionResult.Error_read_ErrorString;
-                }
+                return EnumConnectionResult.Error_during_XBee_connection ;
             }
 
             else if (ConnectionType == EnumNeuromasterConnectionType.RS232Connection)
             {
-                //Connect via USBCable
-                bool RS232PairingScucceded;
-                try
+                if (_8KanalReceiverV2_RS232 != null)
                 {
-                    RS232PairingScucceded = _8KanalReceiverV2_RS232.CheckConnection_Start_trytoConnectWorker();
-                    //RS232PairingScucceded = true;
+                    //Connect via USBCable
+                    bool RS232PairingScucceded;
+                    try
+                    {
+                        RS232PairingScucceded = _8KanalReceiverV2_RS232.CheckConnection_Start_trytoConnectWorker();
+                        //RS232PairingScucceded = true;
+                    }
+                    catch
+                    {
+                        return EnumConnectionResult.Error_during_USBcable_connection;
+                    }
+                    if (RS232PairingScucceded)
+                    {
+                        StartUSBMonitoring();
+                        return EnumConnectionResult.Connected_via_USBCable;
+                    }
                 }
-                catch
-                {
-                    return EnumConnectionResult.Error_during_USBcable_connection;
-                }
-                if (RS232PairingScucceded)
-                {
-                    StartUSBMonitoring();
-                    return EnumConnectionResult.Connected_via_USBCable;
-                }
+                return EnumConnectionResult.Error_during_USBcable_connection ;
             }
             else if (ConnectionType == EnumNeuromasterConnectionType.SDCardConnection)
             {
-                _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
-                return EnumConnectionResult.Connected_via_SDCard;
+                if (_8KanalReceiverV2_SDCard != null)
+                {
+                    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
+                    return EnumConnectionResult.Connected_via_SDCard;
+                }
+                return EnumConnectionResult.Error_read_SDCard;
             }
-            return EnumConnectionResult.Error_during_USBcable_connection;
+            return EnumConnectionResult.NoConnection;
         }
 
 
         #region USBMonitoring
-        private USBMonitor usbm = null;
+        private USBMonitor? usbm = null;
         private string VID_PID_opened = ""; //Tp back up PID VID for OnDeviceDisconnected Event - IF FTDI is gone, PID VID (this.VID_PID) are also gone
         //private bool USBMonitorIsConnected = false;
         /// <summary>
@@ -703,18 +722,18 @@ namespace FeedbackDataLib
         /* Events kommen 3x!!!!         */
         private void Usbm_USBDeviceDisConnectedEvent()
         {
-            if (_ConnectionStatus != enumConnectionStatus.USB_disconnected)
+            if (_ConnectionStatus != EnumConnectionStatus.USB_disconnected)
             {
-                _ConnectionStatus = enumConnectionStatus.USB_disconnected;
+                _ConnectionStatus = EnumConnectionStatus.USB_disconnected;
                 OnDeviceDisconnected(VID_PID_opened);
             }
         }
 
         private void Usbm_USBDeviceConnectedEvent()
         {
-            if (_ConnectionStatus != enumConnectionStatus.USB_reconnected)
+            if (_ConnectionStatus != EnumConnectionStatus.USB_reconnected)
             {
-                _ConnectionStatus = enumConnectionStatus.USB_reconnected;
+                _ConnectionStatus = EnumConnectionStatus.USB_reconnected;
                 OnDeviceConnected(EnumConnectionResult.NoConnection);
             }
         }

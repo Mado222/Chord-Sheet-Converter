@@ -19,7 +19,7 @@ namespace FeedbackDataLib
         /// <value>
         /// The path to configuration file.
         /// </value>
-        public string PathToConfigFile { get; set; }
+        public string PathToConfigFile { get; set; } = "";
 
 
 
@@ -43,22 +43,13 @@ namespace FeedbackDataLib
         public string PortName { get; set; } = "SDCard";
 
         public int BaudRate { get; set; } = 115200;
+        public bool IsOpen { get; private set; }
 
-        private bool _IsOpen;
-        public bool IsOpen
-        {
-            get { return _IsOpen; }
-        }
+        public void Close() => IsOpen = false;//AliveTimer.Enabled = false;
 
-        public void Close()
+        public bool GetOpen()
         {
-            _IsOpen = false;
-            //AliveTimer.Enabled = false;
-        }
-
-        public bool Open()
-        {
-            _IsOpen = true;
+            IsOpen = true;
             return true;
         }
 
@@ -75,22 +66,21 @@ namespace FeedbackDataLib
 
         public int Read(ref byte[] buffer, int offset, int count)
         {
-
             int cntbytes = 0;
 
-            for (int i = 0; i < count; i++)
+            while (cntbytes < count && InBufferSD.StoredBytes > 0)
             {
-                if (InBufferSD.StoredBytes == 0)
+                if (InBufferSD.Pop() is byte bt)  // Pattern matching to handle nullable byte
                 {
-                    //return (i - offset);
-                    break;
+                    buffer[offset + cntbytes] = bt;
+                    cntbytes++;
                 }
                 else
                 {
-                    buffer[offset + i] = (byte)InBufferSD.Pop();
-                    cntbytes++;
+                    break; // Exit if Pop returns null unexpectedly
                 }
             }
+
             return cntbytes;
         }
 
@@ -129,8 +119,9 @@ namespace FeedbackDataLib
             get { return InBufferSD.StoredBytes; }
         }
 
-        public event SerialDataReceivedEventHandler SerialDataReceivedEvent;
-
+#pragma warning disable CS0067
+        public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
+#pragma warning restore CS0067
 
         private string _LastErrorString = "";
         public string LastErrorString
@@ -187,15 +178,15 @@ namespace FeedbackDataLib
 
 
         private DateTime SyncTime = DateTime.MinValue;
-        public DateTime Now(enumTimQueryStatus TimeQueryStatus)
+        public DateTime Now(EnumTimQueryStatus TimeQueryStatus)
         {
             switch (TimeQueryStatus)
             {
-                case enumTimQueryStatus.no_Special:
+                case EnumTimQueryStatus.no_Special:
                     {
                         break;
                     }
-                case enumTimQueryStatus.isSync:
+                case EnumTimQueryStatus.isSync:
                     {
                         if (SyncTime == DateTime.MinValue)
                         {
@@ -218,7 +209,7 @@ namespace FeedbackDataLib
 
         void IDisposable.Dispose()
         {
-
+            GC.SuppressFinalize(this);
         }
         #endregion
 
@@ -226,20 +217,24 @@ namespace FeedbackDataLib
         {
             while (OutBufferSD.StoredBytes != 0)
             {
-                byte b = (byte)OutBufferSD.Pop();
+                byte[] payload;
+                byte b = OutBufferSD.Pop() ?? throw new InvalidOperationException("Failed to retrieve byte from OutBufferSD.");
+
                 if (b == C8KanalReceiverCommandCodes.CommandCode)
                 {
-                    byte Command = (byte)OutBufferSD.Pop();
-                    byte len = (byte)OutBufferSD.Pop();
-                    byte[] payload = new byte[len];
+                    byte command = OutBufferSD.Pop() ?? throw new InvalidOperationException("Failed to retrieve command byte from OutBufferSD.");
+                    byte len = OutBufferSD.Pop() ?? throw new InvalidOperationException("Failed to retrieve length byte from OutBufferSD.");
+
+                    payload = new byte[len];
                     for (int i = 0; i < len - 1; i++)
                     {
-                        payload[i] = (byte)OutBufferSD.Pop();
+                        payload[i] = OutBufferSD.Pop() ?? throw new InvalidOperationException("Failed to retrieve payload byte from OutBufferSD.");
                     }
-                    _ = (byte)OutBufferSD.Pop();    //CRC
+
+                    _ = OutBufferSD.Pop() ?? throw new InvalidOperationException("Failed to retrieve CRC byte from OutBufferSD.");
 
                     //Evaluate
-                    switch (Command)
+                    switch (command)
                     {
                         case C8KanalReceiverCommandCodes.cConnectToDevice:
                             {
@@ -268,6 +263,7 @@ namespace FeedbackDataLib
                             {
                                 break;
                             }
+                    
                     }
                 }
             }

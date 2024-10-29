@@ -17,13 +17,17 @@ namespace FeedbackDataLib
         /// <param name="sender"></param>
         /// <param name="e">DoWorkEventArgs</param>
         /// <remarks>Main work loop of the class.</remarks>
-        void RS232ReceiverThread_DoWork(object sender, DoWorkEventArgs e)
+        private void RS232ReceiverThread_DoWork(object sender, DoWorkEventArgs e)
         {
             // Set thread name if it has not been set
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232ReceiverThread";
 
             DateTime now;
+            if (Seriell32 is null)
+            {
+                throw new InvalidOperationException("The serial connection is not set.");
+            }
             ISerialPort thrSeriell32 = Seriell32;
 
             // Initialize RS232 FIFO buffer to hold incoming bytes
@@ -31,7 +35,9 @@ namespace FeedbackDataLib
 
             // Start the Data Distributor Thread
             RS232DataDistributorThread = new BackgroundWorker();
+#pragma warning disable CS8622
             RS232DataDistributorThread.DoWork += new DoWorkEventHandler(RS232DataDistributorThread_DoWork);
+#pragma warning restore CS8622
             RS232DataDistributorThread.WorkerSupportsCancellation = true;
             RS232DataDistributorThread.RunWorkerAsync();
 
@@ -110,7 +116,7 @@ namespace FeedbackDataLib
                     #endregion
 
                     // Send "alive" signal to the device periodically
-                    now = thrSeriell32.Now(enumTimQueryStatus.no_Special);
+                    now = thrSeriell32.Now(EnumTimQueryStatus.no_Special);
 
                     if (now > NextAliveSignalToSend)
                     {
@@ -153,7 +159,7 @@ namespace FeedbackDataLib
                             // Wait for the remaining command bytes to arrive
                             if (CheckRS232InBytesCount(buf.Length))
                             {
-                                buf = rs232InBytes.Pop(buf.Length);
+                                buf = rs232InBytes.Pop(buf.Length) ?? [];
 
                                 // Check CRC of the received buffer
                                 if (buf.Length > 0 && CRC8.Check_CRC8(ref buf, 0, true, true))
@@ -163,7 +169,7 @@ namespace FeedbackDataLib
                                     {
                                         case C8KanalReceiverCommandCodes.cChannelSync:
                                             {
-                                                LastSyncSignal = thrSeriell32.Now(enumTimQueryStatus.isSync);
+                                                LastSyncSignal = thrSeriell32.Now(EnumTimQueryStatus.isSync);
                                                 break;
                                             }
                                         case C8KanalReceiverCommandCodes.cDeviceAlive:
@@ -199,7 +205,7 @@ namespace FeedbackDataLib
                         if (EnableDataReadyEvent)
                         {
                             dataIn.LastSync = LastSyncSignal;
-                            dataIn.Received_at = thrSeriell32.Now(enumTimQueryStatus.isSync);
+                            dataIn.Received_at = thrSeriell32.Now(EnumTimQueryStatus.isSync);
                             Data.Push(dataIn);
                         }
                     }
@@ -219,7 +225,7 @@ namespace FeedbackDataLib
                 if (RS232DataDistributorThread is not null)
                 {
                     RS232DataDistributorThread.CancelAsync();
-                    ConnectionStatus = enumConnectionStatus.Dis_Connected;
+                    ConnectionStatus = EnumConnectionStatus.Dis_Connected;
                 }
 
 #if DEBUG

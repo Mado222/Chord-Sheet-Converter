@@ -589,11 +589,11 @@ namespace FeedbackDataLib
         /// Gets the connection status
         /// </summary>
         /// <returns>Connection status</returns>
-        public enumConnectionStatus GetConnectionStatus()
+        public EnumConnectionStatus GetConnectionStatus()
         {
             if (RS232Receiver is not null)
                 return RS232Receiver.GetConnectionStatus();
-            return enumConnectionStatus.Not_Connected;
+            return EnumConnectionStatus.Not_Connected;
         }
 
         /// <summary>
@@ -679,7 +679,7 @@ namespace FeedbackDataLib
                 try
                 {
                     Device ??= new C8KanalDevice2();
-                    ret = Device.UbpdateModuleInfoFrom_ByteArray([.. AllData]);
+                    ret = Device.UpdateModuleInfoFrom_ByteArray([.. AllData]);
                     if (ret)
                     {
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
@@ -1044,7 +1044,7 @@ namespace FeedbackDataLib
         public virtual bool SetClock(DateTime dt)
         {
             byte[] InData = [];
-            _DeviceClock.dt = dt;
+            _DeviceClock.Dt = dt;
             byte[] outbuf = [];
             _DeviceClock.GetByteArray(ref outbuf, 0);
 
@@ -1069,7 +1069,7 @@ namespace FeedbackDataLib
             if (SendGetCheckData(C8KanalReceiverCommandCodes.cGetClock, badd, ref buf))
             {
                 _DeviceClock.UpdateFrom_ByteArray(buf, 0);
-                dt = _DeviceClock.dt;
+                dt = _DeviceClock.Dt;
             }
             else
             {

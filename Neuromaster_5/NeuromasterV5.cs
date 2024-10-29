@@ -25,7 +25,7 @@ namespace Neuromaster_V5
         /// <summary>
         /// Saves recent Connection status
         /// </summary>
-        private enumConnectionStatus OldConnection_Status = enumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus OldConnection_Status = EnumConnectionStatus.Not_Connected;
 
         /// <summary>
         /// Result of the last attempt to connect to Neuromaster
@@ -53,7 +53,7 @@ namespace Neuromaster_V5
 
         private bool ConfigSetOK = false;
 
-        private readonly List<ucSignalAnalyser> ucSignalAnalysers = [];
+        private readonly List<UcSignalAnalyser> ucSignalAnalysers = [];
 
         private readonly System.Windows.Forms.Timer tmrUpdateFFT;
         private frmSpectrum? FrmSpectrum = null;
@@ -156,7 +156,7 @@ namespace Neuromaster_V5
                         tlpMeasure.RowCount = cFlowChartDX1.Link_Track_ModuleConfig.LinkedValues.Count;
                         for (int i = rc; i <= cFlowChartDX1.Link_Track_ModuleConfig.LinkedValues.Count - 1; i++)
                         {
-                            ucSignalAnalyser uc = new();
+                            UcSignalAnalyser uc = new();
                             tlpMeasure.Controls.Add(uc, 0, i);
                             ucSignalAnalysers.Add(uc);
                         }
@@ -536,7 +536,7 @@ namespace Neuromaster_V5
 
                     switch (OldConnection_Status)
                     {
-                        case enumConnectionStatus.Connected:
+                        case EnumConnectionStatus.Connected:
                             {
                                 AddStatusString("Connected", Color.Green);
                                 GoConnected();
@@ -567,18 +567,18 @@ namespace Neuromaster_V5
                                 }
                                 break;
                             }
-                        case enumConnectionStatus.Connecting:
+                        case EnumConnectionStatus.Connecting:
                             {
                                 AddStatusString("Connecting", Color.Green);
                                 break;
                             }
-                        case enumConnectionStatus.Not_Connected:
+                        case EnumConnectionStatus.Not_Connected:
                             {
                                 AddStatusString("Not Connected", Color.Red);
                                 //GoDisconnected();
                                 break;
                             }
-                        case enumConnectionStatus.Dis_Connected:
+                        case EnumConnectionStatus.Dis_Connected:
                             {
                                 AddStatusString("Dis-Connected", Color.Red);
                                 Disconnect();
@@ -599,22 +599,22 @@ namespace Neuromaster_V5
                                 }
                                 break;
                             }
-                        case enumConnectionStatus.No_Data_Link:
+                        case EnumConnectionStatus.No_Data_Link:
                             {
                                 AddStatusString("No Data Link", Color.Red);
                                 //cFlowChart1.Stop();
                                 break;
                             }
-                        case enumConnectionStatus.PortError:
+                        case EnumConnectionStatus.PortError:
                             {
                                 AddStatusString("Cannot open COM - restart", Color.Red);
                                 break;
                             }
-                        case enumConnectionStatus.USB_disconnected:
+                        case EnumConnectionStatus.USB_disconnected:
                             {
                                 break;
                             }
-                        case enumConnectionStatus.USB_reconnected:
+                        case EnumConnectionStatus.USB_reconnected:
                             {
                                 break;
                             }
@@ -1132,7 +1132,7 @@ namespace Neuromaster_V5
             CNMFirmwareVersion NMFirmwareVersion = new();
             DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
 
-            AddStatusString("NM UID: " + NMFirmwareVersion.uuid, Color.DarkOliveGreen);
+            AddStatusString("NM UID: " + NMFirmwareVersion.Uuid, Color.DarkOliveGreen);
             AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersion_string, Color.DarkOliveGreen);
             AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersion_string, Color.DarkOliveGreen);
         }

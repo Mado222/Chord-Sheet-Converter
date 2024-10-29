@@ -95,16 +95,15 @@ namespace XBeeLib
         /// <returns>byte array, ready to sent over the serial port</returns>
         override public byte[] Get_CommandRequest_DataFrame(XBAPIMode ApiMode)
         {
-            List<byte> FrameData = new()
-            {
+            List<byte> FrameData =
+            [
                 //Start to build FrameData
                 //FrameData Byte 0
                 APID,
                 //FrameData Byte 1
-                frameId
-            };
-
-            FrameData.AddRange(Command2ByteList());
+                frameId,
+                .. Command2ByteList(),
+            ];
 
             return MakeBasicDataFrame(FrameData, ApiMode);
         }
@@ -115,7 +114,7 @@ namespace XBeeLib
         /// <returns>Returns a list of bytes containing the command and parameter of command</returns>
         protected List<byte> Command2ByteList()
         {
-            List<byte> Command = new();
+            List<byte> Command = [];
             //FrameData Byte 6-7: Command Name
 
             //Remove all special chars

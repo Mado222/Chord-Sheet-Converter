@@ -43,16 +43,16 @@ namespace FeedbackDataLib
             /// <summary>
             /// Value
             /// </summary>
-            public new double value
+            public new double Value
             {
                 get { return Math.Sqrt(_value) * Calibration_factor; }
             }
         }
 
         private CFFTMathNet FFT_MathNet = new();
-        public List<CEEG_FrequencyRanges> EEG_Bands;
+        public List<CEEG_FrequencyRanges> EEG_Bands = [];
 
-        public DateTime dtLastFFT { get; set; } = DateTime.Now;
+        public DateTime DtLastFFT { get; set; } = DateTime.Now;
 
         private double _Hanninng_Percentage = 0;
         /// <summary>
@@ -116,7 +116,7 @@ namespace FeedbackDataLib
                 foreach (CEEG_FrequencyRanges cf in EEG_Bands)
                     cf?.Add(f, y);
             }
-            dtLastFFT = DateTime.Now;
+            DtLastFFT = DateTime.Now;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace FeedbackDataLib
         /// </returns>
         public double[]? GetEEGSpectrum_1Hz_Steps(double[] samples, double Sample_time_ms)
         {
-            if (dtLastFFT + new TimeSpan(0, 0, 2) < DateTime.Now)
+            if (DtLastFFT + new TimeSpan(0, 0, 2) < DateTime.Now)
                 Process_Spectrum(samples, Sample_time_ms);
 
             if (FFT_MathNet.FftFrequ != null)

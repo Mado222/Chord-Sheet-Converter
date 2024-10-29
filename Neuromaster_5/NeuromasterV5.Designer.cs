@@ -102,7 +102,7 @@ namespace Neuromaster_V5
             openFileDialog_cfg = new OpenFileDialog();
             tmrFileDataReader = new System.Windows.Forms.Timer(components);
             tlpMeasure = new TableLayoutPanel();
-            ucSignalAnalyser1 = new MathNetNuget.ucSignalAnalyser();
+            ucSignalAnalyser1 = new MathNetNuget.UcSignalAnalyser();
             openFileDialog_nmc = new OpenFileDialog();
             panel1 = new Panel();
             cFlowChartDX1 = new UcFlowChartDX_NM();
@@ -663,7 +663,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.Button btGetFirmwareVersion;
         private System.Windows.Forms.Timer tmrSDDataReader;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private MathNetNuget.ucSignalAnalyser ucSignalAnalyser1;
+        private MathNetNuget.UcSignalAnalyser ucSignalAnalyser1;
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private System.Windows.Forms.RichTextBox txtStatus;

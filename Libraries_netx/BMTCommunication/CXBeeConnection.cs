@@ -60,7 +60,7 @@ namespace BMTCommunication
             get { return _XBeeSeries1; }
         }
 
-        private readonly ISerialPort _SerialPort;
+        private readonly ISerialPort? _SerialPort;
         private int _BaudRateDefault_RemoteDevice;
         private int _BaudRateDefault_LocalDevice = 0;
         private readonly int NoRetriesinWrite = 10;
@@ -116,7 +116,7 @@ namespace BMTCommunication
             hp_Timer = new CHighPerformanceDateTime();
         }
 
-        void SerialDataReceived_DoWork(object sender, DoWorkEventArgs e)
+        void SerialDataReceived_DoWork(object? sender, DoWorkEventArgs e)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "SerialDataReceived_BackgroundWorker";
@@ -150,18 +150,13 @@ namespace BMTCommunication
 #endif
         }
 
-        public enum enumConfigureEnDeviceTo
+        public enum EnumConfigureEnDeviceTo
         {
             BackRelaxer_Sleeping = 0,
             Neuromaster = 1
         }
 
-        private enumConfigureEnDeviceTo _ConfigureEndDeviceTo;
-        public enumConfigureEnDeviceTo ConfigureEndDeviceTo
-        {
-            get { return _ConfigureEndDeviceTo; }
-            set { _ConfigureEndDeviceTo = value; }
-        }
+        public EnumConfigureEnDeviceTo ConfigureEndDeviceTo { get; set; }
 
         private CXBNodeInformation GetDefaultRemoteConfiguration_Neuromaster()
         {
@@ -212,7 +207,7 @@ namespace BMTCommunication
                 int cnt = _pairing_retries;
                 while ((cnt != 0) && (!IsOpen))
                 {
-                    Open();
+                    GetOpen();
                     cnt--;
                     if (!IsOpen)
                         Thread.Sleep(1000);
@@ -261,7 +256,7 @@ namespace BMTCommunication
 
                         switch (ConfigureEndDeviceTo)
                         {
-                            case enumConfigureEnDeviceTo.Neuromaster:
+                            case EnumConfigureEnDeviceTo.Neuromaster:
                                 {
                                     if (_XBeeSeries1.ManageXBeePairing(GetDefaultLocalConfiguration(), GetDefaultRemoteConfiguration_Neuromaster()))    //Closes Com
                                     {
@@ -467,13 +462,13 @@ namespace BMTCommunication
 
         #region ISerialPort Members
 
-        public bool Open()
+        public bool GetOpen()
         {
             bool ret = false;
 
             if ((_SerialPort != null) && (!_SerialPort.IsOpen))
             {
-                _SerialPort.Open();
+                _SerialPort.GetOpen();
                 _SerialPort.DtrEnable = true;   //Awake from Sleep 11.12.2012
                 XBRFDataBuffer.Clear();
                 if (!SerialDataReceived_BackgroundWorker.IsBusy && _SerialPort.IsOpen && PairingSuceeded)
@@ -711,71 +706,112 @@ namespace BMTCommunication
 
         public bool IsOpen
         {
-            get
-            {
-                if (_SerialPort is null) return false;
-                return _SerialPort.IsOpen;
-            }
+            get { return _SerialPort?.IsOpen ?? false; }
         }
 
         public int ReadTimeout
         {
-            get { return _SerialPort.ReadTimeout; }
-            set { _SerialPort.ReadTimeout = value; }
+            get { return _SerialPort?.ReadTimeout ?? 0; } // Return a default value (e.g., 0) if _SerialPort is null
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.ReadTimeout = value;
+                }
+            }
         }
 
         public int WriteTimeout
         {
-            get { return _SerialPort.WriteTimeout; }
-            set { _SerialPort.WriteTimeout = value; }
+            get { return _SerialPort?.WriteTimeout ?? 0; }
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.WriteTimeout = value;
+                }
+            }
         }
 
         public StopBits StopBits
         {
-            get { return _SerialPort.StopBits; }
-            set { _SerialPort.StopBits = value; }
+            get { return _SerialPort?.StopBits ?? StopBits.None; } // Use a default value if _SerialPort is null
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.StopBits = value;
+                }
+            }
         }
 
         public Parity Parity
         {
-            get { return _SerialPort.Parity; }
-            set { _SerialPort.Parity = value; }
+            get { return _SerialPort?.Parity ?? Parity.None; } // Use a default value if _SerialPort is null
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.Parity = value;
+                }
+            }
         }
 
         public int DataBits
         {
-            get { return _SerialPort.DataBits; }
-            set { _SerialPort.DataBits = value; }
+            get { return _SerialPort?.DataBits ?? 8; } // Default to 8 if _SerialPort is null
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.DataBits = value;
+                }
+            }
         }
 
         public Handshake Handshake
         {
-            get { return _SerialPort.Handshake; }
+            get { return _SerialPort?.Handshake ?? Handshake.None; }
             set
             {
-                if ((value == Handshake.RequestToSend) && (_SerialPort.WriteTimeout == -1))
+                if (_SerialPort != null)
                 {
-                    _SerialPort.WriteTimeout = 100; //[ms]
+                    if ((value == Handshake.RequestToSend) && (_SerialPort.WriteTimeout == -1))
+                    {
+                        _SerialPort.WriteTimeout = 100; //[ms]
+                    }
+                    _SerialPort.Handshake = value;
                 }
-                _SerialPort.Handshake = value;
             }
         }
 
         public bool RtsEnable
         {
-            get { return _SerialPort.RtsEnable; }
-            set { _SerialPort.RtsEnable = value; }
+            get { return _SerialPort?.RtsEnable ?? false; }
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.RtsEnable = value;
+                }
+            }
         }
 
         public bool DtrEnable
         {
-            get { return _SerialPort.DtrEnable; }
-            set { _SerialPort.DtrEnable = value; }
+            get { return _SerialPort?.DtrEnable ?? false; }
+            set
+            {
+                if (_SerialPort != null)
+                {
+                    _SerialPort.DtrEnable = value;
+                }
+            }
         }
 
         public bool DsrHolding
         {
-            get { return _SerialPort.DsrHolding; }
+            get { return _SerialPort?.DsrHolding ?? false; }
         }
 
         public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
@@ -788,7 +824,7 @@ namespace BMTCommunication
             set { _LastErrorString = value; }
         }
 
-        public DateTime Now(enumTimQueryStatus TimQueryStatus)
+        public DateTime Now(EnumTimQueryStatus TimQueryStatus)
         {
             return hp_Timer.Now;
         }
@@ -799,18 +835,10 @@ namespace BMTCommunication
 
         public void Dispose()
         {
-            try
-            {
-                //closeConnection();
-                Close();
-                _SerialPort.Dispose();
-                _XBeeSeries1?.Dispose();
-            }
-            catch (Exception)
-            {
-                //OnLogError(e.Message);
-                //log.Error(e.Message, e);
-            }
+            Close();
+            _SerialPort?.Dispose();
+            _XBeeSeries1?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿namespace MathNetNuget
 {
-    partial class ucSignalAnalyser
+    partial class UcSignalAnalyser
     {
         /// <summary> 
         /// Required designer variable.
