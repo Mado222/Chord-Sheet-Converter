@@ -53,7 +53,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Occurs when some information are given to the GUI
         /// </summary>
-        public event ImportInfoEventHandler ImportInfo;
+        public event ImportInfoEventHandler? ImportInfo;
 
         /// <summary>
         /// Called when ImportInfo should be triggered
@@ -220,13 +220,13 @@ namespace FeedbackDataLib
                     {
                         //No useful information found
                         OnImportInfo("No useful information found in data file", Color.Red);
-                        _ModuleInfo = null;
+                        _ModuleInfo = [];
                     }
                 }
                 catch (Exception ee)
                 {
                     OnImportInfo("StartImport: " + ee.Message, Color.Red);
-                    _ModuleInfo = null;
+                    _ModuleInfo = [];
                 }
             }
 
@@ -251,7 +251,7 @@ namespace FeedbackDataLib
         /// Gets the next value; Communication vals etc are ignored
         /// </summary>
         /// <returns>null if no more vales in the file</returns>
-        public CDataIn_Scaled GetNextValue()
+        public CDataIn_Scaled? GetNextValue()
         {
             CDataIn DataIn = new();
             isDataByte = false;

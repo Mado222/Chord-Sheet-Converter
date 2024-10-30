@@ -48,5 +48,9 @@ namespace Neuromaster_5_wpf
             }
             //SetupFlowChart();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+        }
     }
 }

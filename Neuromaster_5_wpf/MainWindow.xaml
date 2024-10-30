@@ -15,6 +15,7 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        
         <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
             <Menu>
                 <!-- Connection Menu -->
@@ -67,6 +68,11 @@
                 </MenuItem>
             </Menu>
         </StackPanel>
+
+        <StackPanel Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="1">
+            <local:CChannelsControl_wpf HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </StackPanel>
+
 
     </Grid>
 </Window>
