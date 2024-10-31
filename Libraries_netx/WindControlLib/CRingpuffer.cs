@@ -238,7 +238,7 @@ namespace WindControlLib
                 {
                     for (int i = 0; i < StoredObjects; i++)
                     {
-                        l.Add((CDataIn)(buf[i]));
+                        l.Add((CDataIn)buf[i]);
                     }
                 }
                 AllData = [.. l];
@@ -578,7 +578,7 @@ namespace WindControlLib
                         ret.yData[i] = k * dt.Ticks + d;
                     }
                     //Check range
-                    if ((dt > Pop_data.xData))
+                    if (dt > Pop_data.xData)
                         Interpol_out_of_range = true;
                     else
                         Interpol_out_of_range = false;

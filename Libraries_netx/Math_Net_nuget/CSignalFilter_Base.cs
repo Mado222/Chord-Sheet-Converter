@@ -17,7 +17,7 @@ namespace MathNetNuget
         public int order { get; }
         public enumSignalFilterType SignalFilterType { get; }
 
-        protected MathNet.Filtering.OnlineFilter _SignalFilter;
+        protected MathNet.Filtering.OnlineFilter? _SignalFilter;
 
 
         public CSignalFilterBase(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order = 2)

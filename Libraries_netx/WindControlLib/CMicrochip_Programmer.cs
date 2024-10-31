@@ -21,7 +21,7 @@ namespace WindControlLib
         {
             get
             {
-                return (Name + " / " + SerialNo);
+                return Name + " / " + SerialNo;
             }
         }
 

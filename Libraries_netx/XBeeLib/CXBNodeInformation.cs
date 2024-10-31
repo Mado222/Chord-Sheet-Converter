@@ -261,7 +261,8 @@ namespace XBeeLib
         #region IComparer<CXBNodeInformation> Members
         public int Compare(CXBNodeInformation? x, CXBNodeInformation? y)
         {
-            //return ((new CaseInsensitiveComparer()).Compare(x.EventName, y.EventName));
+            if (x == null || y == null) return 1;
+
             if (x.APIMode == y.APIMode)
                 if (x.A2_CoordinatorAssociation == y.A2_CoordinatorAssociation)
                     if (x.CE_CoordinatorEnable == y.CE_CoordinatorEnable)
@@ -287,16 +288,18 @@ namespace XBeeLib
         #endregion
 
         #region IComparer Members
-        public int Compare(object x, object y)
+        public int Compare(object? x, object? y)
         {
-            return Compare((CXBNodeInformation)x, (CXBNodeInformation)y);
+            return Compare((CXBNodeInformation?)x, (CXBNodeInformation?)y);
         }
         #endregion
 
         #region IComparable Members
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            return Compare(this, (CXBNodeInformation)obj);
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            
+            return Compare(this, (CXBNodeInformation) obj);
         }
         #endregion
 

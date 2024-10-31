@@ -35,7 +35,7 @@ namespace FeedbackDataLib
         /// All Information about 8 Channel Device
         /// </summary>
         /// <remarks>Zugriff: [0,1,...]</remarks>
-        public C8KanalDevice2 Device = new();       //Fasst die verfügbaren Kanäle zusammen
+        public C8KanalDevice2? Device = new();       //Fasst die verfügbaren Kanäle zusammen
 
         /// <summary>
         /// NM Battery Status in %
@@ -327,9 +327,9 @@ namespace FeedbackDataLib
         /// </remarks>
         protected virtual void RS232Receiver_DataReadyComm(object sender, List<CDataIn> DataIn)
         {
+            if (Device is null) return;
+            
             List<CDataIn> _DataIn = [];
-
-
             foreach (CDataIn di in DataIn)
             {
                 //27.1.2020
@@ -375,6 +375,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public int GetChannelCapcity()
         {
+            if (Device is null) return 0;
             double ret = 0;
             for (int HW_cn = 0; HW_cn < Device.ModuleInfos.Count; HW_cn++)
             {
@@ -644,7 +645,7 @@ namespace FeedbackDataLib
         public virtual bool GetDeviceConfig()
         {
             bool ret = true;
-            byte[] InData = null;
+            byte[] InData = [];
             byte[] AddData = new byte[1];
             List<byte> AllData = [];
 
@@ -685,7 +686,9 @@ namespace FeedbackDataLib
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
                     }
                 }
+#pragma warning disable CS0168
                 catch (Exception e)
+#pragma warning restore CS0168
                 {
 #if DEBUG   
                     Console.WriteLine("C8KanalReceiverV2_CommBase_#01: " + e.Message);
@@ -927,13 +930,13 @@ namespace FeedbackDataLib
             //empty command buffer
             do
             {
-                inbuf = RS232Receiver.GetCommand;
+                inbuf = RS232Receiver?.GetCommand ?? [];
             }
             while (inbuf.Length > 0);
 
 
             bool ret;
-            if (RS232Receiver.SendByteData(buf, bytestosend) == 0)
+            if (RS232Receiver is not null && RS232Receiver.SendByteData(buf, bytestosend) == 0)
             {
                 if (InData.Length > 0)
                 {
@@ -953,7 +956,7 @@ namespace FeedbackDataLib
                         else  //if (inbuf[0] == C8KanalRecCommandCode)
                         {
                             //Fehler beim Datenhereinholen
-                            InData = null;
+                            InData = [];
                         }
                     }  //if (WaitCommandResponse(ref inbuf))
                     else

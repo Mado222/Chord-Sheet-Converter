@@ -814,8 +814,9 @@ namespace BMTCommunication
             get { return _SerialPort?.DsrHolding ?? false; }
         }
 
+#pragma warning disable CS0067
         public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
-
+#pragma warning restore CS0067
 
         private string _LastErrorString = "";
         public string LastErrorString

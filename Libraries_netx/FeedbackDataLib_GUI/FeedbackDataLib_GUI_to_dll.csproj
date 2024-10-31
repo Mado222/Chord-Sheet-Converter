@@ -13,12 +13,12 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <NoWarn>1701;1702;CA1416</NoWarn>
+    <NoWarn>1701;1702;CA1416;CS1416</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    <NoWarn>1701;1702;CA1416</NoWarn>
+    <NoWarn>1701;1702;CA1416;CS1416</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,6 +45,10 @@
 
   <ItemGroup>
     <Compile Include="..\AssemblyInfoInsight_netx.cs" Link="AssemblyInfoInsight_netx.cs" />
+    <Compile Include="..\Math_Net_nuget\ucSignalAnalyser.cs" Link="ucSignalAnalyser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="..\Math_Net_nuget\ucSignalAnalyser.Designer.cs" Link="ucSignalAnalyser.Designer.cs" />
   </ItemGroup>
 
 </Project>

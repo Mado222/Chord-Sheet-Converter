@@ -101,11 +101,13 @@ namespace FeedbackDataLib
                         {
                             thrSeriell32.Write(bout, 0, bout.Length);
                         }
-                        catch (Exception ex)
+#pragma warning disable CS0168
+                        catch (Exception ee)
+#pragma warning restore CS0168
                         {
                             // Log or handle the error related to data transmission failure
 #if DEBUG
-                            Debug.WriteLine($"Data send error: {ex.Message}");
+                            Debug.WriteLine($"Data send error: {ee.Message}");
 #endif
                         }
                         finally
@@ -211,11 +213,13 @@ namespace FeedbackDataLib
                     }
                 }
             }
-            catch (Exception ex)
+#pragma warning disable CS0168
+            catch (Exception ee)
+#pragma warning restore CS0168
             {
                 // Handle unexpected exceptions that occur during thread operation
 #if DEBUG
-                Debug.WriteLine("RS232ReceiverThread_DoWork Exception: " + ex.Message);
+                Debug.WriteLine("RS232ReceiverThread_DoWork Exception: " + ee.Message);
 #endif
             }
             finally

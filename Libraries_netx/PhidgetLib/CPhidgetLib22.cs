@@ -12,10 +12,10 @@ namespace PhidgetLib
     public class CPhidgetLib22
     {
         #region Properties
-        public string ph_name { get; set; }
-        public string ph_serial { get; private set; } = "-1";
-        public string ph_version { get; private set; }
-        public bool ph_attached 
+        public string PhName { get; set; } = "";
+        public string PhSerial { get; private set; } = "-1";
+        public string PhVersion { get; private set; } = "";
+        public bool PhAttached
         { 
             get 
             {
@@ -28,12 +28,12 @@ namespace PhidgetLib
 
         #region Events
         public delegate void ReportStatusEventHandler(object sender, string text, System.Drawing.Color col);
-        public event ReportStatusEventHandler ReportMeasurementProgress;
+        public event ReportStatusEventHandler? ReportMeasurementProgress;
         protected virtual void OnReportMeasurementProgress(string text, System.Drawing.Color col)
             => ReportMeasurementProgress?.Invoke(this, text, col);
         #endregion
 
-        private List<DigitalOutput> ph_digitalOutputs = new();
+        private List<DigitalOutput> ph_digitalOutputs = [];
 
         public CPhidgetLib22()
         {
@@ -74,9 +74,9 @@ namespace PhidgetLib
 
         private void CPhidgetLib22_Detach(object sender, DetachEventArgs e)
         {
-            ph_name = "";
-            ph_serial = "";
-            ph_version = "";
+            PhName = "";
+            PhSerial = "";
+            PhVersion = "";
             ph_digitalOutputs[0].Close();
             OnReportMeasurementProgress("Phidget: Disconnected", Color.Red);
         }
@@ -89,10 +89,10 @@ namespace PhidgetLib
             {
                 try
                 {
-                    ph_name = attachedDevice.DeviceName;
-                    ph_serial = attachedDevice.DeviceSerialNumber.ToString();
-                    ph_version = attachedDevice.DeviceVersion.ToString();
-                    OnReportMeasurementProgress("Phidget: " + ph_name + " channel " + attachedDevice.ChannelClassName + " found", Color.Green);
+                    PhName = attachedDevice.DeviceName;
+                    PhSerial = attachedDevice.DeviceSerialNumber.ToString();
+                    PhVersion = attachedDevice.DeviceVersion.ToString();
+                    OnReportMeasurementProgress("Phidget: " + PhName + " channel " + attachedDevice.ChannelClassName + " found", Color.Green);
                 }
                 catch (PhidgetException fe)
                 {
@@ -110,7 +110,7 @@ namespace PhidgetLib
         public bool Open()
         {
             bool ret = true;
-            if (!ph_attached)
+            if (!PhAttached)
             {
                 try
                 {
@@ -145,7 +145,7 @@ namespace PhidgetLib
 
         public void SetOutPut(int output_number, bool value)
         {
-            if (ph_attached)
+            if (PhAttached)
             {
                 ph_digitalOutputs[output_number].State = value;
             }
@@ -155,7 +155,7 @@ namespace PhidgetLib
 
         public bool GetOutPut(int output_number)
         {
-            if (ph_attached)
+            if (PhAttached)
             {
                 return ph_digitalOutputs[output_number].State;
             }

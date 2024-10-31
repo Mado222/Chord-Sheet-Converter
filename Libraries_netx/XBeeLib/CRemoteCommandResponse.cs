@@ -51,7 +51,7 @@ namespace XBeeLib
 
             //Frame ID
             listEnum.MoveNext();
-            frameId = listEnum.Current;
+            FrameId = listEnum.Current;
 
             //64-bit ResponderAddress
             byte[] be = new byte[8];
@@ -78,11 +78,11 @@ namespace XBeeLib
                 listEnum.MoveNext();
                 be[i] = listEnum.Current;
             }
-            command = ASCIIEncoding.ASCII.GetString(be);
+            Command = ASCIIEncoding.ASCII.GetString(be);
 
             //Status
             listEnum.MoveNext();
-            status = (RXCommandResponseStatus)listEnum.Current;
+            Status = (RXCommandResponseStatus)listEnum.Current;
 
             //Value   
             List<byte> ByteListOfValue = [];
@@ -90,7 +90,7 @@ namespace XBeeLib
             {
                 ByteListOfValue.Add(listEnum.Current);
             }
-            valueOfCommand = [.. ByteListOfValue];
+            ValueOfCommand = [.. ByteListOfValue];
 
         }
 

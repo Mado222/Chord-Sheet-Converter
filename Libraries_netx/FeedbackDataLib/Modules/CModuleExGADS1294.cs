@@ -131,7 +131,6 @@ namespace FeedbackDataLib.Modules
             }
         }
 
-
         protected virtual void Setup_SWChannels(string prefix = "channel")
         {
             //Copy from Neuromodul coming Channels to sWChannels_Module
@@ -146,16 +145,18 @@ namespace FeedbackDataLib.Modules
             int j = 0;
             while (j < num_SWChannels_sent_by_HW) // num_raw_Channels)
             {
-                CSWChannel sws = SWChannels_Module[j].Clone() as CSWChannel;
-                sws.SWChannelName = prefix + j.ToString() + " raw [V]";
-                sws.SWChannelNumber = (byte)j;
-                sws.ADResolution = ADRESOLUTION;
-                sws.MidofRange = 0;
-                sws.Offset_d = 0;
-                sws.Offset_hex = 0;
-                //sws.SkalValue_k = 1;
-                //sws.SkalValue_k = getSkalValue_k(j);
-                SWChannels.Add(sws);
+                if (SWChannels_Module[j].Clone() is CSWChannel sws)
+                {
+                    sws.SWChannelName = prefix + j.ToString() + " raw [V]";
+                    sws.SWChannelNumber = (byte)j;
+                    sws.ADResolution = ADRESOLUTION;
+                    sws.MidofRange = 0;
+                    sws.Offset_d = 0;
+                    sws.Offset_hex = 0;
+                    //sws.SkalValue_k = 1;
+                    //sws.SkalValue_k = getSkalValue_k(j);
+                    SWChannels.Add(sws);
+                }
                 j++;
             }
         }

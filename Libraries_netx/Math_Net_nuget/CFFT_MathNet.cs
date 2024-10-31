@@ -92,7 +92,7 @@ namespace MathNetNuget
                     ret[0] = FftAmplitudePeak[0];
                     return ret;
                 }
-                return null;
+                return [];
             }
         }
 
@@ -111,7 +111,7 @@ namespace MathNetNuget
         {
             get
             {
-                throw (new Exception("Not implemented due to uninterpretable results"));
+                throw new Exception("Not implemented due to uninterpretable results");
                 /*
                 double[] ret = new double[_fftAmplitude.Length];
                 double Divisor = fftFrequ[1]*2; //binWidth*2
@@ -233,7 +233,7 @@ namespace MathNetNuget
             if ((xData[^1] > (Data_x[^1] + IntervalLengthIn_10)) ||
                 (xData[0] > (Data_x[0] - IntervalLengthIn_10)))
             {
-                throw (new Exception("x ranges do not match"));
+                throw new Exception("x ranges do not match");
             }
 
             //AkimaSplineInterpolation sp = new AkimaSplineInterpolation();
@@ -378,7 +378,7 @@ namespace MathNetNuget
 
             for (int i = 0; i < Data_y.Length; i++)
             {
-                Data_y[i] *= (0.54 - 0.46 * (Math.Cos(TwoPi * i / Nminus1)));
+                Data_y[i] *= 0.54 - 0.46 * Math.Cos(TwoPi * i / Nminus1);
             }
         }
 
@@ -579,7 +579,7 @@ namespace MathNetNuget
             {
                 for (int t = 0; t < (funct2.Length - tau); t++)
                 {
-                    sum += ((funct1[t] - mean1) * (funct2[t + tau] - mean2));
+                    sum += (funct1[t] - mean1) * (funct2[t + tau] - mean2);
                 }
             }
             else
@@ -587,7 +587,7 @@ namespace MathNetNuget
                 tau = Math.Abs(tau);
                 for (int t = 0; t < (funct1.Length - tau); t++)
                 {
-                    sum += ((funct2[t] - mean2) * (funct1[t + tau] - mean1));
+                    sum += (funct2[t] - mean2) * (funct1[t + tau] - mean1);
                 }
             }
             sum /= stddev;
@@ -652,7 +652,7 @@ namespace MathNetNuget
                 double sumOfDerivation = 0;
                 foreach (double value in doubleList)
                 {
-                    sumOfDerivation += (value) * (value);
+                    sumOfDerivation += value * value;
                 }
                 double sumOfDerivationAverage = sumOfDerivation / doubleList.Count;
                 Stdv = Math.Sqrt(sumOfDerivationAverage - (Avg * Avg));

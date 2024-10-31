@@ -10,7 +10,7 @@ namespace WindControlLib
         //c:\Program Files (x86)\Microchip\MPLABX\v5.30\docs\Readme for MPLAB IPE.htm
 
         public delegate void ReportMeasurementProgressEventHandler(object sender, string text, System.Drawing.Color col);
-        public event ReportMeasurementProgressEventHandler ReportMeasurementProgress;
+        public event ReportMeasurementProgressEventHandler? ReportMeasurementProgress;
         protected virtual void OnReportMeasurementProgress(string text, System.Drawing.Color col)
         {
             ReportMeasurementProgress?.Invoke(this, text, col);
@@ -56,7 +56,7 @@ namespace WindControlLib
                 string progress = "";
                 while (!ipecmd.StandardOutput.EndOfStream)
                 {
-                    string l = ipecmd.StandardOutput.ReadLine();
+                    string l = ipecmd.StandardOutput.ReadLine() ?? "";
                     progress += l + Environment.NewLine;
                     OnReportMeasurementProgress(l, Color.Black);
                     //Application.DoEvents();
@@ -177,7 +177,7 @@ namespace WindControlLib
             }
             else
             {
-                ret = null;
+                ret = [];
             }
             return ret;
         }
@@ -209,7 +209,7 @@ namespace WindControlLib
                 }
 
                 success = @"No Device Connected";
-                if ((Regex.Match(progress, success, RegexOptions.IgnoreCase)).Success)
+                if (Regex.Match(progress, success, RegexOptions.IgnoreCase).Success)
                 {
                     StatusString += "\r\n No Device Connected " + error;
                 }

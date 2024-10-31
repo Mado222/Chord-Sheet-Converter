@@ -16,7 +16,7 @@ namespace WindControlLib
         private readonly double[] pref_deltaTiks = [0.1, 0.2, 0.25, 0.3, 0.5, 1, 2, 2.5, 3, 5];
         private readonly int cminTiks = 3;
 
-        private CLinearInterpolation LinInterpol;
+        private CLinearInterpolation? LinInterpol;
 
         private double _ValMax;
         /// <summary>
@@ -191,7 +191,7 @@ namespace WindControlLib
                             int j;
                             for (j = cminTiks; j <= _Tiks; j++)
                             {
-                                double d = (_pref_deltaTiks[i] * j);
+                                double d = _pref_deltaTiks[i] * j;
                                 if (d >= norm_range)
                                 {
                                     dif.Add(d - norm_ValMax);

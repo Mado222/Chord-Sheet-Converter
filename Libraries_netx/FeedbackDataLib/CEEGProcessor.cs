@@ -41,16 +41,13 @@ namespace FeedbackDataLib
 
         }
 
-        private int num_samples_to_calc;
+        private int num_samples_to_calc = 0;
         private DateTime SWCha_NextSampleTime = DateTime.Now;
         private readonly CSWChannel? rawChannel = null;
         public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
 
-
-
-        //private CRingpuffer RP;
-        private CRingpuffer RP;
+        private CRingpuffer RP = new (0);
 
         public CEEGProcessor(CSWChannel rawChannel, CEEGCalcChannels eegChannels)
         {

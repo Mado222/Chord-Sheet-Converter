@@ -1,6 +1,7 @@
 ﻿using BMTCommunication;
 using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
+using System.IO;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -137,14 +138,14 @@ namespace FeedbackDataLib
 
 
         /// Class to connect to Neuromaster
-        private C8KanalReceiverV2 DataReceiver;
+        private C8KanalReceiverV2? DataReceiver;
         private readonly WindControlLib.CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
         private DateTime LastSyncSignal;
         private DateTime Recording_Start_Time_from_File = DateTime.MinValue;
         private TimeSpan SyncInterval = new(0, 0, 0, 0, C8KanalReceiverV2_CommBase.SyncInterval_ms);
 
-        private FileStream SDFileStream = null;
-        private BinaryReader SDBinaryReader = null;
+        private FileStream? SDFileStream = null;
+        private BinaryReader? SDBinaryReader = null;
 
         /// <summary>
         /// Anzahl der Byte die bei einem SD Zugriff gelesen werden
@@ -179,15 +180,18 @@ namespace FeedbackDataLib
                     DataReceiver.Connect();
                 }
 
-                if (DataReceiver.SDCardConnection != null)
+                if (DataReceiver is not null && DataReceiver.SDCardConnection != null)
                 {
                     //Verzeichnisname übergeben
                     DataReceiver.SDCardConnection.PathToConfigFile = SourcePath + "\\CHANCONF.NMC"; //File in dem die Kunfiguration steht
 
                     //Konfiguration zum Zeipunkt der Aufzeichnung holen
-                    if (DataReceiver.Connection.GetDeviceConfig())
+                    if (DataReceiver.Connection is not null && DataReceiver.Connection.GetDeviceConfig())
                     {
-                        _ModuleInfo = DataReceiver.Connection.Device.ModuleInfos;
+                        if (DataReceiver.Connection.Device is not null)
+                        {
+                            _ModuleInfo = DataReceiver.Connection.Device.ModuleInfos;
+                        }
                     }
                     else
                     {
@@ -253,6 +257,8 @@ namespace FeedbackDataLib
         /// <returns>null if no more vales in the file</returns>
         public CDataIn_Scaled? GetNextValue()
         {
+            if (SDBinaryReader is null) throw new ArgumentNullException(nameof(SDBinaryReader), "SDBinaryReader connection cannot be null."); ;
+
             CDataIn DataIn = new();
             isDataByte = false;
             int idxRS232inBytes = 0;
@@ -354,7 +360,12 @@ namespace FeedbackDataLib
                                                     sync[0] += 128;
                                                 DataIn.SyncVal = sync[0];
 
-                                                DataReceiver.Connection.Device.ModuleInfos[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SWChan_Started = Recording_Start_Time_from_File;
+
+                                                if (DataReceiver != null && DataReceiver.Connection != null && DataReceiver.Connection.Device != null)
+                                                {
+                                                    DataReceiver.Connection.Device.ModuleInfos[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SWChan_Started = Recording_Start_Time_from_File;
+                                                }
+
                                                 ModuleInfo[DataIn.HW_cn].SWChannels[DataIn.SW_cn].SynPackagesreceived = cntSyncPackages;
                                             }
 
@@ -392,7 +403,9 @@ namespace FeedbackDataLib
                                                 try
                                                 {
                                                     //Daten sind gültig
-                                                    DataReceiver.Connection.Device.ModuleInfos[DataIn.HW_cn].SWChannels[DataIn.SW_cn].UpdateTime(ref DataIn);
+
+                                                    if (DataReceiver != null && DataReceiver.Connection != null && DataReceiver.Connection.Device != null)
+                                                        DataReceiver.Connection.Device.ModuleInfos[DataIn.HW_cn].SWChannels[DataIn.SW_cn].UpdateTime(ref DataIn);
                                                     if (DataIn.DT_relative == DateTime.MinValue)
                                                     {
                                                         //Ausblenden der ersten Daten bis Sync kommt
@@ -433,9 +446,13 @@ namespace FeedbackDataLib
                 }
             }//while (!isDataByte)
 
+            double v = 0;
+            if (DataReceiver != null && DataReceiver.Connection != null)
+                v = DataReceiver.Connection.GetScaledValue(DataIn);
+
             CDataIn_Scaled cds = new(DataIn)
             {
-                Value_Scaled = DataReceiver.Connection.GetScaledValue(DataIn)
+                Value_Scaled = v
             };
 
             return cds;

@@ -277,7 +277,7 @@ namespace ComponentsLib_GUI
             ResumeLayout(false);
 
             // Calculate display timer resolution
-            displayRefreshTimer.Interval = (xLength_s * 1000) / charts[0].Width;
+            displayRefreshTimer.Interval = xLength_s * 1000 / charts[0].Width;
 
 
             //Buffers for incoming data

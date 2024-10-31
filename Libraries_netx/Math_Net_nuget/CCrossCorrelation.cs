@@ -44,7 +44,7 @@ namespace MathNetNuget
 
     public class LagCorr
     {
-        public double[] Lag { get; set; }
-        public double[] Corr { get; set; }
+        public double[] Lag { get; set; } = [];
+        public double[] Corr { get; set; } = [];
     }
 }

@@ -16,10 +16,7 @@ namespace XBeeLib
         /// constructor
         /// </summary>
         /// <remarks>inits the AP-ID</remarks>
-        public CATCommand()
-        {
-            APID = CXBAPICommands.ATCommand;
-        }
+        public CATCommand() => APID = CXBAPICommands.ATCommand;
 
         private bool _ApplyCommandImmediately = true; // default: AT Command
         /// <summary>
@@ -49,34 +46,24 @@ namespace XBeeLib
             {
                 _ATCommandResponse = value;
                 if (value == true)
-                    frameId = 1;
+                    FrameId = 1;
                 else
-                    frameId = 0;
+                    FrameId = 0;
             }
         }
 
-        private byte _frameId = 1;
         /// <summary>
         /// frame-id
         /// </summary>
         /// <remarks>is set to 1 if ATCommandResponse is set to true
         /// is set to 0 if ATCommandResponse is set to false</remarks>
-        public byte frameId
-        {
-            get { return _frameId; }
-            set { _frameId = value; }
-        }
+        public byte FrameId { get; set; } = 1;
 
-        private string _ATCommand;
         /// <summary>
         /// AT-Command (in AT-format)
         /// </summary>
         /// <remarks>use the AT-Commands specified in the CXATCommands class</remarks>
-        public string ATCommand
-        {
-            get { return _ATCommand; }
-            set { _ATCommand = value; }
-        }
+        public string ATCommand { get; set; } = "";
 
         /// <summary>
         /// makes the basic data frama for sending them on serial port
@@ -101,7 +88,7 @@ namespace XBeeLib
                 //FrameData Byte 0
                 APID,
                 //FrameData Byte 1
-                frameId,
+                FrameId,
                 .. Command2ByteList(),
             ];
 
@@ -131,7 +118,7 @@ namespace XBeeLib
             Command.Add(be[3]); //Command Name 2
 
             //Is there a Parameter to Add?
-            string s = (sb.ToString()).Remove(0, 4); // e.g. ATDL00000FFF ---> 00000FFF
+            string s = sb.ToString().Remove(0, 4); // e.g. ATDL00000FFF ---> 00000FFF
             if (s.Length % 2 != 0)  //Even or Odd number od chars
             {
                 //Odd
@@ -177,14 +164,14 @@ namespace XBeeLib
             bool IsResponseCorrect = false;
             switch (response.APID)
             {
-                case (CXBAPICommands.ATCommandResponse):
+                case CXBAPICommands.ATCommandResponse:
                     CATCommandResponse responseNew = (CATCommandResponse)response;
 
                     //if (responseNew.status == RXCommandResponseStatus.OK)
                     //{
-                    if (frameId == responseNew.frameId)
+                    if (FrameId == responseNew.FrameId)
                     {
-                        if (ATCommand.Substring(2, 2) == responseNew.command)
+                        if (ATCommand.Substring(2, 2) == responseNew.Command)
                         {
                             IsResponseCorrect = true;
                         }

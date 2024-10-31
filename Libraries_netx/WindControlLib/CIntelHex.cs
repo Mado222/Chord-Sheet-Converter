@@ -50,7 +50,7 @@ namespace WindControlLib
         public class CHexfileEntry
         {
             public uint MemoryLocation;
-            public byte[]? Values;
+            public byte[] Values = [];
             public int LineNo_in_HexFileLines = 0;
         }
 
@@ -59,8 +59,8 @@ namespace WindControlLib
         /// </summary>
         public class CHexMemory
         {
-            public byte[]? value = null;
-            public bool[]? accessed = null;
+            public byte[] value = [];
+            public bool[] accessed = [];
 
             public CHexMemory(int size)
             {
@@ -89,7 +89,7 @@ namespace WindControlLib
         /// <returns></returns>
         public bool OpenHexFile(string HEXFileName, uint SkipFromAddress = uint.MaxValue, uint SkipToAddress = uint.MinValue)
         {
-            string InFileLine;
+            string? InFileLine;
             int RecordLength;
             int RecordType;
             uint LowerAddress;
@@ -105,14 +105,14 @@ namespace WindControlLib
             HexFile = [];
             HexFileTextLines = [];
 
-            System.IO.StreamReader InFile = new(HEXFileName);
+            StreamReader InFile = new(HEXFileName);
 
             br = false;
             //IndexCount = 0;
             EOFRecord = false;
 
             //Validate the file before using it
-            while (((InFileLine = InFile.ReadLine()) != null) && !br && !EOFRecord)
+            while (InFile is not null && ((InFileLine = InFile.ReadLine()) != null) && !br && !EOFRecord)
             {
 
                 HexFileTextLines.Add(InFileLine);
@@ -189,8 +189,8 @@ namespace WindControlLib
             }        //} while
 
             bool res = false;
-            InFile.Close();
-            if ((!br) && (EOFRecord))
+            InFile?.Close();
+            if ((!br) && EOFRecord)
             {
                 res = true;
             }
@@ -212,7 +212,7 @@ namespace WindControlLib
 
             for (i = 0; i < numBytes; i++)
             {
-                Buf[i] = Convert.ToByte((InFileLine.Substring(10 + 2 * i - 1, 2)), 16);
+                Buf[i] = Convert.ToByte(InFileLine.Substring(10 + 2 * i - 1, 2), 16);
                 checksum = (byte)(checksum + Buf[i]);
             }
             checksum = (byte)((checksum ^ 0xff) + 1);
@@ -423,18 +423,20 @@ namespace WindControlLib
 
         public virtual void Add_to_MemoryMirror(byte[] Data, uint BeginAddress, bool Overwrite, byte Addedchar = 0)
         {
-            if (HexMemoryMirror == null)
-                Make_MemoryMirror();
+            if (HexMemoryMirror == null) Make_MemoryMirror();
 
-            uint MemoryLocation = BeginAddress;
-            for (int i = 0; i < Data.Length; i++)
+            if (HexMemoryMirror != null)
             {
-                if (Overwrite || (HexMemoryMirror.accessed[MemoryLocation] == false))
+                uint MemoryLocation = BeginAddress;
+                for (int i = 0; i < Data.Length; i++)
                 {
-                    HexMemoryMirror.value[MemoryLocation] = Data[i];
-                    HexMemoryMirror.accessed[MemoryLocation] = true;
+                    if (Overwrite || (HexMemoryMirror.accessed[MemoryLocation] == false))
+                    {
+                        HexMemoryMirror.value[MemoryLocation] = Data[i];
+                        HexMemoryMirror.accessed[MemoryLocation] = true;
+                    }
+                    MemoryLocation++;
                 }
-                MemoryLocation++;
             }
         }
 
@@ -466,7 +468,7 @@ namespace WindControlLib
 
 
                 List<byte[]> accessedBlocks = [];
-                List<byte> acessedblock = null;
+                List<byte> acessedblock = [];
                 List<ushort> accessedBlocks_startAdresses = [];
 
 
@@ -487,7 +489,7 @@ namespace WindControlLib
                         {
                             //Block building was starte - stop
                             accessedBlocks.Add([.. acessedblock]);
-                            acessedblock = null;
+                            acessedblock = [];
                         }
                     }
                 }

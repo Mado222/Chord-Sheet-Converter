@@ -25,7 +25,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-
+#pragma warning disable // Disables all warnings for this file
 namespace BMTCommunication
 {
     /// <summary>
@@ -3313,7 +3313,7 @@ namespace BMTCommunication
                             ftErrorCondition = FT_ERROR.FT_INVALID_BITMODE;
                             ErrorHandler(ftStatus, ftErrorCondition);
                         }
-                        if ((BitMode == FT_BIT_MODES.FT_BIT_MODE_MPSSE) & ((InterfaceIdentifier != "A") & (InterfaceIdentifier != "B")))
+                        if ((BitMode == FT_BIT_MODES.FT_BIT_MODE_MPSSE) & (InterfaceIdentifier != "A") & (InterfaceIdentifier != "B"))
                         {
                             // MPSSE mode is only available on channel A and B
                             // Throw an exception
@@ -6818,3 +6818,4 @@ namespace BMTCommunication
         #endregion
     }
 }
+#pragma warning restore // Disables all warnings for this file

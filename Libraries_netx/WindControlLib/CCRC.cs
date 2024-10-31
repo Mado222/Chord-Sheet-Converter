@@ -81,7 +81,7 @@ namespace WindControlLib
             { }
 
 
-            return (CRC_ist == CRC_soll);
+            return CRC_ist == CRC_soll;
         }
 
 

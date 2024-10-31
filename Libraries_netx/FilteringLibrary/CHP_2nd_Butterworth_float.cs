@@ -4,32 +4,33 @@
     {
         //https://www.micromodeler.com/dsp/
 
-        public CHP_2nd_Butterworth_float(enFilter_Params filter_Params, enFilter_Form Filter_Form)
+        public CHP_2nd_Butterworth_float(EnFilterParams filterParams, EnFilterForm filterForm)
         {
-            this.filter_Params = filter_Params;
-            filter_Form = filter_Form;
+            this.FilterParams = filterParams;
+            this.FilterForm = filterForm;
             InitFilter();
         }
 
-        public enum enFilter_Params
+        public enum EnFilterParams
         {
             HP_fg_0o5_100Hz
         }
 
-        public enum enFilter_Form
+        public enum EnFilterForm
         {
             Form1,
             Form2
         }
 
 
-        public enFilter_Params filter_Params { get; private set; }
-        public enFilter_Form filter_Form { get; private set; }
+        public EnFilterParams FilterParams { get; private set; }
+        public EnFilterForm FilterForm { get; private set; }
+
         private double HPi_x0, HPi_x1, HPi_x2;  //Form1
         private double HPi_w0, HPi_w1, HPi_w2;  //Form2
         private double HPi_y1 = 0;
         private double HPi_y2 = 0;
-        private double[] HP_coefficients;
+        private double[] HP_coefficients = [];
 
         double HPi_b0;
         double HPi_b1;
@@ -60,16 +61,16 @@ Generated code is based on the following filter design:
 </micro.DSP.FilterDocument>*/
 
         //Gilt für Form1 und 2
-        static double[] HP_coefficients_HP_fg_0o5_100Hz = [
+        private static readonly double[] HP_coefficients_HP_fg_0o5_100Hz = [
             0.9780304792065595, -1.956060958413119, 0.9780304792065595, 1.9555782403150355, -0.9565436765112033 // b0, b1, b2, a1, a2
         ];
 
         private void InitFilter()
         {
             // Scaled for floating point
-            switch (filter_Params)
+            switch (FilterParams)
             {
-                case enFilter_Params.HP_fg_0o5_100Hz:
+                case EnFilterParams.HP_fg_0o5_100Hz:
                     HP_coefficients = HP_coefficients_HP_fg_0o5_100Hz;
                     break;
             }
@@ -83,11 +84,11 @@ Generated code is based on the following filter design:
 
         public double ProcessSample(double sval)
         {
-            switch (filter_Form)
+            switch (FilterForm)
             {
-                case enFilter_Form.Form1:
+                case EnFilterForm.Form1:
                     return HP_Butter_2nd_Form1(sval);
-                case enFilter_Form.Form2:
+                case EnFilterForm.Form2:
                     return HP_Butter_2nd_Form2(sval);
             }
             return HP_Butter_2nd_Form1(sval);
@@ -98,13 +99,13 @@ Generated code is based on the following filter design:
             double accumulator;
 
             HPi_x0 = input;
-            accumulator = (HPi_x2 * HPi_b2);
-            accumulator += (HPi_x1 * HPi_b1);
-            accumulator += (HPi_x0 * HPi_b0);
+            accumulator = HPi_x2 * HPi_b2;
+            accumulator += HPi_x1 * HPi_b1;
+            accumulator += HPi_x0 * HPi_b0;
             HPi_x2 = HPi_x1; // Shuffle left history buffer
             HPi_x1 = HPi_x0;
-            accumulator += (HPi_y2 * HPi_a2);
-            accumulator += (HPi_y1 * HPi_a1);
+            accumulator += HPi_y2 * HPi_a2;
+            accumulator += HPi_y1 * HPi_a1;
             HPi_y2 = HPi_y1; // Shuffle right history buffer
             HPi_y1 = accumulator;
 

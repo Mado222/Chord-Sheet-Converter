@@ -18,45 +18,25 @@ namespace XBeeLib
             APID = CXBAPICommands.ATCommandResponse;
         }
 
-        protected byte _frameId;
         /// <summary>
         /// frame id of the received frame
         /// </summary>
-        virtual public byte frameId
-        {
-            get { return _frameId; }
-            set { _frameId = value; }
-        }
+        public virtual byte FrameId { get; set; }
 
-        protected string _command;
         /// <summary>
         /// command of the received frame
         /// </summary>
-        virtual public string command
-        {
-            get { return _command; }
-            set { _command = value; }
-        }
+        public virtual string Command { get; set; } = "";
 
-        protected byte[] _valueOfCommand;
         /// <summary>
         /// value of command of the received frame
         /// </summary>
-        virtual public byte[] valueOfCommand
-        {
-            get { return _valueOfCommand; }
-            set { _valueOfCommand = value; }
-        }
+        public virtual byte[] ValueOfCommand { get; set; } = [];
 
-        protected RXCommandResponseStatus _status;
         /// <summary>
         /// command response status of the received frame
         /// </summary>
-        virtual public RXCommandResponseStatus status
-        {
-            get { return _status; }
-            set { _status = value; }
-        }
+        public virtual RXCommandResponseStatus Status { get; set; }
 
         /// <summary>
         /// inits the object with the receiving frame data
@@ -68,7 +48,7 @@ namespace XBeeLib
 
             //Frame ID
             listEnum.MoveNext();
-            frameId = listEnum.Current;
+            FrameId = listEnum.Current;
 
             //AT Command
             byte[] be = new byte[2];
@@ -77,11 +57,11 @@ namespace XBeeLib
                 listEnum.MoveNext();
                 be[i] = listEnum.Current;
             }
-            command = ASCIIEncoding.ASCII.GetString(be);
+            Command = ASCIIEncoding.ASCII.GetString(be);
 
             //Status
             listEnum.MoveNext();
-            status = (RXCommandResponseStatus)listEnum.Current;
+            Status = (RXCommandResponseStatus)listEnum.Current;
 
             //Value   
             List<byte> ByteListOfValue = [];
@@ -89,7 +69,7 @@ namespace XBeeLib
             {
                 ByteListOfValue.Add(listEnum.Current);
             }
-            valueOfCommand = [.. ByteListOfValue];
+            ValueOfCommand = [.. ByteListOfValue];
 
         }
 

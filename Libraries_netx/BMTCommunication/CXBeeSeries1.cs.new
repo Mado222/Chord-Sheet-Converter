@@ -58,7 +58,7 @@ namespace BMTCommunication
 
         public CXBNodeInformation? LocalDevice { get; set; } = new CXBNodeInformation();
         public CXBNodeInformation? CurrentEndDevice { get; set; } = new CXBNodeInformation();
-        public bool DisplayMessages { get; set; } = false;
+        public bool DisplayMessages { get; set; }
 
         //private const string MessageBoxCaption = "XBee Error";
 
@@ -1383,6 +1383,8 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetAPIMode2LocalDevice(XBAPIMode APIMode)
         {
+            if (LocalDevice == null) throw new ArgumentNullException(nameof(LocalDevice), "LocalDevice cannot be null.");
+
             return SetRegisterOnLocalDevice(
                 CXBATCommands.XBAT_SetAPIMode(APIMode),
                 () => LocalDevice.APIMode = APIMode
@@ -1405,13 +1407,12 @@ namespace BMTCommunication
         /// </returns>
         public int XBSetEndDeviceAssociation2EndDevice(ulong EndDeviceSerialNumber, byte A1)
         {
-            //if (logger.IsInfoEnabled) logger.Info("Setting the A1-register of the end device...");
+            if (LocalDevice == null) throw new ArgumentNullException(nameof(LocalDevice), "LocalDevice cannot be null.");
+            if (CurrentEndDevice == null) throw new ArgumentNullException(nameof(CurrentEndDevice), "CurrentEndDevice cannot be null.");
 
             if (LocalDevice.APIMode == XBAPIMode.Disabled)
             {
-                //XBSetLastError(9);
                 _Error.SetError_LocalDevNotInApi();
-                //if (logger.IsInfoEnabled) logger.Info("Setting A1-register failed");
                 return -1;
             }
 
@@ -1424,14 +1425,14 @@ namespace BMTCommunication
                 //SetEndDeviceAssocation
                 ATCommand = CXBATCommands.XBAT_SetEndDeviceAssociation(A1)
             };
-            CRemoteCommandResponse response = (CRemoteCommandResponse)XBSendRequest(remoteCommand, 500);
+            CRemoteCommandResponse? response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
             if (response != null && response.Status == RXCommandResponseStatus.OK)
             {
                 //try to write the A1-command and waits until the end device is reachable again
                 do
                 {
                     remoteCommand.ATCommand = CXBATCommands.XBAT_Write_to_nonvolatilememory;
-                    response = (CRemoteCommandResponse)XBSendRequest(remoteCommand, 500);
+                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                     if (response != null && response.Status == RXCommandResponseStatus.OK)      //WRITE successful
                     {
                         CurrentEndDevice.A1_EndDeviceAssociation = A1;
@@ -1444,13 +1445,11 @@ namespace BMTCommunication
 
             if (response == null)
             {
-                //if (logger.IsInfoEnabled) logger.Info("Setting the A1-register not successfully finished");
                 return -1;
             }
             else
             {
                 SetResponseError(response);
-                //if (logger.IsInfoEnabled) logger.Info("Setting the A1-register not successfully finished");
                 return -1;
             }
         }
@@ -1840,11 +1839,11 @@ namespace BMTCommunication
         /// </returns>
         public int XBConfigureLocalDevice(CXBNodeInformation newLocalDeviceConfig)
         {
-            //if (logger.IsInfoEnabled) logger.Info("Configure local device with new configuration based on new CXBNodeInformation object...");
+            if (LocalDevice == null) throw new ArgumentNullException(nameof(LocalDevice), "LocalDevice cannot be null.");
+
             if (XBCheckCommandMode(true) > 0)
             {
                 //Node Identifier 
-                //if (logger.IsDebugEnabled) logger.Debug("NI is set to local");
                 if (XBCheckNodeIdentifierString(newLocalDeviceConfig.NI_NodeIdentifier))
                 {
                     if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_SetNodeIdentifier(newLocalDeviceConfig.NI_NodeIdentifier)) > 0)
@@ -1853,7 +1852,6 @@ namespace BMTCommunication
                     }
                     else
                     {
-                        //if (logger.IsErrorEnabled) logger.Error("NodeIdentifier not set");
                         return -1;
                     }
                 }
@@ -1919,31 +1917,18 @@ namespace BMTCommunication
                                                                 //7E 00 02 8A 01 74 7E 00 02 8A 06 6F
                                                                 TimeSentCommandString = DateTime.MinValue;  //Reset API Mode Timer
                                                                 Thread.Sleep(400);  //Wait for response
-                                                                CModemStatus response = (CModemStatus)XBGetResponse();
+                                                                CModemStatus? response = (CModemStatus?)XBGetResponse();
 
                                                                 if (response != null)
                                                                 {
-                                                                    response = (CModemStatus)XBGetResponse();
+                                                                    response = (CModemStatus?)XBGetResponse();
                                                                     if (response != null)
                                                                     {
-                                                                        //if (logger.IsInfoEnabled) logger.Info("Local Device Configured and Reset");
                                                                         return 1;
                                                                     }
                                                                 }
 
                                                             }
-
-
-                                                            /*
-                                                            XBLeaveCommandMode();
-                                                            CModemStatus response = (CModemStatus)XBGetResponse();
-                                                            if (response != null)
-                                                            {
-                                                                //if (logger.IsInfoEnabled) logger.Info("Local Device Configured. Modem-Status-Message of type: " + response.modemStatus.ToString() + " received");
-                                                                return (int)response.modemStatus;
-                                                            }
-                                                            //if (logger.IsInfoEnabled) logger.Info("Local Device Configured: BUT failed to get Modem Status");
-                                                            return 1;*/
                                                         }
                                                     }
                                                 }
@@ -1956,7 +1941,6 @@ namespace BMTCommunication
                     }
                 }
             }
-            //if (logger.IsInfoEnabled) logger.Info("Configuration not successfully finished");
             return -1;
         }
 
@@ -2062,41 +2046,46 @@ namespace BMTCommunication
         /// </summary>
         private bool Check_Set_LocalDeviceConfiguration(CXBNodeInformation LocalDeviceConfiguration)
         {
+            if(LocalDevice == null) throw new ArgumentNullException(nameof(LocalDevice), "LocalDevice cannot be null.");
+
             bool ret = false;
             //Just ckeck parameters currently relevant
             XBGetConfigurationOfLocalDevice();  //ToDo: notwendig?
-            CXBNodeInformation NILocal = (CXBNodeInformation)LocalDevice.Clone();
-            NILocal.UpdateIfNotDefault(LocalDeviceConfiguration);
-
-            if (NILocal.CompareTo(LocalDevice) != 0)
+            CXBNodeInformation? NILocal = (CXBNodeInformation?) LocalDevice.Clone();
+            if (NILocal is not null)
             {
-                //So we have to set Parameters for Local Device
-                if (!Seriell32.IsOpen) Seriell32.GetOpen();
-                if (Seriell32.IsOpen)
+                NILocal.UpdateIfNotDefault(LocalDeviceConfiguration);
+
+                if (NILocal.CompareTo(LocalDevice) != 0)
                 {
-                    if (XBConfigureLocalDevice(NILocal) > 0)  //Set Params
+                    //So we have to set Parameters for Local Device
+                    if (!Seriell32.IsOpen) Seriell32.GetOpen();
+                    if (Seriell32.IsOpen)
                     {
-                        //Success
-                        //if (logger.IsInfoEnabled) logger.Info("Configuration successfully finished");
-                        ret = true;
+                        if (XBConfigureLocalDevice(NILocal) > 0)  //Set Params
+                        {
+                            //Success
+                            //if (logger.IsInfoEnabled) logger.Info("Configuration successfully finished");
+                            ret = true;
+                        }
+                        else
+                        {
+                            //if (logger.IsInfoEnabled) logger.Info(_Error.LastError_String);
+                            _Error.SetError_XBeeError();
+                        }
                     }
                     else
                     {
-                        //if (logger.IsInfoEnabled) logger.Info(_Error.LastError_String);
-                        _Error.SetError_XBeeError();
+                        //Port cannnot be re-open
+                        //if (logger.IsInfoEnabled) logger.Info("Check_Set_LocalDeviceConfiguration: Port cannnot be re-open");
+                        _Error.SetError_PortCannotBeReopened();
                     }
                 }
                 else
                 {
-                    //Port cannnot be re-open
-                    //if (logger.IsInfoEnabled) logger.Info("Check_Set_LocalDeviceConfiguration: Port cannnot be re-open");
-                    _Error.SetError_PortCannotBeReopened();
+                    //Params are OK, nothing to do
+                    ret = true;
                 }
-            }
-            else
-            {
-                //Params are OK, nothing to do
-                ret = true;
             }
             return ret;
         }
@@ -2108,16 +2097,17 @@ namespace BMTCommunication
         /// <returns></returns>
         private bool Check_Set_RemoteDeviceConfiguration(CXBNodeInformation RemoteDeviceDefault_Configuration)
         {
+            if (LocalDevice == null) throw new ArgumentNullException(nameof(LocalDevice), "LocalDevice cannot be null.");
+
             bool ret = false;
             //Node Discover
             if (!Seriell32.IsOpen) Seriell32.GetOpen();
-            List<CXBNodeInformation> NodeInfos = XBNodeDiscoverAPI();
+            List<CXBNodeInformation>? NodeInfos = XBNodeDiscoverAPI();
 
 
             if ((NodeInfos == null) || (NodeInfos.Count == 0))
             {
                 _Error.SetError_NoRemoteDevice();    //Error
-                //if (logger.IsInfoEnabled) logger.Info(_Error.LastError_String);
                 if (DisplayMessages)
                 {
                     //MessageBox.Show(_Error.LastError_String, MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -2136,7 +2126,7 @@ namespace BMTCommunication
                     DestinationAddress64 = DestinationAddress64
                 };
 
-                CXBNodeInformation remoteDevice = XBGetConfigurationOfRemoteDevice(DestinationAddress64);
+                CXBNodeInformation? remoteDevice = XBGetConfigurationOfRemoteDevice(DestinationAddress64);
                 if (remoteDevice != null)
                 {
                     CXBNodeInformation def = new(); //(CXBNodeInformation)remoteDevice.Clone();
@@ -2153,9 +2143,8 @@ namespace BMTCommunication
                         //Reset notwendig um Association neu herzustellen und in den 64bit Modus zu kommen
                         if (res > 0)
                         {
-                            //res = -1;
                             remoteCommand.ATCommand = CXBATCommands.XBAT_SotfwareReset;
-                            _ = (CRemoteCommandResponse)XBSendRequest(remoteCommand, 500);
+                            XBSendRequest(remoteCommand, 500);
                             Thread.Sleep(1000);
                             //Todo: Macht der wirklich einen Reset?????
                         }

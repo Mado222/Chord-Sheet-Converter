@@ -40,7 +40,7 @@ namespace FeedbackDataLib
             }
         }
 
-        private BatteryValuePair[] BatteryValuePairs;
+        private BatteryValuePair[] BatteryValuePairs = [];
 
         public CBatteryVoltage()
         {
@@ -94,7 +94,7 @@ namespace FeedbackDataLib
         public bool ReadBatteryValues()
         {
             bool ret = false;
-            TextReader reader = null;
+            TextReader? reader = null;
 
             try
             {
@@ -104,7 +104,7 @@ namespace FeedbackDataLib
                 FileStream fs = new(ConfigXMLPath, FileMode.Open);
                 reader = new StreamReader(fs);
                 XmlSerializer ser = new(typeof(BatteryValuePair[]));
-                BatteryValuePairs = (BatteryValuePair[])ser.Deserialize(reader);
+                BatteryValuePairs = (BatteryValuePair[]?)ser.Deserialize(reader) ?? [];
                 reader.Close();
                 ret = true;
             }

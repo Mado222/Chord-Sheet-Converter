@@ -281,7 +281,7 @@ vergebenen ids gibt, weiss ich nicht.
                     foreach (CComPortInfo c in temp)
                     {
                         string subkey;
-                        string MatchingDeviceId = (c.MatchingDeviceId).ToUpper();
+                        string MatchingDeviceId = c.MatchingDeviceId.ToUpper();
 
                         int indexOfBackslash = MatchingDeviceId.IndexOf('\\');
                         string mainDir = "";

@@ -116,7 +116,7 @@ namespace XBeeLib
                 APID,
 
                 //FrameData Byte 1
-                frameId
+                FrameId
             ];
 
             //FrameData Byte 2-9: 64 Bit Destination Address
@@ -152,16 +152,16 @@ namespace XBeeLib
             bool IsResponseCorrect = false;
             switch (response.APID)
             {
-                case (CXBAPICommands.RemoteCommandResponse):
+                case CXBAPICommands.RemoteCommandResponse:
 
                     CRemoteCommandResponse responseNew = (CRemoteCommandResponse)response;
                     //if (responseNew.status == RXCommandResponseStatus.OK)
                     //{
                     //is frameId equal
-                    if (frameId == responseNew.frameId)
+                    if (FrameId == responseNew.FrameId)
                     {
                         //is command equal
-                        if (ATCommand.Substring(2, 2) == responseNew.command)
+                        if (ATCommand.Substring(2, 2) == responseNew.Command)
                         {
                             //is address equal
                             if ((DestinationAddress64 == responseNew.ResponderAddress64) ||

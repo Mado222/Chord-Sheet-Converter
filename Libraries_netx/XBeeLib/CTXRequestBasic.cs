@@ -45,7 +45,7 @@ namespace XBeeLib
             bool IsResponseCorrect = false;
             switch (response.APID)
             {
-                case (CXBAPICommands.TXStatus):
+                case CXBAPICommands.TXStatus:
 
                     CTXStatusResponse responseNew = (CTXStatusResponse)response;
 

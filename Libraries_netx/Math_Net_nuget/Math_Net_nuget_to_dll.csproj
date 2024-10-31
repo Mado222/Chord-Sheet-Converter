@@ -35,7 +35,11 @@
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
-    </PropertyGroup> 
+    </PropertyGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="ucSignalAnalyser.resx" />
+    </ItemGroup> 
 
   <ItemGroup>
     <Compile Include="CCrossCorrelation.cs" Link="CCrossCorrelation.cs" />
@@ -46,8 +50,6 @@
     <Compile Include="CSignalFilter_Base.cs" Link="CSignalFilter_Base.cs" />
     <Compile Include="CSignalFilter_FIR.cs" Link="CSignalFilter_FIR.cs" />
     <Compile Include="CSignalFilter_OnlineFilter.cs" Link="CSignalFilter_OnlineFilter.cs" />
-    <Compile Include="ucSignalAnalyser.cs" Link="ucSignalAnalyser.cs" />
-    <Compile Include="ucSignalAnalyser.Designer.cs" Link="ucSignalAnalyser.Designer.cs" />
     <Compile Include="..\AssemblyInfoInsight_netx.cs" Link="AssemblyInfoInsight_netx.cs" />
   </ItemGroup>
 

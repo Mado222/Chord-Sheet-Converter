@@ -48,7 +48,14 @@ namespace MathNetNuget
             _SignalFilter?.Reset();
         }
 
-        public double ProcessSample(double newVal) => _SignalFilter.ProcessSample(newVal);
+        public double ProcessSample(double newVal)
+        {
+            if (_SignalFilter != null)
+            {
+                return _SignalFilter.ProcessSample(newVal);
+            }
+            return newVal;
+        }
     }
 
 }

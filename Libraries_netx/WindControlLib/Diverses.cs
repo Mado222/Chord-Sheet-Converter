@@ -39,7 +39,7 @@ namespace WindControlLib
         /// </returns>
         public static bool IsPower_of_2(byte Byte_to_Test)
         {
-            return (Byte_to_Test % 2 == 0); //Return true if num is totally divisible byt 2 with remainder 0
+            return Byte_to_Test % 2 == 0; //Return true if num is totally divisible byt 2 with remainder 0
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace WindControlLib
             number /= Math.Pow(groupWeight, numberWeigth);
             //https://code.4noobz.net/c-si-prefixes-because-size-matters/
             string formatted = string.Format("{0:0.000} {1}{2}", number, unitWeigthSymbol, unitSymbol);
-            return (formatted);
+            return formatted;
         }
 
         private static readonly string[] ms_seperator = [","];
@@ -294,7 +294,7 @@ namespace WindControlLib
             List<byte> btl = [];
             while (i + digits_to_group <= str.Length)
             {
-                btl.Add(Convert.ToByte((str.Substring(i, digits_to_group)), 16));
+                btl.Add(Convert.ToByte(str.Substring(i, digits_to_group), 16));
                 i += digits_to_group;
             }
             return [.. btl];
@@ -314,7 +314,7 @@ namespace WindControlLib
             byte[] Buf = new byte[numBytes];
             for (int i = 0; i < numBytes; i++)
             {
-                Buf[i] = Convert.ToByte((str.Substring(2 * i - 1, 2)), 16);
+                Buf[i] = Convert.ToByte(str.Substring(2 * i - 1, 2), 16);
             }
             return Buf;
         }
@@ -511,7 +511,7 @@ namespace WindControlLib
         //"VID_0403&PID_6010"
         public virtual string VID_PID
         {
-            get { return ("VID_" + VID + "&PID_" + PID); }
+            get { return "VID_" + VID + "&PID_" + PID; }
             set
             {
                 string[] st = value.Split(separator, StringSplitOptions.RemoveEmptyEntries);

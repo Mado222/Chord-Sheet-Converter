@@ -1,14 +1,12 @@
-﻿using System;
-using System.Windows.Forms;
-using WindControlLib;
+﻿using WindControlLib;
 
 
-namespace MathNetNuget
+namespace FeedbackDataLib_GUI
 {
     public partial class UcSignalAnalyser : UserControl
     {
         private CRingpuffer cache = new (1000);
-        private readonly System.Windows.Forms.Timer updater = new ();
+        private System.Windows.Forms.Timer? updater;
         private string unit = "_";
 
         private string _HeaderText = "";
@@ -51,6 +49,8 @@ namespace MathNetNuget
             Setup_tlpMeasure();
             if (cache_size_samples > 0)
                 cache = new CRingpuffer(cache_size_samples);
+            
+            updater = new System.Windows.Forms.Timer();
             updater.Tick += new EventHandler(Updater_Tick);
         }
 
@@ -121,14 +121,14 @@ namespace MathNetNuget
             }
             cache.Clear();
         }
-
-        public void Autoupdate(int timeMs)
+        public void Autoupdate(int time_ms)
         {
+            if (updater == null) return;
+            
             updater.Stop();
-            updater.Interval = timeMs;
+            updater.Interval = time_ms;
             updater.Start();
         }
-
 
     }
 }

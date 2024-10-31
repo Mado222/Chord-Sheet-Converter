@@ -652,7 +652,7 @@ namespace MathNetNuget
                                             // Time String: 00:00:00.0000
                                             // String händisch zerlegen
                                             string[] part = importedData[i][idxCol_Time].Split('.');
-                                            dt = (DateTime.Parse(part[0]));
+                                            dt = DateTime.Parse(part[0]);
                                             dt = dt.AddMilliseconds(Convert.ToDouble(part[1]));
                                             break;
                                         }
@@ -689,7 +689,7 @@ namespace MathNetNuget
 
             for (int i = 0; i < IPITimeDateTime.Length; i++)
             {
-                IPI_time[i] = ((double)((IPITimeDateTime[i] - begin).TotalMilliseconds)) / 1000;
+                IPI_time[i] = ((double)(IPITimeDateTime[i] - begin).TotalMilliseconds) / 1000;
             }
             return IPI_time;
         }
@@ -887,7 +887,7 @@ namespace MathNetNuget
 
                 //Beginnwerte festlegen index [0]
                 j++;    //Richtigen Wert aus obigem Vergleich
-                double IPI_Start_s = (IPIImportS[j]); //[s] Here we start the search
+                double IPI_Start_s = IPIImportS[j]; //[s] Here we start the search
                 IPI_temp.Add(IPI_Start_s);
                 _IPI_time_related.Add(IPITimeImport[j]);
 
@@ -1242,7 +1242,7 @@ namespace MathNetNuget
                 CFFTMathNet.CalcAvgStdv([.. valsAfter], out double avgAfter, out double _sdevAfter);
                 CFFTMathNet.CalcAvgStdv([.. valsBefore], out double avgBefore, out double _sdevBefore);
 
-                if (CalcStdDev)
+                if ((sdevBefore != null) && (sdevAfter != null) && CalcStdDev)
                 {
                     sdevAfter[i - numIntervallsBeforAfter] = _sdevAfter;
                     sdevBefore[i - numIntervallsBeforAfter] = _sdevBefore;

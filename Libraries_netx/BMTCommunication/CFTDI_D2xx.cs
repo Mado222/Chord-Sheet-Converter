@@ -183,9 +183,9 @@ namespace BMTCommunicationLib
              */
         }
 
-#pragma warning disable IDE0052 // Remove unread private members
+#pragma warning disable IDE0052, CS0414 // Remove unread private members
         private string AdditionalFTDIInfo = "";
-#pragma warning restore IDE0052 // Remove unread private members
+#pragma warning restore IDE0052, CS0414 // Remove unread private members
         private FTDI.FT_STATUS _ftStatus;
         private FTDI.FT_STATUS FtStatus
         {

@@ -18,51 +18,34 @@ namespace WindControlLib
 
     public static class CRegistryAccess_64_32
     {
-        public static string[] Read_Subkeys_64bitRegistryFrom32bitApp(string RegKey)
+        public static string[] Read_Subkeys_64bitRegistryFrom32bitApp(string regKey)
         {
-            string[] ret = [];
-            if (Environment.Is64BitOperatingSystem)
+            string[] ret = Array.Empty<string>();
+
+            var registryView = Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Registry32;
+
+            using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, registryView);
+            using var subKey = baseKey.OpenSubKey(regKey);
+
+            if (subKey != null)
             {
-                RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
-                localKey = localKey.OpenSubKey(RegKey);
-                if (localKey != null)
-                {
-                    ret = localKey.GetSubKeyNames(); //value64
-                }
-            }
-            else
-            {
-                RegistryKey localKey32 = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry32);
-                localKey32 = localKey32.OpenSubKey(RegKey);
-                if (localKey32 != null)
-                {
-                    ret = localKey32.GetSubKeyNames(); //value32
-                }
+                ret = subKey.GetSubKeyNames(); // Get subkey names
             }
 
             return ret;
         }
 
-        public static string Read_Value_64bitRegistryFrom32bitApp(string RegKey, string SubKey)
+        public static string Read_Value_64bitRegistryFrom32bitApp(string regKey, string subKey)
         {
             string ret = "";
-            if (Environment.Is64BitOperatingSystem)
+            var registryView = Environment.Is64BitOperatingSystem ? RegistryView.Registry64 : RegistryView.Registry32;
+
+            using var baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, registryView);
+            using var targetKey = baseKey.OpenSubKey(regKey);
+
+            if (targetKey != null)
             {
-                RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
-                localKey = localKey.OpenSubKey(RegKey);
-                if (localKey != null)
-                {
-                    ret = localKey.GetValue(SubKey, "").ToString(); //value64
-                }
-            }
-            else
-            {
-                RegistryKey localKey32 = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry32);
-                localKey32 = localKey32.OpenSubKey(RegKey);
-                if (localKey32 != null)
-                {
-                    ret = localKey32.GetValue(SubKey, "").ToString(); //value32
-                }
+                ret = targetKey.GetValue(subKey, "")?.ToString() ?? ""; // Get the value or default to an empty string
             }
 
             return ret;

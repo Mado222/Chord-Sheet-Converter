@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -10,18 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="CChannelsControl_wpf.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="CChannelsControl_wpf.xaml">
-      <SubType>Designer</SubType>
-    </Page>
+    <ProjectReference Include="..\Libraries_netx\WPFLib\WPFLib.csproj" />
   </ItemGroup>
 
 </Project>

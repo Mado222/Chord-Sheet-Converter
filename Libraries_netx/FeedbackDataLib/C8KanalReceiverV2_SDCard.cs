@@ -24,13 +24,13 @@ namespace FeedbackDataLib
         /// <summary>
         /// SDCard Connection
         /// </summary>
-        public CSDCardConnection SDCardConnection;
+        public CSDCardConnection? SDCardConnection;
 
         public string LastXBeeErrorString { get; } = "";
 
         public void AddSDCardValues(byte[] SDData)
         {
-            SDCardConnection.AddSDCardValues(SDData);
+            SDCardConnection?.AddSDCardValues(SDData);
         }
 
         public override bool GetDeviceConfig()
@@ -38,7 +38,7 @@ namespace FeedbackDataLib
             bool ret = false;
             if (Device == null) Device = new C8KanalDevice2();
 
-            if (File.Exists(SDCardConnection.PathToConfigFile))
+            if (File.Exists(SDCardConnection?.PathToConfigFile))
             {
                 try
                 {
@@ -132,6 +132,8 @@ namespace FeedbackDataLib
         /// </summary>
         private void Initialise_C8KanalReceiverV2_SDCard()
         {
+            if (SDCardConnection is null) throw new InvalidOperationException("SD Card connection is not initialized.");
+
             RS232Receiver = new CRS232Receiver2(C8KanalReceiverCommandCodes.cCommandChannelNo, SDCardConnection);
             base.C8KanalReceiverV2_Construct(); //calls CDataReceiver2_Construct();
             RS232Receiver.AliveSequToReturn = C8KanalReceiverCommandCodes.AliveSequToReturn();

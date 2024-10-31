@@ -81,13 +81,13 @@ namespace FilteringLibrary
             //while (count--)
             {
                 HPi_x0 = input;
-                accumulator = (HPi_x2 * HPi_b2);
-                accumulator += (HPi_x1 * HPi_b1);
-                accumulator += (HPi_x0 * HPi_b0);
+                accumulator = HPi_x2 * HPi_b2;
+                accumulator += HPi_x1 * HPi_b1;
+                accumulator += HPi_x0 * HPi_b0;
                 HPi_x2 = HPi_x1; // Shuffle left history buffer
                 HPi_x1 = HPi_x0;
-                accumulator += (HPi_y2 * HPi_a2);
-                accumulator += (HPi_y1 * HPi_a1);
+                accumulator += HPi_y2 * HPi_a2;
+                accumulator += HPi_y1 * HPi_a1;
                 HPi_y2 = HPi_y1; // Shuffle right history buffer
                 HPi_y1 = (short)((int)accumulator >> HPi_Feedback_shift);
             }

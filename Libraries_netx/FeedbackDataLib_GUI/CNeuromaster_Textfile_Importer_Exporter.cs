@@ -107,7 +107,7 @@ namespace FeedbackDataLib_GUI
                 }
                 catch (Exception ee)
                 {
-                    ModuleInfo = null;
+                    ModuleInfo = [];
 #if DEBUG
                     Console.WriteLine("Open_File_for_reading: " + ee.Message);
 #endif
@@ -116,23 +116,28 @@ namespace FeedbackDataLib_GUI
                 if (File.Exists(path_datafile))
                 {
                     FileReader = new StreamReader(path_datafile);
-                    string line = FileReader.ReadLine();        //Datum
-                    string[] ss = [" "];
-                    string[] ls = line.Split(ss, StringSplitOptions.None);
-                    Recorded_at = DateTime.Parse(ls[^2] + " " + ls[^1]);
+                    if (FileReader is null) return false;
 
-                    _ = FileReader.ReadLine();   //--------
-                    line = FileReader.ReadLine();   //First line Comment;
-                    while (line != "-------------")
+                    string? line = FileReader.ReadLine();        //Datum
+                    if (line != null)
                     {
-                        Comment += line + Environment.NewLine;
-                        line = FileReader.ReadLine();
+                        string[] ss = [" "];
+                        string[] ls = line.Split(ss, StringSplitOptions.None);
+                        Recorded_at = DateTime.Parse(ls[^2] + " " + ls[^1]);
+
+                        _ = FileReader.ReadLine();   //--------
+                        line = FileReader.ReadLine();   //First line Comment;
+                        while (line != "-------------")
+                        {
+                            Comment += line + Environment.NewLine;
+                            line = FileReader.ReadLine();
+                        }
+                        _ = FileReader.ReadLine();   //Leerzeile
+                        _ = FileReader.ReadLine();   //Header
+                                                     //... von nun an Daten
+                        _File_Read_is_open = true;
+                        ret = true;
                     }
-                    _ = FileReader.ReadLine();   //Leerzeile
-                    _ = FileReader.ReadLine();   //Header
-                    //... von nun an Daten
-                    _File_Read_is_open = true;
-                    ret = true;
                 }
             }
             return ret;
@@ -148,18 +153,20 @@ namespace FeedbackDataLib_GUI
                 if (!FileReader.EndOfStream)
                 {
                     //Read an parse Line
-                    return ParseLinefrom_NMRecordedFile(FileReader.ReadLine(), Date);
+                    string ? line = FileReader.ReadLine();
+                    if (!string.IsNullOrEmpty(line))
+                        return ParseLinefrom_NMRecordedFile((string)line, Date);
                 }
             }
             return null;
         }
 
-        public static CDatafromFile ParseLinefrom_NMRecordedFile(string line, string Date = null)
+        public static CDatafromFile ParseLinefrom_NMRecordedFile(string line, string? Date = null)
         {
             return ParseLinefrom_NMRecordedFile(line.Split("\t".ToCharArray()), Date);
         }
 
-        public static CDatafromFile ParseLinefrom_NMRecordedFile(string[] splitline, string Date = null)
+        public static CDatafromFile ParseLinefrom_NMRecordedFile(string[] splitline, string? Date = null)
         {
 
             //Time_abolute .. [0]
@@ -176,10 +183,10 @@ namespace FeedbackDataLib_GUI
             {
                 hwcn = Convert.ToInt16(splitline[5]), //hwcn
                 swcn = Convert.ToInt16(splitline[6]), //swcn
-                y_scaled = (Convert.ToDouble(splitline[3].Replace(".", ","))),  //scaled
-                y_unscaled = (Convert.ToDouble(splitline[4])),   //unscaled
+                y_scaled = Convert.ToDouble(splitline[3].Replace(".", ",")),  //scaled
+                y_unscaled = Convert.ToDouble(splitline[4]),   //unscaled
                 dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date),
-                time_ms = ((int)Convert.ToDouble(splitline[2].Replace(".", ",")))
+                time_ms = (int)Convert.ToDouble(splitline[2].Replace(".", ","))
             };
             return cdf;
         }
@@ -195,7 +202,9 @@ namespace FeedbackDataLib_GUI
                 if (!FileReader.EndOfStream)
                 {
                     //Read an parse Line
-                    return ParseLinefrom_SDCardFile(FileReader.ReadLine(), Date);
+                    string? line = FileReader.ReadLine();
+                    if (line != null)
+                        return ParseLinefrom_SDCardFile(line, Date);
                 }
             }
             return null;
@@ -212,10 +221,10 @@ namespace FeedbackDataLib_GUI
             {
                 hwcn = Convert.ToInt16(splitline[4]), //hwcn
                 swcn = Convert.ToInt16(splitline[5]), //swcn
-                y_scaled = (Convert.ToDouble(splitline[2])),  //scaled
-                y_unscaled = (Convert.ToDouble(splitline[3])),   //unscaled
+                y_scaled = Convert.ToDouble(splitline[2]),  //scaled
+                y_unscaled = Convert.ToDouble(splitline[3]),   //unscaled
                 dt_absolute = CMyTools.Get_DateTime_from_DateTime_with_ms(splitline[0], Date),
-                time_ms = ((int)Convert.ToDouble(splitline[1]))
+                time_ms = (int)Convert.ToDouble(splitline[1])
             };
             return cdf;
         }
@@ -225,7 +234,7 @@ namespace FeedbackDataLib_GUI
         public void SaveValue(CDataIn ci, double? scaled_value)
         {
             //Im File speichern
-            if (_File_Write_is_open)
+            if (_File_Write_is_open && FileWriter is not null)
             {
                 //Wait for first resync
                 if (ResyncOK)
@@ -304,18 +313,16 @@ namespace FeedbackDataLib_GUI
                 Clear_Values();
 
                 string header = "";
-                //y_scaled = new List<double>(); ;
-                //dt = new List<DateTime>();
                 List<string[]> ss = CTextFileImporter.ImportTextFile(ref FilePath, "\t", Rowstoignore, ref header);
                 foreach (string[] s in ss)
                 {
-                    CDatafromFile cdf;
+                    CDatafromFile? cdf;
                     if (NMrecorded)
                         cdf = ParseLinefrom_NMRecordedFile(s);
                     else
                         cdf = ParseLinefrom_SDCardFile(s);
 
-                    if ((cdf.hwcn == HW_cn) && (SW_cn == cdf.swcn))
+                    if (cdf != null && (cdf.hwcn == HW_cn) && (SW_cn == cdf.swcn))
                     {
                         dt.Add(cdf.dt_absolute);
                         time_ms.Add(cdf.time_ms);
@@ -400,7 +407,7 @@ namespace FeedbackDataLib_GUI
 
         }
 
-        public static async Task<List<List<CValueChannel>>> GetAllValues(string FilePath, int Rowstoignore = 6, bool NMrecorded = true, List<CModuleBase> ModuleInfo = null)
+        public static async Task<List<List<CValueChannel>>> GetAllValues(string FilePath, int Rowstoignore = 6, bool NMrecorded = true, List<CModuleBase>? ModuleInfo = null)
         {
             List<List<CValueChannel>> ret = [];
             int[,] sr = new int[7, 4];
@@ -409,7 +416,7 @@ namespace FeedbackDataLib_GUI
             for (int i = 0; i < 7; i++)
             {
                 List<CValueChannel> cv = [];
-                List<int> _sr = [];
+                //List<int> _sr = [];
                 for (int j = 0; j < 4; j++)
                 {
                     cv.Add(new CValueChannel());
@@ -440,22 +447,25 @@ namespace FeedbackDataLib_GUI
                 List<string[]> ss = CTextFileImporter.ImportTextFile(ref FilePath, "\t", Rowstoignore, ref header);
                 foreach (string[] s in ss)
                 {
-                    CDatafromFile cdf;
+                    CDatafromFile? cdf;
                     if (NMrecorded)
                         cdf = ParseLinefrom_NMRecordedFile(s);
                     else
                         cdf = ParseLinefrom_SDCardFile(s);
 
-                    ret[cdf.hwcn][cdf.swcn].Add(
-                    cdf.time_ms,
-                    cnt_time_ms[cdf.hwcn, cdf.swcn],
-                    cdf.y_scaled,
-                    cdf.y_unscaled,
-                    cdf.dt_absolute);
-
-                    if (sr[cdf.hwcn, cdf.swcn] != 0)
+                    if (cdf != null)
                     {
-                        cnt_time_ms[cdf.hwcn, cdf.swcn] += sr[cdf.hwcn, cdf.swcn];
+                        ret[cdf.hwcn][cdf.swcn].Add(
+                        cdf.time_ms,
+                        cnt_time_ms[cdf.hwcn, cdf.swcn],
+                        cdf.y_scaled,
+                        cdf.y_unscaled,
+                        cdf.dt_absolute);
+
+                        if (sr[cdf.hwcn, cdf.swcn] != 0)
+                        {
+                            cnt_time_ms[cdf.hwcn, cdf.swcn] += sr[cdf.hwcn, cdf.swcn];
+                        }
                     }
                 }
             }

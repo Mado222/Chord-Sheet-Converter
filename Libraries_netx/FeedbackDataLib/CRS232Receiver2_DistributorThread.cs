@@ -49,7 +49,9 @@ namespace FeedbackDataLib
                     }
                 }
             }
+#pragma warning disable CS0168
             catch (Exception ee)
+#pragma warning restore CS0168
             {
 #if DEBUG
                 Debug.WriteLine("RS232DataDistributorThread Error: " + ee.Message);

@@ -378,13 +378,22 @@ namespace FeedbackDataLib
                 {
                     if (isNeuromaster)
                     {
-                        return Enum.GetName(typeof(enumModuleType), enumModuleType.cNeuromaster);
+                        return Enum.GetName(typeof(enumModuleType), enumModuleType.cNeuromaster) ?? "Unknown";
                     }
                     else
                     {
+                        if (string.IsNullOrEmpty(HWVersion_Full))
+                        {
+                            return "Unknown"; // Or handle this case as appropriate
+                        }
+
                         string[] ss = HWVersion_Full.Split('.');
-                        return Enum.GetName(typeof(enumModuleType), Convert.ToUInt32(ss[0]));
+                        if (ss.Length > 0 && uint.TryParse(ss[0], out uint moduleValue))
+                        {
+                            return Enum.GetName(typeof(enumModuleType), moduleValue) ?? "Unknown";
+                        }
                     }
+                    return "Unknown"; // Or handle this case as appropriate
                 }
             }
 

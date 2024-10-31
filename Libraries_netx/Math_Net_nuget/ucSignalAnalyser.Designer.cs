@@ -1,4 +1,4 @@
-﻿namespace MathNetNuget
+﻿namespace FeedbackDataLib_GUI
 {
     partial class UcSignalAnalyser
     {

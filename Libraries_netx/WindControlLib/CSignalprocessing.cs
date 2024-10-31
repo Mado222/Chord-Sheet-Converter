@@ -249,11 +249,11 @@ namespace WindControlLib
                                 AThrNeg2 = AMinLast.Value / 4;
 
                                 //Ausgangswerte berechnen
-                                double dicmax = ((AMax.TS_Since_LastSync - AMaxLast.TS_Since_LastSync).TotalMilliseconds);
-                                double dicmin = ((AMin.TS_Since_LastSync - AMinLast.TS_Since_LastSync).TotalMilliseconds);
+                                double dicmax = (AMax.TS_Since_LastSync - AMaxLast.TS_Since_LastSync).TotalMilliseconds;
+                                double dicmin = (AMin.TS_Since_LastSync - AMinLast.TS_Since_LastSync).TotalMilliseconds;
                                 double dic = (dicmax + dicmin) / 2; //MW aus Abstand der Max und der Min
                                 if (dic != 0) _Rate = dic / 60000;      //gleich auch 1/x
-                                _VSS = (AMax.Value - AMin.Value);
+                                _VSS = AMax.Value - AMin.Value;
                                 ret = true;
                             }
                             AMaxLast.Copy(AMax);
@@ -311,12 +311,12 @@ namespace WindControlLib
 
         public double GetX(double y)
         {
-            return ((y - d) / k);
+            return (y - d) / k;
         }
 
         public double GetY(double x)
         {
-            return (k * x + d);
+            return k * x + d;
         }
 
     }
