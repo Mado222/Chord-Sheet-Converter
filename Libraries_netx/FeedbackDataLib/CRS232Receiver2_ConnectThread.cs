@@ -1,5 +1,4 @@
-﻿using BMTCommunication;
-using BMTCommunicationLib;
+﻿using BMTCommunicationLib;
 using System.ComponentModel;
 using System.Diagnostics;
 

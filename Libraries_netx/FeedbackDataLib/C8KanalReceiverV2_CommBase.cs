@@ -1,4 +1,4 @@
-﻿using BMTCommunication;
+﻿using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
 using WindControlLib;
 using FeedbackDataLib.Modules.CADS1294x;

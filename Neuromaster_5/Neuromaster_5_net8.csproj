@@ -11,12 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Libraries_netx\BMTCommunication\BMTCommunicationLib.csproj" />
-    <ProjectReference Include="..\Libraries_netx\ComponentsLib_GUI\ComponentsLib_GUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\BMTCommunicationLib\BMTCommunicationLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\ComponentsLibGUI\ComponentsLibGUI.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FeedbackDataLibGUI\FeedbackDataLibGUI.csproj" />
     <ProjectReference Include="..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj" />
-    <ProjectReference Include="..\Libraries_netx\FeedbackDataLib_GUI\FeedbackDataLib_GUI.csproj" />
-    <ProjectReference Include="..\Libraries_netx\FilteringLibrary\FilteringLibrary.csproj" />
-    <ProjectReference Include="..\Libraries_netx\Math_Net_nuget\Math_Net_nuget.csproj" />
+    <ProjectReference Include="..\Libraries_netx\FilteringLib\FilteringLib.csproj" />
+    <ProjectReference Include="..\Libraries_netx\MathNetNugetLib\MathNetNugetLib.csproj" />
     <ProjectReference Include="..\Libraries_netx\WindControlLib\WindControlLib.csproj" />
   </ItemGroup>
 

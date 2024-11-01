@@ -1,7 +1,5 @@
-﻿using BMTCommunication;
-using BMTCommunicationLib;
+﻿using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
-using System.IO;
 using WindControlLib;
 
 namespace FeedbackDataLib

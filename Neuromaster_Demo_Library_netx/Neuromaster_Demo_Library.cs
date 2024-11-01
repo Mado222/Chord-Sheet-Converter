@@ -1,7 +1,7 @@
-﻿using BMTCommunication;
+﻿using BMTCommunicationLib;
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
-using Math_Net_nuget;
+using MathNetNuget;
 using Neuromaster_Demo_Library_Reduced__netx;
 using WindControlLib;
 using static FeedbackDataLib.C8KanalReceiverV2;
@@ -31,12 +31,12 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Saves recent Connection status
         /// </summary>
-        private enumConnectionStatus OldConnection_Status = enumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus OldConnection_Status = EnumConnectionStatus.Not_Connected;
 
         /// <summary>
         /// Result of the last attempt to connect to Neuromaster
         /// </summary>
-        private enumConnectionResult LastConnectionResult = enumConnectionResult.No_Active_Neurolink;
+        private EnumConnectionResult LastConnectionResult = EnumConnectionResult.No_Active_Neurolink;
 
         /// <summary>
         /// Ringpuffer for Status Messages (used from tmrStatusMessages)
@@ -108,13 +108,13 @@ namespace Neuromaster_Demo
                 DataReceiver = new C8KanalReceiverV2();
             }
 
-            enumConnectionResult? conres;  //Connection Result
+            EnumConnectionResult? conres;  //Connection Result
 
             conres = DataReceiver.Init_via_D2XX();      //Init via FTDI D2XX Driver (faster); checks for Neurolink but not yet for NEUROMASTER!!
             //conres = Neuromaster_Connection.Init_via_VirtualCom();  //Init via RS232 emulation(slower)
 
-            if ((conres == enumConnectionResult.Connected_via_USBCable) ||
-                conres == enumConnectionResult.Connected_via_XBee)
+            if ((conres == EnumConnectionResult.Connected_via_USBCable) ||
+                conres == EnumConnectionResult.Connected_via_XBee)
             {
 
                 //Neurolink is detected and initialised 
@@ -125,44 +125,44 @@ namespace Neuromaster_Demo
 
                 switch (LastConnectionResult)
                 {
-                    case enumConnectionResult.Connected_via_XBee:
+                    case EnumConnectionResult.Connected_via_XBee:
                         {
                             AddStatusString("XBee Connection found: " + DataReceiver.PortName, Color.Green);
                             AddEvents();    //Attach events
                             break;
                         }
-                    case enumConnectionResult.Connected_via_USBCable:
+                    case EnumConnectionResult.Connected_via_USBCable:
                         {
                             AddStatusString("USB cable connection found: " + DataReceiver.PortName, Color.Green);
                             AddEvents();    //Attach events
                             break;
                         }
-                    case enumConnectionResult.Error_during_Port_scan:
+                    case EnumConnectionResult.Error_during_Port_scan:
                         {
                             AddStatusString("Error during Port scan.", Color.Red);
                             break;
                         }
-                    case enumConnectionResult.Error_during_USBcable_connection:
+                    case EnumConnectionResult.Error_during_USBcable_connection:
                         {
                             AddStatusString("Error_during_USBcable_connection", Color.Orange);
                             break;
                         }
-                    case enumConnectionResult.Error_during_XBee_connection:
+                    case EnumConnectionResult.Error_during_XBee_connection:
                         {
                             AddStatusString("Error_during_XBee_connection", Color.Orange);
                             break;
                         }
-                    case enumConnectionResult.More_than_one_Neurolink_detected:
+                    case EnumConnectionResult.More_than_one_Neurolink_detected:
                         {
                             AddStatusString("Please connect only one Neurolink", Color.Orange);
                             break;
                         }
-                    case enumConnectionResult.No_Active_Neurolink:
+                    case EnumConnectionResult.No_Active_Neurolink:
                         {
                             AddStatusString("No active Neurolink found.", Color.Orange);
                             break;
                         }
-                    case enumConnectionResult.Error_read_ErrorString:
+                    case EnumConnectionResult.Error_read_ErrorString:
                         {
                             AddStatusString(DataReceiver.LastErrorString, Color.Orange);
                             break;
@@ -179,17 +179,17 @@ namespace Neuromaster_Demo
                 //Possible Errors if no Neurolink is detected
                 switch (conres)
                 {
-                    case enumConnectionResult.Error_during_Port_scan:
+                    case EnumConnectionResult.Error_during_Port_scan:
                         {
                             AddStatusString("Error during Port scan.", Color.Red);
                             break;
                         }
-                    case enumConnectionResult.More_than_one_Neurolink_detected:
+                    case EnumConnectionResult.More_than_one_Neurolink_detected:
                         {
                             AddStatusString("Please connect only one Neurolink", Color.Orange);
                             break;
                         }
-                    case enumConnectionResult.No_Active_Neurolink:
+                    case EnumConnectionResult.No_Active_Neurolink:
                         {
                             AddStatusString("No active Neurolink found.", Color.Orange);
                             break;
@@ -209,7 +209,7 @@ namespace Neuromaster_Demo
         {
             //Event for Data
             DataReceiver.Connection.DataReady -= DataReceiver_Connection_DataReady;
-            DataReceiver.Connection.DataReady += new BMTCommunication.DataReadyEventHandler(DataReceiver_Connection_DataReady);
+            DataReceiver.Connection.DataReady += new BMTCommunicationLib.DataReadyEventHandler(DataReceiver_Connection_DataReady);
 
             //Event to inform PC about Battery Status
             DataReceiver.Connection.DeviceToPC_BatteryStatus -= Connection_DeviceToPC_BatteryStatus;
@@ -409,7 +409,7 @@ namespace Neuromaster_Demo
 
                     switch (OldConnection_Status)
                     {
-                        case enumConnectionStatus.Connected:
+                        case EnumConnectionStatus.Connected:
                             {
                                 //Connection has (re-) appeard
                                 AddStatusString("Connected", Color.Green);
@@ -431,18 +431,18 @@ namespace Neuromaster_Demo
                                 }
                                 break;
                             }
-                        case enumConnectionStatus.Connecting:
+                        case EnumConnectionStatus.Connecting:
                             {
                                 AddStatusString("Connecting", Color.Green);
                                 break;
                             }
-                        case enumConnectionStatus.Not_Connected:
+                        case EnumConnectionStatus.Not_Connected:
                             {
                                 AddStatusString("Not Connected", Color.Red);
                                 GoDisconnected();
                                 break;
                             }
-                        case enumConnectionStatus.Dis_Connected:
+                        case EnumConnectionStatus.Dis_Connected:
                             {
                                 AddStatusString("Dis-Connected", Color.Red);
                                 GoDisconnected();
@@ -454,21 +454,21 @@ namespace Neuromaster_Demo
                                 }
                                 break;
                             }
-                        case enumConnectionStatus.No_Data_Link:
+                        case EnumConnectionStatus.No_Data_Link:
                             {
                                 AddStatusString("No Data Link", Color.Red);
                                 break;
                             }
-                        case enumConnectionStatus.PortError:
+                        case EnumConnectionStatus.PortError:
                             {
                                 AddStatusString("Cannot open COM - restart", Color.Red);
                                 break;
                             }
-                        case enumConnectionStatus.USB_disconnected:
+                        case EnumConnectionStatus.USB_disconnected:
                             {
                                 break;
                             }
-                        case enumConnectionStatus.USB_reconnected:
+                        case EnumConnectionStatus.USB_reconnected:
                             {
                                 break;
                             }
@@ -529,7 +529,7 @@ namespace Neuromaster_Demo
             int HW_cn = DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].HW_cn;
             DataReceiver.Connection.Device.ModuleInfos[HW_cn] = cChannelsControlV2x11.GetModuleInfo(HW_cn);
 
-            if (DataReceiver.Connection.SetConfigModule(HW_cn)) //Set the configuration
+            if (DataReceiver.Connection.SetConfigModules(HW_cn)) //Set the configuration
             {
                 AddStatusString("Config set: " + HW_cn.ToString(), Color.Green);
                 pbXBeeChannelCapacity.Value = DataReceiver.Connection.GetChannelCapcity();  //Calculate channel capacity with the new setting
@@ -651,11 +651,11 @@ namespace Neuromaster_Demo
         /// Neuromaster_s the connection_ device connected.
         /// </summary>
         /// <param name="ConnectionResult">The connection result.</param>
-        private void DataReceiver_Connection_DeviceConnected(enumConnectionResult ConnectionResult)
+        private void DataReceiver_Connection_DeviceConnected(EnumConnectionResult ConnectionResult)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new Action<enumConnectionResult>(DataReceiver_Connection_DeviceConnected), ConnectionResult);
+                this.Invoke(new Action<EnumConnectionResult>(DataReceiver_Connection_DeviceConnected), ConnectionResult);
             }
             else
             {
@@ -876,7 +876,7 @@ namespace Neuromaster_Demo
             CNMFirmwareVersion NMFirmwareVersion = new ();
             DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
 
-            AddStatusString("NM UID: " + NMFirmwareVersion.uuid, Color.DarkOliveGreen);
+            AddStatusString("NM UID: " + NMFirmwareVersion.Uuid, Color.DarkOliveGreen);
             AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersion_string, Color.DarkOliveGreen);
             AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersion_string, Color.DarkOliveGreen);
 

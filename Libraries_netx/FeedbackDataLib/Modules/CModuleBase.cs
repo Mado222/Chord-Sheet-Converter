@@ -170,7 +170,11 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// Gets the related module color
         /// </summary>
+#if DEBUG
         public Color ModuleColor { get; set; } = Color.White;
+#else
+        public Color ModuleColor { get; protected set; } = Color.White;
+#endif
 
         /// <summary>
         /// Gets the module type as string
@@ -213,7 +217,11 @@ namespace FeedbackDataLib.Modules
 
         public byte HWRevision { get; private set; }
 
+#if DEBUG
         public string ModuleName { get; set; }
+#else
+        public string ModuleName { get; protected set; }
+#endif
 
         public virtual byte[] Get_SWConfigChannelsByteArray()
         {

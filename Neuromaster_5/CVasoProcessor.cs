@@ -1,4 +1,4 @@
-﻿using FilteringLibrary;
+﻿using FilteringLib;
 using WindControlLib;
 
 

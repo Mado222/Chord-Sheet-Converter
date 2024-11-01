@@ -46,9 +46,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BMTCommunication\BMTCommunicationLib.csproj" />
-    <ProjectReference Include="..\FilteringLibrary\FilteringLibrary.csproj" />
-    <ProjectReference Include="..\Math_Net_nuget\Math_Net_nuget.csproj" />
+    <ProjectReference Include="..\BMTCommunicationLib\BMTCommunicationLib.csproj" />
+    <ProjectReference Include="..\FilteringLib\FilteringLib.csproj" />
+    <ProjectReference Include="..\MathNetNugetLib\MathNetNugetLib.csproj" />
     <ProjectReference Include="..\WindControlLib\WindControlLib.csproj" />
   </ItemGroup>
 

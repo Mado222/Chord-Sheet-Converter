@@ -81,11 +81,13 @@ namespace FeedbackDataLib
         //public string SWChannelName => SWChannelType.SWChannelName;
         public string SWChannelName { get; set; } = "";
 
+
         /// <summary>
         /// Gets the SW channel number.
         /// </summary>
         //public byte SWChannelNumber => (byte)SWChannelType.SWChannelTypeNo;
-        public byte SWChannelNumber { get; set; } = 0;
+        public byte SWChannelNumber { get; set; }
+
 
         /// <summary>
         /// To remember Max. Scale of Graph

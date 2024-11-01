@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using ComponentsLib_GUI;
+﻿using ComponentsLib_GUI;
 
 namespace Neuromaster_V5
 {

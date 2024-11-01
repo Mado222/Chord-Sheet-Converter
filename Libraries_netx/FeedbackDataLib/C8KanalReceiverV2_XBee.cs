@@ -1,4 +1,3 @@
-using BMTCommunication;
 using BMTCommunicationLib;
 using System;
 
@@ -159,7 +158,7 @@ namespace FeedbackDataLib
             XBeeConnection.ConfigureEndDeviceTo = CXBeeConnection.EnumConfigureEnDeviceTo.Neuromaster;
             if (XBeeConnection.InitXBee())
             {
-                //Jetzt Verbinding herstellen
+                //Jetzt Verbindung herstellen
                 Connect_via_tryToConnectWorker();
                 ret = true;
             }

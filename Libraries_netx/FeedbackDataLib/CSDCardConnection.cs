@@ -1,8 +1,6 @@
-﻿using System;
-using BMTCommunication;
+﻿using BMTCommunicationLib;
 using WindControlLib;
 using System.IO.Ports;
-using BMTCommunicationLib;
 
 
 namespace FeedbackDataLib

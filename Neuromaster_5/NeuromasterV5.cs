@@ -1,4 +1,4 @@
-﻿using BMTCommunication;
+﻿using BMTCommunicationLib;
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using FeedbackDataLib_GUI;
@@ -10,6 +10,7 @@ using WindControlLib;
 
 namespace Neuromaster_V5
 {
+#pragma warning disable // Disables all warnings for this file
     public partial class NeuromasterV5 : Form
     {
         /// <summary>
@@ -47,7 +48,7 @@ namespace Neuromaster_V5
         /// </summary>
         private int BU_idx_SelectedModule = -1;
 
-        private readonly CNeuromaster_Textfile_Importer_Exporter Neuromaster_Textfile_Importer_Exporter = new();
+        private readonly CNeuromasterTextfileImporterExporter Neuromaster_Textfile_Importer_Exporter = new();
 
         //private readonly CFFT_MathNet FFT_MathNet = new();
 
@@ -1105,7 +1106,7 @@ namespace Neuromaster_V5
         private void GetFTDIStatus(string Info, Color col)
         {
             byte GetModemStatus = 0;
-            BMTCommunication.FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.GetModemStatus(ref GetModemStatus);
+            BMTCommunicationLib.FTDI.FT_STATUS ftStatus = DataReceiver.FTDI_D2xx.GetModemStatus(ref GetModemStatus);
 
             AddStatusString(Info, col);
             AddStatusString("ModemStatus: " + GetModemStatus.ToString("X") + " (Status:" + ftStatus.ToString() + ")", Color.Black);
@@ -1566,7 +1567,7 @@ namespace Neuromaster_V5
 
         private void TmrFileDataReader_Tick(object sender, EventArgs e)
         {
-            CNeuromaster_Textfile_Importer_Exporter.CDatafromFile cdf = Neuromaster_Textfile_Importer_Exporter.GetNextValueFrom_SDCardFile(DateRecorded);
+            CNeuromasterTextfileImporterExporter.CDatafromFile cdf = Neuromaster_Textfile_Importer_Exporter.GetNextValueFrom_SDCardFile(DateRecorded);
             cChannelsControlV2x11.SetChannelActivity(cdf.hwcn);
             CYvsTimeData c = new(1)
             {
@@ -1726,4 +1727,5 @@ namespace Neuromaster_V5
         #endregion
     }
 }
+#pragma warning restore // Disables all warnings for this file
 #endregion

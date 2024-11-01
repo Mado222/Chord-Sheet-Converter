@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <NoWarn>1701;1702;CA1416;CS8605</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <NoWarn>1701;1702;CA1416;CS8605</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="frmModuleSpecificSetup_ExGADS1292.cs" />
+    <Compile Remove="frmModuleSpecificSetup_ExGADS1292.Designer.cs" />
+    <Compile Remove="ucModuleSpecificSetup_ExGADS1292.cs" />
+    <Compile Remove="ucModuleSpecificSetup_ExGADS1292.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="frmModuleSpecificSetup_ExGADS1292.resx" />
+    <EmbeddedResource Remove="ucModuleSpecificSetup_ExGADS1292.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ComponentsLibGUI\ComponentsLibGUI.csproj" />
+    <ProjectReference Include="..\FeedbackDataLib\FeedbackDataLib.csproj" />
+    <ProjectReference Include="..\WindControlLib\WindControlLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
+  </ItemGroup>
+
+</Project>

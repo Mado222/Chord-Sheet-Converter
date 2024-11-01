@@ -1,6 +1,4 @@
-﻿using BMTCommunication;
-using BMTCommunicationLib;
-using MathNet.Numerics;
+﻿using BMTCommunicationLib;
 using System.ComponentModel;
 using System.Diagnostics;
 using WindControlLib;
