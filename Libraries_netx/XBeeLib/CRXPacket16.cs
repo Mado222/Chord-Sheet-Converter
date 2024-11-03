@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// implements the API Type RX Packet 16-bit Address (0x81)

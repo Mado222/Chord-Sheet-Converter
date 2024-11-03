@@ -23,13 +23,13 @@ namespace Neuromaster_V5
         public event SavingHandler StartSaving;
         protected virtual void OnStartSaving()
         {
-            if (StartSaving != null) StartSaving();
+            StartSaving?.Invoke();
         }
 
         public event SavingHandler StopSaving;
         protected virtual void OnStopSaving()
         {
-            if (StopSaving != null) StopSaving();
+            StopSaving?.Invoke();
         }
 
         private void ctbSaving_ToState1(object sender, EventArgs e)

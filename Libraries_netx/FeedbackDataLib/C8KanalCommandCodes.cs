@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using WindControlLib;
+﻿using WindControlLib;
 
 namespace FeedbackDataLib
 {

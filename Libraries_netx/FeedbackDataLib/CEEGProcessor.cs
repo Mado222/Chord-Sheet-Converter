@@ -1,5 +1,4 @@
-﻿using FeedbackDataLib.Modules;
-using WindControlLib;
+﻿using WindControlLib;
 
 namespace FeedbackDataLib
 {
@@ -47,7 +46,7 @@ namespace FeedbackDataLib
         public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
 
-        private CRingpuffer RP = new (0);
+        private CRingpuffer RP = new(0);
 
         public CEEGProcessor(CSWChannel rawChannel, CEEGCalcChannels eegChannels)
         {

@@ -1,5 +1,5 @@
-﻿using WindControlLib;
-using ComponentsLib;
+﻿using ComponentsLib;
+using WindControlLib;
 
 namespace MathNetNuget
 {
@@ -598,7 +598,7 @@ namespace MathNetNuget
 
             List<string[]> importedData = CTextFileImporter.ImportTextFile(ref LastTextfielPath, ";", numHeaderRows, ref Header);
             this.LastTextfielPath = LastTextfielPath;
-            
+
             if (importedData != null)
             {
                 List<double> IPI_temp = [];

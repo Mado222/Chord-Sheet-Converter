@@ -1,7 +1,6 @@
-﻿using System.Drawing;
-using Phidget22;
+﻿using Phidget22;
 using Phidget22.Events;
-using System.Collections.Generic;
+using System.Drawing;
 
 namespace PhidgetLib
 {
@@ -16,13 +15,13 @@ namespace PhidgetLib
         public string PhSerial { get; private set; } = "-1";
         public string PhVersion { get; private set; } = "";
         public bool PhAttached
-        { 
-            get 
+        {
+            get
             {
                 if (ph_digitalOutputs != null)
                     return ph_digitalOutputs[0].Attached;
                 return false;
-            } 
+            }
         }
         #endregion
 

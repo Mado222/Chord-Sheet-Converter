@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     public class CTXRequest64 : CTXRequestBasic
     {

@@ -1,7 +1,6 @@
 ﻿using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
 using WindControlLib;
-using FeedbackDataLib.Modules.CADS1294x;
 
 namespace FeedbackDataLib
 {
@@ -328,7 +327,7 @@ namespace FeedbackDataLib
         protected virtual void RS232Receiver_DataReadyComm(object sender, List<CDataIn> DataIn)
         {
             if (Device is null) return;
-            
+
             List<CDataIn> _DataIn = [];
             foreach (CDataIn di in DataIn)
             {
@@ -680,7 +679,7 @@ namespace FeedbackDataLib
                 try
                 {
                     Device ??= new C8KanalDevice2();
-                    ret = Device.UpdateModuleInfoFrom_ByteArray([.. AllData]);
+                    ret = Device.UpdateModuleInfoFromByteArray([.. AllData]);
                     if (ret)
                     {
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
@@ -969,16 +968,16 @@ namespace FeedbackDataLib
                 else   //if ((InData.Length > 0))
                 {
                     //No data expected, only confirmation of reception (NM-to-PC-Ack)
-                    ret = false;
+                    ret = true;
                     //Wait for Size of Data to receive
                     inbuf = new byte[1];
                     if (WaitCommandResponse(ref inbuf))
                     {
                         //Was correct package sent?
-                        if (inbuf[0] == C8KanalRecCommandCode)
+                        if (! (inbuf[0] == C8KanalRecCommandCode))
                         {
                             //if inbuf[0] == cCommandError ... then it was explicitely an error in Neuromaster
-                            ret = true;
+                            ret = false;
                         }
                     }
                     else

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MathNetNuget
+﻿namespace MathNetNuget
 {
     public class CPeakDetect
     {

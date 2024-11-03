@@ -648,7 +648,7 @@ namespace FeedbackDataLib
                         return EnumConnectionResult.Error_read_ErrorString;
                     }
                 }
-                return EnumConnectionResult.Error_during_XBee_connection ;
+                return EnumConnectionResult.Error_during_XBee_connection;
             }
 
             else if (ConnectionType == EnumNeuromasterConnectionType.RS232Connection)
@@ -672,7 +672,7 @@ namespace FeedbackDataLib
                         return EnumConnectionResult.Connected_via_USBCable;
                     }
                 }
-                return EnumConnectionResult.Error_during_USBcable_connection ;
+                return EnumConnectionResult.Error_during_USBcable_connection;
             }
             else if (ConnectionType == EnumNeuromasterConnectionType.SDCardConnection)
             {
@@ -761,7 +761,7 @@ namespace FeedbackDataLib
         public void Dispose()
         {
             DisposeDevice();
-            GC.SuppressFinalize(this); 
+            GC.SuppressFinalize(this);
         }
 
         private void DisposeDevice()

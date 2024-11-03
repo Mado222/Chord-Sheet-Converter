@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// base class for API responses

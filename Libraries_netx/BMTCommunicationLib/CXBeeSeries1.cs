@@ -101,7 +101,7 @@ namespace BMTCommunicationLib
         /// <summary>
         /// error class
         /// </summary>
-        private readonly CXBError _Error = new ();
+        private readonly CXBError _Error = new();
 
         #region IDisposable Members
         public void Dispose()
@@ -673,7 +673,7 @@ namespace BMTCommunicationLib
                 ATCommand = CXBATCommands.XBAT_NodeDiscover,
                 ATCommandResponse = true
             };
-            CATCommandResponse? response = (CATCommandResponse?) XBSendRequest(request, NTmsec);   // last version: CATCommandResponse response = (CATCommandResponse)XBSendRequest(request, 3000);
+            CATCommandResponse? response = (CATCommandResponse?)XBSendRequest(request, NTmsec);   // last version: CATCommandResponse response = (CATCommandResponse)XBSendRequest(request, 3000);
             if (response != null)
             {
                 List<byte> listOfByte = new(response.ValueOfCommand);
@@ -1225,7 +1225,7 @@ namespace BMTCommunicationLib
                 ATCommandResponse = true,
                 ATCommand = ATCommand
             };
-            CATCommandResponse? response = (CATCommandResponse?) XBSendRequest(request, 500);
+            CATCommandResponse? response = (CATCommandResponse?)XBSendRequest(request, 500);
             if (response != null)
             {
                 switch (response.Status)
@@ -1278,7 +1278,7 @@ namespace BMTCommunicationLib
                     if (XBSendString_CheckOKResponse(CXBATCommands.XBAT_Write_to_nonvolatilememory) > 0)
                     {
                         XBLeaveCommandMode();
-                        CModemStatus? response = (CModemStatus?) XBGetResponse(); //waits for ModemStatus for 500msec.
+                        CModemStatus? response = (CModemStatus?)XBGetResponse(); //waits for ModemStatus for 500msec.
                         if (response != null)
                         {
                             return (int)response.modemStatus;
@@ -1409,8 +1409,8 @@ namespace BMTCommunicationLib
         {
             if (LocalDevice == null)
                 throw new InvalidOperationException("LocalDevice cannot be null.");
-            if (CurrentEndDevice == null) 
-                    throw new InvalidOperationException("CurrentEndDevice cannot be null.");
+            if (CurrentEndDevice == null)
+                throw new InvalidOperationException("CurrentEndDevice cannot be null.");
 
             if (LocalDevice.APIMode == XBAPIMode.Disabled)
             {
@@ -1492,21 +1492,21 @@ namespace BMTCommunicationLib
                 //Set AP
                 ATCommand = CXBATCommands.XBAT_SetAPIMode(newEndDeviceConfig.APIMode)
             };
-            CRemoteCommandResponse? response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+            CRemoteCommandResponse? response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
             if (response != null && response.Status == RXCommandResponseStatus.OK)
             {
                 CurrentEndDevice.APIMode = newEndDeviceConfig.APIMode;
 
                 //Set CE
                 remoteCommand.ATCommand = CXBATCommands.XBAT_SetCoordinatorEnable(newEndDeviceConfig.CE_CoordinatorEnable);
-                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                 {
                     CurrentEndDevice.CE_CoordinatorEnable = newEndDeviceConfig.CE_CoordinatorEnable;
 
                     //MY Address
                     remoteCommand.ATCommand = CXBATCommands.XBAT_SetMyAddress(newEndDeviceConfig.MY_MyAddress);
-                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                     {
                         CurrentEndDevice.MY_MyAddress = newEndDeviceConfig.MY_MyAddress;
@@ -1515,7 +1515,7 @@ namespace BMTCommunicationLib
                         if (XBCheckNodeIdentifierString(newEndDeviceConfig.NI_NodeIdentifier) == true)
                         {
                             remoteCommand.ATCommand = CXBATCommands.XBAT_SetNodeIdentifier(newEndDeviceConfig.NI_NodeIdentifier);
-                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                         }
                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                         {
@@ -1523,53 +1523,53 @@ namespace BMTCommunicationLib
 
                             //Set Baud
                             remoteCommand.ATCommand = CXBATCommands.XBAT_SetBaudRate(newEndDeviceConfig.BaudRate);
-                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                             {
                                 CurrentEndDevice.BaudRate = newEndDeviceConfig.BaudRate;
                                 //SM Set Sleep Mode
                                 remoteCommand.ATCommand = CXBATCommands.XBAT_SetSleepMode(newEndDeviceConfig.SM_SleepMode);
-                                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                                 {
                                     CurrentEndDevice.SM_SleepMode = newEndDeviceConfig.SM_SleepMode;
 
                                     //ST
                                     remoteCommand.ATCommand = CXBATCommands.XBAT_SetTimeBeforeSleep(newEndDeviceConfig.ST_TimeBeforeSleep);
-                                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                                     {
                                         CurrentEndDevice.ST_TimeBeforeSleep = newEndDeviceConfig.ST_TimeBeforeSleep;
 
                                         //SP
                                         remoteCommand.ATCommand = CXBATCommands.XBAT_SetCyclicSleepPeriod(newEndDeviceConfig.SP_CyclicSleepPeriode);
-                                        response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                        response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                                         {
                                             //SO
                                             remoteCommand.ATCommand = CXBATCommands.XBAT_SetSleepOption(newEndDeviceConfig.SO_SleepOption);
-                                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                                             {
                                                 //RO
                                                 remoteCommand.ATCommand = CXBATCommands.XBAT_SetROPacketizationTimeout(newEndDeviceConfig.R0_PacketizationTimeout);
-                                                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                 {
                                                     //DH
                                                     remoteCommand.ATCommand = CXBATCommands.XBAT_SetDestinationAddressHigh(newEndDeviceConfig.DestinationAddress);
-                                                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                     {
                                                         CurrentEndDevice.DestinationAddress = newEndDeviceConfig.DestinationAddress;
                                                         //DL
                                                         remoteCommand.ATCommand = CXBATCommands.XBAT_SetDestinationAddressLow(newEndDeviceConfig.DestinationAddress);
-                                                        response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                        response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                         {
                                                             //A2
                                                             remoteCommand.ATCommand = CXBATCommands.XBAT_SetCoordinatorAssociation(newEndDeviceConfig.A2_CoordinatorAssociation);
-                                                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                             {
                                                                 //WR Write to Nonvolatile memory
@@ -1586,7 +1586,7 @@ namespace BMTCommunicationLib
 
                                                                         //Soft Reset
                                                                         remoteCommand.ATCommand = CXBATCommands.XBAT_SotfwareReset;
-                                                                        _ = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);   //No response from this command
+                                                                        _ = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);   //No response from this command
                                                                         //Wait to come out of reset (3s)
                                                                         Thread.Sleep(3000);
                                                                         return 1;
@@ -1644,7 +1644,7 @@ namespace BMTCommunicationLib
                 //Get AP
                 ATCommand = CXBATCommands.XBAT_GetAPIMode
             };
-            CRemoteCommandResponse? response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 3000);
+            CRemoteCommandResponse? response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 3000);
             if (CurrentEndDevice is not null && response != null && response.Status == RXCommandResponseStatus.OK)
             {
                 if (response.ValueOfCommand.Length > 0)
@@ -1652,7 +1652,7 @@ namespace BMTCommunicationLib
 
                 //Get MY
                 remoteCommand.ATCommand = CXBATCommands.XBAT_GetMyAddress;
-                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                 {
                     if (response.ValueOfCommand.Length > 0)
@@ -1661,7 +1661,7 @@ namespace BMTCommunicationLib
                     }
                     //Get SH
                     remoteCommand.ATCommand = CXBATCommands.XBAT_GetSerialNumberH;
-                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                     {
                         if (response.ValueOfCommand.Length > 0)
@@ -1673,7 +1673,7 @@ namespace BMTCommunicationLib
                         }
                         //Get SL
                         remoteCommand.ATCommand = CXBATCommands.XBAT_GetSerialNumberL;
-                        response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                        response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                         {
                             if (response.ValueOfCommand.Length > 0)
@@ -1686,7 +1686,7 @@ namespace BMTCommunicationLib
 
                             //Get CE
                             remoteCommand.ATCommand = CXBATCommands.XBAT_GetCoordinatorEnable;
-                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                             {
                                 if (response.ValueOfCommand.Length > 0)
@@ -1694,7 +1694,7 @@ namespace BMTCommunicationLib
 
                                 //Get EndDeviceAssocation
                                 remoteCommand.ATCommand = CXBATCommands.XBAT_GetEndDeviceAssociation;
-                                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                                 {
                                     if (response.ValueOfCommand.Length > 0)
@@ -1702,7 +1702,7 @@ namespace BMTCommunicationLib
 
                                     //Get Node Identifier
                                     remoteCommand.ATCommand = CXBATCommands.XBAT_GetNodeIdentifier;
-                                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                                     {
                                         if (response.ValueOfCommand.Length > 0)
@@ -1712,7 +1712,7 @@ namespace BMTCommunicationLib
                                         }
                                         //A2 Get CoordinatorAssociation
                                         remoteCommand.ATCommand = CXBATCommands.XBAT_GetCoordinatorAssociation;
-                                        response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                        response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                                         {
                                             if (response.ValueOfCommand.Length > 0)
@@ -1720,7 +1720,7 @@ namespace BMTCommunicationLib
 
                                             //ST
                                             remoteCommand.ATCommand = CXBATCommands.XBAT_GetTimeBeforeSleep;
-                                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                                             {
                                                 if (response.ValueOfCommand.Length > 0)
@@ -1728,7 +1728,7 @@ namespace BMTCommunicationLib
 
                                                 //SP
                                                 remoteCommand.ATCommand = CXBATCommands.XBAT_GetCyclicSleepPeriod;
-                                                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                 {
                                                     if (response.ValueOfCommand.Length > 0)
@@ -1736,7 +1736,7 @@ namespace BMTCommunicationLib
 
                                                     //SM
                                                     remoteCommand.ATCommand = CXBATCommands.XBAT_GetSleepMode;
-                                                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                     {
                                                         if (response.ValueOfCommand.Length > 0)
@@ -1744,7 +1744,7 @@ namespace BMTCommunicationLib
 
                                                         //SO
                                                         remoteCommand.ATCommand = CXBATCommands.XBAT_GetSleepOption;
-                                                        response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                        response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                         if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                         {
                                                             if (response.ValueOfCommand.Length > 0)
@@ -1752,7 +1752,7 @@ namespace BMTCommunicationLib
 
                                                             //BD
                                                             remoteCommand.ATCommand = CXBATCommands.XBAT_GetBaudRate;
-                                                            response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                            response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                             if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                             {
                                                                 if (response.ValueOfCommand.Length > 0)
@@ -1764,7 +1764,7 @@ namespace BMTCommunicationLib
                                                                 //DH, DL
                                                                 ulong dhdl = 0;
                                                                 remoteCommand.ATCommand = CXBATCommands.XBAT_GetDestinationAddressHigh;
-                                                                response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                                response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                                 if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                                 {
                                                                     if (response.ValueOfCommand.Length > 0)
@@ -1773,7 +1773,7 @@ namespace BMTCommunicationLib
                                                                         dhdl <<= 32;
                                                                     }
                                                                     remoteCommand.ATCommand = CXBATCommands.XBAT_GetDestinationAddressLow;
-                                                                    response = (CRemoteCommandResponse?) XBSendRequest(remoteCommand, 500);
+                                                                    response = (CRemoteCommandResponse?)XBSendRequest(remoteCommand, 500);
                                                                     if (response != null && response.Status == RXCommandResponseStatus.OK)
                                                                     {
                                                                         if (response.ValueOfCommand.Length > 0)
@@ -2056,7 +2056,7 @@ namespace BMTCommunicationLib
             bool ret = false;
             //Just ckeck parameters currently relevant
             XBGetConfigurationOfLocalDevice();  //ToDo: notwendig?
-            CXBNodeInformation? NILocal = (CXBNodeInformation?) LocalDevice.Clone();
+            CXBNodeInformation? NILocal = (CXBNodeInformation?)LocalDevice.Clone();
             if (NILocal is not null)
             {
                 NILocal.UpdateIfNotDefault(LocalDeviceConfiguration);

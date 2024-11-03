@@ -1,8 +1,8 @@
-﻿using OxyPlot;
+﻿using FeedbackDataLib.Modules;
+using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
-using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
 {

@@ -1135,7 +1135,7 @@ namespace Neuromaster_V5
 
             AddStatusString("NM UID: " + NMFirmwareVersion.Uuid, Color.DarkOliveGreen);
             AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersion_string, Color.DarkOliveGreen);
-            AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersion_string, Color.DarkOliveGreen);
+            AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersionString, Color.DarkOliveGreen);
         }
 
 

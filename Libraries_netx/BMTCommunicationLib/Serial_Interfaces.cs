@@ -27,6 +27,10 @@ namespace BMTCommunicationLib
         void Dispose();
         bool Write(byte[] buffer, int offset, int count);
         int BytesToRead { get; }
+
+        // Async method
+        Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
+
         //event LogErrorEventHandler LogError;
         //string UniqueIdentifier { get; }
         event SerialDataReceivedEventHandler SerialDataReceivedEvent;
@@ -35,6 +39,8 @@ namespace BMTCommunicationLib
         bool RtsEnable { get; set; }
         bool DsrHolding { get; }
         DateTime Now(EnumTimQueryStatus TimQueryStatus);
+
+        
     }
 
 
@@ -307,8 +313,14 @@ namespace BMTCommunicationLib
 
         public DateTime Now(EnumTimQueryStatus timQueryStatus) => hp_Timer.Now;
 
-
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
+        {
+            await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _SerialPort.Write(buffer, offset, count);
+            }, cancellationToken);
+        }
         #endregion
     }
-
 }

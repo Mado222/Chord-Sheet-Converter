@@ -1,5 +1,4 @@
 using BMTCommunicationLib;
-using System;
 
 
 /* ModuleCommand noch nicht getestet - O.K. 18.7.2006

@@ -1,6 +1,5 @@
 using BMTCommunicationLib;
 using Microsoft.Win32;
-using System.Collections;
 using System.Diagnostics;
 
 namespace ComponentsLib_GUI
@@ -92,7 +91,7 @@ namespace ComponentsLib_GUI
         /// <remarks>
         /// Also reads registry to find DefaultCom and sets index accordingly
         /// </remarks>
-        public void Init(string DriverName, WindControlLib.CVID_PID? VIDPID= null)
+        public void Init(string DriverName, WindControlLib.CVID_PID? VIDPID = null)
         {
             //Alten Wert fuer COM aus der Registry holen
             string regkey = RegKey + Name + "\\";

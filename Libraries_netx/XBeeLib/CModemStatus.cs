@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// implements the API Type Modem Status (0x8A)

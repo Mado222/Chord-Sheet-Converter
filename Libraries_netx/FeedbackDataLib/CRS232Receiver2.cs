@@ -1,6 +1,7 @@
 using BMTCommunicationLib;
 using System.ComponentModel;
 using WindControlLib;
+using System.Diagnostics;
 
 namespace FeedbackDataLib
 {
@@ -173,12 +174,6 @@ namespace FeedbackDataLib
                 OnStatusChangedComm();
             }
         }
-
-
-        /// <summary>
-        /// RS232 receiver thread, started in TryToConnect
-        /// </summary>
-        private BackgroundWorker? RS232ReceiverThread;
 
         /// <summary>
         /// Connection thread

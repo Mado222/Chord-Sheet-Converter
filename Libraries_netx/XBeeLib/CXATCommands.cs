@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using WindControlLib;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// Provides or genertes AT Commands

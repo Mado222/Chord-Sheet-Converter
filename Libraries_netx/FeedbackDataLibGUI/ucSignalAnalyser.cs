@@ -4,8 +4,8 @@ namespace FeedbackDataLib_GUI
 {
     public partial class UcSignalAnalyser : UserControl
     {
-        private CRingpuffer cache = new (1000);
-        private readonly System.Windows.Forms.Timer updater = new ();
+        private CRingpuffer cache = new(1000);
+        private readonly System.Windows.Forms.Timer updater = new();
         private string unit = "_";
 
         private string _HeaderText = "";

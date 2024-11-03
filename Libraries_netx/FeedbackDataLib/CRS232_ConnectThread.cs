@@ -1,6 +1,8 @@
 ﻿using BMTCommunicationLib;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
+
 
 namespace FeedbackDataLib
 {
@@ -67,13 +69,16 @@ namespace FeedbackDataLib
                             //Gerät da
 
                             //Thread starten
-                            //LastAliveSignal = DateTime.Now;
-                            RS232ReceiverThread = new BackgroundWorker();
-#pragma warning disable CS8622
-                            RS232ReceiverThread.DoWork += new DoWorkEventHandler(RS232ReceiverThread_DoWork);
-#pragma warning restore CS8622
-                            RS232ReceiverThread.WorkerSupportsCancellation = true;
-                            RS232ReceiverThread.RunWorkerAsync();
+                            /*
+                                                        RS232ReceiverThread = new BackgroundWorker();
+                            #pragma warning disable CS8622
+                                                        RS232ReceiverThread.DoWork += new DoWorkEventHandler(RS232ReceiverThread_DoWork);
+                            #pragma warning restore CS8622
+                                                        RS232ReceiverThread.WorkerSupportsCancellation = true;
+                                                        RS232ReceiverThread.RunWorkerAsync();
+                            */
+                            // Run the async method as a new task
+                            Start_RS232ReceiverThread ();
 
                             //Diesen Thread beenden
                             tryToConnectWorker.CancelAsync();

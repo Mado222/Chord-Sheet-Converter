@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Collections;
-using System.Text;
-using System.Linq;
-
-//http://www.keil.com/support/docs/1584.htm
+﻿//http://www.keil.com/support/docs/1584.htm
 //https://en.wikipedia.org/wiki/Intel_HEX
 
 /*

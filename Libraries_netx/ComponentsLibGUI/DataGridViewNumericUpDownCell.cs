@@ -740,7 +740,7 @@ namespace ComponentsLib_GUI
                 }
             }
             Debug.Assert(minimum == value);
-            
+
             if (OwnsEditingNumericUpDown(rowIndex))
             {
                 if (EditingNumericUpDown is null) return;

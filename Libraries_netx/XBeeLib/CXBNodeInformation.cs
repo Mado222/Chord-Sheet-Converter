@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using WindControlLib;
+﻿using System.Collections;
 
 namespace XBeeLib
 {
@@ -298,8 +293,8 @@ namespace XBeeLib
         public int CompareTo(object? obj)
         {
             if (obj == null) throw new ArgumentNullException(nameof(obj));
-            
-            return Compare(this, (CXBNodeInformation) obj);
+
+            return Compare(this, (CXBNodeInformation)obj);
         }
         #endregion
 

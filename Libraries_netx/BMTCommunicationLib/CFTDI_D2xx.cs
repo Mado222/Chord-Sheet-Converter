@@ -898,6 +898,15 @@ namespace BMTCommunicationLib
             return hp_Timer.Now;
         }
 
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
+        {
+            await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                this.Write(buffer, offset, count);
+            }, cancellationToken);
+        }
+
         #endregion
     }
 }

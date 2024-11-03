@@ -1,6 +1,6 @@
 ﻿using BMTCommunicationLib;
-using WindControlLib;
 using System.IO.Ports;
+using WindControlLib;
 
 
 namespace FeedbackDataLib
@@ -261,10 +261,15 @@ namespace FeedbackDataLib
                             {
                                 break;
                             }
-                    
+
                     }
                 }
             }
+        }
+
+        public Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

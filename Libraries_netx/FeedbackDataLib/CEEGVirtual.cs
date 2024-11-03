@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MathNetNuget;
-using WindControlLib;
-
-namespace FeedbackDataLib
+﻿namespace FeedbackDataLib
 {
 #if VIRTUAL_EEG
     public class CEEGVirtual

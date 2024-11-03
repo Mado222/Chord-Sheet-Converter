@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-using FeedbackDataLib.Modules;
+﻿using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib_GUI
 {

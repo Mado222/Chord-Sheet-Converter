@@ -176,7 +176,7 @@ namespace BMTCommunicationLib
         private static extern IntPtr LoadLibrary(string dllToLoad);
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
-        
+
         [DllImport("kernel32.dll")]
         private static extern bool FreeLibrary(IntPtr hModule);
         #endregion

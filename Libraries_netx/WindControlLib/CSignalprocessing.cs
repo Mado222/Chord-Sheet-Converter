@@ -9,9 +9,6 @@ Einverstaendnis des Autors zulaessig.
 ;*************** WICHTIGER URHEBERRECHTSHINWEIS ***********************
 */
 
-using System;
-using System.Collections.Generic;
-
 namespace WindControlLib
 {
 

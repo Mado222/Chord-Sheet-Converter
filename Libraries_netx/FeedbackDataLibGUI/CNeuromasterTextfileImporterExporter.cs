@@ -1,7 +1,7 @@
-﻿using FeedbackDataLib.Modules;
+﻿using ComponentsLib_GUI;
 using FeedbackDataLib;
+using FeedbackDataLib.Modules;
 using WindControlLib;
-using ComponentsLib_GUI;
 
 
 namespace FeedbackDataLib_GUI
@@ -153,7 +153,7 @@ namespace FeedbackDataLib_GUI
                 if (!FileReader.EndOfStream)
                 {
                     //Read an parse Line
-                    string ? line = FileReader.ReadLine();
+                    string? line = FileReader.ReadLine();
                     if (!string.IsNullOrEmpty(line))
                         return ParseLinefrom_NMRecordedFile((string)line, Date);
                 }
@@ -315,7 +315,7 @@ namespace FeedbackDataLib_GUI
                 string header = "";
                 List<string[]>? ss = CTextFileImporterDialog.ImportTextFile(ref FilePath, "\t", Rowstoignore, ref header);
 
-                if (ss is not null && ss.Count>0)
+                if (ss is not null && ss.Count > 0)
                 {
                     foreach (string[] s in ss)
                     {

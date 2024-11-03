@@ -6,7 +6,6 @@ using SkiaSharp;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.Design;
-using System.Globalization;
 using System.Runtime.Versioning;
 using WindControlLib;
 

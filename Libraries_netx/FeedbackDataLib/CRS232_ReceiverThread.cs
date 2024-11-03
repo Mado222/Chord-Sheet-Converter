@@ -1,12 +1,19 @@
 ﻿using BMTCommunicationLib;
 using System.ComponentModel;
-using System.Diagnostics;
 using WindControlLib;
+using System.Diagnostics;
+using System.Buffers;
 
 namespace FeedbackDataLib
 {
     public partial class CRS232Receiver2
     {
+        /// <summary>
+        /// RS232 receiver thread, started in TryToConnect
+        /// </summary>
+        //private BackgroundWorker? RS232ReceiverThread;
+
+
         #region RS232ReceiverThread
         // 
         /// <summary>
@@ -15,29 +22,19 @@ namespace FeedbackDataLib
         /// <param name="sender"></param>
         /// <param name="e">DoWorkEventArgs</param>
         /// <remarks>Main work loop of the class.</remarks>
-        private void RS232ReceiverThread_DoWork(object sender, DoWorkEventArgs e)
+        //private void RS232ReceiverThread_DoWork(object sender, DoWorkEventArgs e)
+        private async Task RS232ReceiverThread_DoWorkAsync(CancellationToken cancellationToken)
         {
-            // Set thread name if it has not been set
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232ReceiverThread";
 
-            DateTime now;
             if (Seriell32 is null)
             {
                 throw new InvalidOperationException("The serial connection is not set.");
             }
             ISerialPort thrSeriell32 = Seriell32;
 
-            // Initialize RS232 FIFO buffer to hold incoming bytes
             CFifoBuffer<byte> rs232InBytes = new();
-
-            // Start the Data Distributor Thread
-            RS232DataDistributorThread = new BackgroundWorker();
-#pragma warning disable CS8622
-            RS232DataDistributorThread.DoWork += new DoWorkEventHandler(RS232DataDistributorThread_DoWork);
-#pragma warning restore CS8622
-            RS232DataDistributorThread.WorkerSupportsCancellation = true;
-            RS232DataDistributorThread.RunWorkerAsync();
 
             // Method to read data from RS232 and add to FIFO buffer
             void FillRS232()
@@ -45,13 +42,15 @@ namespace FeedbackDataLib
                 int bytesToRead = thrSeriell32.BytesToRead;
                 if (bytesToRead > 0)
                 {
-                    byte[] buffer = new byte[bytesToRead];
+                    byte[] buffer = ArrayPool<byte>.Shared.Rent(bytesToRead);
                     int bytesRead = thrSeriell32.Read(ref buffer, 0, bytesToRead);
 
                     if (bytesRead > 0)
                     {
-                        rs232InBytes.Push(buffer);
+                        rs232InBytes.Push(buffer.Take(bytesRead).ToArray());
                     }
+
+                    ArrayPool<byte>.Shared.Return(buffer);
                 }
             }
 
@@ -65,7 +64,7 @@ namespace FeedbackDataLib
                         return true;
 
                     FillRS232();
-                    Thread.Sleep(2); // Short sleep to avoid busy waiting
+                    Task.Delay(2, cancellationToken).Wait(cancellationToken); // Short delay to avoid busy waiting
                     attempts--;
                 }
                 while (attempts > 0);
@@ -75,122 +74,90 @@ namespace FeedbackDataLib
 
             try
             {
-                // Main loop to handle incoming and outgoing data
-                while (RS232ReceiverThread is not null && !RS232ReceiverThread.CancellationPending
-                    && thrSeriell32 is not null)
+                while (!cancellationToken.IsCancellationRequested && thrSeriell32 is not null)
                 {
                     if (!EnableDataReceiving)
                     {
-                        Thread.Sleep(20); // If data receiving is disabled, sleep to prevent high CPU usage
+                        await Task.Delay(20, cancellationToken); // Sleep to prevent high CPU usage
                         continue;
                     }
 
                     #region Send Data
-                    // Handle outgoing data
                     byte[]? bout = RPDataOut.Pop();
                     if (bout is not null && bout.Length > 0)
                     {
                         if (!thrSeriell32.IsOpen)
                         {
-                            RS232ReceiverThread.CancelAsync(); // Cancel if the serial port is closed
+                            throw new InvalidOperationException("Serial port closed unexpectedly.");
                         }
 
                         try
                         {
-                            thrSeriell32.Write(bout, 0, bout.Length);
+                            await thrSeriell32.WriteAsync(bout, 0, bout.Length, cancellationToken);
+                            DataSent = true;
                         }
-#pragma warning disable CS0168
-                        catch (Exception ee)
-#pragma warning restore CS0168
+                        catch (Exception ex)
                         {
-                            // Log or handle the error related to data transmission failure
 #if DEBUG
-                            Debug.WriteLine($"Data send error: {ee.Message}");
+                            Debug.WriteLine($"Data send error: {ex.Message}");
 #endif
                         }
-                        finally
-                        {
-                            DataSent = true; // Indicate that the data was sent
-                        }
+                    }
+
+                    DateTime now = thrSeriell32.Now(EnumTimQueryStatus.no_Special);
+
+                    if (now > NextAliveSignalToSend && SendKeepAlive)
+                    {
+                        await thrSeriell32.WriteAsync(AliveSequToSend, 0, AliveSequToSend.Length, cancellationToken);
+                        NextAliveSignalToSend = now + AliveSignalToSendInterv;
                     }
                     #endregion
 
-                    // Send "alive" signal to the device periodically
-                    now = thrSeriell32.Now(EnumTimQueryStatus.no_Special);
-
-                    if (now > NextAliveSignalToSend)
-                    {
-                        if (SendKeepAlive)
-                        {
-                            thrSeriell32.Write(AliveSequToSend, 0, AliveSequToSend.Length);
-                            NextAliveSignalToSend = now + AliveSignalToSendInterv;
-                        }
-                    }
-
-                    // Fill buffer with incoming bytes
                     FillRS232();
 
-                    // If the buffer has fewer than 4 bytes, sleep briefly to wait for more data
                     if (rs232InBytes.Count < 4)
                     {
-                        Thread.Sleep(10);
+                        await Task.Delay(10, cancellationToken);
+                        continue;
                     }
 
-                    // Prepare to decode incoming data
                     CDataIn dataIn = new();
                     bool dataIsValid = false;
 
-                    // Check if we have enough bytes to decode
                     byte[]? precheckedBuffer = PrecheckBuffer(ref rs232InBytes);
                     if (precheckedBuffer is not null)
                     {
-                        // Decode the packet and mark the data as valid
                         CInsightDataEnDecoder.DecodePacket(precheckedBuffer, ref dataIn);
                         dataIsValid = true;
 
-                        // Process command if it matches the expected hardware channel number
                         if (dataIn.HW_cn == _CommandChannelNo)
                         {
                             dataIsValid = false;
-
-                            // Allocate buffer for the expected data length including CRC
                             byte[] buf = new byte[dataIn.Value];
 
-                            // Wait for the remaining command bytes to arrive
                             if (CheckRS232InBytesCount(buf.Length))
                             {
                                 buf = rs232InBytes.Pop(buf.Length) ?? [];
 
-                                // Check CRC of the received buffer
                                 if (buf.Length > 0 && CRC8.Check_CRC8(ref buf, 0, true, true))
                                 {
-                                    // Process different command codes
                                     switch (buf[0])
                                     {
                                         case C8KanalReceiverCommandCodes.cChannelSync:
-                                            {
-                                                LastSyncSignal = thrSeriell32.Now(EnumTimQueryStatus.isSync);
-                                                break;
-                                            }
-                                        case C8KanalReceiverCommandCodes.cDeviceAlive:
-                                            {
-                                                break;
-                                            }
+                                            LastSyncSignal = thrSeriell32.Now(EnumTimQueryStatus.isSync);
+                                            break;
+
                                         case C8KanalReceiverCommandCodes.cNeuromasterToPC:
-                                            {
-                                                RPDeviceCommunicationToPC.Push(buf);
-                                                break;
-                                            }
+                                            RPDeviceCommunicationToPC.Push(buf);
+                                            break;
+
                                         default:
-                                            {
-                                                RPCommand.Push(buf); // Store command for further processing
-                                                break;
-                                            }
+                                            RPCommand.Push(buf);
+                                            break;
                                     }
                                 }
                                 else
                                 {
-                                    // CRC check failed, handle accordingly
 #if DEBUG
                                     Debug.WriteLine("CRC check failed for received buffer.");
 #endif
@@ -199,44 +166,44 @@ namespace FeedbackDataLib
                         }
                     }
 
-                    // If data is valid, copy it to the output collection
-                    if (dataIsValid)
+                    if (dataIsValid && EnableDataReadyEvent)
                     {
-                        if (EnableDataReadyEvent)
-                        {
-                            dataIn.LastSync = LastSyncSignal;
-                            dataIn.Received_at = thrSeriell32.Now(EnumTimQueryStatus.isSync);
-                            Data.Push(dataIn);
-                        }
+                        dataIn.LastSync = LastSyncSignal;
+                        dataIn.Received_at = thrSeriell32.Now(EnumTimQueryStatus.isSync);
+                        Data.Push(dataIn);
                     }
                 }
             }
-#pragma warning disable CS0168
-            catch (Exception ee)
-#pragma warning restore CS0168
+            catch (Exception ex)
             {
-                // Handle unexpected exceptions that occur during thread operation
 #if DEBUG
-                Debug.WriteLine("RS232ReceiverThread_DoWork Exception: " + ee.Message);
+                Debug.WriteLine("RS232ReceiverThread_DoWorkAsync Exception: " + ex.Message);
 #endif
             }
             finally
             {
-                // Cleanup on thread exit
                 IsConnected = false;
-                if (RS232DataDistributorThread is not null)
-                {
-                    RS232DataDistributorThread.CancelAsync();
-                    ConnectionStatus = EnumConnectionStatus.Dis_Connected;
-                }
+                ConnectionStatus = EnumConnectionStatus.Dis_Connected;
 
 #if DEBUG
-                Debug.WriteLine("RS232ReceiverThread_DoWork Closed");
+                Debug.WriteLine("RS232ReceiverThread_DoWorkAsync Closed");
 #endif
             }
         }
 
+        private CancellationTokenSource? cancellationTokenReceiver;
 
+        public void Start_RS232ReceiverThread()
+        {
+            cancellationTokenReceiver = new CancellationTokenSource();
+            Task.Run(() => RS232ReceiverThread_DoWorkAsync(cancellationTokenReceiver.Token));
+        }
+
+        public void Stop_RS232ReceiverThread()
+        {
+            cancellationTokenReceiver?.Cancel();
+        }
+        #endregion
 
         private int mustbeinbuf = -1;
         private int issync = 0;
@@ -293,19 +260,5 @@ namespace FeedbackDataLib
             return null;
         }
 
-        private void Stop_RS232ReceiverThread()
-        {
-            if (RS232ReceiverThread != null)
-            {
-                if (RS232ReceiverThread.IsBusy)
-                {
-                    RS232ReceiverThread.CancelAsync();
-                    //Warten bis thread fertig, aber nicht länger als 3 Sekunden
-                    DateTime EndWait = DateTime.Now + new TimeSpan(0, 0, 0, 3, 0);
-                    while (RS232ReceiverThread.IsBusy && (DateTime.Now < EndWait)) ;  //Warten bis thread fertig
-                }
-            }
-        }
-        #endregion}
     }
 }

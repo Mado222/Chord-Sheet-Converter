@@ -1,7 +1,6 @@
-﻿using System.Runtime.Versioning;
+﻿using BMTCommunicationLib;
+using System.Runtime.Versioning;
 using System.Text;
-using BMTCommunicationLib;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ComponentsLib_GUI
 {

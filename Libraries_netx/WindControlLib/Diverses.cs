@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 
@@ -212,7 +211,7 @@ namespace WindControlLib
         }
         public static void FromInttoIntBytes(int val, ref byte Low, ref byte High)
         {
-            High =HighByte(val);
+            High = HighByte(val);
             Low = LowByte(val);
         }
 

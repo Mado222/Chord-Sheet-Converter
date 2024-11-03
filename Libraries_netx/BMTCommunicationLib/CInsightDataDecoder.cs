@@ -121,7 +121,7 @@ namespace BMTCommunicationLib
         }
 
 
-        public static bool Parse4Byte(byte[] src, ref CDataIn DI)
+        public static bool Parse4Byte_funct(byte[] src, ref CDataIn DI)
         {
             // Check if the MSB of the first 4 bytes are 1 0 0 0
             if (!((src[0] & 0x80) == 0x00 && (src[1] & 0x80) != 0x00 && (src[2] & 0x80) != 0x00 && (src[3] & 0x80) != 0x00))
@@ -155,7 +155,32 @@ namespace BMTCommunicationLib
             return true;
         }
 
-        public static void DecodePacket(byte[] src, ref CDataIn dataIn)
+        public static bool Parse4Byte(byte[] src, ref CDataIn DI)
+        {
+            // Validate input length to avoid potential index out of range exceptions.
+            if (src.Length < 4) return false;
+
+            // Check if MSB of the first 4 bytes are 1 0 0 0 (using a combined mask)
+            if ((src[0] & 0x80) != 0x00 || (src[1] & 0x80) == 0x00 || (src[2] & 0x80) == 0x00 || (src[3] & 0x80) == 0x00)
+            {
+                return false;
+            }
+
+            // Decode each byte and directly assign values to CDataIn fields
+            DI.SyncFlag = (byte)((src[0] >> 6) & 0x01);
+            DI.DeviceID = (byte)((src[0] >> 3) & 0x03);
+            DI.HW_cn = (byte)(((src[0] & 0x07) << 1) | ((src[1] >> 6) & 0x01));
+            DI.SW_cn = (byte)((src[1] >> 2) & 0x07);
+            DI.EP = (byte)((src[1] >> 5) & 0x1);
+
+            // Combine temp_val calculation into a single expression for improved readability
+            DI.Value = ((src[1] & 0x03) << 14) | ((src[2] & 0x7F) << 7) | (src[3] & 0x7F);
+
+            return true;
+        }
+
+
+        public static void DecodePacket_funct(byte[] src, ref CDataIn dataIn)
         {
             int temp;
 
@@ -203,6 +228,53 @@ namespace BMTCommunicationLib
                 }
             }
         }
+
+        public static void DecodePacket(byte[] src, ref CDataIn dataIn)
+        {
+            // Ensure input is parsed first
+            Parse4Byte(src, ref dataIn);
+
+            int idx = 4;
+
+            // Handle SyncFlag and early exit for EP == 0
+            if (dataIn.SyncFlag == 1)
+            {
+                dataIn.SyncVal = (byte)((src[idx] & 0x7F) | ((src[0] & 0x20) << 2));
+                if (dataIn.EP == 0) return;
+                idx++;
+            }
+            else if (dataIn.EP == 0)
+            {
+                return;
+            }
+
+            // Decode Byte 4 / 5
+            dataIn.NumExtraDat = (byte)((src[idx] >> 4) & 0x07);
+            dataIn.TypeExtraDat = (byte)((src[idx] >> 1) & 0x07);
+            dataIn.Value |= (src[idx] & 0x01) << 23;
+            idx++;
+
+            // Decode Byte 5 / 6
+            dataIn.Value |= (src[idx] & 0x7F) << 16;
+
+            // Sign extend if bit 23 is set
+            if ((dataIn.Value & 0x800000) != 0)
+            {
+                dataIn.Value |= unchecked((int)0xFF000000);
+            }
+            idx++;
+
+            // Decode Extra Data only if NumExtraDat > 0
+            if (dataIn.NumExtraDat > 0)
+            {
+                dataIn.ExtraDat = new byte[dataIn.NumExtraDat];
+                for (int i = 0; i < dataIn.NumExtraDat; ++i)
+                {
+                    dataIn.ExtraDat[i] = (byte)(src[idx + i] & 0x7F); // Clear the MSB
+                }
+            }
+        }
+
     }
 }
 

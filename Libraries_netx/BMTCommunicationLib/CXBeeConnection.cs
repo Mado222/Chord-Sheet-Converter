@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.IO.Ports;
 using System.Xml.Serialization;
 using WindControlLib;
 using XBeeLib;
-
+using System.Diagnostics;
 
 namespace BMTCommunicationLib
 {
@@ -68,7 +67,7 @@ namespace BMTCommunicationLib
         private readonly CFifoBuffer<CTXStatusResponse> TXStatusResponseBuffer = new();
         private readonly CFifoBuffer<byte> XBRFDataBuffer = new();
 
-        private byte[] _ConnectSequToSend =[];
+        private byte[] _ConnectSequToSend = [];
         private byte[] _ConnectToReturn = [];
         private byte _CommandChannelNo;
 
@@ -95,14 +94,14 @@ namespace BMTCommunicationLib
         /// <summary>
         /// Thread instead of using the SerialDataReceivedEvent
         /// </summary>
-        private BackgroundWorker SerialDataReceived_BackgroundWorker = new ();
+        private BackgroundWorker SerialDataReceived_BackgroundWorker = new();
         private void InitSerielPort(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             SerialDataReceived_BackgroundWorker = new BackgroundWorker
             {
                 WorkerSupportsCancellation = true
             };
-            
+
             SerialDataReceived_BackgroundWorker.DoWork += new DoWorkEventHandler(SerialDataReceived_DoWork);
 
 
@@ -669,7 +668,7 @@ namespace BMTCommunicationLib
         public void DiscardInBuffer()
         {
             XBRFDataBuffer.Clear();
-            if (_SerialPort is not null &&  _SerialPort.IsOpen)
+            if (_SerialPort is not null && _SerialPort.IsOpen)
                 _SerialPort.DiscardInBuffer();
         }
 
@@ -831,6 +830,15 @@ namespace BMTCommunicationLib
         public DateTime Now(EnumTimQueryStatus TimQueryStatus)
         {
             return hp_Timer.Now;
+        }
+
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
+        {
+            await Task.Run(() =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                this.Write(buffer, offset, count);
+            }, cancellationToken);
         }
 
         #endregion

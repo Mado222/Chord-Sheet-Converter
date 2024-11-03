@@ -1,8 +1,3 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Diagnostics;
-
 namespace ComponentsLib_GUI
 {
 
@@ -13,7 +8,7 @@ namespace ComponentsLib_GUI
     public class DataGridViewNumericUpDownEditingControl : NumericUpDown, IDataGridViewEditingControl
     {
         // The grid that owns this editing control
-        private DataGridView dataGridView = new ();
+        private DataGridView dataGridView = new();
         // Stores whether the editing control's value has changed or not
         private bool valueChanged;
         // Stores the row index in which the editing control resides

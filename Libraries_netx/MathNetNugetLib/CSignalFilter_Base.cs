@@ -1,6 +1,4 @@
-﻿using MathNet.Filtering;
-
-namespace MathNetNuget
+﻿namespace MathNetNuget
 {
     public class CSignalFilterBase
     {

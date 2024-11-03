@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
-
-/* 8.10.2014
+﻿/* 8.10.2014
  * Problem bei der Umskalierung: (siehe "BPM statt IPI.docx")
  * Um eine korrekte Weiterverarbeitung der Daten (insbesondere HRV) wird das erkannte IPI nur einmal zurück gegeben, wenn der Herzschlag erkannt wurde. Dazwischen wird 0 zurückgegeben.
  * Bei der Umrechnung auf BPM würde das bedeuten, es ein „unendlich“ … der max Wert zurück.
  * 
  * 0 könnte in der Routine GetScaledValue ausgenommen werden, dann liefert aber auch GetMinScaledValue einen falschen Wert.
 */
-
 
 namespace FeedbackDataLib
 {
@@ -164,21 +159,13 @@ namespace FeedbackDataLib
         /// </remarks>
         public string Uuid => System.Text.Encoding.ASCII.GetString(_uuid);
 
-        public ushort _HWVersion = 0;
-
         /// <summary>
         /// Hardware Version of Neuromaster
         /// </summary>
         /// <value>
         /// The hw version.
         /// </value>
-        public ushort HWVersion
-        {
-            get
-            {
-                return _HWVersion;
-            }
-        }
+        public ushort HWVersion { get; private set; }
 
         /// <summary>
         /// Hardware Version string 
@@ -192,28 +179,20 @@ namespace FeedbackDataLib
         {
             get
             {
-                int maj = (_HWVersion & 0xFFF0) >> 4;
-                int min = _HWVersion & 0x000F;
+                int maj = (HWVersion & 0xFFF0) >> 4;
+                int min = HWVersion & 0x000F;
 
-                return maj.ToString() + "." + min.ToString();
+                return $"{maj}.{min}";
             }
         }
 
-
-        public ushort _SWVersion = 0;
         /// <summary>
         /// Software Version of Neuromaster
         /// </summary>
         /// <value>
         /// The sw version.
         /// </value>
-        public ushort SWVersion
-        {
-            get
-            {
-                return _SWVersion;
-            }
-        }
+        public ushort SWVersion { get; private set; } = 0;
 
         /// <summary>
         /// Software Version string 
@@ -223,14 +202,14 @@ namespace FeedbackDataLib
         /// Higher 4 Byte: Major revision
         /// Lower 12 Byte: Minor revision
         /// </remarks>
-        public string SWVersion_string
+        public string SWVersionString
         {
             get
             {
-                int maj = (_SWVersion & 0xF000) >> 12;
-                int min = _SWVersion & 0x0FFF;
+                int maj = (SWVersion & 0xF000) >> 12;
+                int min = SWVersion & 0x0FFF;
 
-                return maj.ToString() + "." + min.ToString();
+                return $"{maj}.{min}";
             }
         }
 
@@ -243,8 +222,8 @@ namespace FeedbackDataLib
             Array.Copy(InBuf, Pointer_To_Array_Start, _uuid, 0, _uuid.Length);
             ptr += _uuid.Length;
 
-            _HWVersion = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_HWVersion);
-            _SWVersion = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_SWVersion);
+            HWVersion = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(HWVersion);
+            SWVersion = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWVersion);
             return ptr;
         }
     }
@@ -259,7 +238,7 @@ namespace FeedbackDataLib
         private ushort _sector_size; //unsigned short 
         private byte _type;          //unsigned char
 
-        private byte _error;     //unsigned char
+        private byte _error;     //keep it for future use
 
         /// <summary>
         /// SD Card size [bytes]

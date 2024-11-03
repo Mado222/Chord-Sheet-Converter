@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using WindControlLib;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// implements the API Type Remote AT Command Request (0x17)

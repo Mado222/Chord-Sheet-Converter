@@ -1,7 +1,4 @@
 ﻿using MathNetNuget;
-using System;
-using WindControlLib;
-using System.Collections.Generic;
 
 /*
  * Es sollte ja nun die FFT Analyse im PC gemacht werden und wir benötigen folgende Berechnungen online (während der Messung).

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XBeeLib
+﻿namespace XBeeLib
 {
     /// <summary>
     /// superclass of CRXPacket64 and CRXPacket16

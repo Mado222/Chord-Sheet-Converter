@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MathNet.Numerics.IntegralTransforms;
 using WindControlLib;
-using System.Linq;
-using MathNet.Numerics.IntegralTransforms;
 
 namespace MathNetNuget
 {

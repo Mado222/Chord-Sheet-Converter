@@ -66,86 +66,67 @@ namespace FeedbackDataLib
         /// Count Modules of same type and Generate/Set Virtual ID
         /// </remarks>
         //public void UbpdateModuleInfoFrom_ByteArray(byte[] InBuf, bool Update_from_xml_File)
-        public bool UpdateModuleInfoFrom_ByteArray(byte[] InBuf)
+        public bool UpdateModuleInfoFromByteArray(byte[] inBuf)
         {
             uint[] cntTypes = new uint[Enum.GetNames(typeof(enumModuleType)).Length];
-
             int ptr = 0;
-            ushort cnt_Channels = 0;
+            ushort cntChannels = 0;
 
-            while (ptr < InBuf.Length)
+            while (ptr < inBuf.Length)
             {
                 CModuleBase mi = new();
-                mi.Update_UID_ModuleType_From_ByteArray(InBuf, ptr);    //Only to get Module type
-                uint idx = (uint)mi.ModuleType;
+                mi.Update_UID_ModuleType_From_ByteArray(inBuf, ptr); // Only to get Module type
 
-                //3.11.2021 - um Kompatibilität mit NW FW Versionen < 5.0 herzustellen
-                //"Leere Module werden nicht mehr dem Kanal 255 zugeordnet"
+                // Compatibility adjustment for older firmware versions
                 if (mi.HW_cn == 0xff)
                 {
-                    mi.SetHW_cn(cnt_Channels);
+                    mi.SetHW_cn(cntChannels);
                 }
-                cnt_Channels++;
+                cntChannels++;
 
                 if (mi.HW_cn < 0 || mi.HW_cn >= ModuleInfos.Count)
                     return false;
 
-                switch (mi.ModuleType)
-                {
-                    case enumModuleType.cModuleMultisensor:
-                        ModuleInfos[mi.HW_cn] = new CModuleMultisensor();
-                        break;
-                    case enumModuleType.cModuleMultiSCL:
-                        ModuleInfos[mi.HW_cn] = new CModule_MultiSCL();
-                        break;
-                    case enumModuleType.cModuleEMG:
-                        ModuleInfos[mi.HW_cn] = new CModuleEMG();
-                        break;
-                    case enumModuleType.cModuleECG:
-                        ModuleInfos[mi.HW_cn] = new CModuleECG();
-                        break;
-                    case enumModuleType.cModuleEEG:
-                        ModuleInfos[mi.HW_cn] = new CModuleEEG();
-                        break;
-                    case enumModuleType.cModuleAtemIRDig:
-                        ModuleInfos[mi.HW_cn] = new CModuleRespI();
-                        break;
-                    case enumModuleType.cModuleVasosensorDig:
-                        ModuleInfos[mi.HW_cn] = new CModuleVasoIR();
-                        break;
-                    case enumModuleType.cModuleAtem:
-                        ModuleInfos[mi.HW_cn] = new CModuleAtem();
-                        break;
-                    case enumModuleType.cModuleTypeEmpty:
-                        ModuleInfos[mi.HW_cn] = new CModuleEmpty();
-                        break;
-                    case enumModuleType.cModuleSCLADS:
-                        //ModuleInfos[mi.HW_cn] = new CModuleSCLADS1292();
-                        break;
-                    case enumModuleType.cModuleExGADS94:
-                        //ModuleInfos[mi.HW_cn]= new CModuleExGADS1294_EEG_GUI();
-                        ModuleInfos[mi.HW_cn] = new CModuleExGADS1294_EEG();
-                        //ModuleInfos[mi.HW_cn] = new CModuleExGADS1294();
-                        break;
-                    default:
-                        ModuleInfos[mi.HW_cn] = new CModuleBase();
-                        break;
-                }
-                ptr = ModuleInfos[mi.HW_cn].UpdateFrom_ByteArray(InBuf, ptr);   //Now get the full stuff
+                // Use a factory method or dictionary to create module instances by type
+                ModuleInfos[mi.HW_cn] = CreateModuleInstance(mi.ModuleType);
 
+                ptr = ModuleInfos[mi.HW_cn].UpdateFrom_ByteArray(inBuf, ptr); // Populate with full data
 
-                if ((idx < cntTypes.Length) && ModuleInfos[mi.HW_cn].ModuleType != enumModuleType.cModuleTypeEmpty)      //damit Array Grenzen nicht überschritten werden 
+                // Update count and VirtualID for non-empty modules
+                if (mi.ModuleType != enumModuleType.cModuleTypeEmpty && (uint)mi.ModuleType < cntTypes.Length)
                 {
-                    cntTypes[idx]++;    //Count modules of same type
-                    //Now update SWChannels with VirtualID
-                    for (int i = 0; i < ModuleInfos[mi.HW_cn].NumSWChannels; i++)
-                    {
-                        ModuleInfos[mi.HW_cn].SWChannels[i].SetVirtualID(cntTypes[idx], ModuleInfos[mi.HW_cn].ModuleType, (uint)i);
-                    }
+                    cntTypes[(uint)mi.ModuleType]++;
+                    UpdateSWChannelsWithVirtualID(ModuleInfos[mi.HW_cn], cntTypes[(uint)mi.ModuleType]);
                 }
             }
             return true;
         }
+
+        // Factory method for module instance creation
+        private CModuleBase CreateModuleInstance(enumModuleType moduleType) => moduleType switch
+        {
+            enumModuleType.cModuleMultisensor => new CModuleMultisensor(),
+            enumModuleType.cModuleMultiSCL => new CModule_MultiSCL(),
+            enumModuleType.cModuleEMG => new CModuleEMG(),
+            enumModuleType.cModuleECG => new CModuleECG(),
+            enumModuleType.cModuleEEG => new CModuleEEG(),
+            enumModuleType.cModuleAtemIRDig => new CModuleRespI(),
+            enumModuleType.cModuleVasosensorDig => new CModuleVasoIR(),
+            enumModuleType.cModuleAtem => new CModuleAtem(),
+            enumModuleType.cModuleTypeEmpty => new CModuleEmpty(),
+            enumModuleType.cModuleExGADS94 => new CModuleExGADS1294_EEG(),
+            _ => new CModuleBase() // Default case
+        };
+
+        // Helper method to update SWChannels with VirtualID
+        private static void UpdateSWChannelsWithVirtualID(CModuleBase module, uint count)
+        {
+            for (int i = 0; i < module.NumSWChannels; i++)
+            {
+                module.SWChannels[i].SetVirtualID(count, module.ModuleType, (uint)i);
+            }
+        }
+
 
         /// <summary>
         /// Updates the time the sample was acquired to a full DateTime value

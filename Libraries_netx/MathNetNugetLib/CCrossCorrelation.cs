@@ -1,5 +1,4 @@
 ﻿using MathNet.Numerics.Statistics;
-using System;
 
 namespace MathNetNuget
 {

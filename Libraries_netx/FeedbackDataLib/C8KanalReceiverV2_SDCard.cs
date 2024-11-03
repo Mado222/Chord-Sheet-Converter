@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using WindControlLib;
-
-
 /* 
  * Introduced 8.5.2014
 */
@@ -57,7 +52,7 @@ namespace FeedbackDataLib
                         //ein sinnloses byte (vorletztes) und ein CRC byte am ende wegnehmen
                         Array.Resize(ref AllData, AllData.Length - 2);
 
-                        Device.UpdateModuleInfoFrom_ByteArray(AllData);
+                        Device.UpdateModuleInfoFromByteArray(AllData);
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
                         ret = true;
                     }

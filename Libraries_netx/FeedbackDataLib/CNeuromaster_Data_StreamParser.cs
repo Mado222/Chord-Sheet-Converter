@@ -1,6 +1,4 @@
 ﻿using BMTCommunicationLib;
-using System;
-using System.Collections.Generic;
 using WindControlLib;
 
 namespace FeedbackDataLib

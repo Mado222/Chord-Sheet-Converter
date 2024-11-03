@@ -12,8 +12,6 @@ Einverstaendnis des Autors zulaessig.
  * Ringpuffer Thread safe gemacht
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 
 namespace WindControlLib
