@@ -956,26 +956,15 @@ namespace FeedbackDataLib
                 }
 
                 // Process the response
-                if (inbuf.Length > 0)
+                if (inbuf.Length > 0 && inbuf[0] == C8KanalRecCommandCode) // Check if the response matches the command code
                 {
-                    if (inbuf[0] == C8KanalRecCommandCode) // Check if the response matches the command code
+                    if (numInData > 0)
                     {
-                        if (numInData > 0)
-                        {
-                            // Expected data length; extract data from the response
-                            returnData = new byte[inbuf.Length - 1];
-                            Array.Copy(inbuf, 1, returnData, 0, inbuf.Length - 1);
-                            ret = true;
-                        }
-                        else
-                        {
-                            // No additional data expected, just confirmation
-                            if (inbuf[0] == C8KanalRecCommandCode)
-                            {
-                                ret = true;
-                            }
-                        }
+                        // Expected data length; extract data from the response
+                        returnData = new byte[inbuf.Length - 1];
+                        Array.Copy(inbuf, 1, returnData, 0, inbuf.Length - 1);
                     }
+                    ret = true; // Set ret to true for both cases (with and without data)
                 }
             }
             return (returnData, ret);
