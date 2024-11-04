@@ -11,10 +11,14 @@ namespace FeedbackDataLib
 {
     public partial class CRS232Receiver2
     {
-        private readonly ConcurrentQueue<CDataIn> _measurementDataQueue = new();
-        private readonly ConcurrentQueue<byte[]> _commandResponseQueue = new();
+        private readonly CFifoConcurrentQueue<CDataIn> _measurementDataQueue = new();
+        private readonly CFifoConcurrentQueue<byte> _commandResponseQueue = new();
+        private readonly CFifoConcurrentQueue<byte> RPDeviceCommunicationToPC = new();
+        private CFifoConcurrentQueue<byte> rs232InBytes = new();
+        private readonly CFifoConcurrentQueue<byte[]> RPDataOut = new();
+        private bool DataSent = false;
+
         private TaskCompletionSource<byte[]>? _responseTcs;
-        private CFifoBuffer<byte> rs232InBytes = new();
 
         // Declare cancellationTokenSourceReceiver as a private property
         private CancellationTokenSource? cancellationTokenSourceReceiver { get; set; }
@@ -142,24 +146,27 @@ namespace FeedbackDataLib
                         // Validate CRC to ensure data integrity
                         if (buf.Length > 0 && CRC8.Check_CRC8(ref buf, 0, true, true))
                         {
+                            Debug.WriteLine("Valid data in: " + BitConverter.ToString(buf).Replace("-", " "));
                             // Process based on the command code (buf[0])
                             switch (buf[0])
                             {
                                 case C8KanalReceiverCommandCodes.cChannelSync:
                                     LastSyncSignal = Seriell32.Now(EnumTimQueryStatus.isSync);
+                                    //Debug.WriteLine("cChannelSync");
                                     break;
-
+                                case C8KanalReceiverCommandCodes.cDeviceAlive:
+                                    //Debug.WriteLine("Alive");
+                                    break;
                                 case C8KanalReceiverCommandCodes.cNeuromasterToPC:
+                                    //Debug.WriteLine("cNeuromasterToPC: " + BitConverter.ToString(buf).Replace("-", " "));
                                     RPDeviceCommunicationToPC.Push(buf);
                                     break;
-
                                 default:
                                     // Enqueue command response in RPCommand
-                                    //RPCommand.Push(buf);
-
                                     // If we’re waiting for a response, fulfill the TaskCompletionSource
                                     if (_responseTcs != null && !_responseTcs.Task.IsCompleted)
                                     {
+                                        //Debug.WriteLine("_responseTcs: " + BitConverter.ToString(buf).Replace("-", " "));
                                         _responseTcs.TrySetResult(buf);
                                     }
                                     break;
@@ -181,7 +188,7 @@ namespace FeedbackDataLib
                     {
                         dataIn.LastSync = LastSyncSignal;
                         dataIn.Received_at = Seriell32.Now(EnumTimQueryStatus.isSync);
-                        _measurementDataQueue.Enqueue(dataIn);
+                        _measurementDataQueue.Push(dataIn);
                     }
                 }
             }
@@ -190,7 +197,7 @@ namespace FeedbackDataLib
         private int mustbeinbuf = -1;
         private int issync = 0;
         private int isEP = 0;
-        private byte[]? PrecheckBuffer(ref CFifoBuffer<byte> RS232inBytes)
+        private byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
         {
             if (RS232inBytes.Count >= 1)
             {
@@ -246,6 +253,7 @@ namespace FeedbackDataLib
         {
             try
             {
+                Debug.WriteLine("Data out: " + BitConverter.ToString(data).Replace("-", " "));
                 await Seriell32.WriteAsync(data, 0, data.Length, CancellationToken.None); // Adjust cancellation token as needed
                 return true;
             }

@@ -942,12 +942,13 @@ namespace FeedbackDataLib
                     inbuf = await RS232Receiver.SendCommandAsync(buf);
 
                     // Log response for debugging
-                    Debug.WriteLine("Received response: " + BitConverter.ToString(inbuf));
+                    Debug.WriteLine("Received response: " + BitConverter.ToString(inbuf).Replace("-", " "));
+
                 }
                 catch (TimeoutException)
                 {
                     Debug.WriteLine("The command timed out.");
-                    return ([], false);
+                    return (Array.Empty<byte>(), false);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -969,36 +970,6 @@ namespace FeedbackDataLib
             }
             return (returnData, ret);
         }
-
-
-
-        /// <summary>
-        /// Reads numBytes from Command channel, result stored in buf
-        /// </summary>
-        /// <param name="buf">Bytes from command channel; Array size must be >= numbytes</param>
-        /// <returns></returns>
-        /// <remarks>
-        /// Timeout defined by WaitCommandResponseTimeOut
-        /// </remarks>
-        /*
-        private bool WaitCommandResponse(ref byte[] buf)
-        {
-            //Auf bytes die ueber den Kommandokanal kommen warten
-            //int TimeOut = WaitCommandResponseTimeOut / ThreadSleepTime;
-            DateTime dt = DateTime.Now + new TimeSpan(0, 0, 0, 0, WaitCommandResponseTimeOut);
-            if (RS232Receiver is not null)
-            {
-                while (DateTime.Now < dt)
-                {
-                    buf = RS232Receiver.GetGetCommand();
-                    if (buf.Length > 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }*/
 
         /// <summary>
         /// Sends Close Connection to NM

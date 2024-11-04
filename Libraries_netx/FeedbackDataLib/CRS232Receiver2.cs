@@ -129,26 +129,6 @@ namespace FeedbackDataLib
 
 
         /// <summary>
-        /// Object to lock buffers
-        /// </summary>
-        public readonly object RS232Lock = new();
-
-        //private readonly CFifoBuffer<byte[]> RPCommand = new();
-        private readonly CFifoBuffer<byte[]> RPDataOut = new();
-        private readonly CFifoBuffer<byte[]> RPDeviceCommunicationToPC = new();
-        private bool DataSent = false;
-
-        /// <summary>
-        /// Speichert CDataIn Werte
-        /// </summary>
-        private readonly CFifoBuffer<CDataIn> Data = new();
-
-        /// <summary>
-        /// Datenarray in dem die empfangenen Daten gespeichert werden: Groesse: _AnzReturnBlocks*_RS232Values
-        /// </summary>
-        //private CDataIn[] intDataArray = [];
-
-        /// <summary>
         /// Anzahl der Byte die bei einem RS232 Zugriff gelesen werden
         /// </summary>
 
@@ -187,12 +167,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Connection thread
         /// </summary>
-        private BackgroundWorker? tryToConnectWorker;
-
-        /// <summary>
-        /// Lock StatusChangedEvent
-        /// </summary>
-        //readonly object StatusChangedLock = new object();
+        //private BackgroundWorker? tryToConnectWorker;
 
         /// <summary>
         /// ={ 0x11, 0xFE };//CommandCode, cDeviceAlive
@@ -232,7 +207,7 @@ namespace FeedbackDataLib
         {
             if (Seriell32 != null)
             {
-                tryToConnectWorker?.CancelAsync();
+                StopConnectionThread();
                 StopRS232ReceiverThread();
                 Seriell32.Close();  //1st Close, 4th close
             }
@@ -259,16 +234,7 @@ namespace FeedbackDataLib
         /// </remarks>
         public void Connect_via_tryToConnectWorker()
         {
-
-            if (tryToConnectWorker == null)
-            {
-                tryToConnectWorker = new BackgroundWorker();
-                StartConnectionThread();
-                tryToConnectWorker.WorkerSupportsCancellation = true;
-            }
-            if (!tryToConnectWorker.IsBusy)
-                tryToConnectWorker.RunWorkerAsync();
-
+            StartConnectionThread();
         }
 
         public void Send_to_Sleep()
@@ -314,25 +280,9 @@ namespace FeedbackDataLib
 
         public EnumConnectionStatus GetConnectionStatus() => ConnectionStatus;
 
-        /// <summary>
-        /// Holt alle Daten vom Typ CDataIn aus dem internen Ringpuffer
-        /// </summary>
-        public void GetData(ref List<CDataIn> Data)
-        {
-            Data = new List<CDataIn>(this.Data.PopAll());
-        }
-
-        //public void InitReceiverBuffer(int ReceiverTimerInterval, int Dummy, int BytetoRead, int Dummy2) => InitBuffer();
-
         public int ReceiverTimerInterval => 0;
 
         public bool EnableDataReadyEvent { set; get; } = false;
-
-        //public byte[] GetGetCommand()
-        //{
-        //    return RPCommand.Pop() ?? [];
-        //}
-
 
         //Die dieses Interface implementierende Komponente empfängt keine Daten!
         public bool EnableDataReceiving { set; get; } = true;

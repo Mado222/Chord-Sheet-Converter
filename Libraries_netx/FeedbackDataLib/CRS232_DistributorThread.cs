@@ -28,15 +28,24 @@ namespace FeedbackDataLib
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     // Distribute command responses
-                    while (_commandResponseQueue.TryDequeue(out var commandData))
-                    {
-                        OnDeviceCommunicationToPC(commandData);
-                    }
+                    if (_commandResponseQueue is not null)
+                        OnDeviceCommunicationToPC(_commandResponseQueue.PopAll());
 
+                    if (RPDeviceCommunicationToPC is not null)
+                    {
+                        //Daten holen
+                        if (RPDeviceCommunicationToPC.Count > 0)
+                        {
+                            //Fire event
+                            OnDeviceCommunicationToPC(buf: RPDeviceCommunicationToPC.PopAll());
+                        }
+                    }
+                    
+                    
                     // Distribute measurement data
                     if (_measurementDataQueue.Count > 0)
                     {
-                        List<CDataIn> di = [.. _measurementDataQueue];
+                        List<CDataIn> di = new (_measurementDataQueue.PopAll());
                         _measurementDataQueue.Clear();
                         OnDataReadyComm(di);
                     }

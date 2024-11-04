@@ -49,10 +49,8 @@ namespace BMTCommunicationLib
         int ReceiverTimerInterval { get; }
         bool EnableDataReadyEvent { get; set; }
         bool EnableDataReceiving { get; set; }  //Die dieses Interface implementierende Komponente empfängt keine Daten!
-        //byte[] GetGetCommand();
 
         //Methodes
-        void GetData(ref List<CDataIn> Data);
         EnumConnectionStatus GetConnectionStatus();
         int SendByteData(byte[] DataOut, int NumData);      //Ermölicht den direkten Zugriff auf die Kommunikation
         int GetByteData(ref byte[] DataIn, int NumData, int Offset);        //Rückgabe der tatsächlich gelesenen Daten

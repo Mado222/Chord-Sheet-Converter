@@ -115,7 +115,7 @@ namespace FeedbackDataLib
         {
             if (cancellationTokenConnector != null)
             {
-                throw new InvalidOperationException("Connection task is already running.");
+                return;
             }
 
             cancellationTokenConnector = new CancellationTokenSource();
@@ -129,7 +129,7 @@ namespace FeedbackDataLib
         {
             if (cancellationTokenConnector == null)
             {
-                throw new InvalidOperationException("Connection task is not running.");
+                return;
             }
 
             cancellationTokenConnector.Cancel();
