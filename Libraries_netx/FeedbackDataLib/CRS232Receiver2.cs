@@ -114,17 +114,26 @@ namespace FeedbackDataLib
         /// </summary>
         public bool IsConnected = false;
 
+        private ISerialPort? seriell32;
         /// <summary>
         /// Holds the Serial Interface
         /// </summary>
-        public ISerialPort? Seriell32;
+        public ISerialPort Seriell32 {
+            get { if (seriell32 == null)
+                {
+                    throw new InvalidOperationException("The serial connection is not set.");
+                }
+                return seriell32;
+            }
+            set => seriell32 = value; }
+
 
         /// <summary>
         /// Object to lock buffers
         /// </summary>
         public readonly object RS232Lock = new();
 
-        private readonly CFifoBuffer<byte[]> RPCommand = new();
+        //private readonly CFifoBuffer<byte[]> RPCommand = new();
         private readonly CFifoBuffer<byte[]> RPDataOut = new();
         private readonly CFifoBuffer<byte[]> RPDeviceCommunicationToPC = new();
         private bool DataSent = false;
@@ -137,7 +146,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Datenarray in dem die empfangenen Daten gespeichert werden: Groesse: _AnzReturnBlocks*_RS232Values
         /// </summary>
-        private CDataIn[] intDataArray = [];
+        //private CDataIn[] intDataArray = [];
 
         /// <summary>
         /// Anzahl der Byte die bei einem RS232 Zugriff gelesen werden
@@ -224,7 +233,7 @@ namespace FeedbackDataLib
             if (Seriell32 != null)
             {
                 tryToConnectWorker?.CancelAsync();
-                Stop_RS232ReceiverThread();
+                StopRS232ReceiverThread();
                 Seriell32.Close();  //1st Close, 4th close
             }
         }
@@ -238,23 +247,8 @@ namespace FeedbackDataLib
         protected void CRS232Receiver_Constructor(byte CommandChannelNo, ISerialPort SerialPort)
         {
             _CommandChannelNo = CommandChannelNo;
-            InitBuffer();
+            //InitBuffer();
             Seriell32 = SerialPort;
-        }
-
-        /// <summary>
-        /// Inits the RS232inBytes buffer
-        /// </summary>
-        private void InitBuffer()
-        {
-            lock (RS232Lock)
-            {
-                intDataArray = new CDataIn[5];
-                for (int i = 0; i < intDataArray.Length; i++)
-                {
-                    intDataArray[i] = new CDataIn();
-                }
-            }
         }
 
         /// <summary>
@@ -269,9 +263,7 @@ namespace FeedbackDataLib
             if (tryToConnectWorker == null)
             {
                 tryToConnectWorker = new BackgroundWorker();
-#pragma warning disable CS8622
-                tryToConnectWorker.DoWork += new DoWorkEventHandler(TryToConnectWorker_DoWork);
-#pragma warning restore CS8622
+                StartConnectionThread();
                 tryToConnectWorker.WorkerSupportsCancellation = true;
             }
             if (!tryToConnectWorker.IsBusy)
@@ -301,9 +293,10 @@ namespace FeedbackDataLib
         /// 0xFFFF ... input amplifier is pos saturated
         /// if output stage is saturated, 0x0001 and 0xFFFE
         /// </remarks>
-        protected virtual void OnDataReadyComm(List<CDataIn> DataRead)
+        protected virtual void OnDataReadyComm(List<CDataIn>? DataRead)
         {
-            DataReadyComm?.Invoke(this, DataRead);
+            if (DataRead != null)
+                DataReadyComm?.Invoke(this, DataRead);
         }
 
         public event StatusChangedEventHandler? StatusChangedComm = null;
@@ -329,13 +322,16 @@ namespace FeedbackDataLib
             Data = new List<CDataIn>(this.Data.PopAll());
         }
 
-        public void InitReceiverBuffer(int ReceiverTimerInterval, int Dummy, int BytetoRead, int Dummy2) => InitBuffer();
+        //public void InitReceiverBuffer(int ReceiverTimerInterval, int Dummy, int BytetoRead, int Dummy2) => InitBuffer();
 
         public int ReceiverTimerInterval => 0;
 
         public bool EnableDataReadyEvent { set; get; } = false;
 
-        public byte[] GetCommand => RPCommand.Pop() ?? [];
+        //public byte[] GetGetCommand()
+        //{
+        //    return RPCommand.Pop() ?? [];
+        //}
 
 
         //Die dieses Interface implementierende Komponente empfängt keine Daten!
@@ -378,11 +374,6 @@ namespace FeedbackDataLib
         /// </summary>
         public int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut)
         {
-            if (Seriell32 is null)
-            {
-                throw new InvalidOperationException("The serial connection is not set.");
-            }
-
             int i = Seriell32.ReadTimeout;
             int res = Seriell32.Read(ref DataIn, Offset, NumData);
             Seriell32.ReadTimeout = i;

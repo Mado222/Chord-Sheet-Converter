@@ -1,114 +1,85 @@
 ﻿using BMTCommunicationLib;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
-
 
 namespace FeedbackDataLib
 {
+
     public partial class CRS232Receiver2
     {
-        #region ConnectThread
+        private CancellationTokenSource? cancellationTokenConnector;
+
+        #region ConnectTask
         /// <summary>
-        /// Thread to Connect to Device
+        /// Task to Connect to Device
         /// </summary>
         /// <remarks>
         /// Ends if device is detected
         /// </remarks>
-        /// <param name="sender"></param>
-        /// <param name="e">DoWorkEventArgs</param>
-        private void TryToConnectWorker_DoWork(object sender, DoWorkEventArgs e)
+        private async Task TryToConnectAsync(CancellationToken cancellationToken)
         {
             if (Thread.CurrentThread.Name == null)
-                Thread.CurrentThread.Name = "tryToConnectWorker";
+                Thread.CurrentThread.Name = "tryToConnectTask";
 
-            if (tryToConnectWorker is null)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                throw new InvalidOperationException("The connection worker has not been initialized.");
-            }
+                if (Seriell32 is null)
+                {
+                    throw new InvalidOperationException("The serial connection is not set.");
+                }
 
-            if (Seriell32 is null)
-            {
-                throw new InvalidOperationException("The serial connection is not set.");
-            }
-
-            while (!tryToConnectWorker.CancellationPending)
-            {
                 if (!IsConnected)
                 {
                     ConnectionStatus = EnumConnectionStatus.Connecting;
                     try
                     {
-                        if (Seriell32 != null && Seriell32.IsOpen)
+                        if (Seriell32.IsOpen)
                             Seriell32.Close();
-                        if (Seriell32 != null && !Seriell32.GetOpen())
+
+                        if (!Seriell32.GetOpen())
                         {
                             ConnectionStatus = EnumConnectionStatus.PortError;
                             IsConnected = false;
-                            //Thread stoppen
-                            Stop_RS232ReceiverThread();
-                            tryToConnectWorker.CancelAsync();   //In diesem Falle nicht weiter probieren
+                            StopRS232ReceiverThread();
+                            break; // Exit the loop, stop further attempts
                         }
                     }
                     catch (Exception)
                     {
                         ConnectionStatus = EnumConnectionStatus.PortError;
                         IsConnected = false;
-                        //Thread stoppen
-                        Stop_RS232ReceiverThread();
+                        StopRS232ReceiverThread();
                         Seriell32?.Close();
-                        //log.Error(ee.Message, ee);
-                        tryToConnectWorker.CancelAsync();   //In diesem Falle nicht weiter probieren
+                        break; // Exit the loop, stop further attempts
                     }
 
-                    if (Seriell32 != null)
+                    if (Check4Neuromaster_RS232())
                     {
-                        if (Check4Neuromaster_RS232())
-                        {
-                            //Succeeded
-                            //Gerät da
-
-                            //Thread starten
-                            /*
-                                                        RS232ReceiverThread = new BackgroundWorker();
-                            #pragma warning disable CS8622
-                                                        RS232ReceiverThread.DoWork += new DoWorkEventHandler(RS232ReceiverThread_DoWork);
-                            #pragma warning restore CS8622
-                                                        RS232ReceiverThread.WorkerSupportsCancellation = true;
-                                                        RS232ReceiverThread.RunWorkerAsync();
-                            */
-                            // Run the async method as a new task
-                            Start_RS232ReceiverThread ();
-
-                            //Diesen Thread beenden
-                            tryToConnectWorker.CancelAsync();
-
-                            IsConnected = true;
-                        }
-                        else
-                        {
-                            //failed
-                        }
+                        // Succeeded, device detected
+                        StartRS232ReceiverThread();
+                        IsConnected = true;
                     }
-                    if (!IsConnected)
+                    else
                     {
+                        // Connection attempt failed
                         ConnectionStatus = EnumConnectionStatus.Not_Connected;
                         IsConnected = false;
                         Seriell32?.Close();
-                        //ggf Thread stoppen
-                        Stop_RS232ReceiverThread();
+                        StopRS232ReceiverThread();
                     }
-                }//if (!this.IsConnected)
-            }   //while (!tryToConnectWorker.CancellationPending)
-            if (IsConnected)
-            {
-                //CDelay.Delay_ms(3000);
-                ConnectionStatus = EnumConnectionStatus.Connected;
-            }
-#if DEBUG
-            Debug.WriteLine("tryToConnectWorker Closed");
-#endif
+                }
 
+
+                if (IsConnected)
+                {
+                    await Task.Delay(3000, cancellationToken); // Delay to stabilize connection if needed
+                    ConnectionStatus = EnumConnectionStatus.Connected;
+                    StopConnectionThread();
+                }
+            }
+
+#if DEBUG
+            Debug.WriteLine("tryToConnectTask Closed");
+#endif
         }
 
         /// <summary>
@@ -120,21 +91,50 @@ namespace FeedbackDataLib
         {
             if (Seriell32 != null)
             {
-                bool WasOpen = Seriell32.IsOpen;
-                if (!WasOpen)
+                bool wasOpen = Seriell32.IsOpen;
+                if (!wasOpen)
                 {
-                    //Open
+                    // Try to open the serial connection
                     if (!Seriell32.GetOpen())
                         return false;
                 }
-                bool ret = CNeuromaster.Check4Neuromaster(Seriell32, ConnectSequToSend, ConnectSequToReturn, _CommandChannelNo);
-                if (!WasOpen)
+                bool result = CNeuromaster.Check4Neuromaster(Seriell32, ConnectSequToSend, ConnectSequToReturn, _CommandChannelNo);
+                if (!wasOpen)
                     Seriell32.Close();
-                return ret;
+                return result;
             }
             return false;
         }
+        #endregion
 
+        #region StartStopMethods
+        /// <summary>
+        /// Starts the connection task
+        /// </summary>
+        public void StartConnectionThread()
+        {
+            if (cancellationTokenConnector != null)
+            {
+                throw new InvalidOperationException("Connection task is already running.");
+            }
+
+            cancellationTokenConnector = new CancellationTokenSource();
+            _ = TryToConnectAsync(cancellationTokenConnector.Token);
+        }
+
+        /// <summary>
+        /// Stops the connection task
+        /// </summary>
+        public void StopConnectionThread()
+        {
+            if (cancellationTokenConnector == null)
+            {
+                throw new InvalidOperationException("Connection task is not running.");
+            }
+
+            cancellationTokenConnector.Cancel();
+            cancellationTokenConnector = null;
+        }
         #endregion
     }
 }

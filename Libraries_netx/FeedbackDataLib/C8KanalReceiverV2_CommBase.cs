@@ -1,5 +1,6 @@
 ﻿using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
+using System.Diagnostics;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -644,7 +645,7 @@ namespace FeedbackDataLib
         public virtual bool GetDeviceConfig()
         {
             bool ret = true;
-            byte[] InData = [];
+            byte[] InData;
             byte[] AddData = new byte[1];
             List<byte> AllData = [];
 
@@ -685,9 +686,7 @@ namespace FeedbackDataLib
                         Device.Calculate_SkalMax_SkalMin(); //Calculate max and mins
                     }
                 }
-#pragma warning disable CS0168
                 catch (Exception e)
-#pragma warning restore CS0168
                 {
 #if DEBUG   
                     Console.WriteLine("C8KanalReceiverV2_CommBase_#01: " + e.Message);
@@ -697,7 +696,6 @@ namespace FeedbackDataLib
             }
             return ret;
         }
-
         /// <summary>
         /// Sets configuration of a specific channel
         /// according to Device.ModuleInfos[HW_cn].SWChannels[SW_cn].SWConfigChannel
@@ -881,117 +879,108 @@ namespace FeedbackDataLib
         }
 
 
-        #region Comman_Data_Mode
-
-        private readonly bool _CommandMode = false;
-        /// <summary>
-        /// Gets a value indicating whether command is mode active
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if command mode is active; otherwise, <c>false</c>.
-        /// </value>
-        public bool CommandModeActive
+        private bool SendGetCheckData(byte commandCode, byte[] additionalData, ref byte[] inData)
         {
-            get { return _CommandMode; }
+            // Call the async method and block until it completes
+            int numInData = inData.Length;
+            (byte[] receivedData, bool success) = Task.Run(() => SendGetCheckDataAsync(commandCode, additionalData, numInData)).GetAwaiter().GetResult();
+
+
+            // Update inData with the result
+            inData = receivedData;
+            return success;
         }
 
-        #endregion
-
         /// <summary>
-        /// Sendet Kommando und AdditionalDataToSend in einem
+        /// Asynchronously sends a command along with additional data and awaits a response from the device.
         /// </summary>
         /// <remarks>
+        /// This method sends a command code followed by additional data, if provided, and then waits for a response
+        /// from the device. The method operates asynchronously to prevent blocking the calling thread during
+        /// communication and allows for handling timeouts if the response is not received within the specified period.
         /// </remarks>
-        /// <param name="C8KanalRecCommandCode">Command specific Code (see C8KanalRecCommandCodes)</param>
-        /// <param name="AdditionalDataToSend">Data sent after Command</param>
-        /// <param name="InData">Reads data if Indata.Length>0; array size is redefinded according to protocol response</param>
-        /// <returns>true: succeeded</returns>
-        protected bool SendGetCheckData(byte C8KanalRecCommandCode, byte[] AdditionalDataToSend, ref byte[] InData)
+        /// <param name="C8KanalRecCommandCode">The specific command code to send (see <c>C8KanalRecCommandCodes</c> for available codes).</param>
+        /// <param name="AdditionalDataToSend">Optional additional data to send following the command code.</param>
+        /// <returns>
+        /// A <see cref="Task"/> that represents the asynchronous operation. The task result contains the response data
+        /// as a byte array if the operation succeeds, or <c>null</c> if the operation times out or fails.
+        /// </returns>
+        //        protected bool SendGetCheckData(byte C8KanalRecCommandCode, byte[] AdditionalDataToSend, ref byte[] InData)
+        protected async Task<(byte[], bool)> SendGetCheckDataAsync(byte C8KanalRecCommandCode, byte[] AdditionalDataToSend, int numInData= 0)
         {
+            // Validate AdditionalDataToSend size early
             if (AdditionalDataToSend.Length > 250)
             {
-                throw new Exception("Size of Additional Data <= 250");
+                throw new ArgumentException("Size of AdditionalDataToSend must be <= 250", nameof(AdditionalDataToSend));
             }
 
-            const int overhead = 4; //CommandCode, Command, Length, CRC
+            const int overhead = 4; // CommandCode, Command, Length, CRC
             int bytestosend = overhead + AdditionalDataToSend.Length;
             byte[] buf = new byte[bytestosend];
 
-            buf[0] = C8KanalReceiverCommandCodes.CommandCode;
-            buf[1] = C8KanalRecCommandCode;
-            buf[2] = (byte)(AdditionalDataToSend.Length + 1); //+CRC
+            // Build the command buffer
+            buf[0] = C8KanalReceiverCommandCodes.CommandCode;  // Add the base command code
+            buf[1] = C8KanalRecCommandCode;                    // Add the specific command code
+            buf[2] = (byte)(AdditionalDataToSend.Length + 1);  // Length byte (+CRC)
 
+            // Copy additional data into the buffer
             Buffer.BlockCopy(AdditionalDataToSend, 0, buf, overhead - 1, AdditionalDataToSend.Length);
 
-            //Calc CRC
-            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
+            // Calculate and set CRC
+            buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 1);
+
+            // Initialize default return values
             byte[] inbuf;
-            //empty command buffer
-            do
-            {
-                inbuf = RS232Receiver?.GetCommand ?? [];
-            }
-            while (inbuf.Length > 0);
+            byte[] returnData = Array.Empty<byte>();
+            bool ret = false;
 
-
-            bool ret;
-            if (RS232Receiver is not null && RS232Receiver.SendByteData(buf, bytestosend) == 0)
+            if (RS232Receiver != null)
             {
-                if (InData.Length > 0)
+                try
                 {
-                    //Wait for Size of Data to receive
-                    inbuf = [];
-                    if (WaitCommandResponse(ref inbuf))
-                    {
-                        ret = false;
+                    // Send the command and wait for the response
+                    inbuf = await RS232Receiver.SendCommandAsync(buf);
 
-                        //Was correct package sent?
-                        if (inbuf[0] == C8KanalRecCommandCode)
+                    // Log response for debugging
+                    Debug.WriteLine("Received response: " + BitConverter.ToString(inbuf));
+                }
+                catch (TimeoutException)
+                {
+                    Debug.WriteLine("The command timed out.");
+                    return ([], false);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Debug.WriteLine("Failed to send the command: " + ex.Message);
+                    return (Array.Empty<byte>(), false);
+                }
+
+                // Process the response
+                if (inbuf.Length > 0)
+                {
+                    if (inbuf[0] == C8KanalRecCommandCode) // Check if the response matches the command code
+                    {
+                        if (numInData > 0)
                         {
-                            InData = new byte[inbuf.Length - 1];
-                            Array.Copy(inbuf, 1, InData, 0, inbuf.Length - 1);
+                            // Expected data length; extract data from the response
+                            returnData = new byte[inbuf.Length - 1];
+                            Array.Copy(inbuf, 1, returnData, 0, inbuf.Length - 1);
                             ret = true;
                         }
-                        else  //if (inbuf[0] == C8KanalRecCommandCode)
+                        else
                         {
-                            //Fehler beim Datenhereinholen
-                            InData = [];
+                            // No additional data expected, just confirmation
+                            if (inbuf[0] == C8KanalRecCommandCode)
+                            {
+                                ret = true;
+                            }
                         }
-                    }  //if (WaitCommandResponse(ref inbuf))
-                    else
-                    {
-                        //No data came in
-                        ret = false;
-                    }
-                }  //if (ret && (InData.Length > 0))
-
-                else   //if ((InData.Length > 0))
-                {
-                    //No data expected, only confirmation of reception (NM-to-PC-Ack)
-                    ret = true;
-                    //Wait for Size of Data to receive
-                    inbuf = new byte[1];
-                    if (WaitCommandResponse(ref inbuf))
-                    {
-                        //Was correct package sent?
-                        if (! (inbuf[0] == C8KanalRecCommandCode))
-                        {
-                            //if inbuf[0] == cCommandError ... then it was explicitely an error in Neuromaster
-                            ret = false;
-                        }
-                    }
-                    else
-                    {
-                        //No response
                     }
                 }
             }
-            else   //if (this.frmReceiver.SendByteData(buf, bytestosend) == 0)
-            {
-                ret = false;
-            }
-            return ret;
+            return (returnData, ret);
         }
+
 
 
         /// <summary>
@@ -1002,6 +991,7 @@ namespace FeedbackDataLib
         /// <remarks>
         /// Timeout defined by WaitCommandResponseTimeOut
         /// </remarks>
+        /*
         private bool WaitCommandResponse(ref byte[] buf)
         {
             //Auf bytes die ueber den Kommandokanal kommen warten
@@ -1011,7 +1001,7 @@ namespace FeedbackDataLib
             {
                 while (DateTime.Now < dt)
                 {
-                    buf = RS232Receiver.GetCommand;
+                    buf = RS232Receiver.GetGetCommand();
                     if (buf.Length > 0)
                     {
                         return true;
@@ -1019,7 +1009,7 @@ namespace FeedbackDataLib
                 }
             }
             return false;
-        }
+        }*/
 
         /// <summary>
         /// Sends Close Connection to NM

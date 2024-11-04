@@ -36,6 +36,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Remove="CRS232_ReceiverThread.cs" />
     <Compile Remove="Modules\CModuleExGADS1292.cs" />
     <Compile Remove="Modules\CModuleExGADS1292_EEG.cs" />
     <Compile Remove="Modules\CModuleSCLADS1292.cs" />

@@ -25,50 +25,33 @@ namespace FeedbackDataLib
 
             try
             {
-                //while (RS232DataDistributorThread != null && !RS232DataDistributorThread.CancellationPending)
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (RPDeviceCommunicationToPC is not null)
+                    // Distribute command responses
+                    while (_commandResponseQueue.TryDequeue(out var commandData))
                     {
-                        //Daten holen
-                        if (RPDeviceCommunicationToPC.Count > 0)
-                        {
-                            //Fire event
-                            OnDeviceCommunicationToPC(buf: RPDeviceCommunicationToPC.Pop());
-                        }
+                        OnDeviceCommunicationToPC(commandData);
                     }
 
-                    if (Data.Count > 0)
+                    // Distribute measurement data
+                    if (_measurementDataQueue.Count > 0)
                     {
-                        CDataIn[] di = Data.PopAll();
-                        if (di != null && di.Length > 0)
-                        {
-                            OnDataReadyComm([.. di]);
-                        }
+                        List<CDataIn> di = [.. _measurementDataQueue];
+                        _measurementDataQueue.Clear();
+                        OnDataReadyComm(di);
                     }
                     else
                     {
-                        //Thread.Sleep(10);
-                        await Task.Delay(10, cancellationToken); // Sleep to prevent high CPU usage
+                        await Task.Delay(10, cancellationToken); // Avoid high CPU usage
                     }
                 }
             }
-#pragma warning disable CS0168
-            catch (Exception ee)
-#pragma warning restore CS0168
+            catch (Exception ex)
             {
-#if DEBUG
-                Debug.WriteLine("RS232DataDistributorThread Error: " + ee.Message);
-#endif
-            }
-
-            finally
-            {
-#if DEBUG
-                Debug.WriteLine("RS232DataDistributorThread Closed");
-#endif
+                Debug.WriteLine("RS232DistributorThread Error: " + ex.Message);
             }
         }
+
 
         private CancellationTokenSource? cancellationTokenDistributor;
 
@@ -82,8 +65,6 @@ namespace FeedbackDataLib
         {
             cancellationTokenDistributor?.Cancel();
         }
-
-
         #endregion
     }
 }

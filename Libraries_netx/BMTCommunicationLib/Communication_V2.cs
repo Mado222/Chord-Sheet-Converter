@@ -40,7 +40,7 @@ namespace BMTCommunicationLib
         event StatusChangedEventHandler StatusChangedComm;
         //event LogErrorEventHandler LogError;
 
-        void InitReceiverBuffer(int ReceiverTimerInterval, int AnzReturnBlocks, int BytetoRead, int ReadValues);
+        //void InitReceiverBuffer(int ReceiverTimerInterval, int AnzReturnBlocks, int BytetoRead, int ReadValues);
         //AnzReturnBlocks: Anzahl der cUSBBytetoRead Gruppen die bei einem DataReady Event zurückgegeben werden
         //BytetoRead: 	   Anzahl der Byte die bei einem Zugriff gelesen werden
         //ReadValues:	   Anzahl der CDataIn die aus BytetoRead hervorgehen
@@ -49,7 +49,7 @@ namespace BMTCommunicationLib
         int ReceiverTimerInterval { get; }
         bool EnableDataReadyEvent { get; set; }
         bool EnableDataReceiving { get; set; }  //Die dieses Interface implementierende Komponente empfängt keine Daten!
-        byte[] GetCommand { get; }
+        //byte[] GetGetCommand();
 
         //Methodes
         void GetData(ref List<CDataIn> Data);

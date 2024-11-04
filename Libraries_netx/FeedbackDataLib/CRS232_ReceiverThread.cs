@@ -23,7 +23,7 @@ namespace FeedbackDataLib
         /// <param name="e">DoWorkEventArgs</param>
         /// <remarks>Main work loop of the class.</remarks>
         //private void RS232ReceiverThread_DoWork(object sender, DoWorkEventArgs e)
-        private async Task RS232ReceiverThread_DoWorkAsync(CancellationToken cancellationToken)
+        private async Task RS232ReceiverThread_DoWorkAsync1(CancellationToken cancellationToken)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232ReceiverThread";
@@ -152,7 +152,7 @@ namespace FeedbackDataLib
                                             break;
 
                                         default:
-                                            RPCommand.Push(buf);
+                                            //RPCommand.Push(buf);
                                             break;
                                     }
                                 }
@@ -196,7 +196,7 @@ namespace FeedbackDataLib
         public void Start_RS232ReceiverThread()
         {
             cancellationTokenReceiver = new CancellationTokenSource();
-            Task.Run(() => RS232ReceiverThread_DoWorkAsync(cancellationTokenReceiver.Token));
+            //Task.Run(() => RS232ReceiverThread_DoWorkAsync(cancellationTokenReceiver.Token));
         }
 
         public void Stop_RS232ReceiverThread()
@@ -205,6 +205,7 @@ namespace FeedbackDataLib
         }
         #endregion
 
+        /*
         private int mustbeinbuf = -1;
         private int issync = 0;
         private int isEP = 0;
@@ -259,6 +260,6 @@ namespace FeedbackDataLib
             }
             return null;
         }
-
+        */
     }
 }
