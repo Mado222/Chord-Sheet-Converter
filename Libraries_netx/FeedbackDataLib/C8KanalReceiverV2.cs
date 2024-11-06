@@ -49,7 +49,7 @@ namespace FeedbackDataLib
         private C8KanalReceiverV2_RS232? _8KanalReceiverV2_RS232;
         private C8KanalReceiverV2_XBee? _8KanalReceiverV2_XBee;
         //private C8KanalReceiverV2_SDCard? _8KanalReceiverV2_SDCard;
-        private C8KanalReceiverV2_CommBase? _8KanalReceiverV2_SDCard;
+        //private C8KanalReceiverV2_CommBase? _8KanalReceiverV2_SDCard;
 
         /// <summary>
         /// FTDI driver class
@@ -200,10 +200,10 @@ namespace FeedbackDataLib
                         {
                             return _8KanalReceiverV2_RS232;
                         }
-                    case EnumNeuromasterConnectionType.SDCardConnection:
-                        {
-                            return _8KanalReceiverV2_SDCard;
-                        }
+                    //case EnumNeuromasterConnectionType.SDCardConnection:
+                    //    {
+                    //        return _8KanalReceiverV2_SDCard;
+                    //    }
                     default:
                         {
                             return null;
@@ -295,15 +295,15 @@ namespace FeedbackDataLib
             Dispose();
         }
 
-        public EnumConnectionResult Init_via_SDCard()
-        {
-            /*
-            SDCardConnection ??= new CSDCardConnection();
+        //public EnumConnectionResult Init_via_SDCard()
+        //{
+        //    /*
+        //    SDCardConnection ??= new CSDCardConnection();
 
-            ConnectionType = EnumNeuromasterConnectionType.SDCardConnection;
-            _8KanalReceiverV2_SDCard = new C8KanalReceiverV2_SDCard(SDCardConnection);*/
-            return EnumConnectionResult.Connected_via_SDCard;
-        }
+        //    ConnectionType = EnumNeuromasterConnectionType.SDCardConnection;
+        //    _8KanalReceiverV2_SDCard = new C8KanalReceiverV2_SDCard(SDCardConnection);*/
+        //    return EnumConnectionResult.Connected_via_SDCard;
+        //}
 
 
         /// <summary>
@@ -755,7 +755,7 @@ namespace FeedbackDataLib
 
             FTDI_D2xx?.Close();  //2nd Close
 
-            _8KanalReceiverV2_SDCard?.Close();
+            //_8KanalReceiverV2_SDCard?.Close();
         }
 
         #region IDisposable Members

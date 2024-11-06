@@ -136,8 +136,7 @@ namespace WindControlLib
         public byte NumExtraDat { get; set; } = 0;
 
         public byte[] ExtraDat { get; set; } = [8];
-
-
+        public DateTime DT_relative { get; set; }
 
         public void Copy(CDataIn DataIn)
         {

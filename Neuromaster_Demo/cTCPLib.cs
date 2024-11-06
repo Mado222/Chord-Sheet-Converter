@@ -42,7 +42,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
 
         //Guid has 16 bytes
-        private static int _sizeofGuid = 16;
+        private static readonly int _sizeofGuid = 16;
 
         public int _PacketSize;
         /// <summary>
@@ -66,24 +66,25 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
 
 
-        public void GetByteArray(ref byte[] buffer, int Index_where_to_start_filling)
+        public void GetByteArray(ref byte[] buffer, int indexWhereToStartFilling)
         {
-            List<byte> buf = new List<byte>();
-            if (Index_where_to_start_filling > 0)
+            List<byte> buf = [];
+
+            // Reserve space if needed
+            if (indexWhereToStartFilling > 0)
             {
-                //Reserve place
-                for (int i = 0; i < Index_where_to_start_filling; i++)
-                    buf.Add(buffer[i]);
+                buf.AddRange(buffer.Take(indexWhereToStartFilling));
             }
 
-            byte[] b = _UniquePacketID.ToByteArray();
-            buf.AddRange(b);
-            b = [(byte)_TCPPacketType];
-            buf.AddRange(b);
-            b = BitConverter.GetBytes(LengthOfFollowingPacket);
-            buf.AddRange(b);
-            buffer = buf.ToArray();
+            // Append the data sequentially
+            buf.AddRange(_UniquePacketID.ToByteArray());
+            buf.Add((byte)_TCPPacketType);
+            buf.AddRange(BitConverter.GetBytes(LengthOfFollowingPacket));
+
+            // Update the buffer with the newly constructed byte array
+            buffer = [.. buf];
         }
+
 
         public int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start, uint TCPPacketLength)
         {
@@ -100,7 +101,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
     }
 
-    public enum enumTCPPacketTypes
+    public enum EnumTCPPacketTypes
     {
         DataPAcket,
         ErrorPacket
@@ -123,15 +124,15 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public void Update(CTCPPacketHeader TCPPacketHeader)
         {
-            byte[] b = new byte[0];
+            byte[] b = [];
             TCPPacketHeader.GetByteArray(ref b, 0);
             this.TCPPacketHeader.UpdateFrom_ByteArray(b, 0, 0);
         }
 
 
-        public new void GetByteArray(ref byte[] buffer, int Index_where_to_start_filling)
+        public void GetByteArray(ref byte[] buffer, int Index_where_to_start_filling)
         {
-            List<byte> buf = new List<byte>();
+            List<byte> buf = [];
             if (Index_where_to_start_filling > 0)
             {
                 //Reserve place
@@ -140,12 +141,12 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             }
 
             //Make array for CAN Message
-            byte[] arrCANMsg = new byte[0];
+            byte[] arrCANMsg = Array.Empty<byte>();
             //base.GetByteArray(ref arrCANMsg, 0);
 
             TCPPacketHeader.LengthOfFollowingPacket = (UInt16)arrCANMsg.Length;
             TCPPacketHeader.TCPPacketType = CTCPPacketHeader.PacketType_Data;
-            byte[] arrHeader = new byte[0];
+            byte[] arrHeader = Array.Empty<byte>();
             TCPPacketHeader.GetByteArray(ref arrHeader, 0);
             buf.AddRange(arrHeader);
             buf.AddRange(arrCANMsg);
@@ -157,20 +158,13 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             return TCPPacketHeader.UpdateFrom_ByteArray(InBuf, Pointer_To_Array_Start, 0);
         }
 
-        public int Update_Data_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public  object Clone()
         {
-            return 0;// this.UpdateFrom_ByteArray(InBuf, Pointer_To_Array_Start, TCPPacketHeader.LengthOfFollowingPacket);
-        }
-
-        public new object Clone()
-        {
-            CTCPDataPacket p = new CTCPDataPacket();
-            byte[] buf = new byte[0];
-            this.TCPPacketHeader.GetByteArray(ref buf, 0);
+            CTCPDataPacket p = new();
+            byte[] buf = [];
+            TCPPacketHeader.GetByteArray(ref buf, 0);
             p.Update_Header_From_ByteArray(buf, 0);
-
-            this.GetByteArray(ref buf, 0);
-            p.Update_Data_From_ByteArray(buf, 0);
+            GetByteArray(ref buf, 0);
             return p;
         }
     }
@@ -185,7 +179,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             set { _TCPPacketHeader = value; }
         }
 
-        private string _ErrorString;
+        private string _ErrorString = "";
         public string ErrorString
         {
             get { return _ErrorString; }
@@ -199,14 +193,14 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public void Update(CTCPPacketHeader TCPPacketHeader)
         {
-            byte[] b = new byte[0];
+            byte[] b = Array.Empty<byte>();
             TCPPacketHeader.GetByteArray(ref b, 0);
             this.TCPPacketHeader.UpdateFrom_ByteArray(b, 0, 0);
         }
 
         public void GetByteArray(ref byte[] buffer, int Index_where_to_start_filling)
         {
-            List<byte> buf = new List<byte>();
+            List<byte> buf = new();
             if (Index_where_to_start_filling > 0)
             {
                 //Reserve place
@@ -215,18 +209,18 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             }
 
             //Make array for CAN Message
-            byte[] arrCANMsg = new byte[0];
+            byte[] arrCANMsg;
 
-            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            ASCIIEncoding enc = new();
             arrCANMsg = enc.GetBytes(ErrorString);
 
-            TCPPacketHeader.LengthOfFollowingPacket = (UInt16)arrCANMsg.Length;
+            TCPPacketHeader.LengthOfFollowingPacket = (ushort) arrCANMsg.Length;
             TCPPacketHeader.TCPPacketType = CTCPPacketHeader.PacketType_Error;
-            byte[] arrHeader = new byte[0];
+            byte[] arrHeader = Array.Empty<byte>();
             TCPPacketHeader.GetByteArray(ref arrHeader, 0);
             buf.AddRange(arrHeader);
             buf.AddRange(arrCANMsg);
-            buffer = buf.ToArray();
+            buffer = [.. buf];
         }
 
         public int Update_Header_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
@@ -234,18 +228,18 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             return TCPPacketHeader.UpdateFrom_ByteArray(InBuf, Pointer_To_Array_Start, 0);
         }
 
-        public int Update_Data_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public static int UpdateDataFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
-            System.Text.ASCIIEncoding enc = new System.Text.ASCIIEncoding();
+            ASCIIEncoding enc = new();
             enc.GetString(InBuf);
             return Pointer_To_Array_Start + InBuf.Length;
         }
 
         public object Clone()
         {
-            CTCPErrorPacket p = new CTCPErrorPacket();
-            byte[] buf = new byte[0];
-            this.TCPPacketHeader.GetByteArray(ref buf, 0);
+            CTCPErrorPacket p = new();
+            byte[] buf = Array.Empty<byte>();
+            TCPPacketHeader.GetByteArray(ref buf, 0);
             p.Update_Header_From_ByteArray(buf, 0);
             p.ErrorString = ErrorString;
             return p;

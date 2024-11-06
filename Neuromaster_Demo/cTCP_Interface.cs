@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,19 +12,19 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Neuromaster_Demo_Library_Reduced__netx
 {
-    public class cTCP_Interface
+    public class CTCPInterface
     {
-        private TcpListener tcpListener;
-        private int TCPPort = 23561;
-        System.Threading.Timer tmrCheckIncomingConns;
+        private TcpListener? tcpListener;
+        private readonly int TCPPort = 23561;
+        System.Threading.Timer? tmrCheckIncomingConns;
 
         /// <summary>
         /// List of connected clients
         /// </summary>
-        List<ClientHandler> ClientHandlers;
+        List<ClientHandler> ClientHandlers = [];
 
         public delegate void StatusMessageEventHandler(string data, Color color);
-        public event StatusMessageEventHandler StatusMessage;
+        public event StatusMessageEventHandler? StatusMessage;
         protected virtual void OnStatusMessage(string data, Color color)
         {
             // Check if there are any subscribers to the event
@@ -31,7 +32,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
 
 
-        public cTCP_Interface()
+        public CTCPInterface()
         {
         }
 
@@ -40,14 +41,14 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             // Erstellen eines neuen Listeners.
             IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
-            IPAddress IPtoUse = new IPAddress(new byte[] { 127, 0, 0, 1 });
+            IPAddress IPtoUse = new (new byte[] { 127, 0, 0, 1 });
 
             tcpListener = new TcpListener(IPtoUse, TCPPort);
             OnStatusMessage("Listening on " + IPtoUse.ToString() + ": " + TCPPort.ToString(), Color.Green);
             tcpListener.Start();
-            ClientHandlers = new List<ClientHandler>();
+            ClientHandlers = [];
 
-            TimerCallback timerCallback = tmrCheckIncomingConnsCallbackMethod;
+            TimerCallback timerCallback = TmrCheckIncomingConnsCallbackMethod;
             tmrCheckIncomingConns ??= new System.Threading.Timer(timerCallback, null, 1000, 1000);
         }
 
@@ -61,7 +62,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public void Close ()
         {
-           tmrCheckIncomingConns.Dispose();
+           tmrCheckIncomingConns?.Dispose();
             if (ClientHandlers != null)
             {
                 foreach (ClientHandler handler in ClientHandlers)
@@ -69,12 +70,12 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                     handler.Close();
                 }
             }
-            tcpListener.Stop();
+            tcpListener?.Stop();
         }
 
-        private void tmrCheckIncomingConnsCallbackMethod(object? state)
+        private void TmrCheckIncomingConnsCallbackMethod(object? state)
         {
-            if (tcpListener.Pending())
+            if (tcpListener != null && tcpListener.Pending())
             {
                 TcpClient tcpClient = tcpListener.AcceptTcpClient();
 
@@ -89,7 +90,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                 TCP_ClientHandler.ConnectionClosed += new ClientHandler.ConnectionClosedEventHandler(TCP_ClientHandler_ConnectionClosed);
 
                 // Dieses Objekt in einem anderen Thread ausführen.
-                Thread handlerThread = new Thread(new ThreadStart(TCP_ClientHandler.Start))
+                Thread handlerThread = new (new ThreadStart(TCP_ClientHandler.Start))
                 {
                     IsBackground = true
                 };
@@ -107,7 +108,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         void TCP_ClientHandler_ConnectionClosed(object sender, string ID)
         {
             int idx = GetClientHandler_index(ID);
-            StatusMessage("IP: " + ClientHandlers[idx].RemoteAddress.ToString() + " closed" + " (" + ID + ")", Color.Red);
+            OnStatusMessage("IP: " + ClientHandlers[idx].RemoteAddress.ToString() + " closed" + " (" + ID + ")", Color.Red);
 
             //Remove from List
             if (idx >= 0)
@@ -132,12 +133,12 @@ namespace Neuromaster_Demo_Library_Reduced__netx
     /// <summary>
     /// Handler, der mehrere TCP-Clients gleichzeitig bearbeiten kann. 
     /// </summary>
-    public class ClientHandler
+    public class ClientHandler(TcpClient client, string ID)
     {
-        private TcpClient tcpClient;
-        private NetworkStream stream;
+        private readonly TcpClient? tcpClient = client;
+        private NetworkStream? stream;
 
-        private string _ID;
+        private readonly string _ID = ID;
         public string ID
         {
             get { return _ID; }
@@ -151,13 +152,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             _Close = true;
         }
 
-        public ClientHandler(TcpClient client, string ID)
-        {
-            this.tcpClient = client;
-            this._ID = ID;
-        }
-
-        private IPAddress _Address;
+        private IPAddress _Address = IPAddress.None;
         public IPAddress Address
         {
             get { return _Address; }
@@ -166,7 +161,15 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public IPAddress RemoteAddress
         {
-            get { return IPAddress.Parse(((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString()); }
+            get
+            {
+                if (tcpClient != null && tcpClient.Client != null && tcpClient.Client.RemoteEndPoint != null)
+                {
+                    var ip = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString();
+                    return IPAddress.Parse(ip);
+                }
+                return IPAddress.None;
+            }
         }
 
         public int Port { get; set; }
@@ -174,7 +177,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public void Connect()
         {
-            //bool ret = true;
+            if (tcpClient == null) return;
             try
             {
                 tcpClient.Connect(Address, Port);
@@ -183,39 +186,39 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             }
             catch (Exception ee)
             {
-                CTCPErrorPacket TCPErrorPacket = new CTCPErrorPacket();
-                TCPErrorPacket.ErrorString = ee.Message;
+                CTCPErrorPacket TCPErrorPacket = new()
+                {
+                    ErrorString = ee.Message
+                };
                 OnErrorMessageReady(TCPErrorPacket);
-                //ret = false;
             }
-            //return ret;
         }
 
 
 
         public delegate void MessageReadyEventHandler(object sender, string ID, CTCPDataPacket TCPPacket);
-        public event MessageReadyEventHandler MessageReady;
+        public event MessageReadyEventHandler? MessageReady;
         protected virtual void OnMessageReady(CTCPDataPacket TCPPacket)
         {
-            if (MessageReady != null) MessageReady(this, _ID, TCPPacket);
+            MessageReady?.Invoke(this, _ID, TCPPacket);
         }
 
         public delegate void ErrorMessageReadyEventHandler(object sender, string ID, CTCPErrorPacket TCPErrorPacket);
-        public event ErrorMessageReadyEventHandler ErrorMessageReady;
+        public event ErrorMessageReadyEventHandler? ErrorMessageReady;
         protected virtual void OnErrorMessageReady(CTCPErrorPacket TCPErrorPacket)
         {
             ErrorMessageReady?.Invoke(this, _ID, TCPErrorPacket);
         }
 
         public delegate void ConnectionClosedEventHandler(object sender, string ID);
-        public event ConnectionClosedEventHandler ConnectionClosed;
+        public event ConnectionClosedEventHandler? ConnectionClosed;
         protected virtual void OnConnectionClosed()
         {
             ConnectionClosed?.Invoke(this, _ID);
         }
 
         public delegate void ConnectionOpenedEventHandler(object sender, string ID);
-        public event ConnectionOpenedEventHandler ConnectionOpened;
+        public event ConnectionOpenedEventHandler? ConnectionOpened;
         protected virtual void OnConnectionOpened()
         {
             ConnectionOpened?.Invoke(this, _ID);
@@ -223,27 +226,25 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public void Write(CDataIn DataIn)
         {
-            CTCPDataPacket tp = new CTCPDataPacket();
-            //List<byte> buf = [.. DataIn.Value_buffer];
-            //byte[] bu = buf.ToArray();
             byte[] bu = CDataInJSONSerializer.Serialize(DataIn);
             byte[] lengthBytes = BitConverter.GetBytes(bu.Length);
-
-            //bu = lengthBytes.Concat(bu).ToArray();
             stream?.Write(lengthBytes, 0, lengthBytes.Length);
-
             stream?.Write(bu, 0, bu.Length);
         }
 
         public void Start()
         {
             // Den Netzwerk-Stream abrufen.
+            if (tcpClient == null)
+            {
+                throw new Exception("tcpClient mustbe created before calling Start()");
+            }
             stream = tcpClient.GetStream();
             stream.Flush();
 
-            CTCPPacketHeader TCPPacketHeader = new CTCPPacketHeader();
+            CTCPPacketHeader TCPPacketHeader = new ();
             byte[] barr = new byte[1];
-            int bytesread = 0;
+            int bytesread;
             bool ReadHeader = true;
 
             while (!_Close)
@@ -305,7 +306,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                         {
                             case CTCPPacketHeader.PacketType_Data:
                                 {
-                                    CTCPDataPacket TCPDataPacket = new CTCPDataPacket();
+                                    CTCPDataPacket TCPDataPacket = new();
                                     //TCPDataPacket.UpdateFrom_ByteArray(barr, 0, TCPPacketHeader.LengthOfFollowingPacket);
                                     TCPDataPacket.Update(TCPPacketHeader);
                                     OnMessageReady(TCPDataPacket);
@@ -314,8 +315,8 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
                             case CTCPPacketHeader.PacketType_Error:
                                 {
-                                    CTCPErrorPacket TCPErrorPacket = new CTCPErrorPacket();
-                                    TCPErrorPacket.Update_Data_From_ByteArray(barr, 0);
+                                    CTCPErrorPacket TCPErrorPacket = new();
+                                    CTCPErrorPacket.UpdateDataFromByteArray(barr, 0);
                                     TCPErrorPacket.Update(TCPPacketHeader);
                                     OnErrorMessageReady(TCPErrorPacket);
                                     break;
@@ -324,6 +325,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                     }
                     catch (Exception ee)
                     {
+                        Debug.WriteLine(ee.Message);
                     }
                     //Read Headder next
                     ReadHeader = true;

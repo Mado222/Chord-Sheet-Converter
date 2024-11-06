@@ -11,6 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="frmSDCardReader.cs" />
+    <Compile Remove="frmSDCardReader.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="frmSDCardReader.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Libraries_netx\BMTCommunicationLib\BMTCommunicationLib.csproj" />
     <ProjectReference Include="..\Libraries_netx\ComponentsLibGUI\ComponentsLibGUI.csproj" />
     <ProjectReference Include="..\Libraries_netx\FeedbackDataLibGUI\FeedbackDataLibGUI.csproj" />

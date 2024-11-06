@@ -63,8 +63,8 @@
             this.ctbSaving.TextState1 = "Start Saving";
             this.ctbSaving.TextState2 = "Stop Saving";
             this.ctbSaving.UseVisualStyleBackColor = false;
-            this.ctbSaving.ToState2 += new System.EventHandler(this.ctbSaving_ToState2);
-            this.ctbSaving.ToState1 += new System.EventHandler(this.ctbSaving_ToState1);
+            this.ctbSaving.ToState2 += new System.EventHandler(this.CtbSaving_ToState2);
+            this.ctbSaving.ToState1 += new System.EventHandler(this.CtbSaving_ToState1);
             // 
             // label9
             // 
@@ -102,7 +102,7 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pictureBox1.TabIndex = 8;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.pictureBox1.Click += new System.EventHandler(this.PictureBox1_Click);
             // 
             // saveFileDialog_data
             // 
@@ -122,7 +122,7 @@
             this.Controls.Add(this.txtPath);
             this.Name = "frmSaveData";
             this.Text = "Save Data to File";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmSaveData_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmSaveData_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

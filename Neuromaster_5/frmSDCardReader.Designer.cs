@@ -53,6 +53,6 @@ namespace Neuromaster_V5
 
         #endregion
 
-        private FeedbackDataLib_GUI.SDCardReaderNM sdCardReaderNM1;
+        //private FeedbackDataLib_GUI.SDCardReaderNM sdCardReaderNM1;
     }
 }

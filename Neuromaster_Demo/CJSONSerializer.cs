@@ -8,9 +8,9 @@ namespace Neuromaster_Demo_Library_Reduced__netx
     {
         public static byte[] Serialize(CDataIn data)
         {
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(CDataIn));
+            DataContractJsonSerializer serializer = new(typeof(CDataIn));
 
-            using (MemoryStream ms = new MemoryStream())
+            using (MemoryStream ms = new())
             {
                 serializer.WriteObject(ms, data);
                 //return Encoding.UTF8.GetString(ms.ToArray());

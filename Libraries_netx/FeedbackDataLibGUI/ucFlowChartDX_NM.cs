@@ -132,7 +132,7 @@ namespace FeedbackDataLib_GUI
                 /// <summary>
                 /// The S W_CN
                 /// </summary>
-                public int SW_cn = SW_cn;
+                public int SWcn = SW_cn;
             }
 
             /// <summary>

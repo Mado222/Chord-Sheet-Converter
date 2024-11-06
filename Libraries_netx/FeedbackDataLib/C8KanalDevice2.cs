@@ -103,7 +103,7 @@ namespace FeedbackDataLib
         }
 
         // Factory method for module instance creation
-        private CModuleBase CreateModuleInstance(enumModuleType moduleType) => moduleType switch
+        private static CModuleBase CreateModuleInstance(enumModuleType moduleType) => moduleType switch
         {
             enumModuleType.cModuleMultisensor => new CModuleMultisensor(),
             enumModuleType.cModuleMultiSCL => new CModule_MultiSCL(),

@@ -1,10 +1,6 @@
 ﻿using BMTCommunicationLib;
-using FeedbackDataLib.Modules;
-using System.Diagnostics;
-using System.Threading;
 using WindControlLib;
-using static FeedbackDataLib.CRS232Receiver2;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
 
 namespace FeedbackDataLib
 {
@@ -272,7 +268,7 @@ namespace FeedbackDataLib
         /// <param name="ComPortName">
         /// "COM1","COM2
         /// </param>
-        public C8KanalReceiverV2_CommBase(string ComPortName)
+        public C8KanalReceiverV2_CommBase(string ComPortName): this()
         {
             C8KanalReceiverV2_Construct();
             this.ComPortName = ComPortName;

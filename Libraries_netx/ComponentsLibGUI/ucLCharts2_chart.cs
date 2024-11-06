@@ -213,7 +213,7 @@ namespace ComponentsLib_GUI
 
         public void AddPoint(int chartIndex, CDataIn cData)
         {
-            AddPoint(chartIndex, cData.DT_absolute, cData.Value);
+            AddPoint(chartIndex, cData.DTAbsolute, cData.Value);
         }
 
         public void Start()

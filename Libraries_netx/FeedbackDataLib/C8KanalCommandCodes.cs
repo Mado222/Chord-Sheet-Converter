@@ -136,7 +136,7 @@ namespace FeedbackDataLib
         /// Write-Read Command for Modules - only passed through from Neuromaster
         /// </summary>
         /// <remarks>
-        ///     +1byte HW_cn
+        ///     +1byte HWcn
         ///     +1byte number of bytes to send (inkl Module command)
         ///     +1byte number of bytes to read
         ///     ---- bytes to send:
@@ -161,6 +161,71 @@ namespace FeedbackDataLib
         public const byte cGetModuleConfig = 0x98;
 
         public const byte cScanModules = 0x99;              //Scans connected Modules
+
+        public enum EnNeuromasterCommand : byte
+        {
+            None = 0,
+            ////////////////////
+            // Dummy Commands for easier Call back processing
+            ////////////////////
+            GetDeviceConfig = 1,
+            SetConfigAllModules = 2,
+            GetModuleInfoSpecific = 3,
+
+
+            ////////////////////
+            // Commando Codes to Neuromaster
+            ////////////////////
+
+            /// <summary>Neuromaster sends every second a message to synchronize data</summary>
+            ChannelSync = C8KanalReceiverCommandCodes.cChannelSync,
+
+            /// <summary>Connecting to Device</summary>
+            ConnectToDevice = C8KanalReceiverCommandCodes.cConnectToDevice,
+
+            /// <summary>Signals that device is alive</summary>
+            DeviceAlive = C8KanalReceiverCommandCodes.cDeviceAlive,
+
+            /// <summary>Read Clock</summary>
+            GetClock = C8KanalReceiverCommandCodes.cGetClock,
+
+            /// <summary>Reads Module Configuration</summary>
+            GetChannelConfig = C8KanalReceiverCommandCodes.cGetChannelConfig,
+
+            /// <summary>Neuromaster sends Firmware Version</summary>
+            GetFirmwareVersion = C8KanalReceiverCommandCodes.cGetFirmwareVersion,
+
+            /// <summary>Get configuration of the selected module (all sw channels)</summary>
+            GetModuleConfig = C8KanalReceiverCommandCodes.cGetModuleConfig,
+
+            /// <summary>Neuromaster sends SD Card Info</summary>
+            GetSDCardInfo = C8KanalReceiverCommandCodes.cGetSDCardInfo,
+
+            /// <summary>Returns Module specific data</summary>
+            Module_GetSpecific = C8KanalReceiverCommandCodes.cModule_GetSpecific,
+
+            /// <summary>Sets Module specific data</summary>
+            Module_SetSpecific = C8KanalReceiverCommandCodes.cModule_SetSpecific,
+
+            /// <summary>Reset Neuromaster</summary>
+            Reset = C8KanalReceiverCommandCodes.cReset,
+
+            /// <summary>Scans connected Modules</summary>
+            ScanModules = C8KanalReceiverCommandCodes.cScanModules,
+
+            /// <summary>Set Clock</summary>
+            SetClock = C8KanalReceiverCommandCodes.cSetClock,
+
+            /// <summary>Tells NM that PC is closing the Connection</summary>
+            SetConnectionClosed = C8KanalReceiverCommandCodes.cSetConnectionClosed,
+
+            /// <summary>Set Module Configuration</summary>
+            SetModuleConfig = C8KanalReceiverCommandCodes.cSetModuleConfig,
+
+            /// <summary>Write-Read Command for Modules - only passed through from Neuromaster</summary>
+            /// <remarks> +1byte HWcn, +1byte number of bytes to send, +1byte number of bytes to read</remarks>
+            WrRdModuleCommand = C8KanalReceiverCommandCodes.cWrRdModuleCommand,
+        }
 
         //*****************************************************
         //***************** Communication to PC  **************

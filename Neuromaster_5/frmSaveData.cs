@@ -9,7 +9,7 @@ namespace Neuromaster_V5
             InitializeComponent();
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void PictureBox1_Click(object sender, EventArgs e)
         {
             saveFileDialog_data.FileName = System.IO.Path.GetFileName(txtPath.Text);
             saveFileDialog_data.InitialDirectory = System.IO.Path.GetDirectoryName(txtPath.Text);
@@ -20,24 +20,24 @@ namespace Neuromaster_V5
         }
 
         public delegate void SavingHandler();
-        public event SavingHandler StartSaving;
+        public event SavingHandler? StartSaving;
         protected virtual void OnStartSaving()
         {
             StartSaving?.Invoke();
         }
 
-        public event SavingHandler StopSaving;
+        public event SavingHandler? StopSaving;
         protected virtual void OnStopSaving()
         {
             StopSaving?.Invoke();
         }
 
-        private void ctbSaving_ToState1(object sender, EventArgs e)
+        private void CtbSaving_ToState1(object sender, EventArgs e)
         {
             OnStopSaving();
         }
 
-        private void ctbSaving_ToState2(object sender, EventArgs e)
+        private void CtbSaving_ToState2(object sender, EventArgs e)
         {
             if (File.Exists(txtPath.Text))
             {
@@ -50,7 +50,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void frmSaveData_FormClosing(object sender, FormClosingEventArgs e)
+        private void FrmSaveData_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {

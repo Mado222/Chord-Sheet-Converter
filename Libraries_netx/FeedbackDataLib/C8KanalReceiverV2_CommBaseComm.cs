@@ -1,6 +1,6 @@
 ﻿using FeedbackDataLib.Modules;
 using System.Diagnostics;
-using WindControlLib;
+using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
 using static FeedbackDataLib.CRS232Receiver2;
 
 namespace FeedbackDataLib
@@ -40,17 +40,9 @@ namespace FeedbackDataLib
                     break;
                 case EnNeuromasterCommand.SetConnectionClosed:
                     break;
-                case EnNeuromasterCommand.CommandCode:
-                    break;
                 case EnNeuromasterCommand.ChannelSync:
                     break;
                 case EnNeuromasterCommand.Reset:
-                    break;
-                case EnNeuromasterCommand.ModuleError:
-                    break;
-                case EnNeuromasterCommand.NMOffline:
-                    break;
-                case EnNeuromasterCommand.ModuleConfigChanged:
                     break;
                 case EnNeuromasterCommand.GetFirmwareVersion:
                     SendSuccess();
@@ -85,7 +77,7 @@ namespace FeedbackDataLib
                         {
                             Debug.WriteLine("C8KanalReceiverV2_CommBase_#01: " + ex.Message);
                             e.Success = false;
-                            OnCommandProcessedResponse(new(EnNeuromasterCommand.GetDeviceConfig, "Failed", Color.Red, false, Array.Empty<byte>()));
+                            OnCommandProcessedResponse(new(EnNeuromasterCommand.GetDeviceConfig, "Failed", Color.Red, false, []));
                             Device = null;
                         }
                     }
@@ -135,7 +127,7 @@ namespace FeedbackDataLib
         protected byte[] BuildNMCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)
         {
             // Validate AdditionalDataToSend size early
-            if (additionalData == null) additionalData = [];
+            additionalData ??= [];
             if (additionalData.Length > 250)
             {
                 throw new ArgumentException("Size of AdditionalDataToSend must be <= 250", nameof(additionalData));
@@ -231,7 +223,7 @@ namespace FeedbackDataLib
         /// <param name="HWcn">Hardware channel number</param>
         /// <returns>true if successful</returns>
         /// <remarks>Checks if ModuleType != cModuleTypeEmpty</remarks>
-        public bool SetConfigModule(int HWcn)
+        public bool SetModuleConfig(int HWcn)
         {
             if (HWcn == 0xff || Device is null)
             {
@@ -260,7 +252,7 @@ namespace FeedbackDataLib
 
             for (int HWcn = 0; HWcn < Device.ModuleInfos.Count; HWcn++)
             {
-                if (!SetConfigModule(HWcn)) return false;
+                if (!SetModuleConfig(HWcn)) return false;
             }
             return true;
         }
@@ -326,7 +318,7 @@ namespace FeedbackDataLib
         /// <returns>
         /// Electrode information or null if not appropriate or something went werng
         /// </returns>
-        public void GetElectrodeInfo(ref CADS1294x_ElectrodeImp ElectrodeImp, int HWcn)
+        public static void GetElectrodeInfo(ref CADS1294x_ElectrodeImp ElectrodeImp, int HWcn)
         {
             /*
             bool ret = true;
@@ -359,7 +351,6 @@ namespace FeedbackDataLib
         public bool SetModuleInfoSpecific(int HWcn, int get_Imp_chan_x = -1)
         {
             bool ret = false;
-            byte[] InData = new byte[1];
 
             if (Device?.ModuleInfos[HWcn].ModuleType == enumModuleType.cModuleTypeEmpty)
                 return ret;

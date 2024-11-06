@@ -71,7 +71,7 @@
             btGetConfigModules.TabIndex = 129;
             btGetConfigModules.Text = "Get Config Modules";
             btGetConfigModules.UseVisualStyleBackColor = true;
-            btGetConfigModules.Click += btGetConfigModules_Click;
+            btGetConfigModules.Click += BtGetConfigModules_Click;
             // 
             // btSetConfig
             // 
@@ -82,7 +82,7 @@
             btSetConfig.TabIndex = 130;
             btSetConfig.Text = "Set Config";
             btSetConfig.UseVisualStyleBackColor = true;
-            btSetConfig.Click += btSetConfig_Click;
+            btSetConfig.Click += BtSetConfig_Click;
             // 
             // btGetClock
             // 
@@ -126,7 +126,7 @@
             cChannelsControlV2x11.Name = "cChannelsControlV2x11";
             cChannelsControlV2x11.Size = new Size(772, 477);
             cChannelsControlV2x11.TabIndex = 142;
-            cChannelsControlV2x11.ModuleRowChanged += cChannelsControlV2x11_ModuleRowChanged;
+            cChannelsControlV2x11.ModuleRowChanged += CChannelsControlV2x11_ModuleRowChanged;
             // 
             // btSetAllConfig
             // 
@@ -229,8 +229,8 @@
             tbConnect.TextState1 = "Connect";
             tbConnect.TextState2 = "Disconnect";
             tbConnect.UseVisualStyleBackColor = false;
-            tbConnect.ToState2 += tbConnect_ToState2;
-            tbConnect.ToState1 += tbConnect_ToState1;
+            tbConnect.ToState2 += TbConnect_ToState2;
+            tbConnect.ToState1 += TbConnect_ToState1;
             // 
             // gbClock
             // 
@@ -263,7 +263,7 @@
             btResync.TabIndex = 156;
             btResync.Text = "Resync";
             btResync.UseVisualStyleBackColor = true;
-            btResync.Click += btResync_Click;
+            btResync.Click += BtResync_Click;
             // 
             // groupBox2
             // 
@@ -302,7 +302,7 @@
             // 
             tmrStatusMessages.Enabled = true;
             tmrStatusMessages.Interval = 50;
-            tmrStatusMessages.Tick += tmrStatusMessages_Tick;
+            tmrStatusMessages.Tick += TmrStatusMessages_Tick;
             // 
             // txtData
             // 
@@ -322,7 +322,7 @@
             btGetModuleSpecific.TabIndex = 169;
             btGetModuleSpecific.Text = "Get Module specific";
             btGetModuleSpecific.UseVisualStyleBackColor = true;
-            btGetModuleSpecific.Click += btGetModuleSpecific_Click;
+            btGetModuleSpecific.Click += BtGetModuleSpecific_Click;
             // 
             // btSetModuleSpecific
             // 
@@ -333,7 +333,7 @@
             btSetModuleSpecific.TabIndex = 170;
             btSetModuleSpecific.Text = "Set Module Specific";
             btSetModuleSpecific.UseVisualStyleBackColor = true;
-            btSetModuleSpecific.Click += btSetModuleSpecific_Click;
+            btSetModuleSpecific.Click += BtSetModuleSpecific_Click;
             // 
             // btOpenTCP
             // 
@@ -344,7 +344,7 @@
             btOpenTCP.TabIndex = 171;
             btOpenTCP.Text = "Open TCP";
             btOpenTCP.UseVisualStyleBackColor = true;
-            btOpenTCP.Click += btOpenTCP_Click;
+            btOpenTCP.Click += BtOpenTCP_Click;
             // 
             // btNMInfo
             // 
@@ -355,7 +355,7 @@
             btNMInfo.TabIndex = 172;
             btNMInfo.Text = "Get Neuromaster Info";
             btNMInfo.UseVisualStyleBackColor = true;
-            btNMInfo.Click += btNMInfo_Click;
+            btNMInfo.Click += BtNMInfo_Click;
             // 
             // Neuromaster_Demo_Library
             // 

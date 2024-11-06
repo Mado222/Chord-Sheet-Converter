@@ -155,7 +155,6 @@ namespace FeedbackDataLib
                                 await Task.Delay(10, cancellationToken);
                             }
                             break;
-
                     }
                 }
             }
@@ -167,21 +166,6 @@ namespace FeedbackDataLib
             {
                 StopRS232DistributorThread();
             }
-        }
-
-        // New async method to handle measurement data
-        private Task HandleMeasurementDataAsync(CDataIn dataIn)
-        {
-            if (EnableDataReadyEvent)
-            {
-                dataIn.LastSync = LastSyncSignal;
-                dataIn.ReceivedAt = Seriell32.Now(EnumTimQueryStatus.isSync);
-                _measurementDataQueue.Push(dataIn);
-            }
-
-            // Add additional handling for measurement data if necessary
-
-            return Task.CompletedTask;
         }
 
         private int mustbeinbuf = -1;
