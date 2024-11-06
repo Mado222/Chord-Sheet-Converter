@@ -168,15 +168,15 @@ namespace FeedbackDataLib.Modules
             var chan = (CDataIn)dataIn.Clone();
             int d = dataIn.Value;
 
-            if (dataIn.SW_cn < NumRawChannels)
+            if (dataIn.SWcn < NumRawChannels)
             {
                 //ExecAutorange(dataIn); //debug weg
 
                 //im debug weg
                 //d = (int)HP[dataIn.SWChannelNumber].ProcessSample(d);
 
-                sumVals[dataIn.SW_cn] += d;
-                numVals[dataIn.SW_cn]++;
+                sumVals[dataIn.SWcn] += d;
+                numVals[dataIn.SWcn]++;
             }
 
             if (dataIn.NumExtraDat > 0)
@@ -184,7 +184,7 @@ namespace FeedbackDataLib.Modules
                 try
                 {
                     var decodedValue = BitConverter.ToInt32(CInsightDataEnDecoder.DecodeFrom7Bit(dataIn.ExtraDat), 0);
-                    var extraData = extraDatas[dataIn.SW_cn][dataIn.TypeExtraDat];
+                    var extraData = extraDatas[dataIn.SWcn][dataIn.TypeExtraDat];
                     extraData.Value = decodedValue;
                     extraData.DTLastUpdated = DateTime.Now;
                     extraData.TypeExtradat = (EnTypeExtradat_ADS)dataIn.TypeExtraDat;

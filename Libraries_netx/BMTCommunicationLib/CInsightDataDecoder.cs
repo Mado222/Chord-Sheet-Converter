@@ -111,17 +111,12 @@ namespace BMTCommunicationLib
             return outByte;
         }
 
-        public static bool Parse4Byte(CFifoBuffer<byte> inBuf, ref CDataIn dataIn)
-        {
-            if (inBuf == null || inBuf.Count < 4)
-            {
-                return false; // Not enough data to parse
-            }
-            return Parse4Byte([inBuf.Peek(0), inBuf.Peek(1), inBuf.Peek(2), inBuf.Peek(3)], ref dataIn);
-        }
+        public static CDataIn? Parse4Byte(CFifoBuffer<byte> inBuf) =>
+            inBuf?.Count >= 4 ? Parse4Byte([inBuf.Peek(0), inBuf.Peek(1), inBuf.Peek(2), inBuf.Peek(3)]) : null;
 
 
-        public static bool Parse4Byte_funct(byte[] src, ref CDataIn DI)
+        /*
+        public static bool Parse4Byte_funct(byte[] src)
         {
             // Check if the MSB of the first 4 bytes are 1 0 0 0
             if (!((src[0] & 0x80) == 0x00 && (src[1] & 0x80) != 0x00 && (src[2] & 0x80) != 0x00 && (src[3] & 0x80) != 0x00))
@@ -153,49 +148,51 @@ namespace BMTCommunicationLib
             DI.Value = (int)temp_val;
 
             return true;
-        }
+        }*/
 
-        public static bool Parse4Byte(byte[] src, ref CDataIn DI)
+        public static CDataIn? Parse4Byte(byte[]? src)
         {
             // Validate input length to avoid potential index out of range exceptions.
-            if (src.Length < 4) return false;
+            if (src is null || src.Length < 4) return null;
 
             // Check if MSB of the first 4 bytes are 1 0 0 0 (using a combined mask)
-            if ((src[0] & 0x80) != 0x00 || (src[1] & 0x80) == 0x00 || (src[2] & 0x80) == 0x00 || (src[3] & 0x80) == 0x00)
-            {
-                return false;
-            }
+            if ((src[0] & 0x80) != 0x00 || (src[1] & 0x80) == 0x00 || (src[2] & 0x80) == 0x00 || (src[3] & 0x80) == 0x00) return null;
 
             // Decode each byte and directly assign values to CDataIn fields
-            DI.SyncFlag = (byte)((src[0] >> 6) & 0x01);
-            DI.DeviceID = (byte)((src[0] >> 3) & 0x03);
-            DI.HW_cn = (byte)(((src[0] & 0x07) << 1) | ((src[1] >> 6) & 0x01));
-            DI.SW_cn = (byte)((src[1] >> 2) & 0x07);
-            DI.EP = (byte)((src[1] >> 5) & 0x1);
+            return new CDataIn
+            {
+                SyncFlag = (byte)((src[0] >> 6) & 0x01),
+                DeviceID = (byte)((src[0] >> 3) & 0x03),
+                HWcn = (byte)(((src[0] & 0x07) << 1) | ((src[1] >> 6) & 0x01)),
+                SWcn = (byte)((src[1] >> 2) & 0x07),
+                EP = (byte)((src[1] >> 5) & 0x1),
 
-            // Combine temp_val calculation into a single expression for improved readability
-            DI.Value = ((src[1] & 0x03) << 14) | ((src[2] & 0x7F) << 7) | (src[3] & 0x7F);
-
-            return true;
+                // Combine temp_val calculation into a single expression for improved readability
+                Value = ((src[1] & 0x03) << 14) | ((src[2] & 0x7F) << 7) | (src[3] & 0x7F)
+            };
         }
 
 
-        public static void DecodePacket_funct(byte[] src, ref CDataIn dataIn)
+        public static CDataIn? DecodePacket_funct(byte[]? src)
         {
+            
+            if (src == null) return null;
+            
+            CDataIn? dataIn = Parse4Byte(src);
+            
+            if (dataIn == null) return null;
+
             int temp;
-
-            Parse4Byte(src, ref dataIn);
-
             int idx = 4;
             if (dataIn.SyncFlag == 1)
             {
                 dataIn.SyncVal = (byte)(src[idx] & 0x7F);
                 dataIn.SyncVal |= (byte)((src[0] & 0x20) << 2);
-                if (dataIn.EP == 0) return;
+                if (dataIn.EP == 0) return null;
                 idx++;
             }
             else if (dataIn.EP == 0)
-                return;
+                return null;
 
             // Decode Byte 4 / 5
             dataIn.NumExtraDat = (byte)((src[idx] >> 4) & 0x07);
@@ -227,12 +224,17 @@ namespace BMTCommunicationLib
                     dataIn.ExtraDat[i] = (byte)(src[idx + i] & 0x7F); // Clear the first bit
                 }
             }
+
+            return dataIn;
         }
 
-        public static void DecodePacket(byte[] src, ref CDataIn dataIn)
+        public static CDataIn? DecodePacket(byte[]? src)
         {
+            if (src == null) return null;
+
             // Ensure input is parsed first
-            Parse4Byte(src, ref dataIn);
+            CDataIn? dataIn = Parse4Byte(src);
+            if (dataIn == null) return null;
 
             int idx = 4;
 
@@ -240,12 +242,12 @@ namespace BMTCommunicationLib
             if (dataIn.SyncFlag == 1)
             {
                 dataIn.SyncVal = (byte)((src[idx] & 0x7F) | ((src[0] & 0x20) << 2));
-                if (dataIn.EP == 0) return;
+                if (dataIn.EP == 0) return dataIn;
                 idx++;
             }
             else if (dataIn.EP == 0)
             {
-                return;
+                return dataIn;
             }
 
             // Decode Byte 4 / 5
@@ -273,6 +275,7 @@ namespace BMTCommunicationLib
                     dataIn.ExtraDat[i] = (byte)(src[idx + i] & 0x7F); // Clear the MSB
                 }
             }
+            return dataIn;
         }
 
     }

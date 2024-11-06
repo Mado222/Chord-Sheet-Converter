@@ -14,15 +14,15 @@ namespace FeedbackDataLib_GUI
         {
             CYvsTimeData c = new(1)
             {
-                xData = ci.DT_absolute
+                xData = ci.DTAbsolute
             };
             c.yData[0] = ci.Value;
-            AddValue(c, ci.HW_cn, ci.SW_cn);
+            AddValue(c, ci.HWcn, ci.SWcn);
         }
 
         public void AddValue(CYvsTimeData cYvsTimeData, CDataIn ci)
         {
-            AddValue(cYvsTimeData, ci.HW_cn, ci.SW_cn);
+            AddValue(cYvsTimeData, ci.HWcn, ci.SWcn);
         }
 
         public void AddValue(CYvsTimeData cYvsTimeData, int HWChannelNumber, int SWChannelNumber)
@@ -63,7 +63,7 @@ namespace FeedbackDataLib_GUI
 
                         ScaleChartY(cnt_active_swchannels, max, min);
                         Link_Track_ModuleConfig.LinkedValues.Add(new CLink_Track_ModuleConfig.CLinkedValues(
-                            ModuleInfo.HW_cn,
+                            ModuleInfo.HWcn,
                             i,
                             cnt_active_swchannels,
                             i,
@@ -103,7 +103,7 @@ namespace FeedbackDataLib_GUI
                                                     ymin: ModuleInfos[i].SWChannels[sw_cn].SkalMin);
 
                                         Link_Track_ModuleConfig.LinkedValues.Add(item: new CLink_Track_ModuleConfig.CLinkedValues(
-                                            ModuleInfos[i].HW_cn,
+                                            ModuleInfos[i].HWcn,
                                             sw_cn,
                                             cnt_active_swchannels,
                                             i,

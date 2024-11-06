@@ -203,7 +203,7 @@ namespace WindControlLib
                             Begin_neg2.Copy(DataIn);
                         }
                         //Abbruchkriterium
-                        if ((DataIn.TS_Since_LastSync - Begin_neg1.TS_Since_LastSync) > _ConfigMinMaxSuche.MaxNeg1)
+                        if ((DataIn.TSSinceLastSync - Begin_neg1.TSSinceLastSync) > _ConfigMinMaxSuche.MaxNeg1)
                         {
                             StopRZackensuche();
                         }
@@ -220,7 +220,7 @@ namespace WindControlLib
                             Begin_pos1.Copy(DataIn);
                         }
                         //Abbruchkriterium
-                        if ((DataIn.TS_Since_LastSync - Begin_neg2.TS_Since_LastSync) > _ConfigMinMaxSuche.MaxNeg2)
+                        if ((DataIn.TSSinceLastSync - Begin_neg2.TSSinceLastSync) > _ConfigMinMaxSuche.MaxNeg2)
                         {
                             StopRZackensuche();
                         }
@@ -246,8 +246,8 @@ namespace WindControlLib
                                 AThrNeg2 = AMinLast.Value / 4;
 
                                 //Ausgangswerte berechnen
-                                double dicmax = (AMax.TS_Since_LastSync - AMaxLast.TS_Since_LastSync).TotalMilliseconds;
-                                double dicmin = (AMin.TS_Since_LastSync - AMinLast.TS_Since_LastSync).TotalMilliseconds;
+                                double dicmax = (AMax.TSSinceLastSync - AMaxLast.TSSinceLastSync).TotalMilliseconds;
+                                double dicmin = (AMin.TSSinceLastSync - AMinLast.TSSinceLastSync).TotalMilliseconds;
                                 double dic = (dicmax + dicmin) / 2; //MW aus Abstand der Max und der Min
                                 if (dic != 0) _Rate = dic / 60000;      //gleich auch 1/x
                                 _VSS = AMax.Value - AMin.Value;
@@ -261,7 +261,7 @@ namespace WindControlLib
                             CountThrReductionSamples = 0;
                         }
                         //Abbruchkriterium
-                        if ((DataIn.TS_Since_LastSync - Begin_pos1.TS_Since_LastSync) > _ConfigMinMaxSuche.MaxPos1)
+                        if ((DataIn.TSSinceLastSync - Begin_pos1.TSSinceLastSync) > _ConfigMinMaxSuche.MaxPos1)
                         {
                             StopRZackensuche();
                         }

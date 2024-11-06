@@ -13,7 +13,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new Neuromaster_Demo_Library());
+            Application.Run(new Neuromaster_Demo_dll());
         }
     }
 }

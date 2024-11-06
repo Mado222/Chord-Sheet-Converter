@@ -88,8 +88,8 @@ namespace FeedbackDataLib
     {
 
         private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
-        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 0, 500);
-        private byte _CommandChannelNo = 0; //Wird nur im Konstruktor beschrieben
+        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 2, 0);
+        private byte _CommandChannelNo = 0; //Wird nur im Konstruktor übereschrieben
 
         /// <summary>
         /// CRC8 Algorithm
@@ -222,7 +222,6 @@ namespace FeedbackDataLib
         protected void CRS232Receiver_Constructor(byte CommandChannelNo, ISerialPort SerialPort)
         {
             _CommandChannelNo = CommandChannelNo;
-            //InitBuffer();
             Seriell32 = SerialPort;
         }
 
@@ -287,6 +286,7 @@ namespace FeedbackDataLib
         //Die dieses Interface implementierende Komponente empfängt keine Daten!
         public bool EnableDataReceiving { set; get; } = true;
 
+        /*
         public int SendByteData(byte[] DataOut, int NumData)		//Ermöglicht den direkten Zugriff auf die Kommunikation
         {
             DataSent = false;
@@ -309,7 +309,7 @@ namespace FeedbackDataLib
                 return -1;
 
             return 0;
-        }
+        }*/
         /// <summary>
         /// Liest direkt von System.IO.Ports.SerialPort
         public int GetByteData(ref byte[] DataIn, int NumData, int Offset)

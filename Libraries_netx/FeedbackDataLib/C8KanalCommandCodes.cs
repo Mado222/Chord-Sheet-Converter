@@ -17,7 +17,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Command channel number
         /// </summary>
-        public const byte cCommandChannelNo = 0x0f;
+        public const byte cCommandChannelNo = 0x0F;
 
         ////////////////////
         // Commando Codes to Neuromaster

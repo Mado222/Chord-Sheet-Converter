@@ -74,35 +74,35 @@ namespace BMTCommunicationLib
 
         public string PortName
         {
-            get => _SerialPort != null ? _SerialPort.PortName : "";
+            get => SerialPort != null ? SerialPort.PortName : "";
             set
             {
                 if (value != null && value != "")
                 {
-                    _SerialPort.PortName = value;
+                    SerialPort.PortName = value;
                 }
             }
         }
 
         public int BaudRate
         {
-            get => _SerialPort.BaudRate;
-            set => _SerialPort.BaudRate = value;
+            get => SerialPort.BaudRate;
+            set => SerialPort.BaudRate = value;
         }
 
         public bool IsOpen
         {
-            get => _SerialPort.IsOpen;
+            get => SerialPort.IsOpen;
         }
         public void Close()
         {
-            if (_SerialPort == null) return;
+            if (SerialPort == null) return;
 
             try
             {
                 lock (RS232SettingsLock)
                 {
-                    _SerialPort.Close();
+                    SerialPort.Close();
                 }
             }
             catch (Exception ex)
@@ -113,13 +113,13 @@ namespace BMTCommunicationLib
 
         public virtual bool GetOpen()
         {
-            if (_SerialPort == null) return false;
+            if (SerialPort == null) return false;
 
             try
             {
                 lock (RS232SettingsLock)
                 {
-                    _SerialPort.Open();
+                    SerialPort.Open();
                 }
             }
             catch (Exception ex)
@@ -127,48 +127,54 @@ namespace BMTCommunicationLib
                 LastErrorString = ex.Message;
             }
 
-            return _SerialPort?.IsOpen ?? false;
+            return SerialPort?.IsOpen ?? false;
         }
 
         public int ReadTimeout
         {
-            get => _SerialPort.ReadTimeout;
-            set => _SerialPort.ReadTimeout = value;
+            get => SerialPort.ReadTimeout;
+            set => SerialPort.ReadTimeout = value;
         }
 
         public int WriteTimeout
         {
-            get => _SerialPort.WriteTimeout;
-            set => _SerialPort.WriteTimeout = value;
+            get => SerialPort.WriteTimeout;
+            set => SerialPort.WriteTimeout = value;
         }
 
         public StopBits StopBits
         {
-            get => _SerialPort.StopBits;
-            set => _SerialPort.StopBits = value;
+            get => SerialPort.StopBits;
+            set => SerialPort.StopBits = value;
         }
 
         public Parity Parity
         {
-            get => _SerialPort.Parity;
-            set => _SerialPort.Parity = value;
+            get => SerialPort.Parity;
+            set => SerialPort.Parity = value;
         }
 
         public int DataBits
         {
-            get => _SerialPort.DataBits;
-            set => _SerialPort.DataBits = value;
+            get => SerialPort.DataBits;
+            set => SerialPort.DataBits = value;
+        }
+
+        public bool RtsEnable
+        {
+            get => SerialPort?.RtsEnable ?? false;
+            set => SerialPort.RtsEnable = value;
         }
         public Handshake Handshake
         {
-            get => _SerialPort.Handshake;
+            get => SerialPort.Handshake;
             set
             {
-                if (value == Handshake.RequestToSend && _SerialPort.WriteTimeout == -1)
+                if (value == Handshake.RequestToSend && SerialPort.WriteTimeout == -1)
                 {
-                    _SerialPort.WriteTimeout = 100; // Set default WriteTimeout if needed [ms]
+                    SerialPort.WriteTimeout = 100; // Set default WriteTimeout if needed [ms]
                 }
-                _SerialPort.Handshake = value;
+                SerialPort.Handshake = value;
             }
         }
 
@@ -177,27 +183,27 @@ namespace BMTCommunicationLib
             lock (RS232ReadLock)
             {
                 // Using the other overloaded method with ReadTimeout as WaitMax_ms
-                return Read(ref buffer, offset, count, _SerialPort.ReadTimeout);
+                return Read(ref buffer, offset, count, SerialPort.ReadTimeout);
             }
         }
 
         public virtual int Read(ref byte[] buffer, int offset, int count, int WaitMax_ms)
         {
-            if (_SerialPort == null || !_SerialPort.IsOpen) return 0;
+            if (SerialPort == null || !SerialPort.IsOpen) return 0;
 
             DateTime timeout = DateTime.Now + TimeSpan.FromMilliseconds(WaitMax_ms);
 
             // Wait until the required number of bytes are available or timeout occurs
-            while (_SerialPort.IsOpen && _SerialPort.BytesToRead < count && DateTime.Now < timeout)
+            while (SerialPort.IsOpen && SerialPort.BytesToRead < count && DateTime.Now < timeout)
             {
                 // Uncomment if Application.DoEvents() is needed, but be cautious as it can cause reentrancy issues.
                 // Application.DoEvents(); 
             }
 
-            if (_SerialPort.IsOpen && _SerialPort.BytesToRead >= count)
+            if (SerialPort.IsOpen && SerialPort.BytesToRead >= count)
             {
                 buffer = new byte[count];
-                return _SerialPort.Read(buffer, offset, count);
+                return SerialPort.Read(buffer, offset, count);
             }
 
             return 0;
@@ -205,31 +211,31 @@ namespace BMTCommunicationLib
 
         public void DiscardInBuffer()
         {
-            if (_SerialPort?.IsOpen == true)
-                _SerialPort.DiscardInBuffer();
+            if (SerialPort?.IsOpen == true)
+                SerialPort.DiscardInBuffer();
         }
 
         public void DiscardOutBuffer()
         {
-            if (_SerialPort?.IsOpen == true)
-                _SerialPort.DiscardOutBuffer();
+            if (SerialPort?.IsOpen == true)
+                SerialPort.DiscardOutBuffer();
         }
 
         public void Dispose()
         {
-            _SerialPort?.Dispose();
+            SerialPort?.Dispose();
         }
 
 
         public virtual bool Write(byte[] buffer, int offset, int count)
         {
-            if (_SerialPort == null || !_SerialPort.IsOpen) return false;
+            if (SerialPort == null || !SerialPort.IsOpen) return false;
 
             try
             {
                 lock (RS232WriteLock)
                 {
-                    _SerialPort.Write(buffer, offset, count);
+                    SerialPort.Write(buffer, offset, count);
                 }
                 return true;
             }
@@ -242,18 +248,18 @@ namespace BMTCommunicationLib
 
         public virtual bool WriteByteByByte(byte[] buffer, int offset, int count, int delayBetweenBytesMs)
         {
-            if (_SerialPort == null || !_SerialPort.IsOpen) return false;
+            if (SerialPort == null || !SerialPort.IsOpen) return false;
 
             try
             {
                 lock (RS232WriteLock)
                 {
-                    int byteLengthMs = (int)(1.0 / _SerialPort.BaudRate * 10.0 * 1000.0);
+                    int byteLengthMs = (int)(1.0 / SerialPort.BaudRate * 10.0 * 1000.0);
                     int waitMs = byteLengthMs + delayBetweenBytesMs;
 
                     for (int i = 0; i < count; i++)
                     {
-                        _SerialPort.Write(buffer, offset + i, 1);
+                        SerialPort.Write(buffer, offset + i, 1);
                         CDelay.Delay_ms(waitMs);
                     }
                 }
@@ -266,33 +272,21 @@ namespace BMTCommunicationLib
             }
         }
 
-        public virtual int BytesToRead => _SerialPort?.BytesToRead ?? 0;
-
-        public bool RtsEnable
-        {
-            get => _SerialPort?.RtsEnable ?? false;
-            set
-            {
-                if (_SerialPort != null)
-                {
-                    _SerialPort.RtsEnable = value;
-                }
-            }
-        }
+        public virtual int BytesToRead => SerialPort?.BytesToRead ?? 0;
 
         public bool DtrEnable
         {
-            get => _SerialPort?.DtrEnable ?? false;
+            get => SerialPort?.DtrEnable ?? false;
             set
             {
-                if (_SerialPort != null)
+                if (SerialPort != null)
                 {
-                    _SerialPort.DtrEnable = value;
+                    SerialPort.DtrEnable = value;
                 }
             }
         }
 
-        public bool DsrHolding => _SerialPort?.DsrHolding ?? false;
+        public bool DsrHolding => SerialPort?.DsrHolding ?? false;
 
         public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
 
@@ -311,6 +305,10 @@ namespace BMTCommunicationLib
             set => _lastErrorString = value;
         }
 
+        public SerialPort SerialPort => SerialPort1;
+
+        public SerialPort SerialPort1 => _SerialPort;
+
         public DateTime Now(EnumTimQueryStatus timQueryStatus) => hp_Timer.Now;
 
         public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
@@ -318,7 +316,7 @@ namespace BMTCommunicationLib
             await Task.Run(() =>
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                _SerialPort.Write(buffer, offset, count);
+                SerialPort.Write(buffer, offset, count);
             }, cancellationToken);
         }
         #endregion

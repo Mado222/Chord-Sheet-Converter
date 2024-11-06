@@ -32,7 +32,7 @@ namespace FeedbackDataLib.Modules
         {
             List<CDataIn> _DataIn = [];
             //Not sending of 0 values in ECG bpm channel added 24.10.2014
-            if (SWChannels[di.SW_cn].SWChannelType_enum == enumSWChannelType.cSWChannelTypeECG1)
+            if (SWChannels[di.SWcn].SWChannelType_enum == enumSWChannelType.cSWChannelTypeECG1)
             {
                 if (di.Value != 0)
                     _DataIn.Add(di);

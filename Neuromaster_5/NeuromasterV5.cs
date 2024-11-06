@@ -710,10 +710,19 @@ namespace Neuromaster_V5
         /// </summary>
         List<CModuleBase> BU_ModuleInfo = [];
 
+        private void BtGetConfigModules_Click(object sender, EventArgs e)
+        {
+            if (DataReceiver.Connection.ScanModules())
+                AddStatusString("ScanModules OK", Color.Green);
+            else
+                AddStatusString("ScanModules FAILED", Color.Red);
+        }   
+
+
         /// <summary>
         /// Read the current Module-configuration (which modules are connected) from Neuromaster
         /// </summary>
-        private void BtGetConfigModules_Click(object sender, EventArgs e)
+        private void BtGetConfigModules_Click_org(object sender, EventArgs e)
         {
             ConfigSetOK = false;
             if (DataReceiver.Connection.ScanModules())

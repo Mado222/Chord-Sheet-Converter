@@ -84,9 +84,9 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// Hardware Channel number
         /// </summary>
-        public ushort HW_cn { get; private set; }
+        public ushort HWcn { get; private set; }
 
-        public void SetHW_cn(ushort HW_cn) => this.HW_cn = HW_cn;
+        public void SetHW_cn(ushort HW_cn) => this.HWcn = HW_cn;
 
         /// <summary>
         /// Gets or sets the SW channels for the GUI
@@ -233,7 +233,7 @@ namespace FeedbackDataLib.Modules
         {
             List<byte> buf =
             [
-                (byte)HW_cn   //First byte
+                (byte)HWcn   //First byte
             ];
             for (int SW_cn = 0; SW_cn < swc.Count; SW_cn++)
             {
@@ -295,7 +295,7 @@ namespace FeedbackDataLib.Modules
             Update_ModuleTypeFromDevice(moduleTypeFromDevice);
             SWRevision = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(SWRevision);
             num_SWChannels_sent_by_HW = InBuf[ptr]; ptr += System.Runtime.InteropServices.Marshal.SizeOf(num_SWChannels_sent_by_HW);
-            HW_cn = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(HW_cn);
+            HWcn = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(HWcn);
             return ptr;
         }
 

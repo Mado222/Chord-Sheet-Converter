@@ -55,6 +55,7 @@ namespace FeedbackDataLib
                     if (Check4Neuromaster_RS232())
                     {
                         // Succeeded, device detected
+                        StartRS232DistributorThread();
                         StartRS232ReceiverThread();
                         IsConnected = true;
                     }
@@ -64,6 +65,7 @@ namespace FeedbackDataLib
                         ConnectionStatus = EnumConnectionStatus.Not_Connected;
                         IsConnected = false;
                         Seriell32?.Close();
+                        StopRS232DistributorThread();
                         StopRS232ReceiverThread();
                     }
                 }

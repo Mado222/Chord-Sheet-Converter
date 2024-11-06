@@ -510,7 +510,7 @@ namespace FeedbackDataLib_GUI
             if (ModuleInfo.ModuleType == enumModuleType.cModuleEEG)
             {
                 //Also Update skal Vals
-                int hw_cn = ModuleInfo.HW_cn;
+                int hw_cn = ModuleInfo.HWcn;
                 for (int sw_cn = 0; sw_cn < ModuleInfo.SWChannels.Count; sw_cn++)
                 {
                     _ModuleInfos[hw_cn].SWChannels[sw_cn].Offset_d = ModuleInfo.SWChannels[sw_cn].Offset_d;

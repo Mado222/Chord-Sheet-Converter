@@ -1,6 +1,5 @@
 ﻿using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
-using System;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -276,7 +275,7 @@ namespace FeedbackDataLib
                     bool bpacketvalid = false;
                     //16 Bit Dekodierung
                     if (CInsightDataEnDecoder.Parse4Byte(RS232inBytes) is CDataIn di)
-                        {
+                    {
                         DataIn = di;
                         if (DataIn.HWcn == C8KanalReceiverCommandCodes.cCommandChannelNo)
                         {

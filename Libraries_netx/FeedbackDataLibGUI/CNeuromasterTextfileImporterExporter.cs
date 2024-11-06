@@ -243,20 +243,20 @@ namespace FeedbackDataLib_GUI
                     if (RecordingJustStarted)
                     {
                         //First value written to file
-                        FirstRecordingTime = ci.DT_absolute;
+                        FirstRecordingTime = ci.DTAbsolute;
                         RecordingJustStarted = false;
                     }
                     double d = ci.Value;
                     if (scaled_value != null)
                         d = (double)scaled_value;
                     FileWriter.WriteLine(
-                        CMyTools.Format_DateTime_with_ms(ci.DT_absolute) + "\t" +
-                        CMyTools.Format_DateTime_with_ms(ci.DT_relative) + "\t" +
-                        (ci.DT_absolute - FirstRecordingTime).TotalMilliseconds.ToString() + "\t" +
+                        CMyTools.Format_DateTime_with_ms(ci.DTAbsolute) + "\t" +
+                        CMyTools.Format_DateTime_with_ms(ci.DTRelative) + "\t" +
+                        (ci.DTAbsolute - FirstRecordingTime).TotalMilliseconds.ToString() + "\t" +
                         d.ToString() + "\t" +
                         ci.Value.ToString() + "\t" +
-                        ci.HW_cn.ToString() + "\t" +
-                        ci.SW_cn.ToString() + "\t" +
+                        ci.HWcn.ToString() + "\t" +
+                        ci.SWcn.ToString() + "\t" +
                         ci.Resync.ToString()); ;
                 }
                 else
@@ -345,13 +345,13 @@ namespace FeedbackDataLib_GUI
             time_ms.Clear();
         }
 
-        public void AddValue(CSDCardImport.CDataIn_Scaled cds)
-        {
-            y_scaled.Add(cds.Value_Scaled);
-            y_unscaled.Add(cds.Value);
-            dt.Add(cds.DT_absolute);
-            time_ms.Add((int)(cds.DT_relative - cds.ChannelStarted).TotalMilliseconds);
-        }
+        //public void AddValue(CSDCardImport.CDataIn_Scaled cds)
+        //{
+        //    y_scaled.Add(cds.Value_Scaled);
+        //    y_unscaled.Add(cds.Value);
+        //    dt.Add(cds.DTAbsolute);
+        //    time_ms.Add((int)(cds.DTRelative - cds.ChannelStarted).TotalMilliseconds);
+        //}
 
         public class CNMValues
         {
@@ -439,7 +439,7 @@ namespace FeedbackDataLib_GUI
                     {
                         if (swc.SendChannel || swc.SendChannel)
                         {
-                            sr[cmb.HW_cn, swc.SWChannelNumber] = swc.SampleInt;
+                            sr[cmb.HWcn, swc.SWChannelNumber] = swc.SampleInt;
                         }
                     }
                 }

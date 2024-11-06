@@ -175,7 +175,7 @@ namespace FeedbackDataLib
         /// Higher 4 Byte: Major revision
         /// Lower 12 Byte: Minor revision
         /// </remarks>
-        public string HWVersion_string
+        public string HWVersionString
         {
             get
             {

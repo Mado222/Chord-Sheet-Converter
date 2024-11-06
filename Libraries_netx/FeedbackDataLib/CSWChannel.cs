@@ -400,8 +400,8 @@ namespace FeedbackDataLib
                     SWChan_ts_Since_ChannelStarted += SWChan_ts_SampleInt;
                 }
                 DataIn.LastSync = SWChan_LastSync;
-                DataIn.TS_Since_LastSync = SWChan_ts_Since_LastSync;
-                DataIn.TS_Since_ChannelStarted = SWChan_ts_Since_ChannelStarted;
+                DataIn.TSSinceLastSync = SWChan_ts_Since_LastSync;
+                DataIn.TSSinceChannelStarted = SWChan_ts_Since_ChannelStarted;
                 DataIn.ChannelStarted = SWChan_Started;
             }
             else

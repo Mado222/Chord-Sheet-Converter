@@ -109,14 +109,14 @@ namespace FeedbackDataLib_GUI
                         cdis = SDCardImporter.GetNextValue();
                         if (cdis != null)
                         {
-                            cdis.VirtualID = cChannelsControlV2x11.GetModuleInfo(cdis.HW_cn).SWChannels[cdis.SW_cn].VirtualID;
+                            cdis.VirtualID = cChannelsControlV2x11.GetModuleInfo(cdis.HWcn).SWChannels[cdis.SWcn].VirtualID;
                             //Data Point is valid, do something ... write to file
                             sw.WriteLine(
-                                cdis.DT_relative.ToLongTimeString() + "," +
-                                cdis.DT_relative.Millisecond.ToString("000") + "\t" +
+                                cdis.DTRelative.ToLongTimeString() + "," +
+                                cdis.DTRelative.Millisecond.ToString("000") + "\t" +
                                 cdis.Value_Scaled.ToString() + "\t" +
-                                cdis.HW_cn.ToString() + "\t" +
-                                cdis.SW_cn.ToString() + "\t" +
+                                cdis.HWcn.ToString() + "\t" +
+                                cdis.SWcn.ToString() + "\t" +
                                 cdis.Resync.ToString() + "\t" +
                                 cdis.Value.ToString("X"));
                         }

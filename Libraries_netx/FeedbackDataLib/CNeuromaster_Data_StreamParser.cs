@@ -1,4 +1,5 @@
 ﻿using BMTCommunicationLib;
+using System;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -89,13 +90,12 @@ namespace FeedbackDataLib
             //Check for a valid packet
             while (DataInBuffer.Count >= numByteRead)
             {
-                CDataIn di = new();
-                if (CInsightDataEnDecoder.Parse4Byte([.. DataInBuffer.GetRange(0, 4)], ref di))
+                if (CInsightDataEnDecoder.Parse4Byte([.. DataInBuffer.GetRange(0, 4)]) is CDataIn di)
                 {
                     //it is a valid packet
 
                     //Command channel or data channel?
-                    if (di.HW_cn == 0x0f)
+                    if (di.HWcn == 0x0f)
                     {
                         //Command is coming in, we need more bytes
                         int numAdditionalBytes = di.Value;
@@ -152,13 +152,13 @@ namespace FeedbackDataLib
                                 if (isFakeTime)
                                 {
                                     //Fake Time
-                                    ChanData[di.HW_cn][di.SW_cn].SinceLastSync = new TimeSpan(0, 0, 0, 0, di.SyncVal);
-                                    di.TS_Since_LastSync = ChanData[di.HW_cn][di.SW_cn].SinceLastSync;
+                                    ChanData[di.HWcn][di.SWcn].SinceLastSync = new TimeSpan(0, 0, 0, 0, di.SyncVal);
+                                    di.TSSinceLastSync = ChanData[di.HWcn][di.SWcn].SinceLastSync;
                                 }
                                 else
                                 {
                                     //Real Time
-                                    di.TS_Since_LastSync = hp_Timer.Now - LastSyncSignal;
+                                    di.TSSinceLastSync = hp_Timer.Now - LastSyncSignal;
                                 }
                                 ret.Add(di);
                                 numByteRead = Length_of_DataPack;
@@ -177,13 +177,13 @@ namespace FeedbackDataLib
                             if (isFakeTime)
                             {
                                 //Fake Time
-                                ChanData[di.HW_cn][di.SW_cn].IncrSinceLastSync();
-                                di.TS_Since_LastSync = ChanData[di.HW_cn][di.SW_cn].SinceLastSync;
+                                ChanData[di.HWcn][di.SWcn].IncrSinceLastSync();
+                                di.TSSinceLastSync = ChanData[di.HWcn][di.SWcn].SinceLastSync;
                             }
                             else
                             {
                                 //Real Time
-                                di.TS_Since_LastSync = hp_Timer.Now - LastSyncSignal;
+                                di.TSSinceLastSync = hp_Timer.Now - LastSyncSignal;
                             }
                             ret.Add(di);
                             numByteRead = Length_of_DataPack;

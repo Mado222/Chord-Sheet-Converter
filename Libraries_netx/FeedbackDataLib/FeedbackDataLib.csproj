@@ -36,7 +36,11 @@
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Remove="C8KanalReceiverV2_SDCard.cs" />
+    <Compile Remove="CES232ReceiverThreadBackgroundWorker.cs" />
     <Compile Remove="CRS232_ReceiverThread.cs" />
+    <Compile Remove="CSDCardConnection.cs" />
+    <Compile Remove="CSDCardImport.cs" />
     <Compile Remove="Modules\CModuleExGADS1292.cs" />
     <Compile Remove="Modules\CModuleExGADS1292_EEG.cs" />
     <Compile Remove="Modules\CModuleSCLADS1292.cs" />
@@ -44,6 +48,7 @@
   
   <ItemGroup>
     <PackageReference Include="System.Data.OleDb" Version="8.0.1" />
+    <PackageReference Include="System.Threading.Tasks.Dataflow" Version="9.0.0-rc.2.24473.5" />
   </ItemGroup>
 
   <ItemGroup>

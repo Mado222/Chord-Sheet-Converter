@@ -15,7 +15,7 @@ namespace Neuromaster_Demo
     /// tmrStatusMessages is used to bring Status Messages on screen - to avoid locking of GUI in some cases and to avoid llegalCrossThreadCalls exceptions
     /// Additionally tmrStatusMessages checks the state of the connection to Neuromaster - mainly implemented due to TÜV requirements
     /// </remarks>
-    public partial class Neuromaster_Demo_Library : Form
+    public partial class Neuromaster_Demo_dll : Form
     {
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace Neuromaster_Demo
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Neuromaster_Demo_Library"/> class.
+        /// Initializes a new instance of the <see cref="Neuromaster_Demo_dll"/> class.
         /// </summary>
-        public Neuromaster_Demo_Library()
+        public Neuromaster_Demo_dll()
         {
             InitializeComponent();
             this.SuspendLayout();

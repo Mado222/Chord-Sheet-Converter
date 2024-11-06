@@ -1,6 +1,6 @@
 ﻿namespace Neuromaster_Demo
 {
-    partial class Neuromaster_Demo_Library
+    partial class Neuromaster_Demo
     {
         /// <summary>
         /// Required designer variable.
@@ -93,7 +93,7 @@
             btGetClock.TabIndex = 135;
             btGetClock.Text = "Get Clock";
             btGetClock.UseVisualStyleBackColor = true;
-            btGetClock.Click += btGetClock_Click;
+            btGetClock.Click += BtGetClock_Click;
             // 
             // btSetClock
             // 
@@ -104,7 +104,7 @@
             btSetClock.TabIndex = 136;
             btSetClock.Text = "Set Clock";
             btSetClock.UseVisualStyleBackColor = true;
-            btSetClock.Click += btSetClock_Click;
+            btSetClock.Click += BtSetClock_Click;
             // 
             // pnControls
             // 
@@ -137,7 +137,7 @@
             btSetAllConfig.TabIndex = 144;
             btSetAllConfig.Text = "Set whole Configuration";
             btSetAllConfig.UseVisualStyleBackColor = true;
-            btSetAllConfig.Click += btSetAllConfig_Click;
+            btSetAllConfig.Click += BtSetAllConfig_Click;
             // 
             // gbConnectivitie
             // 

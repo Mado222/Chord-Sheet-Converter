@@ -78,25 +78,25 @@ namespace FeedbackDataLib
                 mi.Update_UID_ModuleType_From_ByteArray(inBuf, ptr); // Only to get Module type
 
                 // Compatibility adjustment for older firmware versions
-                if (mi.HW_cn == 0xff)
+                if (mi.HWcn == 0xff)
                 {
                     mi.SetHW_cn(cntChannels);
                 }
                 cntChannels++;
 
-                if (mi.HW_cn < 0 || mi.HW_cn >= ModuleInfos.Count)
+                if (mi.HWcn < 0 || mi.HWcn >= ModuleInfos.Count)
                     return false;
 
                 // Use a factory method or dictionary to create module instances by type
-                ModuleInfos[mi.HW_cn] = CreateModuleInstance(mi.ModuleType);
+                ModuleInfos[mi.HWcn] = CreateModuleInstance(mi.ModuleType);
 
-                ptr = ModuleInfos[mi.HW_cn].UpdateFrom_ByteArray(inBuf, ptr); // Populate with full data
+                ptr = ModuleInfos[mi.HWcn].UpdateFrom_ByteArray(inBuf, ptr); // Populate with full data
 
                 // Update count and VirtualID for non-empty modules
                 if (mi.ModuleType != enumModuleType.cModuleTypeEmpty && (uint)mi.ModuleType < cntTypes.Length)
                 {
                     cntTypes[(uint)mi.ModuleType]++;
-                    UpdateSWChannelsWithVirtualID(ModuleInfos[mi.HW_cn], cntTypes[(uint)mi.ModuleType]);
+                    UpdateSWChannelsWithVirtualID(ModuleInfos[mi.HWcn], cntTypes[(uint)mi.ModuleType]);
                 }
             }
             return true;
@@ -134,7 +134,7 @@ namespace FeedbackDataLib
         /// <param name="DataIn">Data</param>
         public void UpdateTime(CDataIn DataIn)
         {
-            ModuleInfos?[DataIn.HW_cn].SWChannels[DataIn.SW_cn].UpdateTime(ref DataIn);
+            ModuleInfos?[DataIn.HWcn].SWChannels[DataIn.SWcn].UpdateTime(ref DataIn);
         }
 
 

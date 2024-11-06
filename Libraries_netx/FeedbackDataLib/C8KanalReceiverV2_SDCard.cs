@@ -28,7 +28,7 @@ namespace FeedbackDataLib
             SDCardConnection?.AddSDCardValues(SDData);
         }
 
-        public override bool GetDeviceConfig()
+        public override void GetDeviceConfig()
         {
             bool ret = false;
             if (Device == null) Device = new C8KanalDevice2();
@@ -62,10 +62,8 @@ namespace FeedbackDataLib
                     ret = false;
                 }
             }
-            return ret;
         }
 
-        //private CByteRingpuffer InBufferSD = new CByteRingpuffer(1024);
         public static void ProcessData()
         {
 
@@ -79,30 +77,6 @@ namespace FeedbackDataLib
         {
             //Base constructor must be empty that the derived class does not call 
         }
-
-        /// <summary>
-        /// Path to the Configuration file on the SD Card
-        /// </summary>
-        /// <value>
-        /// The path to configuration file.
-        /// </value>
-        /*
-        public string PathToConfigFile
-        {
-            get
-            {
-                string ret = "";
-                if (SDCardConnection != null)
-                    return SDCardConnection.PathToConfigFile;
-                return ret;
-            }
-            set
-            {
-                if (SDCardConnection != null)
-                    SDCardConnection.PathToConfigFile = value;
-            }
-        }*/
-
 
 
         /// <summary>
@@ -149,9 +123,8 @@ namespace FeedbackDataLib
             return true;
         }
 
-        public override bool SetClock(DateTime dt)
+        public override void SetClock(DateTime dt)
         {
-            return true;
         }
 
         public override bool ScanModules()

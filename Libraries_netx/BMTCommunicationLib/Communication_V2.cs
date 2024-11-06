@@ -52,7 +52,7 @@ namespace BMTCommunicationLib
 
         //Methodes
         EnumConnectionStatus GetConnectionStatus();
-        int SendByteData(byte[] DataOut, int NumData);      //Ermölicht den direkten Zugriff auf die Kommunikation
+        //int SendByteData(byte[] DataOut, int NumData);      //Ermölicht den direkten Zugriff auf die Kommunikation
         int GetByteData(ref byte[] DataIn, int NumData, int Offset);        //Rückgabe der tatsächlich gelesenen Daten
         int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut);
         void ClearReceiveBuffer();

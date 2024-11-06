@@ -225,27 +225,27 @@ namespace FeedbackDataLib.Modules
                     CInsightDataEnDecoder.DecodeFrom7Bit(originalData.ExtraDat),
                     0);
 
-                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].Value = decodedValue;
-                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].DTLastUpdated = DateTime.Now;
-                extraDatas[originalData.SW_cn][originalData.TypeExtraDat].TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
+                extraDatas[originalData.SWcn][originalData.TypeExtraDat].Value = decodedValue;
+                extraDatas[originalData.SWcn][originalData.TypeExtraDat].DTLastUpdated = DateTime.Now;
+                extraDatas[originalData.SWcn][originalData.TypeExtraDat].TypeExtradat = (EnTypeExtradat_ADS)originalData.TypeExtraDat;
 
-                if (extraDatas[originalData.SW_cn][originalData.TypeExtraDat].TypeExtradat == EnTypeExtradat_ADS.exgain)
+                if (extraDatas[originalData.SWcn][originalData.TypeExtraDat].TypeExtradat == EnTypeExtradat_ADS.exgain)
                 {
                     //All data of one Measure-sequence are in - calc values
-                    var Uax2 = extraDatas[originalData.SW_cn];
+                    var Uax2 = extraDatas[originalData.SWcn];
                     double gain = Uax2[(int)EnTypeExtradat_ADS.exgain].Value;
 
-                    double SKALVAL_K = SWChannels[originalData.SW_cn].SkalValue_k;
+                    double SKALVAL_K = SWChannels[originalData.SWcn].SkalValue_k;
 
                     double Ua2 = Uax2[(int)EnTypeExtradat_ADS.exUa2].Value * SKALVAL_K / gain;
                     double Ua1 = Uax2[(int)EnTypeExtradat_ADS.exUa1].Value * SKALVAL_K / gain;
                     double Ua0 = Uax2[(int)EnTypeExtradat_ADS.exUa0].Value * SKALVAL_K / gain;
 
-                    ElectrodeDatas[originalData.SW_cn].Rp = ((Ua1 - Ua0) / Iconst) - Rprotect; //Keine Ahnung warum / 2
-                    ElectrodeDatas[originalData.SW_cn].Rn = ((Ua2 - Ua0) / Iconst / 4) - Rprotect;
-                    ElectrodeDatas[originalData.SW_cn].Uelectrode = Ua0;
-                    ElectrodeDatas[originalData.SW_cn].Ua2 = Ua2;
-                    ElectrodeDatas[originalData.SW_cn].Ua1 = Ua1;
+                    ElectrodeDatas[originalData.SWcn].Rp = ((Ua1 - Ua0) / Iconst) - Rprotect; //Keine Ahnung warum / 2
+                    ElectrodeDatas[originalData.SWcn].Rn = ((Ua2 - Ua0) / Iconst / 4) - Rprotect;
+                    ElectrodeDatas[originalData.SWcn].Uelectrode = Ua0;
+                    ElectrodeDatas[originalData.SWcn].Ua2 = Ua2;
+                    ElectrodeDatas[originalData.SWcn].Ua1 = Ua1;
                 }
             }
 
@@ -255,9 +255,9 @@ namespace FeedbackDataLib.Modules
 
             //protected List<CDataIn> ProcessDataEEG_Basic(CDataIn originalData, List<CDataIn> processedData)
             //{
-            if (originalData.SW_cn < NumRawChannels)
+            if (originalData.SWcn < NumRawChannels)
             {
-                int swcn = originalData.SW_cn;
+                int swcn = originalData.SWcn;
                 if (sWChannels_Module[swcn].SendChannel)
                 {
                     processedData.Add(originalData);
@@ -273,7 +273,7 @@ namespace FeedbackDataLib.Modules
                         {
                             CDataIn cd = (CDataIn)originalData.Clone();
                             cd.Value = SWChannels[i].GetUnscaledValue(EEGProcessor[swcn].Get_EEG_Band_Value(fftchan[i].eegBandNo));
-                            cd.SW_cn = (byte)fftchan[i].calc_cn;
+                            cd.SWcn = (byte)fftchan[i].calc_cn;
                             processedData.Add(cd);
                         }
                     }

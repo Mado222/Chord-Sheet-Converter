@@ -48,14 +48,15 @@ namespace FeedbackDataLib
         #region properties
         private C8KanalReceiverV2_RS232? _8KanalReceiverV2_RS232;
         private C8KanalReceiverV2_XBee? _8KanalReceiverV2_XBee;
-        private C8KanalReceiverV2_SDCard? _8KanalReceiverV2_SDCard;
+        //private C8KanalReceiverV2_SDCard? _8KanalReceiverV2_SDCard;
+        private C8KanalReceiverV2_CommBase? _8KanalReceiverV2_SDCard;
 
         /// <summary>
         /// FTDI driver class
         /// </summary>
         public CFTDI_D2xx? FTDI_D2xx;
 
-        public CSDCardConnection? SDCardConnection;
+        //public CSDCardConnection? SDCardConnection;
 
         /// <summary>
         /// Signal Strength [%]
@@ -296,10 +297,11 @@ namespace FeedbackDataLib
 
         public EnumConnectionResult Init_via_SDCard()
         {
+            /*
             SDCardConnection ??= new CSDCardConnection();
 
             ConnectionType = EnumNeuromasterConnectionType.SDCardConnection;
-            _8KanalReceiverV2_SDCard = new C8KanalReceiverV2_SDCard(SDCardConnection);
+            _8KanalReceiverV2_SDCard = new C8KanalReceiverV2_SDCard(SDCardConnection);*/
             return EnumConnectionResult.Connected_via_SDCard;
         }
 
@@ -674,15 +676,15 @@ namespace FeedbackDataLib
                 }
                 return EnumConnectionResult.Error_during_USBcable_connection;
             }
-            else if (ConnectionType == EnumNeuromasterConnectionType.SDCardConnection)
-            {
-                if (_8KanalReceiverV2_SDCard != null)
-                {
-                    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
-                    return EnumConnectionResult.Connected_via_SDCard;
-                }
-                return EnumConnectionResult.Error_read_SDCard;
-            }
+            //else if (ConnectionType == EnumNeuromasterConnectionType.SDCardConnection)
+            //{
+            //    if (_8KanalReceiverV2_SDCard != null)
+            //    {
+            //        _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
+            //        return EnumConnectionResult.Connected_via_SDCard;
+            //    }
+            //    return EnumConnectionResult.Error_read_SDCard;
+            //}
             return EnumConnectionResult.NoConnection;
         }
 

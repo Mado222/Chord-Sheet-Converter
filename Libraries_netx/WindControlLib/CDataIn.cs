@@ -23,7 +23,7 @@ namespace WindControlLib
         ///  DateTime this value was received at
         ///  Set in: RS232Receiver_DataReadyComm
         /// </summary>
-        public DateTime Received_at { get; set; } = DateTime.MinValue;
+        public DateTime ReceivedAt { get; set; } = DateTime.MinValue;
 
         /// <summary>
         /// DateTime of the last Sync-Signal that was received prior to this packet
@@ -35,7 +35,7 @@ namespace WindControlLib
         /// Timespan since LastSync
         /// </summary>
         [JsonIgnore]
-        public TimeSpan TS_Since_LastSync { get; set; }
+        public TimeSpan TSSinceLastSync { get; set; }
 
         /// <summary>
         /// DateTime when the Channel started = first Sync 
@@ -48,7 +48,7 @@ namespace WindControlLib
         /// Timespan since ChannelStarted
         /// </summary>
         [JsonIgnore]
-        public TimeSpan TS_Since_ChannelStarted { get; set; }
+        public TimeSpan TSSinceChannelStarted { get; set; }
 
 
         /// <summary>
@@ -56,9 +56,9 @@ namespace WindControlLib
         /// Calculated: LastSync + ts_Since_LastSync
         /// Update every time Neuromatser sends Sync Signal
         /// </summary>
-        public DateTime DT_absolute
+        public DateTime DTAbsolute
         {
-            get { return LastSync + TS_Since_LastSync; }
+            get { return LastSync + TSSinceLastSync; }
         }
 
         /// <summary>
@@ -68,20 +68,20 @@ namespace WindControlLib
         /// Calculated: ChannelStarted + ts_Since_ChannelStarted
         /// Update only when the channel receives the first SyncPacket
         /// </remarks>
-        public DateTime DT_relative
+        public DateTime DTRelative
         {
-            get { return ChannelStarted + TS_Since_ChannelStarted; }
+            get { return ChannelStarted + TSSinceChannelStarted; }
         }
 
         /// <summary>
         /// Hardware channel number where the packet came from
         /// </summary>
-        public byte HW_cn { get; set; }
+        public byte HWcn { get; set; }
 
         /// <summary>
         /// Software channel number where the packet came from
         /// </summary>
-        public byte SW_cn { get; set; }
+        public byte SWcn { get; set; }
 
         /// <summary>
         /// Virtual Identifier
@@ -143,10 +143,10 @@ namespace WindControlLib
         {
             Value = DataIn.Value;
 
-            TS_Since_LastSync = DataIn.TS_Since_LastSync;
-            TS_Since_ChannelStarted = DataIn.TS_Since_ChannelStarted;
-            HW_cn = DataIn.HW_cn;
-            SW_cn = DataIn.SW_cn;
+            TSSinceLastSync = DataIn.TSSinceLastSync;
+            TSSinceChannelStarted = DataIn.TSSinceChannelStarted;
+            HWcn = DataIn.HWcn;
+            SWcn = DataIn.SWcn;
             DeviceID = DataIn.DeviceID;
             ChannelStarted = DataIn.ChannelStarted;
             VirtualID = DataIn.VirtualID;
@@ -156,7 +156,7 @@ namespace WindControlLib
             Sync7 = DataIn.Sync7;
             SyncFlag = DataIn.SyncFlag;
             LastSync = DataIn.LastSync;
-            Received_at = DataIn.Received_at;
+            ReceivedAt = DataIn.ReceivedAt;
 
             EP = DataIn.EP;
             TypeExtraDat = DataIn.TypeExtraDat;
