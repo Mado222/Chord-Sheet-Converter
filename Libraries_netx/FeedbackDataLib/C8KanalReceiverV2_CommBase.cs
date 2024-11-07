@@ -23,7 +23,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// TimeOut [ms] in WaitCommandResponse
         /// </summary>
-        protected const int WaitCommandResponseTimeOut_ms = 5000; //ScanModules braucht so eine lange Timeout
+        protected const int WaitCommandResponseTimeOut_ms = 3000; //ScanModules braucht so eine lange Timeout
 
         /// <summary>
         /// RS232Receiver

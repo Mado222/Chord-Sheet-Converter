@@ -56,8 +56,12 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             string path = Path.GetDirectoryName(Dir_Results) + @"\" + Job_Message + "_Amplitudegain.csv";
             StreamWriter sw = new(path, false);
 
-            CSave_Binary_Objects.WriteToJsonFile(Path.ChangeExtension(path, ".cfg"), DataReceiver.Connection.Device.ModuleInfos);
-            sw.WriteLine("f [Hz]\tUineff [V]\tU0eff [V]\tv0ist [dB]\tv0soll [dB]\tTolerance [+-dB]\tIsOK\tcomment");
+            if (IsDeviceAvailable())
+            {
+                CSave_Binary_Objects sbo = new CSave_Binary_Objects();
+                sbo.WriteToJsonFile(Path.ChangeExtension(path, ".cfg"), DataReceiver!.Connection!.Device!.ModuleInfos);
+                sw.WriteLine("f [Hz]\tUineff [V]\tU0eff [V]\tv0ist [dB]\tv0soll [dB]\tTolerance [+-dB]\tIsOK\tcomment");
+            }
 
             ModuleTestResult = enModuleTestResult.OK;
             bool thisisOK;

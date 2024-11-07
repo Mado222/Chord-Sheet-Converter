@@ -24,9 +24,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             OnBeforeMeasurementStarts();
             try
             {
-                C8KanalReceiverV2.enumConnectionResult? conres = Connect_DataReceiver(false);
-                if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                C8KanalReceiverV2.EnumConnectionResult? conres = Connect_DataReceiver(false);
+                if (conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                 {
+                    DataReceiver.Connection.Devicet
                     if (DataReceiver.Connection.GetDeviceConfig())
                     {
                         if (DataReceiver.Connection.Device.ModuleInfos != null && DataReceiver.Connection.Device.ModuleInfos.Count > 0)

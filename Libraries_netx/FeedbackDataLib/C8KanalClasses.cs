@@ -213,6 +213,14 @@ namespace FeedbackDataLib
             }
         }
 
+        public string GetFWVersionString()
+        {
+            return $"Neuromaster: {Uuid} connected{Environment.NewLine}" +
+                   $"Neuromaster HW-Version: {HWVersionString}{Environment.NewLine}" +
+                   $"Neuromaster SW-Version: {SWVersionString}";
+        }
+
+
         /// <summary>
         /// Fill properies according to corresponding structure in Device
         /// </summary>
@@ -231,69 +239,69 @@ namespace FeedbackDataLib
     /// <summary>
     /// Holds information about SD card in Neuromaster
     /// </summary>
-    public class CSDCardInfo
-    {
-        private int _sector_count;  //32bit long
-        private int _free_sector_count;
-        private ushort _sector_size; //unsigned short 
-        private byte _type;          //unsigned char
+    //public class CSDCardInfo
+    //{
+    //    private int _sector_count;  //32bit long
+    //    private int _free_sector_count;
+    //    private ushort _sector_size; //unsigned short 
+    //    private byte _type;          //unsigned char
 
-        private byte _error;     //keep it for future use
+    //    private byte _error;     //keep it for future use
 
-        /// <summary>
-        /// SD Card size [bytes]
-        /// </summary>
-        public ulong SDCardSize_bytes
-        {
-            get
-            {
-                return _sector_size * ((ulong)_sector_count);
-            }
-        }
+    //    /// <summary>
+    //    /// SD Card size [bytes]
+    //    /// </summary>
+    //    public ulong SDCardSize_bytes
+    //    {
+    //        get
+    //        {
+    //            return _sector_size * ((ulong)_sector_count);
+    //        }
+    //    }
 
-        /// <summary>
-        /// SD Card free space [bytes]
-        /// </summary>
-        public ulong SDFree_bytes
-        {
-            get
-            {
-                return _sector_size * ((ulong)_free_sector_count);
-            }
-        }
+    //    /// <summary>
+    //    /// SD Card free space [bytes]
+    //    /// </summary>
+    //    public ulong SDFree_bytes
+    //    {
+    //        get
+    //        {
+    //            return _sector_size * ((ulong)_free_sector_count);
+    //        }
+    //    }
 
-        /// <summary>
-        /// Possible SD Card types according to used PIC library
-        /// </summary>
-        public enum EnSDCardType
-        {
-            CT_MMC = 0x01,                      /* MMC ver 3 */
-            CT_SD1 = 0x02,                      /* SD ver 1 */
-            CT_SD2 = 0x04,                      /* SD ver 2 */
-            CT_SDC = CT_SD1 | CT_SD2,          /* SD */
-            CT_BLOCK = 0x08                    /* Block addressing */
-        }
+    //    /// <summary>
+    //    /// Possible SD Card types according to used PIC library
+    //    /// </summary>
+    //    public enum EnSDCardType
+    //    {
+    //        CT_MMC = 0x01,                      /* MMC ver 3 */
+    //        CT_SD1 = 0x02,                      /* SD ver 1 */
+    //        CT_SD2 = 0x04,                      /* SD ver 2 */
+    //        CT_SDC = CT_SD1 | CT_SD2,          /* SD */
+    //        CT_BLOCK = 0x08                    /* Block addressing */
+    //    }
 
-        /// <summary>
-        /// SD Card types according to used PIC library
-        /// </summary>
-        public EnSDCardType SDCardType
-        {
-            get { return (EnSDCardType)_type; }
-        }
+    //    /// <summary>
+    //    /// SD Card types according to used PIC library
+    //    /// </summary>
+    //    public EnSDCardType SDCardType
+    //    {
+    //        get { return (EnSDCardType)_type; }
+    //    }
 
-        /// <summary>
-        /// Fill properies according to corresponding structure in Device
-        /// </summary>
-        public int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
-        {
-            int ptr = Pointer_To_Array_Start; //Array Pointer
-            _sector_count = BitConverter.ToInt32(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_sector_count);
-            _free_sector_count = BitConverter.ToInt32(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_free_sector_count);
-            _sector_size = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_sector_size);
-            _type = InBuf[ptr]; ptr++;
-            _error = InBuf[ptr]; ptr++;
-            return ptr;
-        }
-    }
+    //    /// <summary>
+    //    /// Fill properies according to corresponding structure in Device
+    //    /// </summary>
+    //    public int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+    //    {
+    //        int ptr = Pointer_To_Array_Start; //Array Pointer
+    //        _sector_count = BitConverter.ToInt32(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_sector_count);
+    //        _free_sector_count = BitConverter.ToInt32(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_free_sector_count);
+    //        _sector_size = BitConverter.ToUInt16(InBuf, ptr); ptr += System.Runtime.InteropServices.Marshal.SizeOf(_sector_size);
+    //        _type = InBuf[ptr]; ptr++;
+    //        _error = InBuf[ptr]; ptr++;
+    //        return ptr;
+    //    }
+    //}
 }

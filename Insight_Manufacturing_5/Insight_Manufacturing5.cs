@@ -1,5 +1,5 @@
 ﻿#pragma warning disable 1591
-using BMTCommunication;
+using BMTCommunicationLib;
 using ComponentsLib_GUI;
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
@@ -272,42 +272,31 @@ namespace Insight_Manufacturing5_net8
                 nhx.Get_Serial_Number_from_connected_Module(ref tempPath, ref SerialNumber, ref SWVersion, ref HWVersion, Selected_Module);
                 txtSerialNo.Text = SerialNumber;
 
-                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new(programmer_info);
-                dgv_SWChannelInfo.DataSource = cNeuromodule_Handle_Hexfile.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
+                dgv_SWChannelInfo.DataSource = CIPE_Neuromodul_PIC24.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
                 dgv_SWChannelInfo.Refresh();
             
         }
 
-        private void btModulNMauslesen_Click(object sender, EventArgs e)
+        private void BtModulNMauslesen_Click(object sender, EventArgs e)
         {
             if (Selected_Module == enumModuleType.cNeuromaster)
             {
                 MessageBox.Show("Neuromaster mit Neurolink verbinden und einschalten.", "Nächster Schritt:", MessageBoxButtons.OK);
                 CRead_Neuromaster uc = new(FY6900);
-                uc.ReportMeasurementProgress += Measurement_Object_ReportMeasurementProgress;
-
+                uc.UUIDChanged += Uc_UUIDChanged;
                 txtStatus.Clear();
 
                 try
                 {
-                    if (uc.Connect_DataReceiver(false) == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                    if (uc.Connect_DataReceiver(false) == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                     {
                         CNMFirmwareVersion NMFirmwareVersion = new();
-                        uc.DataReceiver.Connection.GetNMFirmwareVersion(ref NMFirmwareVersion);
-
-                        txtStatus.AddStatusString("Neuromaster: " + NMFirmwareVersion.uuid.ToString() + " connected", Color.Blue);
-                        txtStatus.AddStatusString("Neuromaster HW-Version: " + NMFirmwareVersion.HWVersion_string, Color.Blue);
-                        txtStatus.AddStatusString("Neuromaster SW-Version: " + NMFirmwareVersion.SWVersion_string, Color.Blue);
-
-                        if (NMFirmwareVersion.uuid != "")
-                        {
-                            txtSerialNo.Text = NMFirmwareVersion.uuid;
-                        }
+                        uc.GetFirmwareVersion();
                     }
                 }
                 finally
                 {
-                    uc.ReportMeasurementProgress -= Measurement_Object_ReportMeasurementProgress;
+                    uc.UUIDChanged -= Uc_UUIDChanged;
                     uc.DataReceiver.Close_All();
                 }
 
@@ -318,8 +307,8 @@ namespace Insight_Manufacturing5_net8
 
                 txtStatus.Clear();
                 txtStatus.AddStatusString("Searching for Neurolink  ....", Color.Green);
-                C8KanalReceiverV2.enumConnectionResult? conres = Datareceiver_NL.Init_via_D2XX(new List<string> { "FT232R" });
-                if ((conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable) || conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                C8KanalReceiverV2.EnumConnectionResult? conres = Datareceiver_NL.Init_via_D2XX(new List<string> { "FT232R" });
+                if ((conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable) || conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                 {
                     txtStatus.AddStatusString("Neurolink: " + Datareceiver_NL.NeurolinkSerialNumber + " connected", Color.Green);
                 }
@@ -355,7 +344,7 @@ namespace Insight_Manufacturing5_net8
 
                     try
                     {
-                        if (readNM.Connect_DataReceiver(false) == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                        if (readNM.Connect_DataReceiver(false) == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                         {
                             readNM.DataReceiver.Connection.GetDeviceConfig();
 
@@ -377,6 +366,11 @@ namespace Insight_Manufacturing5_net8
                     }
                 }
             }
+
+        private void Uc_UUIDChanged(object? sender, string e)
+        {
+            txtSerialNo.Text = e;
+        }
 
         private void btReadhexFile_Click(object sender, EventArgs e)
         {
@@ -404,8 +398,7 @@ namespace Insight_Manufacturing5_net8
                 txtStatus.AddStatusString("SW Version: " + cmi.SWVersion, Color.Blue);
                 txtStatus.AddStatusString("Bootloader Version: " + cmi.BLVersion, Color.Blue);
 
-                CIPE_Neuromodul_PIC24 cNeuromodule_Handle_Hexfile = new(programmer_info);
-                dgv_SWChannelInfo.DataSource = cNeuromodule_Handle_Hexfile.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
+                dgv_SWChannelInfo.DataSource = CIPE_Neuromodul_PIC24.Get_ChannelInfo_from_Combined_hex_file(tempPath, Selected_Module);
                 dgv_SWChannelInfo.Refresh();
             }
         }
@@ -913,8 +906,7 @@ namespace Insight_Manufacturing5_net8
                 {
                     HexFilePath = filePaths[0];
 
-                    CIPE_Neuromodul_PIC24 ICD3 = new(programmer_info);
-                    Firmware_Version = ICD3.Get_SWVersion_from_hexFile(HexFilePath, Selected_Module);
+                    Firmware_Version = CIPE_Neuromodul_PIC24.Get_SWVersion_from_hexFile(HexFilePath, Selected_Module);
                     lblFWVersion.Text = lblFWVersionBasicText + Firmware_Version;
 
                     if (Selected_Module == enumModuleType.cNeurolink)
@@ -1479,7 +1471,7 @@ namespace Insight_Manufacturing5_net8
                 {
                     CYvsTimeData c = new(1)
                     {
-                        xData = DataIn.DT_absolute
+                        xData = DataIn.DTAbsolute
                     };
                     if (((CRead_Neuromaster)(Current_CMeasurementItem.Measurement_Object)).DataReceiver != null)
                     {

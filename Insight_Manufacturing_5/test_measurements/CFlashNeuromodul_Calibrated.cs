@@ -28,10 +28,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             Neuromodule_handle_hexfile.ReportMeasurementProgress += Neuromodule_handle_hexfile_ReportMeasurementProgress;
 
             //Berechnen der neuen Werte
-            Neuromodule_handle_hexfile.Make_Combined_Hex_File_with_new_ChannelInfo(
+            CIPE_Neuromodul_PIC24.Make_Combined_Hex_File_with_new_ChannelInfo(
                 HexFilePath_Base,
                 HexFilePath_Target,
-                NewCalibrationValues.ToArray(), ConnectedModuleType);
+                [.. NewCalibrationValues], ConnectedModuleType);
 
             //Flashen
             if (flash_file("", false)) //Serial nuumber already in file

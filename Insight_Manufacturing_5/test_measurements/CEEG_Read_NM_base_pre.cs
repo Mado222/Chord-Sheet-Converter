@@ -1,6 +1,6 @@
 ﻿using ComponentsLib_GUI;
 using FeedbackDataLib;
-using Math_Net_nuget;
+using MathNetNuget;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 using Insight_Manufacturing5_net8.dataSources;
 using Insight_Manufacturing5_net8.test_measurements;
@@ -93,8 +93,8 @@ namespace Insight_Manufacturing5_net8.tests_measurements
                             againValue.Vppin.ToString() + "\t" +                  //Vpp
                             Ueff_ist.ToString() + "\t" +                                        //Ueffist
                             AgainValues.Ueff_EEG_soll[i].ToString() + "\t" +                                //Ueffsoll
-                            ((int)cp.Mean_of_Maxima).ToString("X4") + "\t" +                    //MeanofMaxima_hex
-                            ((int)cp.Mean_of_Minima).ToString("X4") + "\t";                     //MeanofMinima_hex
+                            ((int)cp.MeanOfMinima).ToString("X4") + "\t" +                    //MeanofMaxima_hex
+                            ((int)cp.MeanOfMinima).ToString("X4") + "\t";                     //MeanofMinima_hex
                     }
 
                     WriteLogFile(line);

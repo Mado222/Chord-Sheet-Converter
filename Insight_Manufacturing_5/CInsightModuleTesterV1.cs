@@ -22,7 +22,7 @@ namespace Insight_Manufacturing5_net8
             get
             {
                 if (phglib != null)
-                    return phglib.ph_attached;
+                    return phglib.PhAttached;
                 return false;
             }
         }
@@ -125,7 +125,7 @@ namespace Insight_Manufacturing5_net8
             if (phglib != null)
             {
                 //Set Default Values
-                if (phglib.ph_attached)
+                if (phglib.PhAttached)
                 {
                     Init(CInsightModuleTesterV1.Get_Default_Setting());
                 }
@@ -136,7 +136,7 @@ namespace Insight_Manufacturing5_net8
         {
             bool ret = false;
             int repeat_setting = 10;
-            if (phglib.ph_attached)
+            if (phglib.PhAttached)
             {
                 while (repeat_setting > 0)
                 {
@@ -144,49 +144,49 @@ namespace Insight_Manufacturing5_net8
                     switch (InsightModuleTester_Settings.EEG)
                     {
                         case CInsightModuleTester_Settings.enEEG.EEG_On:
-                            setret(ref ret, EEG_Connect());
+                            Setret(ref ret, EEG_Connect());
                             break;
                         default:
-                            setret(ref ret, EEG_DisConnect());
+                            Setret(ref ret, EEG_DisConnect());
                             break;
                     }
                     switch (InsightModuleTester_Settings.ICD_State)
                     {
                         case CInsightModuleTester_Settings.enICD.ICD_Connected:
-                            setret(ref ret, ICD_Connect());
+                            Setret(ref ret, ICD_Connect());
                             break;
                         case CInsightModuleTester_Settings.enICD.ICD_DisConnected:
-                            setret(ref ret, ICD_DisConnect());
+                            Setret(ref ret, ICD_DisConnect());
                             break;
                     }
 
                     switch (InsightModuleTester_Settings.Uoff)
                     {
                         case CInsightModuleTester_Settings.enUoff.Uoff_On:
-                            setret(ref ret, Uoff_On());
+                            Setret(ref ret, Uoff_On());
                             break;
                         default:
-                            setret(ref ret, Uoff_Off());
+                            Setret(ref ret, Uoff_Off());
                             break;
                     }
 
                     switch (InsightModuleTester_Settings.UoffLevel)
                     {
                         case CInsightModuleTester_Settings.enUoffLevel.UoffLevel_High:
-                            setret(ref ret, Uoff_Level_High());
+                            Setret(ref ret, Uoff_Level_High());
                             break;
                         default:
-                            setret(ref ret, Uoff_Level_Low());
+                            Setret(ref ret, Uoff_Level_Low());
                             break;
                     }
 
                     switch (InsightModuleTester_Settings.UoffPolarity)
                     {
                         case CInsightModuleTester_Settings.enUoffPolarity.Polarity_Plus:
-                            setret(ref ret, Uoff_Polarity_Plus());
+                            Setret(ref ret, Uoff_Polarity_Plus());
                             break;
                         default:
-                            setret(ref ret, Uoff_Polarity_Minus());
+                            Setret(ref ret, Uoff_Polarity_Minus());
                             break;
                     }
 
@@ -198,7 +198,7 @@ namespace Insight_Manufacturing5_net8
             return ret;
         }
 
-        private void setret(ref bool ret, bool val)
+        private void Setret(ref bool ret, bool val)
         {
             if (val == false)
                 ret = val;

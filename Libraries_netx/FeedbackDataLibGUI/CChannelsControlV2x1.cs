@@ -64,7 +64,7 @@ namespace FeedbackDataLib_GUI
             {
                 DefaultVals[(int)moduleType][sw_cn].Default_Max = DefMax;
                 DefaultVals[(int)moduleType][sw_cn].Default_Min = DefMin;
-                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(enumModuleType), moduleType); //??
+                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(enumModuleType), moduleType) ?? "Unknown";
             }
 
 
@@ -138,6 +138,8 @@ namespace FeedbackDataLib_GUI
 
         private void TmrTimeout_Tick(object? sender, EventArgs e)
         {
+            if (_ModuleInfos == null) return;
+
             DateTime dt = DateTime.Now;
             DateTime timeout = dt - new TimeSpan(0, 0, 0, 0, tmrTimeout.Interval);
             for (int hw_cn = 0; hw_cn < _ModuleInfos.Count; hw_cn++)
@@ -158,7 +160,7 @@ namespace FeedbackDataLib_GUI
         private List<DateTime> ChannelTimeouts = [];
         private readonly System.Windows.Forms.Timer tmrTimeout = new();
 
-        private List<CModuleBase> _ModuleInfos;
+        private List<CModuleBase>? _ModuleInfos;
 
         /// <summary>
         /// Returns clone of _ModuleInfo
@@ -177,6 +179,8 @@ namespace FeedbackDataLib_GUI
 
         public byte[] GetModuleSpecific(int HW_cn)
         {
+            if (_ModuleInfos is null) return [];
+
             if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor != null)
             {
                 CModuleMultisensor ModuleInfo = new();
@@ -253,6 +257,7 @@ namespace FeedbackDataLib_GUI
 
         public void SetUserChangeableData(CSWConfigValues[][] SWConfigValues)
         {
+            if (_ModuleInfos is null) return;
 
             for (int hw_cn = 0; hw_cn < _ModuleInfos.Count; hw_cn++)
             {
@@ -266,6 +271,8 @@ namespace FeedbackDataLib_GUI
 
         public void SetUserChangeableData(int hw_cn, int sw_cn, CSWConfigValues SWConfigValues)
         {
+            if (_ModuleInfos is null) return;
+
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SampleInt = SWConfigValues.SampleInt;
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SendChannel = SWConfigValues.SendChannel;
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SaveChannel = SWConfigValues.SaveChannel;
@@ -273,8 +280,10 @@ namespace FeedbackDataLib_GUI
             _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalMin = SWConfigValues.SkalMin;
         }
 
-        public CSWConfigValues[][] GetUserChangeableData()
+        public CSWConfigValues[][]? GetUserChangeableData()
         {
+            if (_ModuleInfos is null) return null;
+
             CSWConfigValues[][] cv = new CSWConfigValues[_ModuleInfos.Count][];
             for (int _hw_cn = 0; _hw_cn < _ModuleInfos.Count; _hw_cn++)
             {
@@ -366,7 +375,8 @@ namespace FeedbackDataLib_GUI
 
                 OnModuleRowChanged(SelectedModuleRow);
 
-
+                if (_ModuleInfos is null) return;
+                
                 if (cModuleInfoDataGridView is not null && cModuleInfoDataGridView.RowHeadersDefaultCellStyle is not null)
                 {
                     if (_ModuleInfos[e.RowIndex].ModuleBootloaderError)
@@ -511,11 +521,14 @@ namespace FeedbackDataLib_GUI
             {
                 //Also Update skal Vals
                 int hw_cn = ModuleInfo.HWcn;
-                for (int sw_cn = 0; sw_cn < ModuleInfo.SWChannels.Count; sw_cn++)
+                if (_ModuleInfos is not null)
                 {
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].Offset_d = ModuleInfo.SWChannels[sw_cn].Offset_d;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].Offset_hex = ModuleInfo.SWChannels[sw_cn].Offset_hex;
-                    _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalValue_k = ModuleInfo.SWChannels[sw_cn].SkalValue_k;
+                    for (int sw_cn = 0; sw_cn < ModuleInfo.SWChannels.Count; sw_cn++)
+                    {
+                        _ModuleInfos[hw_cn].SWChannels[sw_cn].Offset_d = ModuleInfo.SWChannels[sw_cn].Offset_d;
+                        _ModuleInfos[hw_cn].SWChannels[sw_cn].Offset_hex = ModuleInfo.SWChannels[sw_cn].Offset_hex;
+                        _ModuleInfos[hw_cn].SWChannels[sw_cn].SkalValue_k = ModuleInfo.SWChannels[sw_cn].SkalValue_k;
+                    }
                 }
 
                 if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)

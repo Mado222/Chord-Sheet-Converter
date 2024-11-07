@@ -1,4 +1,4 @@
-﻿using BMTCommunication;
+﻿using BMTCommunicationLib;
 using ComponentsLib_GUI;
 using FeedbackDataLib;
 using Insight_Manufacturing5_net8.dataSources;
@@ -37,11 +37,10 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             //delete XBEE configuration files
             //c:\Users\xxxxx\AppData\Local\Insight\RemoteDevice.xml
             //c: \Users\xxxxx\AppData\Local\Insight\LocalDevice.xml
-
-            CXBeeConnection xbc = new();
+           
             string rd = "";
             string ld = "";
-            xbc.GetConfigPath(ref ld, ref rd);
+            CXBeeConnection.GetConfigPath(ref ld, ref rd);
             if (File.Exists(rd))
                 File.Delete(rd);
             if (File.Exists(ld))
@@ -53,7 +52,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
     {
         public bool Test_kabel { get; set; } = true;
 
-        public C8KanalReceiverV2.enumConnectionResult? ConnectionResult = C8KanalReceiverV2.enumConnectionResult.NoConnection;
+        public C8KanalReceiverV2.EnumConnectionResult? ConnectionResult = C8KanalReceiverV2.EnumConnectionResult.NoConnection;
         //public bool TestOK = false;
 
         /// <summary>
@@ -71,7 +70,7 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             if (Test_kabel)
             {
                 //Kabeltest
-                if (ConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                if (ConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                 {
                     ModuleTestResult = enModuleTestResult.OK;
                     OnReportMeasurementProgress("USB-Kabeltest OK", Color.Green);
@@ -84,13 +83,12 @@ namespace Insight_Manufacturing5_net8.tests_measurements
             else
             {
                 //XBee Test
-                if (ConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee && Test_kabel == false)
+                if (ConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee && Test_kabel == false)
                 {
                     //Sicherheitshalber checken, ob die Konfigurationsfiles angelegt wurden
-                    CXBeeConnection xbc = new();
                     string rd = "";
                     string ld = "";
-                    xbc.GetConfigPath(ref ld, ref rd);
+                    CXBeeConnection.GetConfigPath(ref ld, ref rd);
 
                     bool file_exists = true;
                     if (!File.Exists(ld)) file_exists = false;

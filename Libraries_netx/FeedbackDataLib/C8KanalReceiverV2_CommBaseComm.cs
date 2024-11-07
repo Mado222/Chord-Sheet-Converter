@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
 using static FeedbackDataLib.CRS232Receiver2;
+using WindControlLib;
 
 namespace FeedbackDataLib
 {
@@ -122,6 +123,152 @@ namespace FeedbackDataLib
                     SendSuccess();
                     break;
             }
+        }
+
+        public event EventHandler<(CNMFirmwareVersion?, ColoredText msg)> GetFirmwareVersionResponse;
+        protected virtual void OnGetFirmwareVersionResponse(CNMFirmwareVersion? fw, ColoredText msg)
+        {
+            GetFirmwareVersionResponse?.Invoke(this, (fw, msg));
+        }
+
+        public event EventHandler<(List<CModuleBase>?, ColoredText msg)> GetDeviceCongigResponse;
+        protected virtual void OnGetDeviceCongigResponse(List<CModuleBase>? mi, ColoredText msg)
+        {
+            GetDeviceCongigResponse?.Invoke(this, (mi, msg));
+        }
+
+        // Event for GetClock with DateTime response
+        public event EventHandler<(DateTime? clock, ColoredText msg)> GetClockResponse;
+
+        protected virtual void OnGetClockResponse(DateTime? clock, ColoredText msg)
+        {
+            GetClockResponse?.Invoke(this, (clock, msg));
+        }
+
+        // Event for SetClock with bool response
+        public event EventHandler<(bool success, ColoredText msg)> SetClockResponse;
+
+        protected virtual void OnSetClockResponse(bool success, ColoredText msg)
+        {
+            SetClockResponse?.Invoke(this, (success, msg));
+        }
+
+        // Event for SetConnectionClosed with bool response
+        public event EventHandler<(bool isClosed, ColoredText msg)> SetConnectionClosedResponse;
+
+        protected virtual void OnSetConnectionClosedResponse(bool isClosed, ColoredText msg)
+        {
+            SetConnectionClosedResponse?.Invoke(this, (isClosed, msg));
+        }
+
+        // Event for ScanModules with bool response
+        public event EventHandler<(bool isSuccessful, ColoredText msg)> ScanModulesResponse;
+
+        protected virtual void OnScanModulesResponse(bool isSuccessful, ColoredText msg)
+        {
+            ScanModulesResponse?.Invoke(this, (isSuccessful, msg));
+        }
+
+
+
+        private void Connection_CommandProcessedResponse(object? sender, CommandProcessedResponseEventArgs e)
+        {
+            ColoredText msg = new(e.Command.ToString() + ": " + e.Message, Color.Green);
+            if (e!.Success) {msg.Color = Color.Red;}
+
+            if (IsDeviceAvailable())
+            {
+                switch (e.Command)
+                {
+                    case EnNeuromasterCommand.SetConnectionClosed:
+                        OnSetConnectionClosedResponse(e.Success, msg);
+                        break;
+
+                    case EnNeuromasterCommand.GetFirmwareVersion:
+                        if (e.Success)
+                        {
+                            CNMFirmwareVersion NMFirmwareVersion = new();
+                            NMFirmwareVersion.UpdateFrom_ByteArray(e.ResponseData, 0);
+                            OnGetFirmwareVersionResponse(NMFirmwareVersion, msg);
+                        }
+                        else
+                            OnGetFirmwareVersionResponse(null, msg);
+                        break;
+                    case EnNeuromasterCommand.ScanModules:
+                        OnScanModulesResponse(e.Success, msg);
+                        break;
+
+                    case EnNeuromasterCommand.GetModuleConfig:
+                        if (e.Success)
+                        {
+                            //Collect data of all HW channels
+                            cntDeviceConfigs--;
+                            if (e.ResponseData != null)
+                                allDeviceConfigData.AddRange(e.ResponseData);
+
+                            if (cntDeviceConfigs == 0)
+                            {
+                                //All data in
+                                try
+                                {
+                                    Device ??= new C8KanalDevice2();
+                                    Device.UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
+                                    Device.Calculate_SkalMax_SkalMin(); // Calculate max and mins
+
+
+
+                                    OnCommandProcessedResponse(new(EnNeuromasterCommand.GetDeviceConfig, "OK", Color.Green, true, [.. allDeviceConfigData]));
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    Debug.WriteLine("C8KanalReceiverV2_CommBase_#01: " + ex.Message);
+                                    e.Success = false;
+                                    OnCommandProcessedResponse(new(EnNeuromasterCommand.GetDeviceConfig, "Failed", Color.Red, false, []));
+                                    Device = null;
+                                }
+                            }
+                        }
+                        break;
+
+                    case EnNeuromasterCommand.SetModuleConfig:
+                        if (e.Success)
+                        {
+
+                        }
+                        break;
+                    case EnNeuromasterCommand.SetConfigAllModules:
+                        if (e.Success)
+                        {
+                        }
+                        break;
+                    case EnNeuromasterCommand.GetModuleInfoSpecific:
+                        {
+
+                        }
+                        break;
+                    case EnNeuromasterCommand.GetClock:
+                        if (e.Success)
+                        {
+                            DeviceClock.UpdateFrom_ByteArray(e.ResponseData, 0);
+                            OnGetClockResponse(DeviceClock.Dt, msg);
+                        }
+                        else
+                            OnGetClockResponse(null, msg);
+                        break;
+                    case EnNeuromasterCommand.SetClock:
+                        OnSetClockResponse(e.Success, msg);
+                        break;
+
+                }
+            }
+        }
+
+        public bool IsDeviceAvailable()
+        {
+            if (Connection is null) return false;
+            if (Connection.Device is null) return false;
+            return true;
         }
 
         protected byte[] BuildNMCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)

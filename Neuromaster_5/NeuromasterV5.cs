@@ -248,10 +248,8 @@ namespace Neuromaster_V5
         }
 
         readonly Stopwatch stopwatch = new();
-        private void StartConnection()
+        private async void StartConnection()
         {
-            stopwatch.Reset();
-            stopwatch.Start();
             DontReconnectOntbConnect_ToState1 = false;
             C8KanalReceiverV2.EnumConnectionResult conres;
 
@@ -259,109 +257,97 @@ namespace Neuromaster_V5
 
             if (sDCardToolStripMenuItem.Checked)
             {
-                //SD Card mode
-                //_ = DataReceiver.Init_via_SDCard();
-                //!!!! Now Connect
-                LastConnectionResult = DataReceiver.Connect();
-                AddEvents();
+                // SD Card mode
+                await Task.Run(() =>
+                {
+                    LastConnectionResult = DataReceiver.Connect();
+                });
+
+                Invoke(() => AddEvents());
             }
             else
             {
                 AddStatusString("Searching for Neurolink  ...." + "sw: " + stopwatch.ElapsedMilliseconds.ToString());
 
-                if (d2XXToolStripMenuItem.Checked)
-                    conres = DataReceiver.Init_via_D2XX();
-                else //if (rbVirtCom.Checked)
-                    conres = DataReceiver.Init_via_VirtualCom();
-
-                if ((conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable) ||
-                    conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
+                // Run the connection logic on a background task
+                await Task.Run(() =>
                 {
+                    // Choose connection initialization method
+                    conres = d2XXToolStripMenuItem.Checked
+                        ? DataReceiver.Init_via_D2XX()
+                        : DataReceiver.Init_via_VirtualCom();
 
-                    AddStatusString("Neurolink: " + DataReceiver.NeurolinkSerialNumber + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Blue);
-
-                    //!!!! Now Connect - can take a while if Neurolink is connected via XBEE for the first time
-                    LastConnectionResult = DataReceiver.Connect();
-
-                    switch (LastConnectionResult)
+                    if (conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable ||
+                        conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                     {
-                        case C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee:
-                            {
-                                AddStatusString("XBee Connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
-                                AddEvents();
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable:
-                            {
-                                AddStatusString("USB cable connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
-                                AddEvents();
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
-                            {
-                                AddStatusString("Error during Port scan." + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Red);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_USBcable_connection:
-                            {
-                                AddStatusString("Error_during_USBcable_connection" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_XBee_connection:
-                            {
-                                AddStatusString("Error_during_XBee_connection" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
-                            {
-                                AddStatusString("Please connect only one Neurolink" + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
-                            {
-                                AddStatusString("No active Neurolink found." + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.Error_read_ErrorString:
-                            {
-                                AddStatusString(DataReceiver.LastErrorString, Color.Orange);
-                                break;
-                            }
-                        default:
-                            {
-                                break;
-                            }
-                    }
-                }
+                        // Successfully connected Neurolink
+                        Invoke(() =>
+                            AddStatusString("Neurolink: " + DataReceiver.NeurolinkSerialNumber + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Blue)
+                        );
 
-                else
-                {
-                    switch (conres)
-                    {
-                        case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
+                        LastConnectionResult = DataReceiver.Connect();
+
+                        // Use Invoke for UI updates in each case
+                        Invoke(() =>
+                        {
+                            switch (LastConnectionResult)
                             {
-                                AddStatusString("Error during Port scan.", Color.Red);
-                                break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee:
+                                    AddStatusString("XBee Connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
+                                    AddEvents();
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable:
+                                    AddStatusString("USB cable connection found: " + DataReceiver.PortName + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Green);
+                                    AddEvents();
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
+                                    AddStatusString("Error during Port scan.  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Red);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Error_during_USBcable_connection:
+                                    AddStatusString("Error_during_USBcable_connection  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Error_during_XBee_connection:
+                                    AddStatusString("Error_during_XBee_connection  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
+                                    AddStatusString("Please connect only one Neurolink  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
+                                    AddStatusString("No active Neurolink found.  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Orange);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.Error_read_ErrorString:
+                                    AddStatusString(DataReceiver.LastErrorString, Color.Orange);
+                                    break;
+                                default:
+                                    break;
                             }
-                        case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
-                            {
-                                AddStatusString("Please connect only one Neurolink", Color.Orange);
-                                break;
-                            }
-                        case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
-                            {
-                                AddStatusString("No active Neurolink found.", Color.Orange);
-                                break;
-                            }
-                        default:
-                            {
-                                break;
-                            }
+                        });
                     }
-                }
-                stopwatch.Stop();
+                    else
+                    {
+                        // Handle error cases if no Neurolink is detected
+                        Invoke(() =>
+                        {
+                            switch (conres)
+                            {
+                                case C8KanalReceiverV2.EnumConnectionResult.Error_during_Port_scan:
+                                    AddStatusString("Error during Port scan.", Color.Red);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.More_than_one_Neurolink_detected:
+                                    AddStatusString("Please connect only one Neurolink", Color.Orange);
+                                    break;
+                                case C8KanalReceiverV2.EnumConnectionResult.No_Active_Neurolink:
+                                    AddStatusString("No active Neurolink found.", Color.Orange);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
+                });
             }
         }
+
 
 
         private void AddEvents()

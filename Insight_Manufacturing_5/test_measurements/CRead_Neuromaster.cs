@@ -13,7 +13,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
     /// Class to connect to Neuromaster
     /// </summary>
     /// <seealso cref="frmInsight_Manufacturing5.tests_measurements.uc_Base_tests_measurements" />
-    public class CRead_Neuromaster : CBase_tests_measurements
+    public partial class CRead_Neuromaster : CBase_tests_measurements
     {
         /***************************************/
         //Testbedingungen bei Übersteuerung
@@ -66,7 +66,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
 
         #region Properties
         public C8KanalReceiverV2 DataReceiver;
-        public C8KanalReceiverV2.enumConnectionResult lastConRes;
+        public C8KanalReceiverV2.EnumConnectionResult lastConRes;
 
         protected CFY6900 _FY6900;
 
@@ -132,7 +132,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
             {
                 if (DataConnection_Required)
                 {
-                    if (Connect_DataReceiver(false) == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                    if (Connect_DataReceiver(false) == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                     {
                         bool BootloaderError = true;
                         int cntGetConfig = 0;
@@ -161,7 +161,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
                                     ser = SerialNumber;
                                     //Setup Module
                                     Setup_Channels();
-                                    if (DataReceiver.Connection.SetConfigModule(ModulePortNo))
+                                    if (DataReceiver.Connection.SetModuleConfig(ModulePortNo))
                                     {
                                         for (int i = 0; i < DataReceiver.Connection.Device.ModuleInfos[ModulePortNo].SWChannels.Count; i++)
                                         {
@@ -176,7 +176,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
                                         {
                                             DataReceiver.Connection.DataReady -= DataReceiver_DataReady;
                                             DataReceiver.Connection.DataReady += DataReceiver_DataReady;
-                                            DataReceiver.Connection.SetConfigModule(ModulePortNo);
+                                            DataReceiver.Connection.SetModuleConfig(ModulePortNo);
                                             DataReceiver.Connection.EnableDataReadyEvent = true;
 
                                             //AllResults vorher herrichten sonst gibts im Thread Probleme
@@ -261,74 +261,61 @@ namespace Insight_Manufacturing5_net8.test_measurements
             return isOK;
         }
 
-        public C8KanalReceiverV2.enumConnectionResult Connect_DataReceiver(bool CloseAfterwards)
+        public C8KanalReceiverV2.EnumConnectionResult Connect_DataReceiver(bool CloseAfterwards)
         {
+            if (!IsDeviceAvailable()) return C8KanalReceiverV2.EnumConnectionResult.NoConnection;
+
             DataReceiver ??= new C8KanalReceiverV2();
-
             OnReportMeasurementProgress("Searching for Neurolink  ....", Color.Green);
-            C8KanalReceiverV2.enumConnectionResult? conres = DataReceiver.Init_via_D2XX();
-
+            C8KanalReceiverV2.EnumConnectionResult? conres = DataReceiver.Init_via_D2XX();
+            
             if (conres is not null)
             {
-                if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                if (conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                 {
                     OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
-                    C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
-                    if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                    C8KanalReceiverV2.EnumConnectionResult LastConnectionResult = DataReceiver.Connect();
+                    if (LastConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_USBCable)
                     {
-                        if (DataReceiver.Connection.ScanModules())
-                        {
-                            OnReportMeasurementProgress("ScanModules OK", Color.Green);
-                        }
-                        else
-                        {
-                            OnReportMeasurementProgress("Scan Modules failed", Color.Red);
-                        }
-                    } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                        DataReceiver!.Connection!.ScanModules();
+                    } 
                     else
                     {
                         OnReportMeasurementProgress("Scan Modules failed", Color.Red);
                     }
                 }
-                else if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                else if (conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                 {
                     OnReportMeasurementProgress("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Green);
-                    C8KanalReceiverV2.enumConnectionResult LastConnectionResult = DataReceiver.Connect();
-                    if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                    C8KanalReceiverV2.EnumConnectionResult LastConnectionResult = DataReceiver.Connect();
+                    if (LastConnectionResult == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                     {
-                        if (DataReceiver.Connection.ScanModules())
-                        {
-                            OnReportMeasurementProgress("ScanModules OK", Color.Green);
-                        }
-                        else
-                        {
-                            OnReportMeasurementProgress("Scan Modules failed", Color.Red);
-                        }
-                    } //if (LastConnectionResult == C8KanalReceiverV2.enumConnectionResult.Connected_via_USBCable)
+                        DataReceiver!.Connection!.ScanModules();
+                    } 
                     else
                     {
                         OnReportMeasurementProgress("Scan Modules failed", Color.Red);
-                        conres = C8KanalReceiverV2.enumConnectionResult.Error_during_XBee_connection;   //18.9.2023
+                        conres = C8KanalReceiverV2.EnumConnectionResult.Error_during_XBee_connection;   //18.9.2023
                     }
                 }
                 else
                 {
-                    if (conres == C8KanalReceiverV2.enumConnectionResult.Connected_via_XBee)
+                    if (conres == C8KanalReceiverV2.EnumConnectionResult.Connected_via_XBee)
                     {
                         OnReportMeasurementProgress("Keine Verbindung zum Neuromaster. Eingeschaltet??", Color.Red);
                     }
                     else
                     {
-                        OnReportMeasurementProgress(conres.ToString(), Color.Red);
+                        OnReportMeasurementProgress(conres.ToString()??"no conres", Color.Red);
                     }
                 }
 
                 if (CloseAfterwards)
                     DataReceiver.Close_All();
             
-                return (C8KanalReceiverV2.enumConnectionResult) conres;
+                return (C8KanalReceiverV2.EnumConnectionResult) conres;
             }
-            return C8KanalReceiverV2.enumConnectionResult.NoConnection;
+            return C8KanalReceiverV2.EnumConnectionResult.NoConnection;
         }
 
         /// <summary>
@@ -464,7 +451,7 @@ namespace Insight_Manufacturing5_net8.test_measurements
 
         public virtual void Process_NM_Data(CDataIn DataIn, int swcn = 0)
         {
-            if (DataIn.HW_cn == ModulePortNo)
+            if (DataIn.HWcn == ModulePortNo)
             {
                 double d = DataReceiver.Connection.GetScaledValue(DataIn);
 
@@ -472,8 +459,8 @@ namespace Insight_Manufacturing5_net8.test_measurements
                 {
                     if (CntSettings < AllResults.Count)
                     {
-                        if (DataIn.SW_cn == swcn) CntSamplesCollected++;
-                        AllResults[CntSettings].ChannelResults[DataIn.SW_cn].AddValue(d, DataIn);
+                        if (DataIn.SWcn == swcn) CntSamplesCollected++;
+                        AllResults[CntSettings].ChannelResults[DataIn.SWcn].AddValue(d, DataIn);
                     }
                 }
                 OnDataReady(d, DataIn);

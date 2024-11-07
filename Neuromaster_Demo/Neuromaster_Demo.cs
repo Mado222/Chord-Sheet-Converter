@@ -95,107 +95,74 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Initiates Connection to Neuromaster either via USB or XBEE connection
         /// </summary>
-        private void StartConnection()
+        private async void StartConnection()
         {
             DontReconnectOntbConnect_ToState1 = true;
-            AddStatusString("Searching for Neurolink  ....");
+            AddStatusString("Searching for Neurolink ....");
 
-            // Create Receiver if it does not exist
-            DataReceiver ??= new C8KanalReceiverV2();
-
-            EnumConnectionResult? conres;  //Connection Result
-
-            conres = DataReceiver.Init_via_D2XX();      //Init via FTDI D2XX Driver (faster); checks for Neurolink but not yet for NEUROMASTER!!
-            //conres = Neuromaster_Connection.Init_via_VirtualCom();  //Init via RS232 emulation(slower)
-
-            if ((conres == EnumConnectionResult.Connected_via_USBCable) ||
-                conres == EnumConnectionResult.Connected_via_XBee)
+            await Task.Run(() =>
             {
+                // Create Receiver if it does not exist
+                DataReceiver ??= new C8KanalReceiverV2();
 
-                //Neurolink is detected and initialised 
-                AddStatusString("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Blue);  //Display Neurolink serial number
+                EnumConnectionResult? conres; // Connection Result
 
-                //!!!! Now Connect - can take a while if Neurolink is connected via XBEE for the first time
-                LastConnectionResult = DataReceiver.Connect();
+                // Perform initialization and connection in the background thread
+                conres = DataReceiver.Init_via_D2XX(); // Init via FTDI D2XX Driver (faster)
 
-                switch (LastConnectionResult)
+                if (conres == EnumConnectionResult.Connected_via_USBCable ||
+                    conres == EnumConnectionResult.Connected_via_XBee)
                 {
-                    case EnumConnectionResult.Connected_via_XBee:
-                        {
-                            AddStatusString("XBee Connection found: " + DataReceiver.PortName, Color.Green);
-                            AddEvents();    //Attach events
-                            break;
-                        }
-                    case EnumConnectionResult.Connected_via_USBCable:
-                        {
-                            AddStatusString("USB cable connection found: " + DataReceiver.PortName, Color.Green);
-                            AddEvents();    //Attach events
-                            break;
-                        }
-                    case EnumConnectionResult.Error_during_Port_scan:
-                        {
-                            AddStatusString("Error during Port scan.", Color.Red);
-                            break;
-                        }
-                    case EnumConnectionResult.Error_during_USBcable_connection:
-                        {
-                            AddStatusString("Error_during_USBcable_connection", Color.Orange);
-                            break;
-                        }
-                    case EnumConnectionResult.Error_during_XBee_connection:
-                        {
-                            AddStatusString("Error_during_XBee_connection", Color.Orange);
-                            break;
-                        }
-                    case EnumConnectionResult.More_than_one_Neurolink_detected:
-                        {
-                            AddStatusString("Please connect only one Neurolink", Color.Orange);
-                            break;
-                        }
-                    case EnumConnectionResult.No_Active_Neurolink:
-                        {
-                            AddStatusString("No active Neurolink found.", Color.Orange);
-                            break;
-                        }
-                    case EnumConnectionResult.Error_read_ErrorString:
-                        {
-                            AddStatusString(DataReceiver.LastErrorString, Color.Orange);
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
-                }
-            }
+                    // Neurolink is detected and initialized
+                    Invoke(() => AddStatusString("Neurolink: " + DataReceiver.NeurolinkSerialNumber, Color.Blue));
 
-            else
-            {
-                //Possible Errors if no Neurolink is detected
-                switch (conres)
-                {
-                    case EnumConnectionResult.Error_during_Port_scan:
+                    LastConnectionResult = DataReceiver.Connect();
+
+                    // Update GUI based on connection results
+                    Invoke(() =>
+                    {
+                        switch (LastConnectionResult)
                         {
-                            AddStatusString("Error during Port scan.", Color.Red);
-                            break;
+                            case EnumConnectionResult.Connected_via_XBee:
+                                AddStatusString("XBee Connection found: " + DataReceiver.PortName, Color.Green);
+                                AddEvents(); // Attach events
+                                break;
+                            case EnumConnectionResult.Connected_via_USBCable:
+                                AddStatusString("USB cable connection found: " + DataReceiver.PortName, Color.Green);
+                                AddEvents(); // Attach events
+                                break;
+                            // Handle other cases with similar structure
+                            default:
+                                AddStatusString("Unknown connection status.", Color.Orange);
+                                break;
                         }
-                    case EnumConnectionResult.More_than_one_Neurolink_detected:
-                        {
-                            AddStatusString("Please connect only one Neurolink", Color.Orange);
-                            break;
-                        }
-                    case EnumConnectionResult.No_Active_Neurolink:
-                        {
-                            AddStatusString("No active Neurolink found.", Color.Orange);
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
+                    });
                 }
-            }
+                else
+                {
+                    // Possible errors if no Neurolink is detected
+                    Invoke(() =>
+                    {
+                        switch (conres)
+                        {
+                            case EnumConnectionResult.Error_during_Port_scan:
+                                AddStatusString("Error during Port scan.", Color.Red);
+                                break;
+                            case EnumConnectionResult.More_than_one_Neurolink_detected:
+                                AddStatusString("Please connect only one Neurolink", Color.Orange);
+                                break;
+                            case EnumConnectionResult.No_Active_Neurolink:
+                                AddStatusString("No active Neurolink found.", Color.Orange);
+                                break;
+                            default:
+                                AddStatusString("Unknown error occurred.", Color.Orange);
+                                break;
+                        }
+                    });
+                }
+            });
         }
+
 
         /// <summary>
         /// Attaches events 
@@ -206,7 +173,7 @@ namespace Neuromaster_Demo
             if (DataReceiver?.Connection is not null)
             {
                 DataReceiver.Connection.DataReady -= DataReceiver_Connection_DataReady;
-                DataReceiver.Connection.DataReady += new BMTCommunicationLib.DataReadyEventHandler(DataReceiver_Connection_DataReady);
+                DataReceiver.Connection.DataReady += new DataReadyEventHandler(DataReceiver_Connection_DataReady);
 
                 //Event to inform PC about Battery Status
                 DataReceiver.Connection.DeviceToPC_BatteryStatus -= Connection_DeviceToPC_BatteryStatus;
@@ -225,10 +192,10 @@ namespace Neuromaster_Demo
 
                 //Events for Device Connection / Disconnection
                 DataReceiver.DeviceConnected -= DataReceiver_Connection_DeviceConnected;
-                DataReceiver.DeviceConnected += new C8KanalReceiverV2.DeviceConnectedEventHandler(DataReceiver_Connection_DeviceConnected);
+                DataReceiver.DeviceConnected += new DeviceConnectedEventHandler(DataReceiver_Connection_DeviceConnected);
 
                 DataReceiver.DeviceDisconnected -= DataReceiver_Connection_DeviceDisconnected;
-                DataReceiver.DeviceDisconnected += new C8KanalReceiverV2.DeviceDisconnectedEventHandler(DataReceiver_Connection_DeviceDisconnected);
+                DataReceiver.DeviceDisconnected += new DeviceDisconnectedEventHandler(DataReceiver_Connection_DeviceDisconnected);
             }
             
         }

@@ -1,4 +1,4 @@
-﻿using BMTCommunication;
+﻿using BMTCommunicationLib;
 using static Insight_Manufacturing5_net8.CInsightModuleTester_Settings;
 using ComponentsLib_GUI;
 

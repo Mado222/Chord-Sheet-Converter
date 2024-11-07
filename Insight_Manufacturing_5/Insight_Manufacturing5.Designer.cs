@@ -182,7 +182,7 @@ namespace Insight_Manufacturing5_net8
             btModulNMauslesen.TabIndex = 47;
             btModulNMauslesen.Text = "Device lesen \n (Neurolink, NModul -> B)";
             btModulNMauslesen.UseVisualStyleBackColor = true;
-            btModulNMauslesen.Click += btModulNMauslesen_Click;
+            btModulNMauslesen.Click += BtModulNMauslesen_Click;
             // 
             // btModulICD3auslesen
             // 
