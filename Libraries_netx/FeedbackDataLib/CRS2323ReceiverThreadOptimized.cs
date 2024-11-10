@@ -8,8 +8,8 @@ namespace FeedbackDataLib
     public partial class CRS232Receiver2
     {
         private readonly CFifoConcurrentQueue<CDataIn> _measurementDataQueue = new();
-        private CFifoConcurrentQueue<byte[]> _commandResponseQueue = new();
-        private readonly CFifoConcurrentQueue<byte[]> RPDeviceCommunicationToPC = new();
+        private CFifoConcurrentQueue<byte[]> commandResponseQueue = new();
+        private readonly CFifoConcurrentQueue<byte[]> _commandToPCQueue = new();
         private readonly CFifoConcurrentQueue<byte[]> _sendingQueue = new();
         private CFifoConcurrentQueue<byte> rs232InBytes = new();
         private CDataIn? dataInTemp;
@@ -25,9 +25,16 @@ namespace FeedbackDataLib
 
         // Declare cancellationTokenSourceReceiver as a private property
         private CancellationTokenSource? CancellationTokenSourceReceiver { get; set; }
+        public CFifoConcurrentQueue<byte[]> CommandResponseQueue { get => commandResponseQueue; set => commandResponseQueue = value; }
+
+        public CFifoConcurrentQueue<byte[]> SendingQueue => _sendingQueue;
+
+        public CFifoConcurrentQueue<CDataIn> MeasurementDataQueue => _measurementDataQueue;
+
+        public CFifoConcurrentQueue<byte[]> CommandToPCQueue => _commandToPCQueue;
 
         // Reinitialize the BufferBlock to clear it
-        public void ClearCommandResponseQueue() => _commandResponseQueue = new();
+        public void ClearCommandResponseQueue() => CommandResponseQueue = new();
 
         private async Task RS232ReceiverThread_DoWorkAsync()
         {
@@ -92,7 +99,7 @@ namespace FeedbackDataLib
                                                 //Store Measurement Data
                                                 dataInTemp.LastSync = LastSyncSignal;
                                                 dataInTemp.ReceivedAt = Seriell32.Now(EnumTimQueryStatus.isSync);
-                                                _measurementDataQueue.Push(dataInTemp);
+                                                MeasurementDataQueue.Push(dataInTemp);
                                             }
                                             _receiverState = ReceiverState.None;
                                         }
@@ -130,13 +137,13 @@ namespace FeedbackDataLib
                                                 }
                                             case C8KanalReceiverCommandCodes.cNeuromasterToPC:
                                                 {
-                                                    RPDeviceCommunicationToPC.Push(buf);
+                                                    CommandToPCQueue.Push(buf);
                                                     break;
                                                 }
                                             default:
                                                 {
                                                     Debug.WriteLine("default: " + BitConverter.ToString(buf).Replace("-", " "));
-                                                    _commandResponseQueue.Push(buf); // Store command for further processing
+                                                    CommandResponseQueue.Push(buf); // Store command for further processing
                                                     break;
                                                 }
                                         }
@@ -164,7 +171,7 @@ namespace FeedbackDataLib
             }
             finally
             {
-                StopRS232DistributorThread();
+                //StopRS232DistributorThread();
             }
         }
 

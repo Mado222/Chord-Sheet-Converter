@@ -172,20 +172,20 @@ namespace Neuromaster_Demo
             //Event for Data
             if (DataReceiver?.Connection is not null)
             {
-                DataReceiver.Connection.DataReady -= DataReceiver_Connection_DataReady;
-                DataReceiver.Connection.DataReady += new DataReadyEventHandler(DataReceiver_Connection_DataReady);
+                DataReceiver.Connection.DataReadyResponse -= DataReceiver_Connection_DataReady;
+                DataReceiver.Connection.DataReadyResponse += DataReceiver_Connection_DataReady;
 
                 //Event to inform PC about Battery Status
                 DataReceiver.Connection.DeviceToPC_BatteryStatus -= Connection_DeviceToPC_BatteryStatus;
-                DataReceiver.Connection.DeviceToPC_BatteryStatus += new C8KanalReceiverV2_CommBase.DeviceToPC_BatteryStatusEventHandler(Connection_DeviceToPC_BatteryStatus);
+                DataReceiver.Connection.DeviceToPC_BatteryStatus += Connection_DeviceToPC_BatteryStatus; ;
 
                 //Buffer in Neuromaster is full
                 DataReceiver.Connection.DeviceToPC_BufferFull -= Connection_DeviceToPC_BufferFull;
-                DataReceiver.Connection.DeviceToPC_BufferFull += new C8KanalReceiverV2_CommBase.DeviceToPC_BufferFullEventHAndler(Connection_DeviceToPC_BufferFull);
+                DataReceiver.Connection.DeviceToPC_BufferFull += Connection_DeviceToPC_BufferFull;
 
                 //Error in Neuromodule occured - for future use
                 DataReceiver.Connection.DeviceToPC_ModuleError -= Connection_DeviceToPC_ModuleError;
-                DataReceiver.Connection.DeviceToPC_ModuleError += new C8KanalReceiverV2_CommBase.DeviceToPC_ModuleErrorEventHandler(Connection_DeviceToPC_ModuleError);
+                DataReceiver.Connection.DeviceToPC_ModuleError += Connection_DeviceToPC_ModuleError;
 
                 //Messages from Command processing
                 DataReceiver.Connection.CommandProcessedResponse += Connection_CommandProcessedResponse;
@@ -200,6 +200,7 @@ namespace Neuromaster_Demo
             
         }
 
+
         #region DeviceCommunicationToPC_Event
 
         /// <summary>
@@ -209,7 +210,7 @@ namespace Neuromaster_Demo
         /// Currently not implemented
         /// </remarks>
         /// <param name="HW_cn">Hardware Channel number of the Module</param>
-        void Connection_DeviceToPC_ModuleError(byte HW_cn)
+        private void Connection_DeviceToPC_ModuleError(object? sender, byte e)
         {
             //For future use
             throw new NotImplementedException();
@@ -221,7 +222,7 @@ namespace Neuromaster_Demo
         /// <remarks>
         /// Neuromaster stops sampling - must be reconfigured
         /// </remarks>
-        void Connection_DeviceToPC_BufferFull()
+        private void Connection_DeviceToPC_BufferFull(object? sender, EventArgs e)
         {
             RunOnUiThread(() =>
             {
@@ -235,14 +236,12 @@ namespace Neuromaster_Demo
         /// <param name="Voltage_mV">Battery Voltage [mV]</param>
         /// <param name="percentage">Percentage of Battery Capacity</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        void Connection_DeviceToPC_BatteryStatus(uint Battery_Voltage_mV, uint percentage, uint Supply_Voltage_mV)
+        private void Connection_DeviceToPC_BatteryStatus(object sender, (uint BatteryVoltageMV, uint Percentage, uint SupplyVoltageMV) e)
         {
-            //Implemented in last hardware Version ... not yet tested
-            RunOnUiThread(() =>
-            {
-                AddStatusString("Battery Status: " + percentage.ToString() + "%", Color.Blue);
-            });
+            // Implemented in last hardware version, not yet tested
+            RunOnUiThread(() => AddStatusString($"Battery Status: {e.Percentage}%", Color.Blue));
         }
+
 
         #endregion
 
@@ -279,8 +278,6 @@ namespace Neuromaster_Demo
             {
             }
         }
-
-
         #endregion
 
 
@@ -526,7 +523,7 @@ namespace Neuromaster_Demo
                     {
                         case EnNeuromasterCommand.GetFirmwareVersion:
                             CNMFirmwareVersion NMFirmwareVersion = new();
-                            NMFirmwareVersion.UpdateFrom_ByteArray(e.ResponseData, 0);
+                            NMFirmwareVersion.UpdateFromByteArray(e.ResponseData, 0);
                             AddStatusString("NM UID: " + NMFirmwareVersion.Uuid, Color.DarkOliveGreen);
                             AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersionString, Color.DarkOliveGreen);
                             AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersionString, Color.DarkOliveGreen);

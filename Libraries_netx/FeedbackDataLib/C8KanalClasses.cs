@@ -224,7 +224,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Fill properies according to corresponding structure in Device
         /// </summary>
-        public int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public int UpdateFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
             int ptr = Pointer_To_Array_Start; //Array Pointer
             Array.Copy(InBuf, Pointer_To_Array_Start, _uuid, 0, _uuid.Length);

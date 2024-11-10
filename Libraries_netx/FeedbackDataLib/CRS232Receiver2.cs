@@ -84,11 +84,10 @@ namespace FeedbackDataLib
     /// Removed ConnectionBroken
     /// </summary>
 
-    public partial class CRS232Receiver2 : ICommunication, IDisposable
+    public partial class CRS232Receiver2 : IDisposable
     {
 
         private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
-        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 2, 0);
         private byte _CommandChannelNo = 0; //Wird nur im Konstruktor übereschrieben
 
         /// <summary>
@@ -96,12 +95,6 @@ namespace FeedbackDataLib
         /// </summary>
         public CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
 
-        public bool SendKeepAlive { get; set; } = true;
-
-        /// <summary>
-        /// Time when next Alive Signal is due
-        /// </summary>
-        private DateTime NextAliveSignalToSend = DateTime.Now;
 
         /// <summary>
         /// Last Sync Signal received from Device = when Device timer has full second
@@ -195,8 +188,9 @@ namespace FeedbackDataLib
             CloseAll();
         }
 
-        public CRS232Receiver2(byte CommandChannelNo, ISerialPort SerialPort)
+        public CRS232Receiver2(byte CommandChannelNo, ISerialPort? SerialPort)
         {
+            if (SerialPort == null) return;
             CRS232Receiver_Constructor(CommandChannelNo, SerialPort);
         }
 
@@ -247,22 +241,6 @@ namespace FeedbackDataLib
         }
 
         #region ICommunication Members
-
-        public event DataReadyEventHandler? DataReadyComm = null;
-        /// <summary>
-        /// Data Ready
-        /// </summary>
-        /// <remarks>
-        /// Limits of the Data Range:
-        /// 0x0000 ... input amplifier is neg saturated
-        /// 0xFFFF ... input amplifier is pos saturated
-        /// if output stage is saturated, 0x0001 and 0xFFFE
-        /// </remarks>
-        protected virtual void OnDataReadyComm(List<CDataIn>? DataRead)
-        {
-            if (DataRead != null)
-                DataReadyComm?.Invoke(this, DataRead);
-        }
 
         public event StatusChangedEventHandler? StatusChangedComm = null;
         protected virtual void OnStatusChangedComm()

@@ -23,12 +23,12 @@ namespace FeedbackDataLib
         /// <summary>
         /// TimeOut [ms] in WaitCommandResponse
         /// </summary>
-        protected const int WaitCommandResponseTimeOut_ms = 3000; //ScanModules braucht so eine lange Timeout
+        protected const int WaitCommandResponseTimeOutMs = 3000; //ScanModules braucht so eine lange Timeout
 
         /// <summary>
         /// RS232Receiver
         /// </summary>
-        public CRS232Receiver2? RS232Receiver = null;
+        public CRS232Receiver2 RS232Receiver = new(0,null); //Just to keep it away from null
 
         /// <summary>
         /// All Information about 8 Channel Device
@@ -44,15 +44,15 @@ namespace FeedbackDataLib
         /// <summary>
         /// The number of SW channels sent by Neuromaster
         /// </summary>
-        public const int num_SWChannels_sent_by_HW = 4;
+        public const int numSWChannelsSentByHW = 4;
 
         /// <summary>
         /// That is the maximum number of SW Channels one module can have
         /// </summary>
 #if VIRTUAL_EEG
-        public const int max_num_SWChannels = 12;
+        public const int maxNumSWChannels = 12;
 #else
-        public const int max_num_SWChannels = 4;
+        public const int maxNumSWChannels = 4;
 
 #endif
 
@@ -64,12 +64,13 @@ namespace FeedbackDataLib
         /// <summary>
         /// Default Multisensor Channel No
         /// </summary>
-        public const byte Default_Multisensor_Channel_No = 1;
+        public const byte DefaultMultisensorChannelNo = 1;
 
-        /// <summary>
-        /// NM sends in this ms Interval the SYNC Signal
-        /// </summary>
+        /// <summary>NM sends in this ms Interval the SYNC Signal/// </summary>
         public const int SyncInterval_ms = 1000;
+
+        /// <summary>Alive signal PC sends to NM</summary>
+        public const int AliveSignalToSendIntervMs = 2000;
 
         /// <summary>
         /// NM sends in this Interval the SYNC Signal
@@ -97,20 +98,11 @@ namespace FeedbackDataLib
         /// </summary>
         public bool EnableDataReadyEvent
         {
-            get
-            {
-                if (RS232Receiver != null)
-                {
-                    return RS232Receiver.EnableDataReadyEvent;
-                }
-                return false;
-            }
+            get => RS232Receiver?.EnableDataReadyEvent ?? false;
             set
             {
                 if (RS232Receiver != null)
-                {
                     RS232Receiver.EnableDataReadyEvent = value;
-                }
             }
         }
 
@@ -122,136 +114,13 @@ namespace FeedbackDataLib
             public EnNeuromasterCommand Command { get; } = command;
             public string Message { get; } = message;
             public Color MessageColor { get; } = messageColor;
-            public bool Success { get; } = success;
+            public bool Success { get; set; } = success;
             public byte[] ResponseData { get; } = responseData;
             public byte HWcn { get; } = hWcn;
         }
 
-        public event EventHandler<CommandProcessedResponseEventArgs>? CommandProcessedResponse;
-        protected virtual void OnCommandProcessedResponse(CommandProcessedResponseEventArgs e)
-        {
-            CommandProcessedResponse?.Invoke(this, e);
-        }
 
-
-        /// <summary>
-        /// Data Ready
-        /// </summary>
-        /// <remarks>
-        /// Limits of the Data Range:
-        /// 0x0000 ... input amplifier is neg saturated
-        /// 0xFFFF ... input amplifier is pos saturated
-        /// if output stage is saturated, 0x0001 and 0xFFFE
-        /// </remarks>
-        public event DataReadyEventHandler? DataReady = null;
-        protected virtual void OnDataReady(List<CDataIn> DataIn)
-        {
-            //Add Virtual ID / added Dec. 2013
-            if (Device?.ModuleInfos != null)
-            {
-                foreach (CDataIn cdi in DataIn)
-                {
-                    cdi.VirtualID = Device.ModuleInfos[cdi.HWcn].SWChannels[cdi.SWcn].VirtualID;
-                }
-            }
-            DataReady?.Invoke(this, DataIn);
-        }
-
-        /// <summary>
-        /// Device is communicating back to PC
-        /// </summary>
-        /// <param name="buf">The buf.</param>
-        protected virtual void OnDeviceCommunicationToPC(byte[] buf)
-        {
-            switch (buf[1])
-            {
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cModuleError:
-                    {
-                        if (buf.Length > 2)
-                            OnDeviceToPC_ModuleError(buf[2]);
-                        break;
-                    }
-
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cBufferFull:
-                    {
-                        OnDeviceToPC_BufferFull();
-                        break;
-                    }
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cBatteryStatus:
-                    {
-                        //buf[2] ... Battery Low    
-                        //buf[3] ... Battery High [1/10V]
-                        //buf[4] ... Supply Low
-                        //buf[5] ... Supply High  [1/10V] 
-
-                        uint BatteryVoltage_mV = buf[3];
-                        BatteryVoltage_mV = ((BatteryVoltage_mV << 8) + buf[2]) * 10;
-
-
-                        uint SupplyVoltage_mV = buf[5];
-                        SupplyVoltage_mV = ((SupplyVoltage_mV << 8) + buf[4]) * 10;
-
-                        BatteryPercentage = (uint)BatteryVoltage.GetPercentage(((double)BatteryVoltage_mV) / 1000);
-
-                        OnDeviceToPC_BatteryStatus(BatteryVoltage_mV, BatteryPercentage, SupplyVoltage_mV);
-                        break;
-                    }
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cNMOffline:   //28.7.2014
-                    {
-                        Close();  //Kommumikation beenden
-                        break;
-                    }
-            }
-        }
-        /*
-         * Events for communication back to PC
-         */
-        public delegate void DeviceToPC_BufferFullEventHAndler();
-        /// <summary>
-        /// Buffer of the Device is full, it stops sampling, has to be reinitialised
-        /// </summary>
-        public event DeviceToPC_BufferFullEventHAndler? DeviceToPC_BufferFull;
-        protected virtual void OnDeviceToPC_BufferFull()
-        {
-            DeviceToPC_BufferFull?.Invoke();
-        }
-
-        public delegate void DeviceToPC_ModuleErrorEventHandler(byte HWcn);
-        /// <summary>
-        /// Buffer of the Device is full, it stops sampling, has to be reinitialised
-        /// </summary>
-        public event DeviceToPC_ModuleErrorEventHandler? DeviceToPC_ModuleError;
-        protected virtual void OnDeviceToPC_ModuleError(byte HWcn)
-        {
-            DeviceToPC_ModuleError?.Invoke(HWcn);
-        }
-
-        public delegate void DeviceToPC_BatteryStatusEventHandler(uint Battery_Voltage_mV, uint percentage, uint Supply_Voltage_mV);
-        /// <summary>
-        /// Neuromaster sends battery status
-        /// </summary>
-        public event DeviceToPC_BatteryStatusEventHandler? DeviceToPC_BatteryStatus;
-        /// <summary>
-        /// Battery Status
-        /// </summary>
-        /// <param name="Battery_Voltage_mV">Voltage [mV]</param>
-        /// <param name="percentage">Percentage</param>
-        /// <param name="Supply_Voltage_mV">Supply Voltage</param>
-        protected virtual void OnDeviceToPC_BatteryStatus(uint Battery_Voltage_mV, uint percentage, uint Supply_Voltage_mV)
-        {
-            DeviceToPC_BatteryStatus?.Invoke(Battery_Voltage_mV, percentage, Supply_Voltage_mV);
-        }
-
-        public delegate void Vaso_InfoSpecific_UpdatedEventHandler();
-        /// <summary>Occurs when Module Specific Information from Vaso is updated.</summary>
-        public event Vaso_InfoSpecific_UpdatedEventHandler? Vaso_InfoSpecific_Updated;
-        protected virtual void OnVaso_InfoSpecific_Updated()
-        {
-            Vaso_InfoSpecific_Updated?.Invoke();
-        }
-
-
-        #endregion
+       #endregion
 
 
         /// <summary>
@@ -317,9 +186,8 @@ namespace FeedbackDataLib
 
             if (RS232Receiver == null)
                 throw new Exception("RS232Receiver mustbe created before calling constructor");
-            RS232Receiver.DataReadyComm += new DataReadyEventHandler(RS232Receiver_DataReadyComm);
             RS232Receiver.DeviceCommunicationToPC += new DeviceCommunicationToPCEventHandler(RS232Receiver_DeviceCommunicationToPC);
-            RS232Receiver.CommandProcessed += RS232Receiver_CommandProcessed;
+            CommandProcessed += RS232Receiver_CommandProcessed;
         }
 
 
@@ -331,7 +199,7 @@ namespace FeedbackDataLib
         /// </remarks>
         protected void RS232Receiver_DeviceCommunicationToPC(object sender, byte[] buf)
         {
-            OnDeviceCommunicationToPC(buf);
+            EvalCommunicationToPC(buf);
         }
 
         //For RS232Receiver_DataReadyComm
@@ -339,57 +207,6 @@ namespace FeedbackDataLib
         private DateTime OldLastSync = DateTime.MinValue;       //Time when the previous package was received
         private DateTime ReceivingStarted = DateTime.MinValue;  //Receiving started at
 
-
-        /// <summary>
-        /// Receives data, takes care of over all data synchronicity
-        /// Updates time and forwards event
-        /// </summary>
-        /// <remarks>
-        /// Only forwards data if the first Sync Value is received
-        /// </remarks>
-        protected virtual void RS232Receiver_DataReadyComm(object sender, List<CDataIn> DataIn)
-        {
-            if (Device is null) return;
-
-            List<CDataIn> _DataIn = [];
-            foreach (CDataIn di in DataIn)
-            {
-                //27.1.2020
-                if (di.SyncFlag == 1)
-                {
-                    if (ReceivingStarted == DateTime.MinValue)
-                    {
-                        //First Sync Packet of this channel
-                        ReceivingStarted = di.LastSync;
-                        OldLastSync = di.LastSync;
-                        cntSyncPackages = 0;
-                    }
-                    else
-                    {
-                        if (di.LastSync != OldLastSync)
-                        {
-                            OldLastSync = di.LastSync;
-                            cntSyncPackages++;
-                        }
-                    }
-                    Device.ModuleInfos[di.HWcn].SWChannels[di.SWcn].SWChan_Started = ReceivingStarted;
-                    Device.ModuleInfos[di.HWcn].SWChannels[di.SWcn].SynPackagesreceived = cntSyncPackages;
-                }
-
-                Device.UpdateTime(di);
-
-                if (di.ChannelStarted != DateTime.MinValue)
-                {
-                    //Process Data Module specific
-                    _DataIn.AddRange(Device.ModuleInfos[di.HWcn].Processdata(di));
-                }
-            }
-
-            if (_DataIn.Count > 0)
-            {
-                OnDataReady(_DataIn);
-            }
-        }
 
         /// <summary>
         /// Counts how many data packets per second are sent via XBee channel

@@ -59,8 +59,8 @@ namespace FeedbackDataLib
         {
             for (int i = 0; i < ChanData.Length; i++)
             {
-                ChanData[i] = new CSkalData[C8KanalReceiverV2_CommBase.max_num_SWChannels];
-                for (int j = 0; j < C8KanalReceiverV2_CommBase.max_num_SWChannels; j++)
+                ChanData[i] = new CSkalData[C8KanalReceiverV2_CommBase.maxNumSWChannels];
+                for (int j = 0; j < C8KanalReceiverV2_CommBase.maxNumSWChannels; j++)
                 {
                     ChanData[i][j] = new CSkalData();
                 }

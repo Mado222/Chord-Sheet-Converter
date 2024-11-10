@@ -357,19 +357,19 @@ namespace Neuromaster_V5
 
             //Event for Data
             DataReceiver.Connection.DataReady -= DataReceiver_DataReady;
-            DataReceiver.Connection.DataReady += new DataReadyEventHandler(DataReceiver_DataReady);
+            DataReceiver.Connection.DataReady += DataReceiver_DataReady;
 
             //Event to inform PC about Battery Status
             DataReceiver.Connection.DeviceToPC_BatteryStatus -= Connection_DeviceToPC_BatteryStatus;
-            DataReceiver.Connection.DeviceToPC_BatteryStatus += new C8KanalReceiverV2_CommBase.DeviceToPC_BatteryStatusEventHandler(Connection_DeviceToPC_BatteryStatus);
+            DataReceiver.Connection.DeviceToPC_BatteryStatus += Connection_DeviceToPC_BatteryStatus;//+= new EventHandler(Connection_DeviceToPC_BatteryStatus);
 
             //Buffer in Neuromaster is full
             DataReceiver.Connection.DeviceToPC_BufferFull -= Connection_DeviceToPC_BufferFull;
-            DataReceiver.Connection.DeviceToPC_BufferFull += new C8KanalReceiverV2_CommBase.DeviceToPC_BufferFullEventHAndler(Connection_DeviceToPC_BufferFull);
+            DataReceiver.Connection.DeviceToPC_BufferFull += Connection_DeviceToPC_BufferFull;
 
             //Error in Neuromodule occured - for future use
             DataReceiver.Connection.DeviceToPC_ModuleError -= Connection_DeviceToPC_ModuleError;
-            DataReceiver.Connection.DeviceToPC_ModuleError += new C8KanalReceiverV2_CommBase.DeviceToPC_ModuleErrorEventHandler(Connection_DeviceToPC_ModuleError);
+            DataReceiver.Connection.DeviceToPC_ModuleError += Connection_DeviceToPC_ModuleError;
 
             //Messages from Command processing
             DataReceiver.Connection.CommandProcessedResponse += Connection_CommandProcessedResponse;
@@ -397,7 +397,8 @@ namespace Neuromaster_V5
         /// Currently not implemented
         /// </remarks>
         /// <param name="HWcn">Hardware Channel number of the Module</param>
-        void Connection_DeviceToPC_ModuleError(byte HWcn)
+
+        private void Connection_DeviceToPC_ModuleError(object? sender, byte HWcn)
         {
             //For future use
             throw new NotImplementedException();
@@ -409,17 +410,18 @@ namespace Neuromaster_V5
         /// <remarks>
         /// Neuromaster stops sampling - must be reconfigured
         /// </remarks>
-        void Connection_DeviceToPC_BufferFull()
+        private void Connection_DeviceToPC_BufferFull(object? sender, EventArgs e)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(Connection_DeviceToPC_BufferFull));
+                Invoke((Action)(() => Connection_DeviceToPC_BufferFull(sender, e)));
             }
             else
             {
                 AddStatusString("Neuromaster: Transmit Buffer is full", Color.Blue);
             }
         }
+
 
         /// <summary>
         /// Neuromaster Battery Satus
@@ -428,18 +430,17 @@ namespace Neuromaster_V5
         /// <param name="percentage">Percentage of Battery Capacity</param>
         /// <param name="Supply_Voltage_mV">The supply_ voltage_m v.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        void Connection_DeviceToPC_BatteryStatus(uint Battery_Voltage_mV, uint percentage, uint Supply_Voltage_mV)
+        private void Connection_DeviceToPC_BatteryStatus(object? sender, (uint BatteryVoltageMV, uint Percentage, uint SupplyVoltageMV) e)
         {
             if (InvokeRequired)
             {
-                Invoke(new Action<uint, uint, uint>(Connection_DeviceToPC_BatteryStatus), Battery_Voltage_mV, percentage, Supply_Voltage_mV);
+                Invoke((Action)(() => Connection_DeviceToPC_BatteryStatus(sender, e)));
             }
             else
             {
                 txtBattery.Text = "";
-                AddStatusString(txtBattery, "Battery Voltage: " + Battery_Voltage_mV.ToString() + "mV /t" +
-                    "Battery Status: " + percentage.ToString() + "%", Color.Blue);
-                AddStatusString(txtBattery, "Supply Voltage: " + Supply_Voltage_mV.ToString() + "mV", Color.Violet);
+                AddStatusString(txtBattery, $"Battery Voltage: {e.BatteryVoltageMV}mV\tBattery Status: {e.Percentage}%", Color.Blue);
+                AddStatusString(txtBattery, $"Supply Voltage: {e.SupplyVoltageMV}mV", Color.Violet);
             }
         }
 
@@ -1209,7 +1210,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void Connection_Vaso_InfoSpecific_Updated()
+        private void Connection_Vaso_InfoSpecific_Updated(object? sender, EventArgs e)
         {
             if (DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].ModuleType == enumModuleType.cModuleVaso ||
                 DataReceiver.Connection.Device.ModuleInfos[idx_SelectedModule].ModuleType == enumModuleType.cModuleVasosensorDig)
