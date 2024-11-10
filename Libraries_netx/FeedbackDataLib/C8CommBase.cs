@@ -7,7 +7,7 @@ namespace FeedbackDataLib
     /// <summary>
     /// Base class for 8 Channel Neuromaster
     /// </summary>
-    public partial class C8KanalReceiverV2_CommBase
+    public partial class C8CommBase
     {
 
         /// <summary>
@@ -28,13 +28,13 @@ namespace FeedbackDataLib
         /// <summary>
         /// RS232Receiver
         /// </summary>
-        public CRS232Receiver2 RS232Receiver = new(0,null); //Just to keep it away from null
+        public CRS232Receiver RS232Receiver = new(0,null); //Just to keep it away from null
 
         /// <summary>
         /// All Information about 8 Channel Device
         /// </summary>
         /// <remarks>Zugriff: [0,1,...]</remarks>
-        public C8KanalDevice2? Device = new();       //Fasst die verfügbaren Kanäle zusammen
+        public C8Device? Device = new();       //Fasst die verfügbaren Kanäle zusammen
 
         /// <summary>
         /// NM Battery Status in %
@@ -106,30 +106,13 @@ namespace FeedbackDataLib
             }
         }
 
-        //Events
-        #region Events
-
-        public class CommandProcessedResponseEventArgs(EnNeuromasterCommand command, string message, Color messageColor, bool success, byte[] responseData, byte hWcn = 0xff) : EventArgs
-        {
-            public EnNeuromasterCommand Command { get; } = command;
-            public string Message { get; } = message;
-            public Color MessageColor { get; } = messageColor;
-            public bool Success { get; set; } = success;
-            public byte[] ResponseData { get; } = responseData;
-            public byte HWcn { get; } = hWcn;
-        }
-
-
-       #endregion
-
-
         /// <summary>
         /// Do not call
         /// </summary>
-        public C8KanalReceiverV2_CommBase()
+        public C8CommBase()
         {
             //Base constructor must be empty that the derived class does not call 
-            Device = new C8KanalDevice2();
+            Device = new C8Device();
             DeviceClock = new CCDateTime();
             BatteryVoltage = new CBatteryVoltage();
         }
@@ -137,7 +120,7 @@ namespace FeedbackDataLib
         /// <param name="ComPortName">
         /// "COM1","COM2
         /// </param>
-        public C8KanalReceiverV2_CommBase(string ComPortName): this()
+        public C8CommBase(string ComPortName): this()
         {
             C8KanalReceiverV2_Construct();
             this.ComPortName = ComPortName;
@@ -187,20 +170,9 @@ namespace FeedbackDataLib
             if (RS232Receiver == null)
                 throw new Exception("RS232Receiver mustbe created before calling constructor");
             RS232Receiver.DeviceCommunicationToPC += new DeviceCommunicationToPCEventHandler(RS232Receiver_DeviceCommunicationToPC);
-            CommandProcessed += RS232Receiver_CommandProcessed;
+            //CommandProcessed += CommandProcessedResponseEventArgs;
         }
 
-
-        /// <summary>
-        /// DeviceCommunicationToPC from RS232 Receiver
-        /// </summary>
-        /// <remarks>
-        /// Only forward event
-        /// </remarks>
-        protected void RS232Receiver_DeviceCommunicationToPC(object sender, byte[] buf)
-        {
-            EvalCommunicationToPC(buf);
-        }
 
         //For RS232Receiver_DataReadyComm
         private int cntSyncPackages = 0;                        //Counts the incoming sync packages

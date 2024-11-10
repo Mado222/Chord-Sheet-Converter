@@ -2,15 +2,17 @@
 using System.Buffers;
 using System.Diagnostics;
 using WindControlLib;
+using static FeedbackDataLib.C8CommBase;
 
 namespace FeedbackDataLib
 {
-    public partial class CRS232Receiver2
+    public partial class CRS232Receiver
     {
         private readonly CFifoConcurrentQueue<CDataIn> _measurementDataQueue = new();
         private CFifoConcurrentQueue<byte[]> commandResponseQueue = new();
         private readonly CFifoConcurrentQueue<byte[]> _commandToPCQueue = new();
-        private readonly CFifoConcurrentQueue<byte[]> _sendingQueue = new();
+
+
         private CFifoConcurrentQueue<byte> rs232InBytes = new();
         private CDataIn? dataInTemp;
         private int numCommandData = 0;
@@ -26,9 +28,6 @@ namespace FeedbackDataLib
         // Declare cancellationTokenSourceReceiver as a private property
         private CancellationTokenSource? CancellationTokenSourceReceiver { get; set; }
         public CFifoConcurrentQueue<byte[]> CommandResponseQueue { get => commandResponseQueue; set => commandResponseQueue = value; }
-
-        public CFifoConcurrentQueue<byte[]> SendingQueue => _sendingQueue;
-
         public CFifoConcurrentQueue<CDataIn> MeasurementDataQueue => _measurementDataQueue;
 
         public CFifoConcurrentQueue<byte[]> CommandToPCQueue => _commandToPCQueue;

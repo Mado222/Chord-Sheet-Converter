@@ -8,8 +8,15 @@ namespace FeedbackDataLib
     /// <summary>
     /// Base class for 8 Channel Neuromaster
     /// </summary>
-    public partial class C8KanalReceiverV2_CommBase
+    /// 
+
+    public partial class C8CommBase
     {
+        private int cntDeviceConfigs = 0;
+        private readonly List<byte> allDeviceConfigData = [];
+        private readonly ConcurrentQueue<byte[]> getModulesqueue = new();
+
+
         public event EventHandler<List<CDataIn>>?  DataReadyResponse;
         /// <summary>
         /// Data Ready
@@ -252,10 +259,6 @@ namespace FeedbackDataLib
             SendCommand(EnNeuromasterCommand.GetModuleConfig, [(byte) HWcn]);
         }
 
-        private int cntDeviceConfigs = 0;
-        private List<byte> allDeviceConfigData = [];
-
-
         /// <summary>
         /// Gets ConfigModules and puts result into Device
         /// </summary>
@@ -316,7 +319,7 @@ namespace FeedbackDataLib
             else
             {
                 // Process the received data
-                Device ??= new C8KanalDevice2();
+                Device ??= new C8Device();
                 Device.UpdateModuleInfoFromByteArray(allDeviceConfigData.ToArray());
                 Device.Calculate_SkalMax_SkalMin(); // Calculate max and mins
 
@@ -334,8 +337,6 @@ namespace FeedbackDataLib
             // Await completion of the operation
             await tcs.Task;
         }
-
-        private ConcurrentQueue<byte[]> getModulesqueue = new ();
 
         private void C8KanalReceiverV2_CommBase_GetModuleConfigResponse(object? sender, (byte[] response, ColoredText msg) e)
         {
@@ -428,7 +429,7 @@ namespace FeedbackDataLib
 
                 //Data[Data.Length - 1] = ...
                 Data[^1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
-                ModuleCommand((byte)HWcn, C8KanalReceiverCommandCodes.cModule_SetSpecific, Data, 1);
+                ModuleCommand((byte)HWcn, C8KanalReceiverCommandCodes.cModuleSetInfoSpecific, Data, 1);
             }
             return ret;
         }
@@ -440,7 +441,7 @@ namespace FeedbackDataLib
         /// </summary>
         public void GetModuleInfoSpecific(int HWcn, bool UpdateModuleInfo)
         {
-            ModuleCommand((byte)HWcn, (byte) EnNeuromasterCommand.Module_GetSpecific, [(byte) HWcn], 17);
+            ModuleCommand((byte)HWcn, (byte)C8KanalReceiverCommandCodes.EnModuleCommand.ModuleGetInfoSpecific, [(byte) HWcn], 17);
             this.UpdateModuleInfo = UpdateModuleInfo;
             HWcnGetModuleInfoSpecific = (byte) HWcn;
         }

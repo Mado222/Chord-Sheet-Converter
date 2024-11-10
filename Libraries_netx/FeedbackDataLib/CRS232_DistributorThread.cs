@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 
 namespace FeedbackDataLib
 {
-    public partial class CRS232Receiver2
+    public partial class CRS232Receiver
     {
         // Define a custom struct or class to hold input data and TCS
         public class CommandRequest(EnNeuromasterCommand command, byte[] sendData)

@@ -5,7 +5,7 @@ using MathNetNuget;
 using Neuromaster_Demo_Library_Reduced__netx;
 using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
 using WindControlLib;
-using static FeedbackDataLib.C8KanalReceiverV2;
+using static FeedbackDataLib.C8Receiver;
 
 namespace Neuromaster_Demo
 {
@@ -22,7 +22,7 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Class to connect to Neuromaster
         /// </summary>
-        private C8KanalReceiverV2? DataReceiver;
+        private C8Receiver? DataReceiver;
 
         /// <summary>
         /// Locking property
@@ -103,7 +103,7 @@ namespace Neuromaster_Demo
             await Task.Run(() =>
             {
                 // Create Receiver if it does not exist
-                DataReceiver ??= new C8KanalReceiverV2();
+                DataReceiver ??= new C8Receiver();
 
                 EnumConnectionResult? conres; // Connection Result
 
@@ -512,71 +512,7 @@ namespace Neuromaster_Demo
         /*******************************************************************************/
         /************************Feedback from the Communication ***********************/
         /*******************************************************************************/
-        private void Connection_CommandProcessedResponse(object? sender, C8KanalReceiverV2_CommBase.CommandProcessedResponseEventArgs e)
-        {
-            RunOnUiThread(() =>
-            {
-                AddStatusString(e.Command.ToString() + ": " + e.Message, e.MessageColor);
-                if (IsDeviceAvailable())
-                {
-                    switch (e.Command)
-                    {
-                        case EnNeuromasterCommand.GetFirmwareVersion:
-                            CNMFirmwareVersion NMFirmwareVersion = new();
-                            NMFirmwareVersion.UpdateFromByteArray(e.ResponseData, 0);
-                            AddStatusString("NM UID: " + NMFirmwareVersion.Uuid, Color.DarkOliveGreen);
-                            AddStatusString("NM HW Version: " + NMFirmwareVersion.HWVersionString, Color.DarkOliveGreen);
-                            AddStatusString("NM SW Version: " + NMFirmwareVersion.SWVersionString, Color.DarkOliveGreen);
-                            break;
 
-                        case EnNeuromasterCommand.ScanModules:
-                            break;
-                        case EnNeuromasterCommand.GetDeviceConfig:
-                            if (e.Success)
-                                {
-                                    DataReceiver!.Connection!.EnableDataReadyEvent = true;
-
-                                    /* Display information about Modules in cChannelsControlV2x11
-                                     * cChannelsControlV2x11 directly changes values in DataReceiver.Connection.Device.ModuleInfos
-                                     */
-                                    cChannelsControlV2x11.SetModuleInfos(DataReceiver!.Connection!.Device!.ModuleInfos);
-                                    cChannelsControlV2x11.Refresh();
-                                }
-                            break;
-                        case EnNeuromasterCommand.SetConfigAllModules:
-                            if (e.Success)
-                                {
-                                    pbXBeeChannelCapacity.Value = DataReceiver?.Connection?.GetChannelCapcity() ?? 0;  //Calculate channel capacity with the new setting
-                                    lblXBeeCapacity.Text = pbXBeeChannelCapacity.Value.ToString();  //Display
-                                }
-                            break;
-                        case EnNeuromasterCommand.GetModuleInfoSpecific:
-                            {
-                                //Ok
-                                AddStatusString("Module specific read OK", Color.Green);
-                                if (IsDeviceAvailable())
-                                {
-                                    cChannelsControlV2x11.UpdateModuleSpecificInfo(DataReceiver!.Connection!.Device!.ModuleInfos[e.HWcn]);
-                                    cChannelsControlV2x11.Refresh();
-
-
-                                    byte[] buf = DataReceiver.Connection.Device.ModuleInfos[e.HWcn].GetModuleSpecific();
-                                    string s = "Reci: ";
-                                    for (int i = 0; i < buf.Length; i++)
-                                    {
-                                        s += buf[i].ToString() + ", ";
-                                    }
-                                    AddStatusString(s, Color.Blue);
-                                }
-                            }
-                            break;
-                        case EnNeuromasterCommand.GetClock:
-                            txtTime.Text = DataReceiver!.Connection!.DeviceClock.Dt.ToString();
-                            break;
-                    }
-                }
-            });
-        }
 
         #endregion
 

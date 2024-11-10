@@ -17,7 +17,7 @@ namespace FeedbackDataLib.Modules
         public const int ModuleSpecific_sizeof = 16;
         protected byte[] ModuleSpecific = new byte[ModuleSpecific_sizeof];
 
-        protected byte num_SWChannels_sent_by_HW = C8KanalReceiverV2_CommBase.numSWChannelsSentByHW;
+        protected byte num_SWChannels_sent_by_HW = C8CommBase.numSWChannelsSentByHW;
 
         public CModuleBase()
         {
@@ -310,7 +310,7 @@ namespace FeedbackDataLib.Modules
             /* 30.9.2024
              * alte Module senden immer alle 4 SW Kanäle, Neu haben unterschiedliche Anzahl
              */
-            int numswchan = C8KanalReceiverV2_CommBase.numSWChannelsSentByHW;
+            int numswchan = C8CommBase.numSWChannelsSentByHW;
             if (ModuleTypeNumber >= (int)enumModuleType.cModuleExGADS94)
                 numswchan = num_SWChannels_sent_by_HW;
 

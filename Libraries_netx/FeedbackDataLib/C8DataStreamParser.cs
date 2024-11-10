@@ -4,7 +4,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public class CNeuromaster_Data_StreamParser
+    public class C8DataStreamParser
     {
         /// <summary>
         /// Last Sync Signal received from Device = when Device timer has full second
@@ -22,7 +22,6 @@ namespace FeedbackDataLib
 
         private int numByteRead = 0;
 
-        private DateTime FakeTime_Start;
         private TimeSpan FakeTime_Incement;
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Data about sample Intervals of all channels
         /// </summary>
-        private CSkalData[][] ChanData = new CSkalData[C8KanalReceiverV2_CommBase.max_num_HWChannels][];
+        private CSkalData[][] ChanData = new CSkalData[C8CommBase.max_num_HWChannels][];
 
         private bool _isFakeTime = false;
 
@@ -55,12 +54,12 @@ namespace FeedbackDataLib
             set { _isFakeTime = value; }
         }
 
-        public CNeuromaster_Data_StreamParser()
+        public C8DataStreamParser()
         {
             for (int i = 0; i < ChanData.Length; i++)
             {
-                ChanData[i] = new CSkalData[C8KanalReceiverV2_CommBase.maxNumSWChannels];
-                for (int j = 0; j < C8KanalReceiverV2_CommBase.maxNumSWChannels; j++)
+                ChanData[i] = new CSkalData[C8CommBase.maxNumSWChannels];
+                for (int j = 0; j < C8CommBase.maxNumSWChannels; j++)
                 {
                     ChanData[i][j] = new CSkalData();
                 }

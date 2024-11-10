@@ -146,16 +146,6 @@ namespace FeedbackDataLib
         public const byte cWrRdModuleCommand = 0x97;
 
         /// <summary>
-        /// Returns the specific information of one module
-        /// </summary>
-        //public const byte cGetModuleInfoSpecific = 0x9B;
-
-        /// <summary>
-        /// Sets the specific information of one module
-        /// </summary>
-        //public const byte cSetModuleInfoSpecific = 0x9C;
-
-        /// <summary>
         /// get configuration of the selected module (all sw channels)
         /// </summary>
         public const byte cGetModuleConfig = 0x98;
@@ -200,12 +190,6 @@ namespace FeedbackDataLib
 
             /// <summary>Neuromaster sends SD Card Info</summary>
             GetSDCardInfo = C8KanalReceiverCommandCodes.cGetSDCardInfo,
-
-            /// <summary>Returns Module specific data</summary>
-            Module_GetSpecific = C8KanalReceiverCommandCodes.cModule_GetSpecific,
-
-            /// <summary>Sets Module specific data</summary>
-            Module_SetSpecific = C8KanalReceiverCommandCodes.cModule_SetSpecific,
 
             /// <summary>Reset Neuromaster</summary>
             Reset = C8KanalReceiverCommandCodes.cReset,
@@ -271,12 +255,24 @@ namespace FeedbackDataLib
         /// <summary>
         /// Returns Module specific data
         /// </summary>
-        public const byte cModule_GetSpecific = 0x55;
+        public const byte cModuleGetInfoSpecific = 0x55;
 
         /// <summary>
         /// Sets Module specific data
         /// </summary>
-        public const byte cModule_SetSpecific = 0x56;
+        public const byte cModuleSetInfoSpecific = 0x56;
+
+        public enum EnModuleCommand : byte
+        {
+            /// <summary>Returns Module specific data</summary>
+            ModuleGetInfoSpecific = cModuleGetInfoSpecific,
+
+            /// <summary>Sets Module specific data</summary>
+            ModuleSetInfoSpecific = cModuleSetInfoSpecific,
+
+        }
+
+
 
         //*****************************************************
         //***************** Predefined Sequences **************

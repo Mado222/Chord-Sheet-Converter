@@ -36,7 +36,7 @@ namespace FeedbackDataLib
     /// <summary>
     /// Basic Component for Insight Instruments 8 Channel Device
     /// </summary>
-    public class C8KanalReceiverV2_RS232 : C8KanalReceiverV2_CommBase, IDisposable
+    public class C8RS232 : C8CommBase, IDisposable
     {
         /// <summary>
         /// Serial Port used by this class
@@ -55,12 +55,12 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8KanalReceiverV2_RS232" /> class.
+        /// Initializes a new instance of the <see cref="C8RS232" /> class.
         /// </summary>
         /// <param name="ComPortName">
         /// Com Port Name (COM1, COM2, ..) in case of Serial Port Connection
         /// </param>
-        public C8KanalReceiverV2_RS232(string ComPortName)
+        public C8RS232(string ComPortName)
         {
             SerialPort = new CSerialPortWrapper
             {
@@ -70,11 +70,11 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8KanalReceiverV2_RS232" /> class.
+        /// Initializes a new instance of the <see cref="C8RS232" /> class.
         /// </summary>
         /// <param name="ComPortName">Com Port Name (COM1, COM2, ..) in case of Serial Port Connection</param>
         /// <param name="BaudRate">The baud rate.</param>
-        public C8KanalReceiverV2_RS232(string ComPortName, int BaudRate)
+        public C8RS232(string ComPortName, int BaudRate)
         {
             SerialPort = new CSerialPortWrapper
             {
@@ -86,10 +86,10 @@ namespace FeedbackDataLib
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8KanalReceiverV2_RS232" /> class.
+        /// Initializes a new instance of the <see cref="C8RS232" /> class.
         /// </summary>
         /// <param name="SerialPort">The serial port.</param>
-        public C8KanalReceiverV2_RS232(ISerialPort SerialPort)
+        public C8RS232(ISerialPort SerialPort)
         {
             this.SerialPort = SerialPort;
             Initialise_C8KanalReceiverV2_RS232();
@@ -107,7 +107,7 @@ namespace FeedbackDataLib
             SerialPort.DataBits = 8;
             SerialPort.StopBits = System.IO.Ports.StopBits.One;
 
-            RS232Receiver = new CRS232Receiver2(C8KanalReceiverCommandCodes.cCommandChannelNo, SerialPort);
+            RS232Receiver = new CRS232Receiver(C8KanalReceiverCommandCodes.cCommandChannelNo, SerialPort);
             base.C8KanalReceiverV2_Construct(); //calls CDataReceiver2_Construct();
             RS232Receiver.AliveSequToReturn = C8KanalReceiverCommandCodes.AliveSequToReturn();
             RS232Receiver.AliveSequToSend = C8KanalReceiverCommandCodes.AliveSequToSend();

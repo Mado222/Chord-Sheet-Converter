@@ -21,7 +21,7 @@ namespace FeedbackDataLib
     /// <summary>
     /// Class to calculate EEG spectrum
     /// </summary>
-    public class CEEG_Spectrum
+    public class CEEGSpectrum
     {
         public class CEEG_FrequencyRanges : CFrequencyRange
         {
@@ -62,9 +62,9 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CEEG_Spectrum"/> class.
+        /// Initializes a new instance of the <see cref="CEEGSpectrum"/> class.
         /// </summary>
-        public CEEG_Spectrum(CEEG_FrequencyRanges[] Frequ_Ranges)
+        public CEEGSpectrum(CEEG_FrequencyRanges[] Frequ_Ranges)
         {
             Init_CEEG_Spectrum(Frequ_Ranges);
         }

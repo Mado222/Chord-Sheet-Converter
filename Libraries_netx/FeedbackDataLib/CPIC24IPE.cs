@@ -3,7 +3,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public class CIPE_Neuromodul_PIC24 : CIPE_Base
+    public class CPIC24IPE : CIPE_Base
     {
         public const string cmd_Erase_Neuromaster = @"P24FJ256GB210 -E";
         public const string cmd_Flash_Neuromaster = @"P24FJ256GB210 -M -L -F";
@@ -59,7 +59,7 @@ namespace FeedbackDataLib
 
         public CMicrochip_Programmer mc_programmer { get; set; }
 
-        public CIPE_Neuromodul_PIC24(CMicrochip_Programmer Microchip_Programmer)
+        public CPIC24IPE(CMicrochip_Programmer Microchip_Programmer)
         {
             mc_programmer = Microchip_Programmer;
         }
@@ -72,9 +72,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public static uint Get_Memory_Location_of_ChannelInfo(enumModuleType ModuleType)
         {
-            uint MemoryLocation = CPIC24_Bootloader_Params.PIC24_SWChannelInfo_memory_location;
+            uint MemoryLocation = CPIC24BootloaderParams.PIC24_SWChannelInfo_memory_location;
             if (isDSPIC(ModuleType))
-                MemoryLocation = CPIC24_Bootloader_Params.dsPIC33_SWChannelInfo_memory_location;
+                MemoryLocation = CPIC24BootloaderParams.dsPIC33_SWChannelInfo_memory_location;
             return MemoryLocation;
         }
 
@@ -95,18 +95,18 @@ namespace FeedbackDataLib
             {
                 if (ModuleType == enumModuleType.cNeuromaster)
                 {
-                    ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24_Bootloader_Params.PIC24_NM_BOOTLOADER_UUID_ADDRESS, SerialNumber);
+                    ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24BootloaderParams.PIC24_NM_BOOTLOADER_UUID_ADDRESS, SerialNumber);
                 }
                 else
                 {
                     if (isDSPIC(ModuleType))
                     {
                         //Todo Überschreibt File!!!!
-                        ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24_Bootloader_Params.dsPIC33_BOOTLOADER_UUID_ADDRESS, SerialNumber);
+                        ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24BootloaderParams.dsPIC33_BOOTLOADER_UUID_ADDRESS, SerialNumber);
                     }
                     else
                     {
-                        ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24_Bootloader_Params.PIC24_BOOTLOADER_UUID_ADDRESS, SerialNumber);
+                        ret = Copy_hexFile_AddSerial(HexFilePat_Base, HexFilePath_Target, CPIC24BootloaderParams.PIC24_BOOTLOADER_UUID_ADDRESS, SerialNumber);
                     }
                 }
             }
@@ -228,12 +228,12 @@ namespace FeedbackDataLib
         public string Get_SerialNumber_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
             if (ModuleType == enumModuleType.cNeuromaster)
-                return Read_string_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_NM_BOOTLOADER_UUID_ADDRESS, 16);
+                return Read_string_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_NM_BOOTLOADER_UUID_ADDRESS, 16);
 
             if (isDSPIC(ModuleType))
-                return Read_string_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.dsPIC33_BOOTLOADER_UUID_ADDRESS, 16);
+                return Read_string_from_hexFile(readHexfilePath, CPIC24BootloaderParams.dsPIC33_BOOTLOADER_UUID_ADDRESS, 16);
             else
-                return Read_string_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_BOOTLOADER_UUID_ADDRESS, 16);
+                return Read_string_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_BOOTLOADER_UUID_ADDRESS, 16);
         }
 
         /// <summary>Gets the hw version from hexadecimal file.</summary>
@@ -252,7 +252,7 @@ namespace FeedbackDataLib
             List<byte> b;
             if (ModuleType == enumModuleType.cNeuromaster)
             {
-                b = Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_NM_BOOTLOADER_HW_ADDRESS, 2);
+                b = Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_NM_BOOTLOADER_HW_ADDRESS, 2);
 
                 if (b != null)
                 {
@@ -265,9 +265,9 @@ namespace FeedbackDataLib
             else
             {
                 if (isDSPIC(ModuleType))
-                    b = Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.dsPIC33_BOOTLOADER_HW_ADDRESS, 2);
+                    b = Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.dsPIC33_BOOTLOADER_HW_ADDRESS, 2);
                 else
-                    b = Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_BOOTLOADER_HW_ADDRESS, 2);
+                    b = Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_BOOTLOADER_HW_ADDRESS, 2);
 
                 if (b != null)
                 {
@@ -285,7 +285,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public static string Get_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
-            return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.BOOTLOADER_SW_ADDRESS, 2));
+            return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.BOOTLOADER_SW_ADDRESS, 2));
         }
 
         /// <summary>Gets the bootloader sw version from hexadecimal file.</summary>
@@ -295,12 +295,12 @@ namespace FeedbackDataLib
         public static string Get_Bootloader_SWVersion_from_hexFile(string readHexfilePath, enumModuleType ModuleType)
         {
             if (ModuleType == enumModuleType.cNeuromaster)
-                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_NM_BOOTLOADER_BL_ADDRESS, 2));
+                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_NM_BOOTLOADER_BL_ADDRESS, 2));
 
             if (isDSPIC(ModuleType))
-                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.dsPIC33_BOOTLOADER_BL_ADDRESS, 2));
+                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.dsPIC33_BOOTLOADER_BL_ADDRESS, 2));
             else
-                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24_Bootloader_Params.PIC24_BOOTLOADER_BL_ADDRESS, 2));
+                return Decode_SWVersion(Read_byte_from_hexFile(readHexfilePath, CPIC24BootloaderParams.PIC24_BOOTLOADER_BL_ADDRESS, 2));
         }
 
         /// <summary>Decodes the sw version</summary>
@@ -480,7 +480,7 @@ namespace FeedbackDataLib
         public static void Make_Combined_Hex_File_with_new_ChannelInfo(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
         {
             //Get correct Memory location
-            uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
+            uint MemoryLocation = CPIC24IPE.Get_Memory_Location_of_ChannelInfo(ModuleType);
 
             CPIC24_IntelHex ih_module = new();
             ih_module.OpenHexFile(Path_Original_combined_hex_file);
@@ -500,7 +500,7 @@ namespace FeedbackDataLib
         public static void Make_Combined_Hex_File_with_SerialNumber(string Path_Original_combined_hex_file, string Path_new_combined_hex_file, CSWChannelInfo[] ChannelInfo, enumModuleType ModuleType)
         {
             //Get correct Memory location
-            uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
+            uint MemoryLocation = CPIC24IPE.Get_Memory_Location_of_ChannelInfo(ModuleType);
 
             CPIC24_IntelHex ih_module = new();
             ih_module.OpenHexFile(Path_Original_combined_hex_file);
@@ -530,7 +530,7 @@ namespace FeedbackDataLib
             CPIC24_IntelHex ih_module = new();
 
             //Get correct Memory location
-            uint MemoryLocation = CIPE_Neuromodul_PIC24.Get_Memory_Location_of_ChannelInfo(ModuleType);
+            uint MemoryLocation = CPIC24IPE.Get_Memory_Location_of_ChannelInfo(ModuleType);
 
 
             ih_module.OpenHexFile(Path_Original_combined_hex_file);

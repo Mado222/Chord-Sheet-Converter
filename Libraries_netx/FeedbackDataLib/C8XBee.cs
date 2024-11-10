@@ -35,7 +35,7 @@ namespace FeedbackDataLib
     /// Basic Component for Insight Instruments "Neuromaster" with XBee Connection
     /// </summary>
     /// <remarks></remarks>
-    public class C8KanalReceiverV2_XBee : C8KanalReceiverV2_CommBase, IDisposable
+    public class C8XBee : C8CommBase, IDisposable
     {
 
         /// <summary>
@@ -76,17 +76,17 @@ namespace FeedbackDataLib
         /// <summary>
         /// Base Constructor
         /// </summary>
-        public C8KanalReceiverV2_XBee()
+        public C8XBee()
         {
             //Base constructor must be empty that the derived class does not call 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8KanalReceiverV2_XBee" /> class.
+        /// Initializes a new instance of the <see cref="C8XBee" /> class.
         /// </summary>
         /// <param name="ComPortName">Com Port Name (COM1, COM2, ..) in case of Serial Port Connection</param>
         /// <remarks></remarks>
-        public C8KanalReceiverV2_XBee(string ComPortName)
+        public C8XBee(string ComPortName)
         {
             XBeeConnection = new CXBeeConnection(XBee_BaudRate_LocalDevice,
                             XBee_BaudRate_RemoteDevice,
@@ -100,10 +100,10 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8KanalReceiverV2_XBee" /> class.
+        /// Initializes a new instance of the <see cref="C8XBee" /> class.
         /// </summary>
         /// <param name="SerialPort">Serial Port</param>
-        public C8KanalReceiverV2_XBee(ISerialPort SerialPort)
+        public C8XBee(ISerialPort SerialPort)
         {
             XBeeConnection = new CXBeeConnection(SerialPort, XBee_BaudRate_LocalDevice,
                             XBee_BaudRate_RemoteDevice,
@@ -115,7 +115,7 @@ namespace FeedbackDataLib
         }
 
         // Optional: Destructor to release unmanaged resources if Dispose is not called
-        ~C8KanalReceiverV2_XBee()
+        ~C8XBee()
         {
             Close();
         }
@@ -133,7 +133,7 @@ namespace FeedbackDataLib
 
             XBeeConnection.Handshake = System.IO.Ports.Handshake.RequestToSend;
 
-            RS232Receiver = new CRS232Receiver2(C8KanalReceiverCommandCodes.cCommandChannelNo, XBeeConnection);
+            RS232Receiver = new CRS232Receiver(C8KanalReceiverCommandCodes.cCommandChannelNo, XBeeConnection);
             base.C8KanalReceiverV2_Construct(); //calls CDataReceiver2_Construct();
             RS232Receiver.AliveSequToReturn = C8KanalReceiverCommandCodes.AliveSequToReturn();
             RS232Receiver.AliveSequToSend = C8KanalReceiverCommandCodes.AliveSequToSend();

@@ -8,11 +8,34 @@ using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib
 {
-    public partial class C8KanalReceiverV2_CommBase
+    public partial class C8CommBase
     {
-        private EnNeuromasterCommand RunningCommand { get; set; }
-        private DateTime RunningEnd;
+        // Define a custom struct or class to hold input data and TCS
+        public class CommandRequest
+        {
+            public EnNeuromasterCommand Command { get; set; }
+            public byte[] SendData { get; set; }
+            public byte[] ResponseData { get; set; } = Array.Empty<byte>();
+            public bool Success { get; set; } = false;
+            public byte HWcn { get; set; } = 0xff;
+            public DateTime RunningEnd { get; set; } = DateTime.MinValue;
+
+            public CommandRequest(EnNeuromasterCommand command, byte[] sendData)
+            {
+                Command = command;
+                SendData = sendData;
+            }
+
+            public CommandRequest()
+            {
+                Command = EnNeuromasterCommand.None;
+                SendData = Array.Empty<byte>();
+            }
+        }
+
+
         private readonly TimeSpan TsCommandTimeout = TimeSpan.FromSeconds(WaitCommandResponseTimeOutMs / 1000);
+        private CommandRequest RunningCommand = new(EnNeuromasterCommand.None, Array.Empty<byte>());
 
         /// <summary>
         /// Time when next Alive Signal is due
@@ -21,29 +44,16 @@ namespace FeedbackDataLib
 
         private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, AliveSignalToSendIntervMs, 0);
 
-        // Define a custom struct or class to hold input data and TCS
-        public class CommandRequest(EnNeuromasterCommand command, byte[] sendData)
-        {
-            public EnNeuromasterCommand Command { get; set; } = command;
-            public byte[] SendData { get; set; } = sendData;
-        }
 
-        private readonly ConcurrentQueue<CommandRequest> _commandQueue = new();
+        private readonly CFifoConcurrentQueue<CommandRequest> _sendingQueue = new();
+        public CFifoConcurrentQueue<CommandRequest> SendingQueue => _sendingQueue;
 
-        public class CommandProcessedEventArgs(EnNeuromasterCommand command,
-            byte[] responseData,
-            bool success,
-            byte hWcn = 0xff) : EventArgs
-        {
-            public EnNeuromasterCommand Command { get; } = command;
-            public byte[] ResponseData { get; } = responseData;
-            public bool Success { get; set; } = success;
+        
+        private readonly CFifoConcurrentQueue<CommandRequest> _runningCommandsQueue = new();
+        private CFifoConcurrentQueue<CommandRequest> RunningCommandsQueue => _runningCommandsQueue;
 
-            public byte HWcn { get; } = hWcn;
-        }
-
-        public event EventHandler<CommandProcessedEventArgs>? CommandProcessed;
-        protected virtual void OnCommandProcessed(CommandProcessedEventArgs e)
+        public event EventHandler<CommandRequest>? CommandProcessed;
+        protected virtual void OnCommandProcessed(CommandRequest e)
         {
             CommandProcessed?.Invoke(this, e);
         }
@@ -51,7 +61,7 @@ namespace FeedbackDataLib
         private void SendCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)
         {
             // Create and enqueue a new CommandRequest with the built command data
-            _commandQueue.Enqueue(new CommandRequest(neuromasterCommand, BuildNMCommand(neuromasterCommand, additionalData)));
+            _sendingQueue.Push(new CommandRequest(neuromasterCommand, BuildNMCommand(neuromasterCommand, additionalData)));
         }
 
         protected byte[] BuildNMCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)
@@ -81,54 +91,6 @@ namespace FeedbackDataLib
         }
 
 
-        private void StateMachine()
-        {
-            if (RunningCommand == EnNeuromasterCommand.None)
-            {
-                if (!_commandQueue.IsEmpty)
-                {
-                    if (_commandQueue.TryDequeue(out var commandRequest))
-                    {
-                        RunningCommand = commandRequest.Command;
-                        //Prepare sending of the command
-                        RS232Receiver.SendingQueue.Push(commandRequest.SendData);
-                        RunningEnd = DateTime.Now + TsCommandTimeout;
-                    }
-                }
-            }
-            else
-            {
-                //Any data coming in?
-                if (!RS232Receiver.CommandResponseQueue.IsEmpty)
-                {
-                    //Correct response?
-                    var pk = RS232Receiver.CommandResponseQueue.Peek();
-                    if (pk != null && pk[0] == (byte)RunningCommand)
-                    {
-                        //Yes, get it
-                        byte[]? res = RS232Receiver.CommandResponseQueue.Pop();
-                        if (res != null)
-                        {
-                            OnGetDeviceCongigResponse();
-                            EvalCommunicationToPC(RunningCommand, res[1..], true));
-                        }
-                        else
-                        {
-                            OnCommandProcessed(new CommandProcessedEventArgs(RunningCommand, Array.Empty<byte>(), false));
-                        }
-                        RunningCommand = EnNeuromasterCommand.None;
-                    }
-                }
-                if (DateTime.Now > RunningEnd)
-                {
-                    //Timeout
-                    _ = RS232Receiver.CommandResponseQueue.Pop();
-                    OnCommandProcessed(new CommandProcessedEventArgs(RunningCommand, Array.Empty<byte>(), false));
-                    RunningCommand = EnNeuromasterCommand.None;
-                }
-            }
-        }
-
         #region DistributorThread
         /// <summary>
         /// This thread continously gets the data from the RS232ReceiverThread and raises OnDataReadyComm
@@ -146,38 +108,66 @@ namespace FeedbackDataLib
 
                 try
                 {
-                    //Command to PC
+                    //Any data coming in?
+                    if (!RS232Receiver.CommandResponseQueue.IsEmpty)
+                    {
+                        //Correct response?
+                        var pk = RS232Receiver.CommandResponseQueue.Peek();
+                        if (pk != null && pk[0] == (byte)RunningCommand.Command)
+                        {
+                            //Yes, get it
+                            byte[]? res = RS232Receiver.CommandResponseQueue.Pop();
+                            if (res != null)
+                            {
+                                RunningCommand.ResponseData = res;
+                                RunningCommand.Success  = true;
+                                EvalCommandResponse(RunningCommand);
+                            }
+                            else
+                            {
+                                OnCommandProcessed(new CommandRequest());
+                            }
+                            RunningCommand = new();
+                        }
+                    }
+
+                    if (DateTime.Now > RunningCommand.RunningEnd)
+                    {
+                        //Timeout
+                        _ = RS232Receiver.CommandResponseQueue.Pop();
+                        RunningCommand = new CommandRequest();
+                        OnCommandProcessed(RunningCommand);
+                    }
+
+                    //Incoming: Command to PC 
                     if (!RS232Receiver.CommandToPCQueue.IsEmpty)
                     {
                         //Fire event
                         var buf = RS232Receiver.CommandToPCQueue.Pop();
                         if (buf != null)
-                        {
-                            EvalCommunicationToPC(buf: buf);
-                        }
+                            EvalCommunicationToPC(buf);
                     }
 
 
-                    // Distribute measurement data
+                    // Incoming: Distribute measurement data 
                     if (!RS232Receiver.MeasurementDataQueue.IsEmpty)
                     {
                         CDataIn[]? buffer = RS232Receiver.MeasurementDataQueue.PopAll();
                         if (buffer?.Length > 0)
                         {
-                            EvalMeasurmentData(new List<CDataIn>(buffer));
+                            EvalMeasurementData(new List<CDataIn>(buffer));
                         }
                     }
 
-                    // Handle outgoing data
-                    if (!RS232Receiver.SendingQueue.IsEmpty)
+                    // Outgoing: Send data 
+                    if (!SendingQueue.IsEmpty)
                     {
-                        byte[]? bout = RS232Receiver.SendingQueue.Pop();
-                        if 
-
-                        if (bout is not null && bout.Length > 0)
+                        CommandRequest? cr = SendingQueue.Pop();
+                        if (cr is not null && cr.SendData.Length > 0)
                         {
-                            //DataSent = false;
-                            RS232Receiver.Seriell32.Write(bout, 0, bout.Length); // Adjust cancellation token as needed
+                            RunningCommand = cr;
+                            RS232Receiver.Seriell32.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
+                            RunningCommand.RunningEnd = DateTime.Now + TsCommandTimeout;
                         }
                     }
 
@@ -185,7 +175,8 @@ namespace FeedbackDataLib
                     // Send "alive" signal periodically
                     if (Now > NextAliveSignalToSend)
                     {
-                        RS232Receiver.SendingQueue.Push(C8KanalReceiverCommandCodes.AliveSequToSend());
+                        CommandRequest cr = new CommandRequest(EnNeuromasterCommand.DeviceAlive, C8KanalReceiverCommandCodes.AliveSequToSend());
+                        SendingQueue.Push(cr);
                         NextAliveSignalToSend = Now + AliveSignalToSendInterv;
                     }
 
@@ -193,8 +184,6 @@ namespace FeedbackDataLib
                     {
                         await Task.Delay(10, cancellationToken); // Avoid high CPU usage
                     }
-
-                    StateMachine(); //Handles RS232Receiver.CommandResponseQueue
                 }
                 catch (Exception ex)
                 {
@@ -209,11 +198,11 @@ namespace FeedbackDataLib
         }
 
 
-        protected virtual void EvalCommunicationToPC(EnNeuromasterCommand RunningCommand, byte[] commandResponse, bool success)
+        protected virtual void EvalCommandResponse(CommandRequest rc)
         {
             //Prepare message text for display
             ColoredText msg;
-            if (success)
+            if (rc.Success)
             {
                 msg = new(RunningCommand.ToString() + ": " + "OK", Color.Green);
             }
@@ -222,40 +211,40 @@ namespace FeedbackDataLib
                 msg = new(RunningCommand.ToString() + ": " + "Failed", Color.Red);
             }
 
-            switch (RunningCommand)
+            switch (rc.Command)
             {
                 case EnNeuromasterCommand.SetConnectionClosed:
-                    OnSetConnectionClosedResponse(success, msg);
+                    OnSetConnectionClosedResponse(rc.Success, msg);
                     break;
 
                 case EnNeuromasterCommand.GetFirmwareVersion:
-                    if (success)
+                    if (rc.Success)
                     {
                         CNMFirmwareVersion NMFirmwareVersion = new();
-                        NMFirmwareVersion.UpdateFromByteArray(commandResponse, 0);
+                        NMFirmwareVersion.UpdateFromByteArray(rc.ResponseData, 0);
                         OnGetFirmwareVersionResponse(NMFirmwareVersion, msg);
                     }
                     else
                         OnGetFirmwareVersionResponse(null, msg);
                     break;
                 case EnNeuromasterCommand.ScanModules:
-                    OnScanModulesResponse(success, msg);
+                    OnScanModulesResponse(rc.Success, msg);
                     break;
 
                 case EnNeuromasterCommand.GetModuleConfig:
-                    if (success)
+                    if (rc.Success)
                     {
                         //Collect data of all HW channels
                         cntDeviceConfigs--;
-                        if (commandResponse != null)
-                            allDeviceConfigData.AddRange(commandResponse);
+                        if (rc.ResponseData != null)
+                            allDeviceConfigData.AddRange(rc.ResponseData);
 
                         if (cntDeviceConfigs == 0)
                         {
                             //All data in
                             try
                             {
-                                Device ??= new C8KanalDevice2();
+                                Device ??= new C8Device();
                                 Device.UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
                                 Device.Calculate_SkalMax_SkalMin(); // Calculate max and mins
                                 OnGetDeviceConfigResponse(Device.ModuleInfos, msg);
@@ -264,8 +253,8 @@ namespace FeedbackDataLib
                             catch (Exception ex)
                             {
                                 Debug.WriteLine("C8KanalReceiverV2_CommBase_#01: " + ex.Message);
-                                success = false;
-                                OnGetDeviceConfigResponse(null, msg);
+                                rc.Success = false;
+                                OnGetDeviceConfigResponse([], msg);
                                 Device = null;
                             }
                         }
@@ -273,13 +262,13 @@ namespace FeedbackDataLib
                     break;
 
                 case EnNeuromasterCommand.SetModuleConfig:
-                    if (success)
+                    if (rc.Success)
                     {
 
                     }
                     break;
                 case EnNeuromasterCommand.SetConfigAllModules:
-                    if (success)
+                    if (rc.Success)
                     {
                     }
                     break;
@@ -288,19 +277,19 @@ namespace FeedbackDataLib
                         bool UpdateModuleInfo = false;
                         byte HWcnGetModuleInfoSpecific = 0xff;
 
-                        ModuleCommand((byte)HWcn, (byte)EnNeuromasterCommand.Module_GetSpecific, [(byte)HWcn], 17);
+                        ModuleCommand((byte)HWcn, (byte)EnNeuromasterCommand.ModuleInfoSpecific, [(byte)HWcn], 17);
                         this.UpdateModuleInfo = UpdateModuleInfo;
                         HWcnGetModuleInfoSpecific = (byte)HWcn;
                     }
                     break;
 
-                case EnNeuromasterCommand.Module_GetSpecific:
-                    if (success)
+                case EnNeuromasterCommand.WrRdModuleCommand:
+                    if (rc.Success)
                     {
                         try
                         {
                             byte[] btin = new byte[CModuleBase.ModuleSpecific_sizeof];
-                            Buffer.BlockCopy(commandResponse, 1, btin, 0, CModuleBase.ModuleSpecific_sizeof);
+                            Buffer.BlockCopy(rc.ResponseData, 1, btin, 0, CModuleBase.ModuleSpecific_sizeof);
                             //12.11.2020 Check CRC
                             string s = "GetModuleInfoSpecific: ";
                             for (int i = 0; i < btin.Length; i++)
@@ -326,16 +315,16 @@ namespace FeedbackDataLib
                     break;
 
                 case EnNeuromasterCommand.GetClock:
-                    if (success)
+                    if (rc.Success)
                     {
-                        DeviceClock.UpdateFrom_ByteArray(commandResponse, 0);
+                        DeviceClock.UpdateFrom_ByteArray(rc.ResponseData, 0);
                         OnGetClockResponse(DeviceClock.Dt, msg);
                     }
                     else
                         OnGetClockResponse(null, msg);
                     break;
                 case EnNeuromasterCommand.SetClock:
-                    OnSetClockResponse(success, msg);
+                    OnSetClockResponse(rc.Success, msg);
                     break;
             }
         }
@@ -346,7 +335,7 @@ namespace FeedbackDataLib
         /// NM is communicating back to PC
         /// </summary>
         /// <param name="buf">The buf.</param>
-        protected virtual void EvalCommandResponse(byte[] buf)
+        protected virtual void EvalCommunicationToPC(byte[] buf)
         {
             switch (buf[1])
             {
@@ -396,7 +385,7 @@ namespace FeedbackDataLib
         /// <remarks>
         /// Only forwards data if the first Sync Value is received
         /// </remarks>
-        private void EvalMeasurmentData(List<CDataIn> DataIn)
+        private void EvalMeasurementData(List<CDataIn> DataIn)
         {
             if (Device is null || DataIn == null) return;
 

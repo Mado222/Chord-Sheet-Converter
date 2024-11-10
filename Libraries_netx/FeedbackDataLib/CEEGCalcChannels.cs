@@ -1,4 +1,4 @@
-﻿using static FeedbackDataLib.CEEG_Spectrum;
+﻿using static FeedbackDataLib.CEEGSpectrum;
 
 namespace FeedbackDataLib
 {

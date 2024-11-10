@@ -277,7 +277,7 @@ namespace FeedbackDataLib
                 ((ushort)SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleMultiSCL)
 
             {
-                if (d < C8KanalReceiverV2_CommBase.minSCLhexValue) d = C8KanalReceiverV2_CommBase.minSCLhexValue;
+                if (d < C8CommBase.minSCLhexValue) d = C8CommBase.minSCLhexValue;
 
                 //Calculate reciprocal
                 if (d < 0) d = 0;       //There are no negative values in SCL
@@ -385,7 +385,7 @@ namespace FeedbackDataLib
 
                     //For relative time
                     //Number of received sync-Packages (1s)+DataIn.SyncVal
-                    int ms_Since_ChannelStarted = C8KanalReceiverV2_CommBase.SyncInterval_ms * SynPackagesreceived + DataIn.SyncVal;
+                    int ms_Since_ChannelStarted = C8CommBase.SyncInterval_ms * SynPackagesreceived + DataIn.SyncVal;
                     SWChan_ts_Since_ChannelStarted = new TimeSpan(0, 0, 0, 0, ms_Since_ChannelStarted);
 
                     DataIn.Resync = true;

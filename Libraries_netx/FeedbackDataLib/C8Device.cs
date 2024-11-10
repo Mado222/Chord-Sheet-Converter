@@ -3,7 +3,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public class C8KanalDevice2 : ICloneable
+    public class C8Device : ICloneable
     {
         private List<CModuleBase> moduleInfos = [];
 
@@ -23,9 +23,9 @@ namespace FeedbackDataLib
         public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
 #pragma warning restore CS0067
 
-        public C8KanalDevice2()
+        public C8Device()
         {
-            for (int i = 0; i < C8KanalReceiverV2_CommBase.max_num_HWChannels; i++)
+            for (int i = 0; i < C8CommBase.max_num_HWChannels; i++)
             {
                 moduleInfos.Add(new CModuleBase());
             }
@@ -148,7 +148,7 @@ namespace FeedbackDataLib
         /// </returns>
         public object Clone()
         {
-            C8KanalDevice2 d = (C8KanalDevice2)MemberwiseClone();
+            C8Device d = (C8Device)MemberwiseClone();
             d.ModuleInfos = [];
             for (int i = 0; i < ModuleInfos.Count; i++)
             {

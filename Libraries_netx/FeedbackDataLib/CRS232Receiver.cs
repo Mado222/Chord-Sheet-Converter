@@ -84,7 +84,7 @@ namespace FeedbackDataLib
     /// Removed ConnectionBroken
     /// </summary>
 
-    public partial class CRS232Receiver2 : IDisposable
+    public partial class CRS232Receiver : IDisposable
     {
 
         private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
@@ -182,13 +182,13 @@ namespace FeedbackDataLib
         /// </summary>
         public byte[] ConnectSequToReturn = [];
 
-        /// <summary>Finalizes an instance of the <see cref="CRS232Receiver2" /> class.</summary>
-        ~CRS232Receiver2()
+        /// <summary>Finalizes an instance of the <see cref="CRS232Receiver" /> class.</summary>
+        ~CRS232Receiver()
         {
             CloseAll();
         }
 
-        public CRS232Receiver2(byte CommandChannelNo, ISerialPort? SerialPort)
+        public CRS232Receiver(byte CommandChannelNo, ISerialPort? SerialPort)
         {
             if (SerialPort == null) return;
             CRS232Receiver_Constructor(CommandChannelNo, SerialPort);

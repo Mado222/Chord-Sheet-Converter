@@ -6,7 +6,7 @@ namespace FeedbackDataLib
     /// <summary>
     /// Packs all C8KanalReceiverV2 with differnt Connections together
     /// </summary>
-    public class C8KanalReceiverV2 : IDisposable
+    public class C8Receiver : IDisposable
     {
         #region declarations
         /// <summary>
@@ -46,8 +46,8 @@ namespace FeedbackDataLib
         #endregion
 
         #region properties
-        private C8KanalReceiverV2_RS232? _8KanalReceiverV2_RS232;
-        private C8KanalReceiverV2_XBee? _8KanalReceiverV2_XBee;
+        private C8RS232? _8KanalReceiverV2_RS232;
+        private C8XBee? _8KanalReceiverV2_XBee;
         //private C8KanalReceiverV2_SDCard? _8KanalReceiverV2_SDCard;
         //private C8KanalReceiverV2_CommBase? _8KanalReceiverV2_SDCard;
 
@@ -186,7 +186,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// THE connection to the Neuromaster
         /// </summary>
-        public C8KanalReceiverV2_CommBase? Connection
+        public C8CommBase? Connection
         {
             get
             {
@@ -287,9 +287,9 @@ namespace FeedbackDataLib
         #endregion
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="C8KanalReceiverV2"/> class.
+        /// Finalizes an instance of the <see cref="C8Receiver"/> class.
         /// </summary>
-        ~C8KanalReceiverV2()
+        ~C8Receiver()
         {
             //Make sure that USB monitoring and all other stuff is down
             Dispose();
@@ -382,7 +382,7 @@ namespace FeedbackDataLib
                     //First look for RS232 because it is faster
                     //Open the related Port
                     ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
-                    _8KanalReceiverV2_RS232 ??= new C8KanalReceiverV2_RS232(FTDI_D2xx);
+                    _8KanalReceiverV2_RS232 ??= new C8RS232(FTDI_D2xx);
 
                     //FTDI_D2xx.BaudRate = C8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;
                     FTDI_D2xx.BaudRate = _8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;     //4.2.2016
@@ -402,7 +402,7 @@ namespace FeedbackDataLib
                             };
 
 
-                            _8KanalReceiverV2_XBee ??= new C8KanalReceiverV2_XBee(FTDI_D2xx_temp);
+                            _8KanalReceiverV2_XBee ??= new C8XBee(FTDI_D2xx_temp);
 
                             if (_8KanalReceiverV2_XBee is not null && _8KanalReceiverV2_XBee.RS232Receiver is not null)
                             {
@@ -420,7 +420,7 @@ namespace FeedbackDataLib
                             _8KanalReceiverV2_RS232.Close();
                             FTDI_D2xx.IndexOfDeviceToOpen = idxXBEeeConnection;
                             ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                            _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(FTDI_D2xx);
+                            _8KanalReceiverV2_XBee = new C8XBee(FTDI_D2xx);
                             ret = EnumConnectionResult.Connected_via_XBee;
                         }
                     }
@@ -432,7 +432,7 @@ namespace FeedbackDataLib
                     //We assume that it is an old USB/XBee dongle
                     FTDI_D2xx.IndexOfDeviceToOpen = 0;
                     ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                    _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(FTDI_D2xx);
+                    _8KanalReceiverV2_XBee = new C8XBee(FTDI_D2xx);
                     ret = EnumConnectionResult.Connected_via_XBee;
                 }
 
@@ -465,7 +465,7 @@ namespace FeedbackDataLib
                         //XBee Device
                         com_XBEeeConnection = FTDI_D2xx.RelatedCom(0).ToString();
                         ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                        _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(com_XBEeeConnection);
+                        _8KanalReceiverV2_XBee = new C8XBee(com_XBEeeConnection);
                         ret = EnumConnectionResult.Connected_via_XBee;
                     }
                 }
@@ -493,7 +493,7 @@ namespace FeedbackDataLib
                         if (com_RS232Connection != "")
                         {
                             ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
-                            _8KanalReceiverV2_RS232 = new C8KanalReceiverV2_RS232(com_RS232Connection);
+                            _8KanalReceiverV2_RS232 = new C8RS232(com_RS232Connection);
 
                             if (_8KanalReceiverV2_RS232 != null && _8KanalReceiverV2_RS232.RS232Receiver != null &&
                                 _8KanalReceiverV2_RS232.RS232Receiver.Check4Neuromaster_RS232())
@@ -504,7 +504,7 @@ namespace FeedbackDataLib
 
                                 //Make sure that XBEE is in Sleep
                                 CFTDI_D2xx FTDI_D2xx_temp = new();
-                                _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(com_XBEeeConnection);
+                                _8KanalReceiverV2_XBee = new C8XBee(com_XBEeeConnection);
                                 if (_8KanalReceiverV2_XBee != null && _8KanalReceiverV2_XBee.RS232Receiver != null)
                                 {
                                     _8KanalReceiverV2_XBee.RS232Receiver.Send_to_Sleep();
@@ -519,7 +519,7 @@ namespace FeedbackDataLib
                             //It must be XBee ... leave Connection to the calling routine
                             _8KanalReceiverV2_RS232?.Close();
                             ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                            _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(com_XBEeeConnection);
+                            _8KanalReceiverV2_XBee = new C8XBee(com_XBEeeConnection);
                             ret = EnumConnectionResult.Connected_via_XBee;
                         }
                     }
@@ -543,7 +543,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public EnumConnectionResult Init_via_USB_or_XBEE()
         {
-            List<string>? coms_XBee = CGetComPorts.GetActiveComPorts(C8KanalReceiverV2_XBee.DriverSearchName);
+            List<string>? coms_XBee = CGetComPorts.GetActiveComPorts(C8XBee.DriverSearchName);
             List<string> coms_USBCable = [];
             _ConnectionStatus = EnumConnectionStatus.Not_Connected; //Egal auf welchen Wert nur nicht USB_xxx
 
@@ -568,11 +568,11 @@ namespace FeedbackDataLib
             if (coms_USBCable.Count == 1)
             {
                 //Connection via USBCable possible
-                _8KanalReceiverV2_RS232 = new C8KanalReceiverV2_RS232(coms_USBCable[0]);
+                _8KanalReceiverV2_RS232 = new C8RS232(coms_USBCable[0]);
                 ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
 
                 //Get more information about the COM Port
-                List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8KanalReceiverV2_RS232.DriverSearchName);
+                List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8RS232.DriverSearchName);
                 if ((ci != null) && (ci.Count >= 1))
                 {
                     foreach (CComPortInfo c in ci)
@@ -591,11 +591,11 @@ namespace FeedbackDataLib
                 //Connection via XBee possible
                 if (coms_XBee != null && coms_XBee.Count > 0)
                 {
-                    _8KanalReceiverV2_XBee = new C8KanalReceiverV2_XBee(coms_XBee[0]);
+                    _8KanalReceiverV2_XBee = new C8XBee(coms_XBee[0]);
                     ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
 
                     //Get more information about the COM Port
-                    List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8KanalReceiverV2_XBee.DriverSearchName);
+                    List<CComPortInfo> ci = CGetComPorts.GetComPortInfo(C8XBee.DriverSearchName);
                     if ((ci != null) && (ci.Count >= 1))
                     {
                         foreach (CComPortInfo c in ci)

@@ -5,7 +5,7 @@ namespace FeedbackDataLib
     public class CEEGProcessor
     {
         public CEEGCalcChannels EEGSWChannels;
-        private CEEG_Spectrum _CEEG_Spectrum;
+        private CEEGSpectrum _CEEG_Spectrum;
 
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace FeedbackDataLib
         public CEEGProcessor(CSWChannel rawChannel, CEEGCalcChannels eegChannels)
         {
             EEGSWChannels = eegChannels;
-            _CEEG_Spectrum = new CEEG_Spectrum(eegChannels.EEG_FrequencyRanges);
+            _CEEG_Spectrum = new CEEGSpectrum(eegChannels.EEG_FrequencyRanges);
             this.rawChannel = rawChannel;
             if (rawChannel != null)
             {

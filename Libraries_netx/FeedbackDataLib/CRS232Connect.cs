@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace FeedbackDataLib
 {
 
-    public partial class CRS232Receiver2
+    public partial class CRS232Receiver
     {
         private CancellationTokenSource? cancellationTokenConnector;
 

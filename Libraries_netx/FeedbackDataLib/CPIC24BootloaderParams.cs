@@ -1,4 +1,4 @@
-public class CPIC24_Bootloader_Params
+public class CPIC24BootloaderParams
 {
     //ICD3 Command Line Params
 

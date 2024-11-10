@@ -42,7 +42,7 @@ namespace FeedbackDataLib_GUI
 
                 for (int i = 0; i < DefaultVals.Length; i++)
                 {
-                    DefaultVals[i] = new Scaling_Values[C8KanalReceiverV2_CommBase.maxNumSWChannels];
+                    DefaultVals[i] = new Scaling_Values[C8CommBase.maxNumSWChannels];
 
                     for (int j = 0; j < DefaultVals[i].Length; j++)
                     {
