@@ -4,10 +4,11 @@ using System.Xml.Serialization;
 using WindControlLib;
 using XBeeLib;
 using System.Diagnostics;
+using BMTCommunicationLib;
 
-namespace BMTCommunicationLib
+namespace FeedbackDataLib
 {
-    public class CXBeeConnection : ISerialPort, IDisposable
+    public class CCommXBee : C8CommBase, ISerialPort, IDisposable
     {
 
         //RSSI range: 0x17-0x5C (XBee)
@@ -73,18 +74,18 @@ namespace BMTCommunicationLib
 
         private CHighPerformanceDateTime hp_Timer = new();
 
-        public CXBeeConnection()
+        public CCommXBee()
         {
             //Just to use some functions
         }
 
-        public CXBeeConnection(ISerialPort SerialPort, int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public CCommXBee(ISerialPort SerialPort, int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = SerialPort;
             InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
         }
 
-        public CXBeeConnection(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public CCommXBee(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = new CSerialPortWrapper();
             InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
@@ -242,7 +243,7 @@ namespace BMTCommunicationLib
                         while ((cnt != 0) && !PairingSuceeded)
                         {
                             //24.6.2014 try it more than once, because after switch off sometimes the first communication fails
-                            PairingSuceeded = Check4Neuromaster_XBEE();
+                            PairingSuceeded = Check4Neuromaster(_XBeeSeries1!.Seriell32);
                             cnt--;
                         }
                     }
@@ -294,12 +295,13 @@ namespace BMTCommunicationLib
         /// <summary>
         /// //Local is assumed to be configured and paired, test it
         /// </summary>
-        private bool Check4Neuromaster_XBEE()
-        {
-            //Local device seems to be configured and paired, test it
-            //After switching it on the device is not in Energy saving mode
-            return CNeuromaster.Check4Neuromaster(this, _ConnectSequToSend, _ConnectToReturn, _CommandChannelNo);
-        }
+        //private bool Check4Neuromaster_XBEE()
+        //{
+        //    //Local device seems to be configured and paired, test it
+        //    //After switching it on the device is not in Energy saving mode
+        //    return Check4Neuromaster(this, _ConnectSequToSend, _ConnectToReturn, _CommandChannelNo);
+
+        //}
 
         public bool InitXBee()
         {

@@ -39,8 +39,6 @@ namespace BMTCommunicationLib
         bool RtsEnable { get; set; }
         bool DsrHolding { get; }
         DateTime Now(EnumTimQueryStatus TimQueryStatus);
-
-        
     }
 
 

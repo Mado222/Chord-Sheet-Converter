@@ -1,7 +1,7 @@
 ﻿using FeedbackDataLib.Modules;
 using System.Collections.Concurrent;
 using WindControlLib;
-using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
+
 
 namespace FeedbackDataLib
 {
@@ -27,24 +27,24 @@ namespace FeedbackDataLib
         /// 0xFFFF ... input amplifier is pos saturated
         /// if output stage is saturated, 0x0001 and 0xFFFE
         /// </remarks>
-        protected virtual void OnDataReadyResponse(List<CDataIn>? DataRead)
+        protected virtual void OnDataReadyResponse(List<CDataIn> DataRead)
         {
-            if (DataRead != null)
-                DataReadyResponse?.Invoke(this, DataRead);
+            var handler = DataReadyResponse;
+            handler?.Invoke(this, DataRead);
         }
 
         #region Events_related_to_Commands
-        public event EventHandler<(CNMFirmwareVersion?, ColoredText msg)>? GetFirmwareVersionResponse;
+        public event EventHandler<(CNMFirmwareVersion? FWVersion, ColoredText msg)>? GetFirmwareVersionResponse;
         protected virtual void OnGetFirmwareVersionResponse(CNMFirmwareVersion? fw, ColoredText msg)
         {
             var handler = GetFirmwareVersionResponse;
             handler?.Invoke(this, (fw, msg));
         }
 
-        public event EventHandler<(List<CModuleBase>? cmb, ColoredText msg)>? GetDeviceCongigResponse;
+        public event EventHandler<(List<CModuleBase>? cmb, ColoredText msg)>? GetDeviceConfigResponse;
         protected virtual void OnGetDeviceConfigResponse(List<CModuleBase> cmb, ColoredText msg)
         {
-            var handler = GetDeviceCongigResponse;
+            var handler = GetDeviceConfigResponse;
             handler?.Invoke(this, (cmb, msg));
         }
 
@@ -85,11 +85,11 @@ namespace FeedbackDataLib
         }
 
         // Event for ScanModules with bool response
-        public event EventHandler<(byte[] response, ColoredText msg)>? GetModuleConfigResponse;
+        public event EventHandler<(byte[] response, ColoredText msg)>? ModuleGetInfoSpecificResponse;
 
-        protected virtual void OnGetModuleConfigResponse(byte[] response, ColoredText msg)
+        protected virtual void OnModuleGetInfoSpecificResponse(byte[] response, ColoredText msg)
         {
-            var handler = GetModuleConfigResponse;
+            var handler = ModuleGetInfoSpecificResponse;
             handler?.Invoke(this, (response, msg));
         }
 
@@ -147,7 +147,7 @@ namespace FeedbackDataLib
         public bool IsDeviceAvailable()
         {
             if (RS232Receiver is null) return false;
-            return RS232Receiver.IsConnected;
+            return RS232Receiver.Seriell32.IsOpen;
         }
         #endregion
 
@@ -222,12 +222,12 @@ namespace FeedbackDataLib
         /// <remarks>Checks if ModuleType != cModuleTypeEmpty</remarks>
         public bool SetModuleConfig(int HWcn)
         {
-            if (HWcn == 0xff || Device is null)
+            if (HWcn == 0xff)
             {
                 return false;
             }
 
-            var moduleInfo = Device.ModuleInfos[HWcn];
+            var moduleInfo = ModuleInfos[HWcn];
             if (moduleInfo.ModuleType == enumModuleType.cModuleTypeEmpty)
             {
                 return false;
@@ -240,14 +240,12 @@ namespace FeedbackDataLib
 
         /// <summary>
         /// Sets configuration of all Modules
-        /// according to Device.ModuleInfos
+        /// according to ModuleInfos
         /// </summary>
         /// <returns></returns>
         public bool SetConfigAllModules()
         {
-            if (Device is null) return false;
-
-            for (int HWcn = 0; HWcn < Device.ModuleInfos.Count; HWcn++)
+            for (int HWcn = 0; HWcn < ModuleInfos.Count; HWcn++)
             {
                 if (!SetModuleConfig(HWcn)) return false;
             }
@@ -262,7 +260,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Gets ConfigModules and puts result into Device
         /// </summary>
-        private async Task GetDeviceConfigAsync()
+        public async Task GetDeviceConfigAsync()
         {
             var tcs = new TaskCompletionSource<bool>();
             cntDeviceConfigs = max_num_HWChannels;
@@ -270,7 +268,7 @@ namespace FeedbackDataLib
             getModulesqueue.Clear();
 
             // Subscribe to the response event
-            GetModuleConfigResponse += C8KanalReceiverV2_CommBase_GetModuleConfigResponse;
+            ModuleGetInfoSpecificResponse += GetInfoSpecificResponse;
 
             // Initiate the configuration process for each module
             for (int hwCn = 0; hwCn < max_num_HWChannels; hwCn++)
@@ -307,7 +305,7 @@ namespace FeedbackDataLib
             }
 
             // Unsubscribe from the response event after processing is complete
-            GetModuleConfigResponse -= C8KanalReceiverV2_CommBase_GetModuleConfigResponse;
+            ModuleGetInfoSpecificResponse -= GetInfoSpecificResponse;
 
             ColoredText msg;
             if (cntIncomingdata < max_num_HWChannels)
@@ -319,16 +317,15 @@ namespace FeedbackDataLib
             else
             {
                 // Process the received data
-                Device ??= new C8Device();
-                Device.UpdateModuleInfoFromByteArray(allDeviceConfigData.ToArray());
-                Device.Calculate_SkalMax_SkalMin(); // Calculate max and mins
+                UpdateModuleInfoFromByteArray(allDeviceConfigData.ToArray());
+                Calculate_SkalMax_SkalMin(); // Calculate max and mins
 
                 msg = failed
                     ? new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: Failed", Color.Red)
                     : new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: OK", Color.Green);
 
-                if (Device?.ModuleInfos is not null)
-                    OnGetDeviceConfigResponse(Device.ModuleInfos, msg);
+                if (ModuleInfos is not null)
+                    OnGetDeviceConfigResponse(ModuleInfos, msg);
             }
 
             // Complete the TaskCompletionSource based on the result
@@ -338,7 +335,7 @@ namespace FeedbackDataLib
             await tcs.Task;
         }
 
-        private void C8KanalReceiverV2_CommBase_GetModuleConfigResponse(object? sender, (byte[] response, ColoredText msg) e)
+        private void GetInfoSpecificResponse(object? sender, (byte[] response, ColoredText msg) e)
         {
             getModulesqueue.Enqueue(e.response);
         }
@@ -353,7 +350,7 @@ namespace FeedbackDataLib
         /// <param name="ByteOut">Byytes to send</param>
         /// <param name="ByteIn">Bytes to receive</param>
         /// <returns></returns>
-        protected void ModuleCommand(byte Hwcn, byte ModuleCommand, byte[] ByteOut, byte numByteIn)
+        protected void ModuleCommand(byte Hwcn, EnModuleCommand ModuleCommand, byte[] ByteOut, byte numByteIn)
         {
             int l = ByteOut?.Length ?? 0;
 
@@ -361,14 +358,17 @@ namespace FeedbackDataLib
             OutBuf[0] = Hwcn;
             OutBuf[1] = (byte)(l + 1);
             OutBuf[2] = numByteIn;
-            OutBuf[3] = ModuleCommand;
+            OutBuf[3] = (byte) ModuleCommand;
             if (ByteOut != null && ByteOut.Length > 0)
             {
                 Buffer.BlockCopy(ByteOut, 0, OutBuf, 4, l);
             }
-            //Anzahl der bytes die zu lesen sind
-            //OutBuf[OutBuf.Length - 1] = (byte)ByteIn.Length;
-            SendCommand(EnNeuromasterCommand.WrRdModuleCommand, OutBuf);
+
+            CommandRequest cr = new()
+            {
+                ModuleCommand = ModuleCommand
+            };
+            SendCommand(EnNeuromasterCommand.WrRdModuleCommand, OutBuf, cr);
         }
         #endregion
 
@@ -415,22 +415,21 @@ namespace FeedbackDataLib
         {
             bool ret = false;
 
-            if (Device?.ModuleInfos[HWcn].ModuleType == enumModuleType.cModuleTypeEmpty)
+            if (ModuleInfos[HWcn].ModuleType == enumModuleType.cModuleTypeEmpty)
                 return ret;
 
-            if (Device is not null)
+
+            byte[] Data = ModuleInfos[HWcn].GetModuleSpecific();
+
+            if (get_Imp_chan_x >= 0)
             {
-                byte[] Data = Device.ModuleInfos[HWcn].GetModuleSpecific();
-
-                if (get_Imp_chan_x >= 0)
-                {
-                    Data[0] = (byte)get_Imp_chan_x;
-                }
-
-                //Data[Data.Length - 1] = ...
-                Data[^1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
-                ModuleCommand((byte)HWcn, C8KanalReceiverCommandCodes.cModuleSetInfoSpecific, Data, 1);
+                Data[0] = (byte)get_Imp_chan_x;
             }
+
+            //Data[Data.Length - 1] = ...
+            Data[^1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
+            ModuleCommand((byte)HWcn, EnModuleCommand.ModuleSetInfoSpecific, Data, 1);
+
             return ret;
         }
 
@@ -441,7 +440,7 @@ namespace FeedbackDataLib
         /// </summary>
         public void GetModuleInfoSpecific(int HWcn, bool UpdateModuleInfo)
         {
-            ModuleCommand((byte)HWcn, (byte)C8KanalReceiverCommandCodes.EnModuleCommand.ModuleGetInfoSpecific, [(byte) HWcn], 17);
+            ModuleCommand((byte)HWcn, EnModuleCommand.ModuleGetInfoSpecific, [(byte) HWcn], 17);
             this.UpdateModuleInfo = UpdateModuleInfo;
             HWcnGetModuleInfoSpecific = (byte) HWcn;
         }

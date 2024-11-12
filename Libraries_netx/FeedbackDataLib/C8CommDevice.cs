@@ -3,7 +3,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public class C8Device : ICloneable
+    public partial class C8CommBase
     {
         private List<CModuleBase> moduleInfos = [];
 
@@ -23,9 +23,15 @@ namespace FeedbackDataLib
         public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
 #pragma warning restore CS0067
 
-        public C8Device()
+        /// <summary>
+        /// Basic Constructor
+        /// </summary>
+        public C8CommBase()
         {
-            for (int i = 0; i < C8CommBase.max_num_HWChannels; i++)
+            DeviceClock = new CCDateTime();
+            BatteryVoltage = new CBatteryVoltage();
+
+            for (int i = 0; i < max_num_HWChannels; i++)
             {
                 moduleInfos.Add(new CModuleBase());
             }
@@ -146,17 +152,17 @@ namespace FeedbackDataLib
         /// <returns>
         /// A new object that is a copy of this instance.
         /// </returns>
-        public object Clone()
-        {
-            C8Device d = (C8Device)MemberwiseClone();
-            d.ModuleInfos = [];
-            for (int i = 0; i < ModuleInfos.Count; i++)
-            {
-                CModuleBase c = (CModuleBase)ModuleInfos[i].Clone();
-                d.ModuleInfos.Add(c);
-            }
-            return d;
-        }
+        //public object Clone()
+        //{
+        //    C8Device d = (C8Device)MemberwiseClone();
+        //    d.ModuleInfos = [];
+        //    for (int i = 0; i < ModuleInfos.Count; i++)
+        //    {
+        //        CModuleBase c = (CModuleBase)ModuleInfos[i].Clone();
+        //        d.ModuleInfos.Add(c);
+        //    }
+        //    return d;
+        //}
         #endregion
     }
 }

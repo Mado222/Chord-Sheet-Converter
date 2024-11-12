@@ -36,24 +36,24 @@ namespace FeedbackDataLib
     /// <summary>
     /// Basic Component for Insight Instruments 8 Channel Device
     /// </summary>
-    public class C8RS232 : C8CommBase, IDisposable
+    public class C8RS232: IC8Base, IDisposable
     {
         /// <summary>
         /// Serial Port used by this class
         /// </summary>
-        public ISerialPort SerialPort;
+        private ISerialPort serialPort;
+        private readonly int baudRate_RemoteDevice = 250000;
+        private readonly int baudRate_LocalDevice = 250000;
+
+        public ISerialPort SerialPort { get => serialPort; }
 
         /// <summary>
         /// Part of the USB-XBee Driver Name that identifies the Neurolink
         /// </summary>
-        public const string DriverSearchName = "Insight USB";
+        //public const string DriverSearchName = "Insight USB";
 
-        private readonly int _RS232_Neurolink_BaudRate = 250000;
-        public int RS232_Neurolink_BaudRate
-        {
-            get { return _RS232_Neurolink_BaudRate; }
-        }
-
+        public int BaudRate_LocalDevice => baudRate_LocalDevice;
+        public int BaudRate_RemoteDevice => baudRate_RemoteDevice;
         /// <summary>
         /// Initializes a new instance of the <see cref="C8RS232" /> class.
         /// </summary>
@@ -62,70 +62,55 @@ namespace FeedbackDataLib
         /// </param>
         public C8RS232(string ComPortName)
         {
-            SerialPort = new CSerialPortWrapper
+            serialPort = new CSerialPortWrapper
             {
                 PortName = ComPortName
             };
-            Initialise_C8KanalReceiverV2_RS232();
+            Init();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="C8RS232" /> class.
-        /// </summary>
-        /// <param name="ComPortName">Com Port Name (COM1, COM2, ..) in case of Serial Port Connection</param>
-        /// <param name="BaudRate">The baud rate.</param>
-        public C8RS232(string ComPortName, int BaudRate)
+        public string LastErrorString
         {
-            SerialPort = new CSerialPortWrapper
+            get
             {
-                PortName = ComPortName
-            };
-            _RS232_Neurolink_BaudRate = BaudRate;
-            Initialise_C8KanalReceiverV2_RS232();
+                return "";
+            }
         }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="C8RS232" /> class.
         /// </summary>
         /// <param name="SerialPort">The serial port.</param>
-        public C8RS232(ISerialPort SerialPort)
+        public C8RS232()
         {
-            this.SerialPort = SerialPort;
-            Initialise_C8KanalReceiverV2_RS232();
+            serialPort = new CSerialPortWrapper();
+        }
+
+        public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        {
+        }
+
+        public void Init(string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        {
+            serialPort = new CSerialPortWrapper
+            {
+                PortName = ComPortName
+            };
+            Init();
         }
 
         /// <summary>
         /// Initialises C8KanalReceiverV2
         /// </summary>
-        private void Initialise_C8KanalReceiverV2_RS232()
+        private void Init()
         {
-            SerialPort.BaudRate = RS232_Neurolink_BaudRate;
+            SerialPort.BaudRate = BaudRate_LocalDevice;
             SerialPort.Handshake = System.IO.Ports.Handshake.None;
 
             SerialPort.Parity = System.IO.Ports.Parity.None;
             SerialPort.DataBits = 8;
             SerialPort.StopBits = System.IO.Ports.StopBits.One;
-
-            RS232Receiver = new CRS232Receiver(C8KanalReceiverCommandCodes.cCommandChannelNo, SerialPort);
-            base.C8KanalReceiverV2_Construct(); //calls CDataReceiver2_Construct();
-            RS232Receiver.AliveSequToReturn = C8KanalReceiverCommandCodes.AliveSequToReturn();
-            RS232Receiver.AliveSequToSend = C8KanalReceiverCommandCodes.AliveSequToSend();
-            RS232Receiver.ConnectSequToReturn = C8KanalReceiverCommandCodes.ConnectSequToReturn();
-            RS232Receiver.ConnectSequToSend = C8KanalReceiverCommandCodes.ConnectSequToSend();
-            RS232Receiver.CRC8 = CRC8;
         }
-
-        /// <summary>
-        /// Opens Com and looks for device
-        /// </summary>
-        public bool CheckConnection_Start_trytoConnectWorker()
-        {
-            //Jetzt Verbinding herstellen
-            Connect_via_tryToConnectWorker();
-            return true;
-        }
-
 
         #region IDisposable Members
 

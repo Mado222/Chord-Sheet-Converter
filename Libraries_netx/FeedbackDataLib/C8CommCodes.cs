@@ -2,7 +2,7 @@
 
 namespace FeedbackDataLib
 {
-    public class C8KanalReceiverCommandCodes
+    public partial class C8CommBase
     {
         //configs
         /// <summary>
@@ -17,7 +17,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Command channel number
         /// </summary>
-        public const byte cCommandChannelNo = 0x0F;
+        public const byte CommandChannelNo = 0x0F;
 
         ////////////////////
         // Commando Codes to Neuromaster
@@ -160,55 +160,53 @@ namespace FeedbackDataLib
             ////////////////////
             GetDeviceConfig = 1,
             SetConfigAllModules = 2,
-            GetModuleInfoSpecific = 3,
-
 
             ////////////////////
             // Commando Codes to Neuromaster
             ////////////////////
 
             /// <summary>Neuromaster sends every second a message to synchronize data</summary>
-            ChannelSync = C8KanalReceiverCommandCodes.cChannelSync,
+            ChannelSync = cChannelSync,
 
             /// <summary>Connecting to Device</summary>
-            ConnectToDevice = C8KanalReceiverCommandCodes.cConnectToDevice,
+            ConnectToDevice = cConnectToDevice,
 
             /// <summary>Signals that device is alive</summary>
-            DeviceAlive = C8KanalReceiverCommandCodes.cDeviceAlive,
+            DeviceAlive = cDeviceAlive,
 
             /// <summary>Read Clock</summary>
-            GetClock = C8KanalReceiverCommandCodes.cGetClock,
+            GetClock = cGetClock,
 
             /// <summary>Reads Module Configuration</summary>
-            GetChannelConfig = C8KanalReceiverCommandCodes.cGetChannelConfig,
+            GetChannelConfig = cGetChannelConfig,
 
             /// <summary>Neuromaster sends Firmware Version</summary>
-            GetFirmwareVersion = C8KanalReceiverCommandCodes.cGetFirmwareVersion,
+            GetFirmwareVersion = cGetFirmwareVersion,
 
             /// <summary>Get configuration of the selected module (all sw channels)</summary>
-            GetModuleConfig = C8KanalReceiverCommandCodes.cGetModuleConfig,
+            GetModuleConfig = cGetModuleConfig,
 
             /// <summary>Neuromaster sends SD Card Info</summary>
-            GetSDCardInfo = C8KanalReceiverCommandCodes.cGetSDCardInfo,
+            GetSDCardInfo = cGetSDCardInfo,
 
             /// <summary>Reset Neuromaster</summary>
-            Reset = C8KanalReceiverCommandCodes.cReset,
+            Reset = cReset,
 
             /// <summary>Scans connected Modules</summary>
-            ScanModules = C8KanalReceiverCommandCodes.cScanModules,
+            ScanModules = cScanModules,
 
             /// <summary>Set Clock</summary>
-            SetClock = C8KanalReceiverCommandCodes.cSetClock,
+            SetClock = cSetClock,
 
             /// <summary>Tells NM that PC is closing the Connection</summary>
-            SetConnectionClosed = C8KanalReceiverCommandCodes.cSetConnectionClosed,
+            SetConnectionClosed = cSetConnectionClosed,
 
             /// <summary>Set Module Configuration</summary>
-            SetModuleConfig = C8KanalReceiverCommandCodes.cSetModuleConfig,
+            SetModuleConfig = cSetModuleConfig,
 
             /// <summary>Write-Read Command for Modules - only passed through from Neuromaster</summary>
             /// <remarks> +1byte HWcn, +1byte number of bytes to send, +1byte number of bytes to read</remarks>
-            WrRdModuleCommand = C8KanalReceiverCommandCodes.cWrRdModuleCommand,
+            WrRdModuleCommand = cWrRdModuleCommand,
         }
 
         //*****************************************************
@@ -264,6 +262,7 @@ namespace FeedbackDataLib
 
         public enum EnModuleCommand : byte
         {
+            None = 0,
             /// <summary>Returns Module specific data</summary>
             ModuleGetInfoSpecific = cModuleGetInfoSpecific,
 
@@ -281,7 +280,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// CRC8 Algorithm
         /// </summary>
-        protected static WindControlLib.CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
+        protected static CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
 
         /// <summary>
         /// Alive Sequence to be sent to Neuromaster
@@ -291,7 +290,7 @@ namespace FeedbackDataLib
             //{ 0x11, 0xFE };//CommandCode, cDeviceAlive
             //return new byte[] { C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cDeviceAlive, 1, 0};
 
-            byte[] buf = [C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cDeviceAlive, 1, 0];
+            byte[] buf = [CommandCode, cDeviceAlive, 1, 0];
 
             buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
@@ -307,7 +306,7 @@ namespace FeedbackDataLib
             //+CRC
             //return new byte[] { C8KanalReceiverCommandCodes.cConnectToDevice, 0};
 
-            byte[] buf = [C8KanalReceiverCommandCodes.cDeviceAlive, 0];
+            byte[] buf = [cDeviceAlive, 0];
             buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
@@ -318,7 +317,13 @@ namespace FeedbackDataLib
         public static byte[] ConnectSequToSend()
         {
             //{ 0x11, 0xFA, one byte, CRC};
-            byte[] buf = [C8KanalReceiverCommandCodes.CommandCode, C8KanalReceiverCommandCodes.cConnectToDevice, 1, 0];
+            byte[] buf =
+            [
+                CommandCode,
+                cConnectToDevice,
+                1,
+                0
+            ];
             buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }
@@ -331,7 +336,7 @@ namespace FeedbackDataLib
             //return new byte[] { 0x7, 0xC0, 0x80, 0x82, C8KanalReceiverCommandCodes.cConnectToDevice, 0};
             //+ CRC
             //return new byte[] { C8KanalReceiverCommandCodes.cConnectToDevice, 0xE8 };
-            byte[] buf = [C8KanalReceiverCommandCodes.cConnectToDevice, 0];
+            byte[] buf = [cConnectToDevice, 0];
             buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 2);
             return buf;
         }

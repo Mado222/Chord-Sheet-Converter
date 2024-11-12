@@ -1,6 +1,5 @@
 ﻿using BMTCommunicationLib;
 using WindControlLib;
-using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
 
 namespace FeedbackDataLib
 {
@@ -9,12 +8,6 @@ namespace FeedbackDataLib
     /// </summary>
     public partial class C8CommBase
     {
-
-        /// <summary>
-        /// CRC8 Algorithm
-        /// </summary>
-        protected CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
-
         /// <summary>
         /// Converter for Device clock
         /// </summary>
@@ -28,18 +21,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// RS232Receiver
         /// </summary>
-        public CRS232Receiver RS232Receiver = new(0,null); //Just to keep it away from null
-
-        /// <summary>
-        /// All Information about 8 Channel Device
-        /// </summary>
-        /// <remarks>Zugriff: [0,1,...]</remarks>
-        public C8Device? Device = new();       //Fasst die verfügbaren Kanäle zusammen
-
-        /// <summary>
-        /// NM Battery Status in %
-        /// </summary>
-        public uint BatteryPercentage { get; private set; } = 0;
+        public CRS232Receiver RS232Receiver = new(0, null); //Just to keep it away from null
 
         /// <summary>
         /// The number of SW channels sent by Neuromaster
@@ -106,16 +88,6 @@ namespace FeedbackDataLib
             }
         }
 
-        /// <summary>
-        /// Do not call
-        /// </summary>
-        public C8CommBase()
-        {
-            //Base constructor must be empty that the derived class does not call 
-            Device = new C8Device();
-            DeviceClock = new CCDateTime();
-            BatteryVoltage = new CBatteryVoltage();
-        }
 
         /// <param name="ComPortName">
         /// "COM1","COM2
@@ -126,21 +98,19 @@ namespace FeedbackDataLib
             this.ComPortName = ComPortName;
         }
 
+        public C8CommBase(ISerialPort SerialPort) : this ()
+        { }
+
+        public C8CommBase(string ComPortName, int BaudRate) : this()
+        { }
+
+
         /// <summary>
         /// Closes this instance.
         /// </summary>
         public virtual void Close()
         {
-            //SendCloseConnection();
             RS232Receiver?.Close();  //1st Close
-        }
-
-        /// <summary>
-        /// Connect to device
-        /// </summary>
-        public void Connect_via_tryToConnectWorker()
-        {
-            RS232Receiver?.Connect_via_tryToConnectWorker();
         }
 
         /// <summary>
@@ -148,29 +118,8 @@ namespace FeedbackDataLib
         /// </summary>
         public virtual void C8KanalReceiverV2_Construct()
         {
-            //Log4Net anlegen
-            //FileAppender logFile = new FileAppender();
-            //logFile.File = Path.GetDirectoryName(Assembly.GetAssembly(typeof(C8KanalReceiverV2_CommBase)).Location) + "\\" + "C8KanalReceiverV2.log";
-            //logFile.AppendToFile = true;
-            //logFile.Encoding = Encoding.UTF8;
-            //logFile.Layout = new PatternLayout("%date [%thread] %-5level [%logger] %message%newline");
-            /* Hirarchie
-                * ALL
-                * DEBUG
-                * INFO
-                * WARN
-                * ERROR
-                * FATAL
-                * OFF
-             */
-            //logFile.Threshold = log4net.Core.Level.Off;
-            //logFile.ActivateOptions();
-            //BasicConfigurator.Configure(logFile);
-
             if (RS232Receiver == null)
                 throw new Exception("RS232Receiver mustbe created before calling constructor");
-            RS232Receiver.DeviceCommunicationToPC += new DeviceCommunicationToPCEventHandler(RS232Receiver_DeviceCommunicationToPC);
-            //CommandProcessed += CommandProcessedResponseEventArgs;
         }
 
 
@@ -186,16 +135,15 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public int GetChannelCapcity()
         {
-            if (Device is null) return 0;
             double ret = 0;
-            for (int HWcn = 0; HWcn < Device.ModuleInfos.Count; HWcn++)
+            for (int HWcn = 0; HWcn < ModuleInfos.Count; HWcn++)
             {
-                for (int SW_cn = 0; SW_cn < Device.ModuleInfos[HWcn].SWChannels.Count; SW_cn++)
+                for (int SW_cn = 0; SW_cn < ModuleInfos[HWcn].SWChannels.Count; SW_cn++)
                 {
-                    if (Device.ModuleInfos[HWcn].SWChannels[SW_cn].SendChannel == true)
+                    if (ModuleInfos[HWcn].SWChannels[SW_cn].SendChannel == true)
                     {
                         //Count data packets per second
-                        double d = Device.ModuleInfos[HWcn].SWChannels[SW_cn].SampleInt;
+                        double d = ModuleInfos[HWcn].SWChannels[SW_cn].SampleInt;
                         if (d > 0) d = 1000 / d; //1/(d/1000)
                         ret += d;
                     }
@@ -214,14 +162,13 @@ namespace FeedbackDataLib
         /// </returns>
         public double GetScaledValue(CDataIn DataIn)
         {
-            if (Device == null) return 0;
             int hwcn = DataIn.HWcn;// & 0xf0) >> 4;
             //int swcn = (DataIn.HWChannelNumber & 0x0f);
             int swcn = DataIn.SWcn;
             // ;ScaledValue [V, °,...]= (HexValue-Offset_hex)*SkalValue_k+ Offset_d
-            //d = d - Device.ModuleInfos[hwcn].SWChannels[swcn].Offset_hex;
-            //d = d * Device.ModuleInfos[hwcn].SWChannels[swcn].SkalValue_k + Device.ModuleInfos[hwcn].SWChannels[swcn].Offset_d;
-            double ret = Device.ModuleInfos[hwcn].SWChannels[swcn].GetScaledValue(DataIn.Value);
+            //d = d - ModuleInfos[hwcn].SWChannels[swcn].Offset_hex;
+            //d = d * ModuleInfos[hwcn].SWChannels[swcn].SkalValue_k + ModuleInfos[hwcn].SWChannels[swcn].Offset_d;
+            double ret = ModuleInfos[hwcn].SWChannels[swcn].GetScaledValue(DataIn.Value);
             return ret;
         }
 
@@ -249,12 +196,11 @@ namespace FeedbackDataLib
 
             data_value_scaled = [];
             data_time = [];
-            if (Device is null) return;
 
             for (int i = 0; i < data_in.Count; i++)
             {
                 //Find channel with highest sample interval
-                ushort si = Device.ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
+                ushort si = ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
                 if (si > si_max)
                 {
                     si_max = si;
@@ -364,7 +310,7 @@ namespace FeedbackDataLib
                     {
                         List<double> time = [];
                         List<double> val = [];
-                        ushort si = Device.ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
+                        ushort si = ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
                         double si_s = ((double)si) / 1000;
                         double cnttime = 0;
                         //for (int j = StartingIndizes[i]; j < data_in[i].Count; j++)
@@ -396,7 +342,6 @@ namespace FeedbackDataLib
 
         }
 
-
         /// <summary>
         /// Gets the connection status
         /// </summary>
@@ -406,6 +351,101 @@ namespace FeedbackDataLib
             if (RS232Receiver is not null)
                 return RS232Receiver.GetConnectionStatus();
             return EnumConnectionStatus.Not_Connected;
+        }
+
+        public static bool Check4Neuromaster(ISerialPort Seriell32)
+        {
+            bool ret = false;
+            bool Failed = false;
+
+            bool isOpen = Seriell32.IsOpen;
+            if (!isOpen) Seriell32.GetOpen();
+
+            if (Seriell32.IsOpen)
+            {
+                var SequToSend = AliveSequToSend();
+                var SequToReturn = AliveSequToReturn();
+
+                //Hier abfragen ob ein Device da ist
+                try
+                {
+                    Seriell32.DiscardInBuffer();
+                    Seriell32.DiscardOutBuffer();
+                    Seriell32.Write(SequToSend, 0, SequToSend.Length);
+                    //Thread.Sleep(300);
+                }
+                catch (Exception)
+                {
+                    //OnLogError(ee.Message);
+                    //log.Error(ee.Message, ee);
+                    Failed = true;
+                }
+                if (!Failed)
+                {
+                    //int DataToReceive = 4 + AliveSequToReturn.Length;
+                    int ptr = 0;
+                    int DataToReceive = 4;
+                    byte[] buffer = new byte[DataToReceive];
+                    DateTime Timeout = DateTime.Now + new TimeSpan(0, 0, 1);    //1s Timeout
+
+                    while (DateTime.Now < Timeout)
+                    //while (true)
+                    {
+                        int ReadRes = Seriell32.Read(ref buffer, ptr, DataToReceive, 100);
+                        if (ReadRes == DataToReceive)
+                        {
+                            if (CInsightDataEnDecoder.Parse4Byte(buffer) is CDataIn DI)
+                            {
+                                if (DI.HWcn == CommandChannelNo)
+                                {
+                                    //DI.
+                                    if (DI.Value == SequToReturn.Length)
+                                    {
+                                        //Über Kommandokanalkanal kommt die passende Anzahl von bytes
+                                        //Bytes hereinholen
+                                        byte[] buffer2 = new byte[SequToReturn.Length];
+                                        ReadRes = Seriell32.Read(ref buffer2, 0, SequToReturn.Length, 100);
+
+                                        if (ReadRes == SequToReturn.Length)
+                                        {
+                                            //Bytes kontrollieren
+                                            bool ValCorrect = true;
+                                            for (int i = 0; i < SequToReturn.Length; i++)
+                                            {
+                                                if (buffer2[i] != SequToReturn[i]) ValCorrect = false;
+                                            }
+                                            if (ValCorrect)
+                                            {
+                                                //Gerät da
+                                                ret = true;
+                                                break;
+                                            }
+                                            //Ir
+                                        } //if (ReadRes == AliveSequToReturn.Length)
+                                    }//if (DI.Value == AliveSequToReturn.Length)
+                                } //if (DI.Value == AliveSequToReturn.Length)
+                            } //if (CDecodeBytes.Decode4Byte(bh2, bh1, bh0, bl, ref DI))
+                        } //if (ReadRes == DataToReceive)
+                        if (!ret)
+                        {
+                            if (ReadRes > 0)
+                            {
+                                //Nichts verwertbares hereingekommen, weiterschieben 
+                                ptr = 3;
+                                DataToReceive = 1;
+                                for (int i = 0; i < buffer.Length - 1; i++)
+                                    buffer[i] = buffer[i + 1];
+                            } //if (ReadRes > 0)
+                        } //if (!ret)
+                    }   //while (DateTime.Now < Timeout)
+                } //if (!Failed)
+
+                if (!isOpen)
+                {
+                    Seriell32.Close();
+                }
+            }   //if (Seriell32.IsOpen)
+            return ret;
         }
 
     }

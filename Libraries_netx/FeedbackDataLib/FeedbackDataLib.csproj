@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Remove="C8KanalReceiverV2_SDCard.cs" />
     <Compile Remove="CES232ReceiverThreadBackgroundWorker.cs" />
+    <Compile Remove="CRS232_DistributorThread.cs" />
     <Compile Remove="CRS232_ReceiverThread.cs" />
     <Compile Remove="CSDCardConnection.cs" />
     <Compile Remove="CSDCardImport.cs" />

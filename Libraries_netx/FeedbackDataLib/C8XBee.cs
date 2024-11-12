@@ -35,33 +35,35 @@ namespace FeedbackDataLib
     /// Basic Component for Insight Instruments "Neuromaster" with XBee Connection
     /// </summary>
     /// <remarks></remarks>
-    public class C8XBee : C8CommBase, IDisposable
+    public class C8XBee : IC8Base, IDisposable
     {
 
         /// <summary>
         /// XBee Connection
         /// </summary>
-        public CXBeeConnection XBeeConnection = new();
+        private CCommXBee XBeeConnection = new();
+        private readonly int baudRate_LocalDevice = 250000;
+        private readonly int baudRate_RemoteDevice = 115200;
+
+        public ISerialPort SerialPort { get => XBeeConnection; }
 
         /// <summary>
         /// Part of the USB-XBee Driver Name that identifies the Neurolink
         /// </summary>
         //public const string DriverSearchName = "Insight XBEE";
-        public const string DriverSearchName = "USB Serial Port";
+        //public const string DriverSearchName = "USB Serial Port";
 
         /// <summary>
         /// Baud rate of the Neurolink (Connection to PC)
         /// </summary>
-        protected const int XBee_BaudRate_LocalDevice = 250000;
-
+        public int BaudRate_LocalDevice => baudRate_LocalDevice;
         /// <summary>
         /// Baudrate of the XBee module in Neurolink
         /// </summary>
-        protected const int XBee_BaudRate_RemoteDevice = 115200;
+        public int BaudRate_RemoteDevice => baudRate_RemoteDevice;
 
-
-        private string _LastXBeeErrorString = "";
-        public string LastXBeeErrorString
+        private readonly string _LastXBeeErrorString = "";
+        public string LastErrorString
         {
             get
             {
@@ -72,14 +74,8 @@ namespace FeedbackDataLib
             }
         }
 
-
-        /// <summary>
-        /// Base Constructor
-        /// </summary>
         public C8XBee()
-        {
-            //Base constructor must be empty that the derived class does not call 
-        }
+        { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="C8XBee" /> class.
@@ -88,30 +84,7 @@ namespace FeedbackDataLib
         /// <remarks></remarks>
         public C8XBee(string ComPortName)
         {
-            XBeeConnection = new CXBeeConnection(XBee_BaudRate_LocalDevice,
-                            XBee_BaudRate_RemoteDevice,
-                            C8KanalReceiverCommandCodes.cCommandChannelNo,
-                            C8KanalReceiverCommandCodes.ConnectSequToSend(),
-                            C8KanalReceiverCommandCodes.ConnectSequToReturn())
-            {
-                PortName = ComPortName
-            };
-            Initialise_C8KanalReceiverV2_XBee();
-        }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="C8XBee" /> class.
-        /// </summary>
-        /// <param name="SerialPort">Serial Port</param>
-        public C8XBee(ISerialPort SerialPort)
-        {
-            XBeeConnection = new CXBeeConnection(SerialPort, XBee_BaudRate_LocalDevice,
-                            XBee_BaudRate_RemoteDevice,
-                            C8KanalReceiverCommandCodes.cCommandChannelNo,
-                            C8KanalReceiverCommandCodes.ConnectSequToSend(),
-                            C8KanalReceiverCommandCodes.ConnectSequToReturn());
-
-            Initialise_C8KanalReceiverV2_XBee();
         }
 
         // Optional: Destructor to release unmanaged resources if Dispose is not called
@@ -120,69 +93,96 @@ namespace FeedbackDataLib
             Close();
         }
 
+        public void Close()
+        {
+            XBeeConnection?.Close();
+        }
+
         /// <summary>
-        /// Function for Constructor
+        /// Initializes a new instance of the <see cref="C8XBee" /> class.
+        /// </summary>
+        /// <param name="SerialPort">Serial Port</param>
+        public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        {
+            XBeeConnection = new CCommXBee(SerialPort, BaudRate_LocalDevice,
+                            BaudRate_RemoteDevice,
+                            CommandChannelNo,
+                            ConnectSequToSend,
+                            ConnectSequToReturn);
+
+            Init(ConnectSequToSend, ConnectSequToReturn); 
+        }
+
+
+        public void Init (string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        {
+            XBeeConnection = new CCommXBee(BaudRate_LocalDevice,
+                BaudRate_RemoteDevice,
+                CommandChannelNo,
+                ConnectSequToSend,
+                ConnectSequToReturn)
+            {
+                PortName = ComPortName
+            };
+            Init(ConnectSequToSend, ConnectSequToReturn);
+        }
+        
+        /// <summary>
+        ///         /// Function for Constructor
         /// </summary>
         /// <remarks></remarks>
-        private void Initialise_C8KanalReceiverV2_XBee()
+        private void Init(byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
-            XBeeConnection.BaudRate = XBee_BaudRate_LocalDevice;
+            XBeeConnection.BaudRate = BaudRate_LocalDevice;
             XBeeConnection.StopBits = System.IO.Ports.StopBits.One;
-            if (XBee_BaudRate_LocalDevice > 57600)
+            if (BaudRate_LocalDevice > 57600)
                 XBeeConnection.StopBits = System.IO.Ports.StopBits.Two;
 
             XBeeConnection.Handshake = System.IO.Ports.Handshake.RequestToSend;
-
-            RS232Receiver = new CRS232Receiver(C8KanalReceiverCommandCodes.cCommandChannelNo, XBeeConnection);
-            base.C8KanalReceiverV2_Construct(); //calls CDataReceiver2_Construct();
-            RS232Receiver.AliveSequToReturn = C8KanalReceiverCommandCodes.AliveSequToReturn();
-            RS232Receiver.AliveSequToSend = C8KanalReceiverCommandCodes.AliveSequToSend();
-            RS232Receiver.ConnectSequToSend = C8KanalReceiverCommandCodes.ConnectSequToSend();
-            RS232Receiver.ConnectSequToReturn = C8KanalReceiverCommandCodes.ConnectSequToReturn();
-            RS232Receiver.CRC8 = CRC8;
         }
 
         /// <summary>
         /// Opens Com and looks for device
         /// Starts in case of success tryToConnectWorker
         /// </summary>
-        public bool CheckConnection_Start_trytoConnectWorker()
-        {
-            if (XBeeConnection == null)
-            {
-                throw new InvalidOperationException("XBee connection is not initialized. Ensure that the connection is established before attempting this operation.");
-            }
+        //public bool CheckConnection_Start_trytoConnectWorker()
+        //{
+        //    if (XBeeConnection == null)
+        //    {
+        //        throw new InvalidOperationException("XBee connection is not initialized. Ensure that the connection is established before attempting this operation.");
+        //    }
 
-            bool ret = false;
-            XBeeConnection.ConfigureEndDeviceTo = CXBeeConnection.EnumConfigureEnDeviceTo.Neuromaster;
-            if (XBeeConnection.InitXBee())
-            {
-                //Jetzt Verbindung herstellen
-                Connect_via_tryToConnectWorker();
-                ret = true;
-            }
-            else
-            {
-                try
-                {
-                    if (XBeeConnection.XBeeSeries1 is not null)
-                    {
-                        _LastXBeeErrorString = XBeeConnection.XBeeSeries1.XBGetLastErrorTxt();
-                    }
-                    else
-                    {
-                        _LastXBeeErrorString = "XBeeConnection.XBeeSeries1 is null";
-                    }
-                }
-                catch
-                {
-                    ret = false;
-                }
-                finally { }
-            }
+        //    bool ret = false;
+        //    XBeeConnection.ConfigureEndDeviceTo = CCommXBee.EnumConfigureEnDeviceTo.Neuromaster;
+        //    if (XBeeConnection.InitXBee())
+        //    {
+        //        //Jetzt Verbindung herstellen
+        //        //Debug
+        //        //Connect_via_tryToConnectWorker();
+        //        ret = true;
+        //    }
+        //    else
+        //    {
+        //        try
+        //        {
+        //            if (XBeeConnection.XBeeSeries1 is not null)
+        //            {
+        //                _LastXBeeErrorString = XBeeConnection.XBeeSeries1.XBGetLastErrorTxt();
+        //            }
+        //            else
+        //            {
+        //                _LastXBeeErrorString = "XBeeConnection.XBeeSeries1 is null";
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            ret = false;
+        //        }
+        //        finally { }
+        //    }
 
-            return ret;
-        }
+        //    return ret;
+        //}
 
         #region IDisposable Members
 

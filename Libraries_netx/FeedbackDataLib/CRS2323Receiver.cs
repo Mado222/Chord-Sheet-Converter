@@ -2,11 +2,10 @@
 using System.Buffers;
 using System.Diagnostics;
 using WindControlLib;
-using static FeedbackDataLib.C8CommBase;
 
 namespace FeedbackDataLib
 {
-    public partial class CRS232Receiver
+    public class CRS232Receiver : IDisposable
     {
         private readonly CFifoConcurrentQueue<CDataIn> _measurementDataQueue = new();
         private CFifoConcurrentQueue<byte[]> commandResponseQueue = new();
@@ -16,6 +15,65 @@ namespace FeedbackDataLib
         private CFifoConcurrentQueue<byte> rs232InBytes = new();
         private CDataIn? dataInTemp;
         private int numCommandData = 0;
+
+        private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
+        private byte _CommandChannelNo = 0; //Wird nur im Konstruktor übereschrieben
+
+        /// <summary>
+        /// CRC8 Algorithm
+        /// </summary>
+        public CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
+
+
+        /// <summary>
+        /// Last Sync Signal received from Device = when Device timer has full second
+        /// comes via command channel
+        /// </summary>
+        private DateTime LastSyncSignal = DateTime.MinValue;
+
+        private ISerialPort? seriell32;
+        /// <summary>
+        /// Holds the Serial Interface
+        /// </summary>
+        public ISerialPort Seriell32
+        {
+            get
+            {
+                if (seriell32 == null)
+                {
+                    //throw new InvalidOperationException("The serial connection is not set.");
+                    Debug.WriteLine("The serial connection is not set.");
+                }
+                return seriell32;
+            }
+            set => seriell32 = value;
+        }
+
+
+        private EnumConnectionStatus _ConnectionStatus = EnumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus _ConnectionStatusOld = EnumConnectionStatus.Not_Connected;
+
+        /// <summary>
+        /// Gets or sets the ConnectionStatus
+        /// </summary>
+        private EnumConnectionStatus ConnectionStatus
+        {
+            get { return _ConnectionStatus; }
+            set
+            {
+                SetConnectionStatus(value);
+            }
+        }
+
+        private void SetConnectionStatus(EnumConnectionStatus value)
+        {
+            _ConnectionStatus = value;
+            if (_ConnectionStatus != _ConnectionStatusOld)
+            {
+                _ConnectionStatusOld = _ConnectionStatus;
+                OnStatusChangedComm();
+            }
+        }
 
         enum ReceiverState
         {
@@ -34,6 +92,17 @@ namespace FeedbackDataLib
 
         // Reinitialize the BufferBlock to clear it
         public void ClearCommandResponseQueue() => CommandResponseQueue = new();
+
+        /// <summary>
+        /// CRS232Receiver constructor
+        /// </summary>
+        /// <param name="CommandChannelNo">Command channel no</param>
+        /// <param name="SerialPort">Related serial Port</param>
+        public CRS232Receiver(byte CommandChannelNo, ISerialPort SerialPort)
+        {
+            _CommandChannelNo = CommandChannelNo;
+            Seriell32 = SerialPort;
+        }
 
         private async Task RS232ReceiverThread_DoWorkAsync()
         {
@@ -125,16 +194,16 @@ namespace FeedbackDataLib
                                         // Process different command codes
                                         switch (buf[0])
                                         {
-                                            case C8KanalReceiverCommandCodes.cChannelSync:
+                                            case C8CommBase.cChannelSync:
                                                 {
                                                     LastSyncSignal = Seriell32.Now(EnumTimQueryStatus.isSync);
                                                     break;
                                                 }
-                                            case C8KanalReceiverCommandCodes.cDeviceAlive:
+                                            case C8CommBase.cDeviceAlive:
                                                 {
                                                     break;
                                                 }
-                                            case C8KanalReceiverCommandCodes.cNeuromasterToPC:
+                                            case C8CommBase.cNeuromasterToPC:
                                                 {
                                                     CommandToPCQueue.Push(buf);
                                                     break;
@@ -174,11 +243,12 @@ namespace FeedbackDataLib
             }
         }
 
-        private int mustbeinbuf = -1;
-        private int issync = 0;
-        private int isEP = 0;
-        private byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
+        private static byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
         {
+            int mustbeinbuf = -1;
+            int issync = 0;
+            int isEP = 0;
+
             if (RS232inBytes.Count >= 1)
             {
                 if ((RS232inBytes.Peek() & 0x80) == 0)
@@ -247,5 +317,106 @@ namespace FeedbackDataLib
                 CancellationTokenSourceReceiver = null;
             }
         }
+
+        /// <summary>
+        /// Closes tryToConnectWorker thread or RS232ReceiverThread
+        /// </summary>
+        private void CloseAll()
+        {
+            if (Seriell32 != null)
+            {
+                StopRS232ReceiverThread();
+                Seriell32.Close();  //1st Close, 4th close
+            }
+        }
+
+        public void Send_to_Sleep()
+        {
+            if (Seriell32 != null)
+            {
+                Seriell32.GetOpen();
+                Seriell32.DtrEnable = false;
+                Seriell32.Close();
+            }
+        }
+
+        #region ICommunication Members
+
+        public event StatusChangedEventHandler? StatusChangedComm = null;
+        protected virtual void OnStatusChangedComm()
+        {
+            StatusChangedComm?.Invoke(this);
+        }
+
+        public event DeviceCommunicationToPCEventHandler? DeviceCommunicationToPC = null;
+        protected virtual void OnDeviceCommunicationToPC(byte[]? buf)
+        {
+            if (buf != null)
+                DeviceCommunicationToPC?.Invoke(this, buf);
+        }
+
+        public EnumConnectionStatus GetConnectionStatus() => ConnectionStatus;
+
+        public int ReceiverTimerInterval => 0;
+
+        public bool EnableDataReadyEvent { set; get; } = false;
+
+        //Die dieses Interface implementierende Komponente empfängt keine Daten!
+        public bool EnableDataReceiving { set; get; } = true;
+
+        /// <summary>
+        /// Liest direkt von System.IO.Ports.SerialPort
+        public int GetByteData(ref byte[] DataIn, int NumData, int Offset)
+        {
+            if (Seriell32 == null) return 0; // Return 0 if Seriell32 is null
+
+            return Seriell32.Read(ref DataIn, Offset, NumData);
+        }
+
+        /// <summary>
+        /// Setzt vorher ReadTimeout von System.IO.Ports.SerialPort
+        /// </summary>
+        public int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut)
+        {
+            int i = Seriell32.ReadTimeout;
+            int res = Seriell32.Read(ref DataIn, Offset, NumData);
+            Seriell32.ReadTimeout = i;
+            return res;
+        }
+        /// <summary>
+        /// Clears the receive buffer.
+        /// </summary>
+        public void ClearReceiveBuffer()
+        {
+            Seriell32?.DiscardInBuffer();
+        }
+        /// <summary>
+        /// Clears the transmit buffer.
+        /// </summary>
+        public void ClearTransmitBuffer()
+        {
+            Seriell32?.DiscardOutBuffer();
+        }
+        /// <summary>
+        /// Closes this instance.
+        /// </summary>
+        public void Close()
+        {
+            CloseAll();
+        }
+        #endregion
+
+        #region IDisposable Members
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            CloseAll();
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }

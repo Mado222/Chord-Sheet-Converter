@@ -1,9 +1,6 @@
-﻿using WindControlLib;
+﻿using FeedbackDataLib.Modules;
 using System.Diagnostics;
-using EnNeuromasterCommand = FeedbackDataLib.C8KanalReceiverCommandCodes.EnNeuromasterCommand;
-using System.Collections.Concurrent;
-using MathNet.Numerics.Distributions;
-using FeedbackDataLib.Modules;
+using WindControlLib;
 
 
 namespace FeedbackDataLib
@@ -14,6 +11,7 @@ namespace FeedbackDataLib
         public class CommandRequest
         {
             public EnNeuromasterCommand Command { get; set; }
+            public EnModuleCommand ModuleCommand { get; set; } = EnModuleCommand.None;
             public byte[] SendData { get; set; }
             public byte[] ResponseData { get; set; } = Array.Empty<byte>();
             public bool Success { get; set; } = false;
@@ -42,7 +40,7 @@ namespace FeedbackDataLib
         /// </summary>
         private DateTime NextAliveSignalToSend = DateTime.Now;
 
-        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, AliveSignalToSendIntervMs, 0);
+        private readonly TimeSpan AliveSignalToSendInterv = new(0, 0, 0, 0, AliveSignalToSendIntervMs);
 
 
         private readonly CFifoConcurrentQueue<CommandRequest> _sendingQueue = new();
@@ -58,37 +56,41 @@ namespace FeedbackDataLib
             CommandProcessed?.Invoke(this, e);
         }
 
-        private void SendCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)
-        {
-            // Create and enqueue a new CommandRequest with the built command data
-            _sendingQueue.Push(new CommandRequest(neuromasterCommand, BuildNMCommand(neuromasterCommand, additionalData)));
-        }
-
-        protected byte[] BuildNMCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData)
+        private void SendCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData, CommandRequest? cr= null)
         {
             // Validate AdditionalDataToSend size early
-            additionalData ??= [];
+            additionalData ??= Array.Empty<byte>();
             if (additionalData.Length > 250)
             {
                 throw new ArgumentException("Size of AdditionalDataToSend must be <= 250", nameof(additionalData));
             }
 
             const int overhead = 4; // CommandCode, Command, Length, CRC
-            int bytestosend = overhead + additionalData.Length;
-            byte[] buf = new byte[bytestosend];
+            int lengthWithCRC = additionalData.Length + 1;
+            int bytesToSend = overhead + additionalData.Length;
+            byte[] buf = new byte[bytesToSend];
 
             // Build the command buffer
-            buf[0] = C8KanalReceiverCommandCodes.CommandCode;  // Add the base command code
-            buf[1] = (byte)neuromasterCommand;                    // Add the specific command code
-            buf[2] = (byte)(additionalData.Length + 1);  // Length byte (+CRC)
+            buf[0] = CommandCode;    // Base command code
+            buf[1] = (byte)neuromasterCommand;                   // Specific command code
+            buf[2] = (byte)lengthWithCRC;                        // Length byte (+CRC)
 
             // Copy additional data into the buffer
             Buffer.BlockCopy(additionalData, 0, buf, overhead - 1, additionalData.Length);
 
             // Calculate and set CRC
             buf[^1] = CRC8.Calc_CRC8(buf, buf.Length - 1);
-            return buf;
+
+            // Create or update the CommandRequest and enqueue it
+            cr ??= new CommandRequest
+            {
+                Command = neuromasterCommand,
+                SendData = buf
+            };
+
+            _sendingQueue.Push(cr);
         }
+
 
 
         #region DistributorThread
@@ -101,11 +103,12 @@ namespace FeedbackDataLib
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "DistributorThread";
 
-            DateTime Now;
+            NextAliveSignalToSend = DateTime.Now;
+            RS232Receiver.Seriell32;
 
             while (!cancellationToken.IsCancellationRequested)
             {
-
+                DateTime Now = DateTime.Now;
                 try
                 {
                     //Any data coming in?
@@ -131,7 +134,7 @@ namespace FeedbackDataLib
                         }
                     }
 
-                    if (DateTime.Now > RunningCommand.RunningEnd)
+                    if (Now > RunningCommand.RunningEnd)
                     {
                         //Timeout
                         _ = RS232Receiver.CommandResponseQueue.Pop();
@@ -171,11 +174,10 @@ namespace FeedbackDataLib
                         }
                     }
 
-                    Now = DateTime.Now;
                     // Send "alive" signal periodically
                     if (Now > NextAliveSignalToSend)
                     {
-                        CommandRequest cr = new CommandRequest(EnNeuromasterCommand.DeviceAlive, C8KanalReceiverCommandCodes.AliveSequToSend());
+                        CommandRequest cr = new(EnNeuromasterCommand.DeviceAlive, AliveSequToSend());
                         SendingQueue.Push(cr);
                         NextAliveSignalToSend = Now + AliveSignalToSendInterv;
                     }
@@ -244,10 +246,9 @@ namespace FeedbackDataLib
                             //All data in
                             try
                             {
-                                Device ??= new C8Device();
-                                Device.UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
-                                Device.Calculate_SkalMax_SkalMin(); // Calculate max and mins
-                                OnGetDeviceConfigResponse(Device.ModuleInfos, msg);
+                                UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
+                                Calculate_SkalMax_SkalMin(); // Calculate max and mins
+                                OnGetDeviceConfigResponse(ModuleInfos, msg);
 
                             }
                             catch (Exception ex)
@@ -255,7 +256,6 @@ namespace FeedbackDataLib
                                 Debug.WriteLine("C8KanalReceiverV2_CommBase_#01: " + ex.Message);
                                 rc.Success = false;
                                 OnGetDeviceConfigResponse([], msg);
-                                Device = null;
                             }
                         }
                     }
@@ -272,46 +272,44 @@ namespace FeedbackDataLib
                     {
                     }
                     break;
-                case EnNeuromasterCommand.GetModuleInfoSpecific:
-                    {
-                        bool UpdateModuleInfo = false;
-                        byte HWcnGetModuleInfoSpecific = 0xff;
-
-                        ModuleCommand((byte)HWcn, (byte)EnNeuromasterCommand.ModuleInfoSpecific, [(byte)HWcn], 17);
-                        this.UpdateModuleInfo = UpdateModuleInfo;
-                        HWcnGetModuleInfoSpecific = (byte)HWcn;
-                    }
-                    break;
-
                 case EnNeuromasterCommand.WrRdModuleCommand:
                     if (rc.Success)
                     {
                         try
                         {
-                            byte[] btin = new byte[CModuleBase.ModuleSpecific_sizeof];
-                            Buffer.BlockCopy(rc.ResponseData, 1, btin, 0, CModuleBase.ModuleSpecific_sizeof);
-                            //12.11.2020 Check CRC
-                            string s = "GetModuleInfoSpecific: ";
-                            for (int i = 0; i < btin.Length; i++)
+                            switch (RunningCommand.ModuleCommand)
                             {
-                                s += btin[i].ToString("X2") + ", ";
+                                case EnModuleCommand.ModuleGetInfoSpecific:
+                                    byte[] btin = new byte[CModuleBase.ModuleSpecific_sizeof];
+                                    Buffer.BlockCopy(rc.ResponseData, 1, btin, 0, CModuleBase.ModuleSpecific_sizeof);
+                                    //12.11.2020 Check CRC
+                                    string s = "GetModuleInfoSpecific: ";
+                                    for (int i = 0; i < btin.Length; i++)
+                                    {
+                                        s += btin[i].ToString("X2") + ", ";
+                                    }
+                                    byte crc = CRC8.Calc_CRC8(btin, btin.Length - 2);
+
+                                    s += "    /  CalcCRC=" + crc.ToString("X2");
+                                    Debug.WriteLine(s);
+
+                                    if (UpdateModuleInfo)
+                                        ModuleInfos[HWcnGetModuleInfoSpecific].SetModuleSpecific(btin);
+
+                                    OnModuleGetInfoSpecificResponse(btin, msg);
+
+                                    break;
+                                case EnModuleCommand.ModuleSetInfoSpecific:
+                                    break;
+
                             }
-                            byte crc = CRC8.Calc_CRC8(btin, btin.Length - 2);
-
-                            s += "    /  CalcCRC=" + crc.ToString("X2");
-                            Debug.WriteLine(s);
-
-                            if (Device is not null && UpdateModuleInfo)
-                                Device.ModuleInfos[HWcnGetModuleInfoSpecific].SetModuleSpecific(btin);
-
-                            OnCommandProcessedResponse(new(e.Command, "OK", Color.Green, true, e.ResponseData, HWcnGetModuleInfoSpecific));
                         }
                         catch
                         {
                         }
                     }
 
-                    SendSuccess();
+                    //SendSuccess();
                     break;
 
                 case EnNeuromasterCommand.GetClock:
@@ -339,19 +337,19 @@ namespace FeedbackDataLib
         {
             switch (buf[1])
             {
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cModuleError:
+                case CNMtoPCCommands.cModuleError:
                     {
                         if (buf.Length > 2)
                             OnDeviceToPC_ModuleError(buf[2]);
                         break;
                     }
 
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cBufferFull:
+                case CNMtoPCCommands.cBufferFull:
                     {
                         OnDeviceToPC_BufferFull();
                         break;
                     }
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cBatteryStatus:
+                case CNMtoPCCommands.cBatteryStatus:
                     {
                         //buf[2] ... Battery Low    
                         //buf[3] ... Battery High [1/10V]
@@ -365,12 +363,12 @@ namespace FeedbackDataLib
                         uint SupplyVoltage_mV = buf[5];
                         SupplyVoltage_mV = ((SupplyVoltage_mV << 8) + buf[4]) * 10;
 
-                        BatteryPercentage = (uint)BatteryVoltage.GetPercentage(((double)BatteryVoltage_mV) / 1000);
+                        uint BatteryPercentage = (uint)BatteryVoltage.GetPercentage(((double)BatteryVoltage_mV) / 1000);
 
                         OnDeviceToPC_BatteryStatus(BatteryVoltage_mV, BatteryPercentage, SupplyVoltage_mV);
                         break;
                     }
-                case C8KanalReceiverCommandCodes.CNMtoPCCommands.cNMOffline:   //28.7.2014
+                case CNMtoPCCommands.cNMOffline:   //28.7.2014
                     {
                         Close();  //Kommumikation beenden
                         break;
@@ -387,7 +385,7 @@ namespace FeedbackDataLib
         /// </remarks>
         private void EvalMeasurementData(List<CDataIn> DataIn)
         {
-            if (Device is null || DataIn == null) return;
+            if (DataIn == null) return;
 
             List<CDataIn> dataIn = [];
             foreach (CDataIn di in DataIn)
@@ -410,17 +408,17 @@ namespace FeedbackDataLib
                             cntSyncPackages++;
                         }
                     }
-                    Device.ModuleInfos[di.HWcn].SWChannels[di.SWcn].SWChan_Started = ReceivingStarted;
-                    Device.ModuleInfos[di.HWcn].SWChannels[di.SWcn].SynPackagesreceived = cntSyncPackages;
+                    ModuleInfos[di.HWcn].SWChannels[di.SWcn].SWChan_Started = ReceivingStarted;
+                    ModuleInfos[di.HWcn].SWChannels[di.SWcn].SynPackagesreceived = cntSyncPackages;
                 }
 
-                Device.UpdateTime(di);
-                di.VirtualID = Device.ModuleInfos[di.HWcn].SWChannels[di.SWcn].VirtualID;
+                UpdateTime(di);
+                di.VirtualID = ModuleInfos[di.HWcn].SWChannels[di.SWcn].VirtualID;
 
                 if (di.ChannelStarted != DateTime.MinValue)
                 {
                     //Process Data Module specific
-                    dataIn.AddRange(Device.ModuleInfos[di.HWcn].Processdata(di));
+                    dataIn.AddRange(ModuleInfos[di.HWcn].Processdata(di));
                 }
             }
             OnDataReadyResponse(dataIn);

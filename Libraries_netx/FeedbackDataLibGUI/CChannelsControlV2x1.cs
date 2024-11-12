@@ -316,10 +316,8 @@ namespace FeedbackDataLib_GUI
         public event ModuleRowChangedEventHandler? ModuleRowChanged;
         protected virtual void OnModuleRowChanged(CModuleBase ModuleInfo)
         {
-            if (ModuleInfo != null)
-            {
-                ModuleRowChanged?.Invoke(this, ModuleInfo);
-            }
+            var handle = ModuleRowChanged;
+            handle?.Invoke(this, ModuleInfo);
         }
 
         public delegate void SWChannelRowChangedEventHandler(object sender, CSWChannel SelectedSWChannel);
@@ -332,7 +330,8 @@ namespace FeedbackDataLib_GUI
         {
             if (SelectedSWChannel != null)
             {
-                SWChannelRowChanged?.Invoke(this, SelectedSWChannel);
+                var handle = SWChannelRowChanged;
+                handle?.Invoke(this, SelectedSWChannel);
             }
         }
 

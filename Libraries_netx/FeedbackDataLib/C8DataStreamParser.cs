@@ -14,7 +14,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Buffer for incoming data
         /// </summary>
-        List<byte> DataInBuffer = [];
+        readonly List<byte> DataInBuffer = [];
 
         private CHighPerformanceDateTime hp_Timer = new();
 
@@ -23,6 +23,8 @@ namespace FeedbackDataLib
         private int numByteRead = 0;
 
         private TimeSpan FakeTime_Incement;
+
+        private DateTime FakeTime_Start = DateTime.MinValue;
 
         /// <summary>
         /// Just to hold and process Sample Interval
@@ -40,7 +42,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Data about sample Intervals of all channels
         /// </summary>
-        private CSkalData[][] ChanData = new CSkalData[C8CommBase.max_num_HWChannels][];
+        private readonly CSkalData[][] ChanData = new CSkalData[C8CommBase.max_num_HWChannels][];
 
         private bool _isFakeTime = false;
 
@@ -65,7 +67,6 @@ namespace FeedbackDataLib
                 }
             }
         }
-
 
         public void Set_FakeTime(DateTime FakeTime_Start, TimeSpan FakeTime_Incement)
         {
@@ -107,7 +108,7 @@ namespace FeedbackDataLib
                             //Check for commands that must be processed here
                             switch (buf[0])
                             {
-                                case C8KanalReceiverCommandCodes.cChannelSync:
+                                case C8CommBase.cChannelSync:
                                     {
                                         if (isFakeTime)
                                         {
@@ -199,8 +200,5 @@ namespace FeedbackDataLib
 
             return ret;
         }
-
-
-
     }
 }
