@@ -146,8 +146,8 @@ namespace FeedbackDataLib
         #region HelperFunctions
         public bool IsDeviceAvailable()
         {
-            if (RS232Receiver is null) return false;
-            return RS232Receiver.Seriell32.IsOpen;
+            if (c8Receiver is null || c8Receiver.Connection is null) return false;
+            return c8Receiver.Connection.SerialPort.IsOpen;
         }
         #endregion
 
@@ -160,7 +160,9 @@ namespace FeedbackDataLib
         public void SetClock(DateTime dt)
         {
             DeviceClock.Dt = dt;
+#pragma warning disable IDE0301 // Simplify collection initialization
             byte[] additionalData = Array.Empty<byte>();
+#pragma warning restore IDE0301 // Simplify collection initialization
             DeviceClock.GetByteArray(ref additionalData, 0);
 
             SendCommand(EnNeuromasterCommand.SetClock, additionalData);
@@ -173,7 +175,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetClock()
         {
+#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetClock, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -182,7 +186,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void SendCloseConnection()
         {
+#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.SetConnectionClosed, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -191,7 +197,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetNMFirmwareVersion()
         {
+#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetFirmwareVersion, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -200,7 +208,9 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetSDCardInfo()
         {
+#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetSDCardInfo, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -211,7 +221,9 @@ namespace FeedbackDataLib
         /// </remarks>
         public virtual void ScanModules()
         {
+#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.ScanModules, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -292,7 +304,9 @@ namespace FeedbackDataLib
                         if (responseData == null)
                         {
                             failed = true;
+#pragma warning disable IDE0301 // Simplify collection initialization
                             responseData = Array.Empty<byte>();
+#pragma warning restore IDE0301 // Simplify collection initialization
                         }
 
                         allDeviceConfigData.AddRange(responseData);
@@ -317,7 +331,7 @@ namespace FeedbackDataLib
             else
             {
                 // Process the received data
-                UpdateModuleInfoFromByteArray(allDeviceConfigData.ToArray());
+                UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
                 Calculate_SkalMax_SkalMin(); // Calculate max and mins
 
                 msg = failed

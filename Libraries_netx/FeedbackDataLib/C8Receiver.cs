@@ -56,10 +56,12 @@ namespace FeedbackDataLib
         private C8RS232? c8RS232;
         private C8XBee? c8XBee;
 
+        //private CancellationTokenSource? cancellationTokenConnector;
+
         /// <summary>
         /// THE connection to the Neuromaster
         /// </summary>
-        public C8CommBase? Connection
+        public IC8Base? Connection
         {
             get
             {
@@ -199,30 +201,9 @@ namespace FeedbackDataLib
                     return _ConnectionStatus;
                 }
 
-                return Connection?.GetConnectionStatus() ?? EnumConnectionStatus.Not_Connected;
+                return Connection?.ConnectionStatus ?? EnumConnectionStatus.Not_Connected;
             }
         }
-
-
-
-        /// <summary>
-        /// Enables / disables DataReadyEvent
-        /// </summary>
-        /// <value>
-        /// <c>true</c> enabled; otherwise, <c>false</c>.
-        /// </value>
-        public bool EnableDataReadyEvent
-        {
-            get => Connection?.RS232Receiver?.EnableDataReadyEvent ?? false;
-            set
-            {
-                if (Connection?.RS232Receiver is not null)
-                {
-                    Connection.RS232Receiver.EnableDataReadyEvent = value;
-                }
-            }
-        }
-
 
         public CComPortInfo? ComPortInfo { get; private set; } = null;
         #endregion
@@ -351,10 +332,15 @@ namespace FeedbackDataLib
                     //First look for RS232 because it is faster
                     //Open the related Port
                     ConnectionType = EnumNeuromasterConnectionType.RS232Connection;
-                    c8RS232 ??= new C8RS232(FTDI_D2xx);
+                    c8RS232 ??= new C8RS232();
+                    c8RS232.Init(
+                        FTDI_D2xx,
+                        C8CommBase.CommandChannelNo,
+                        C8CommBase.AliveSequToSend(),
+                        C8CommBase.AliveSequToReturn()
+                    );
 
-                    //FTDI_D2xx.BaudRate = C8KanalReceiverV2_RS232.RS232_Neurolink_BaudRate;
-                    FTDI_D2xx.BaudRate = c8RS232.;     //4.2.2016
+                    FTDI_D2xx.BaudRate = c8RS232.BaudRate_LocalDevice;     //4.2.2016
                     FTDI_D2xx.IndexOfDeviceToOpen = idxRS232Connection;
 
                     if (c8RS232 is not null)
@@ -369,19 +355,19 @@ namespace FeedbackDataLib
                             {
                                 IndexOfDeviceToOpen = idxXBEeeConnection
                             };
-                            c8XBee ??= new C8XBee(FTDI_D2xx_temp);
-
-                            if (c8XBee is not null && c8XBee.RS232Receiver is not null)
-                            {
-                                c8XBee.RS232Receiver.Send_to_Sleep();
-                                c8XBee.Close();
-                            }
+                            c8XBee ??= new C8XBee();
+                            c8XBee.Init(
+                                FTDI_D2xx_temp,
+                                C8CommBase.CommandChannelNo,
+                                C8CommBase.AliveSequToSend(),
+                                C8CommBase.AliveSequToReturn()
+                            );
+                            c8XBee.Send_to_Sleep();
+                            c8XBee.Close();
 
                             FTDI_D2xx_temp.Close();
                             FTDI_D2xx_temp.Dispose();
                             StartUSBMonitoring();
-                            c8RS232.StartDistributorThreadAsync();
-                            c8RS232.RS232Receiver.StartRS232ReceiverThread();
                             ret = EnumConnectionResult.Connected_via_USBCable;
                         }
                         else
@@ -391,15 +377,20 @@ namespace FeedbackDataLib
                             c8RS232.Close();
                             FTDI_D2xx.IndexOfDeviceToOpen = idxXBEeeConnection;
                             ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                            c8XBee = new C8XBee(FTDI_D2xx);
+                            c8XBee = new C8XBee();
+                            c8XBee.Init(
+                                FTDI_D2xx,
+                                C8CommBase.CommandChannelNo,
+                                C8CommBase.AliveSequToSend(),
+                                C8CommBase.AliveSequToReturn()
+                            );
+
                             try
                             {
                                 if (c8XBee.XBeeConnection.InitXBee())
                                 {
                                     ret = EnumConnectionResult.Connected_via_XBee;
                                     StartUSBMonitoring();
-                                    c8XBee.StartDistributorThreadAsync();
-                                    c8XBee.RS232Receiver.StartRS232ReceiverThread();
                                 }
                                 else
                                 {
@@ -669,7 +660,6 @@ namespace FeedbackDataLib
         //    return EnumConnectionResult.NoConnection;
         //}
 
-        private CancellationTokenSource? cancellationTokenConnector;
 
         #region ConnectTask
         /// <summary>
@@ -678,71 +668,71 @@ namespace FeedbackDataLib
         /// <remarks>
         /// Ends if device is detected
         /// </remarks>
-        private async Task TryToConnectAsync(CancellationToken cancellationToken, CRS232Receiver cRS232Receiver)
-        {
-            if (cRS232Receiver is null)
-                throw new InvalidOperationException("The serial connection is not set.");
+//        private async Task TryToConnectAsync(CancellationToken cancellationToken, CRS232Receiver cRS232Receiver)
+//        {
+//            if (cRS232Receiver is null)
+//                throw new InvalidOperationException("The serial connection is not set.");
 
-            if (Thread.CurrentThread.Name == null)
-                Thread.CurrentThread.Name = "tryToConnectTask";
+//            if (Thread.CurrentThread.Name == null)
+//                Thread.CurrentThread.Name = "tryToConnectTask";
 
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                if (!IsConnected)
-                {
-                    _ConnectionStatus = EnumConnectionStatus.Connecting;
-                    try
-                    {
-                        if (cRS232Receiver.Seriell32.IsOpen)
-                            cRS232Receiver.Seriell32.Close();
+//            while (!cancellationToken.IsCancellationRequested)
+//            {
+//                if (!IsConnected)
+//                {
+//                    _ConnectionStatus = EnumConnectionStatus.Connecting;
+//                    try
+//                    {
+//                        if (cRS232Receiver.Seriell32.IsOpen)
+//                            cRS232Receiver.Seriell32.Close();
 
-                        if (!cRS232Receiver.Seriell32.GetOpen())
-                        {
-                            _ConnectionStatus = EnumConnectionStatus.PortError;
-                            IsConnected = false;
-                            //StopRS232ReceiverThread();
-                            break; // Exit the loop, stop further attempts
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        _ConnectionStatus = EnumConnectionStatus.PortError;
-                        IsConnected = false;
-                        //StopRS232ReceiverThread();
-                        cRS232Receiver.Close();
-                        break; // Exit the loop, stop further attempts
-                    }
+//                        if (!cRS232Receiver.Seriell32.GetOpen())
+//                        {
+//                            _ConnectionStatus = EnumConnectionStatus.PortError;
+//                            IsConnected = false;
+//                            //StopRS232ReceiverThread();
+//                            break; // Exit the loop, stop further attempts
+//                        }
+//                    }
+//                    catch (Exception)
+//                    {
+//                        _ConnectionStatus = EnumConnectionStatus.PortError;
+//                        IsConnected = false;
+//                        //StopRS232ReceiverThread();
+//                        cRS232Receiver.Close();
+//                        break; // Exit the loop, stop further attempts
+//                    }
 
-                    if (C8CommBase.Check4Neuromaster(cRS232Receiver.Seriell32))
-                    {
-                        // Succeeded, device detected
-                        //StartRS232ReceiverThread();
-                        //StartDistributorThreadAsync();
-                        IsConnected = true;
-                    }
-                    else
-                    {
-                        // Connection attempt failed
-                        _ConnectionStatus = EnumConnectionStatus.Not_Connected;
-                        IsConnected = false;
-                        cRS232Receiver.Close();
-                        //StopRS232ReceiverThread();
-                    }
-                }
+//                    if (C8CommBase.Check4Neuromaster(cRS232Receiver.Seriell32))
+//                    {
+//                        // Succeeded, device detected
+//                        //StartRS232ReceiverThread();
+//                        //StartDistributorThreadAsync();
+//                        IsConnected = true;
+//                    }
+//                    else
+//                    {
+//                        // Connection attempt failed
+//                        _ConnectionStatus = EnumConnectionStatus.Not_Connected;
+//                        IsConnected = false;
+//                        cRS232Receiver.Close();
+//                        //StopRS232ReceiverThread();
+//                    }
+//                }
 
 
-                if (IsConnected)
-                {
-                    await Task.Delay(3000, cancellationToken); // Delay to stabilize connection if needed
-                    _ConnectionStatus = EnumConnectionStatus.Connected;
-                    StopConnectionThread();
-                }
-            }
+//                if (IsConnected)
+//                {
+//                    await Task.Delay(3000, cancellationToken); // Delay to stabilize connection if needed
+//                    _ConnectionStatus = EnumConnectionStatus.Connected;
+//                    StopConnectionThread();
+//                }
+//            }
 
-#if DEBUG
-            Debug.WriteLine("tryToConnectTask Closed");
-#endif
-        }
+//#if DEBUG
+//            Debug.WriteLine("tryToConnectTask Closed");
+//#endif
+//        }
 
         #endregion
 
@@ -764,11 +754,11 @@ namespace FeedbackDataLib
         /// Stops the connection task
         /// </summary>
 
-        public void StopConnectionThread()
-        {
-            cancellationTokenConnector?.Cancel();
-            cancellationTokenConnector = null;
-        }
+        //public void StopConnectionThread()
+        //{
+        //    cancellationTokenConnector?.Cancel();
+        //    cancellationTokenConnector = null;
+        //}
 
 
         #endregion

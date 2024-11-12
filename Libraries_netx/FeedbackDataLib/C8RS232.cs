@@ -1,29 +1,5 @@
 using BMTCommunicationLib;
 
-
-/* ModuleCommand noch nicht getestet - O.K. 18.7.2006
-
-//* Problem bei setzen des Command-Modus: Wie kann ich auf Info die über den Kommandokanal kommt warten - eigener Thread?
-//CDataReceiver2 ist da, damit die ursprüngliche SW nicht beeinträchtigt wird
-//Kommandoprotokoll: Kanalnummer, Anzahl der Byte, ..... ?
-//=> durch eigenen Thread gelöst
-
-GetVersion implementieren
-  
- Problem: Während Daten hereinkommen werden die KOmmandos praktisch nicht akzeptiert
- Grund: WaitCommandResponse wartet auf ANtwort - dieser Thread kann aber währenddessen keine
- Events abarbeiten und hält damit den Empfängerthread auf - dieser kann die Daten nicht abarbeiten und
- und die Kommandodaten nicht schicken!
- 
- Abhilfe:
- In der Receiver worker loop DataReadyComm(this, DataAdded)
- durch
- ThreadPool.QueueUserWorkItem(new WaitCallback(RaiseDataReadyComm), DataAdded);
- 
- ersetzen - Bild ruckelt dann aber anscheinend mehr!!
-  
-*/
-
 namespace FeedbackDataLib
 {
 
@@ -69,6 +45,11 @@ namespace FeedbackDataLib
             Init();
         }
 
+        public void Close()
+        {
+            serialPort?.Close();
+        }
+
         public string LastErrorString
         {
             get
@@ -88,6 +69,8 @@ namespace FeedbackDataLib
 
         public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
+            serialPort = SerialPort;
+            Init();
         }
 
         public void Init(string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
@@ -110,6 +93,28 @@ namespace FeedbackDataLib
             SerialPort.Parity = System.IO.Ports.Parity.None;
             SerialPort.DataBits = 8;
             SerialPort.StopBits = System.IO.Ports.StopBits.One;
+        }
+
+        public EnumConnectionStatus ConnectionStatus
+        {
+            get
+            {
+                if (serialPort == null)
+                    return EnumConnectionStatus.Not_Connected;
+                if (serialPort.IsOpen)
+                    return EnumConnectionStatus.Connected;
+                return EnumConnectionStatus.Not_Connected;
+            }
+        }
+
+        public void Send_to_Sleep()
+        {
+            if (serialPort != null)
+            {
+                serialPort.GetOpen();
+                serialPort.DtrEnable = false;
+                serialPort.Close();
+            }
         }
 
         #region IDisposable Members

@@ -1,28 +1,5 @@
 using BMTCommunicationLib;
-
-
-/* ModuleCommand noch nicht getestet - O.K. 18.7.2006
-
-//* Problem bei setzen des Command-Modus: Wie kann ich auf Info die über den Kommandokanal kommt warten - eigener Thread?
-//CDataReceiver2 ist da, damit die ursprüngliche SW nicht beeinträchtigt wird
-//Kommandoprotokoll: Kanalnummer, Anzahl der Byte, ..... ?
-//=> durch eigenen Thread gelöst
-
-GetVersion implementieren
-  
- Problem: Während Daten hereinkommen werden die KOmmandos praktisch nicht akzeptiert
- Grund: WaitCommandResponse wartet auf ANtwort - dieser Thread kann aber währenddessen keine
- Events abarbeiten und hält damit den Empfängerthread auf - dieser kann die Daten nicht abarbeiten und
- und die Kommandodaten nicht schicken!
- 
- Abhilfe:
- In der Receiver worker loop DataReadyComm(this, DataAdded)
- durch
- ThreadPool.QueueUserWorkItem(new WaitCallback(RaiseDataReadyComm), DataAdded);
- 
- ersetzen - Bild ruckelt dann aber anscheinend mehr!!
-  
-*/
+using System.IO.Ports;
 
 namespace FeedbackDataLib
 {
@@ -41,7 +18,8 @@ namespace FeedbackDataLib
         /// <summary>
         /// XBee Connection
         /// </summary>
-        private CCommXBee XBeeConnection = new();
+        private CCommXBee commXBee = new();
+        public CCommXBee XBeeConnection { get => commXBee; }
         private readonly int baudRate_LocalDevice = 250000;
         private readonly int baudRate_RemoteDevice = 115200;
 
@@ -77,16 +55,6 @@ namespace FeedbackDataLib
         public C8XBee()
         { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="C8XBee" /> class.
-        /// </summary>
-        /// <param name="ComPortName">Com Port Name (COM1, COM2, ..) in case of Serial Port Connection</param>
-        /// <remarks></remarks>
-        public C8XBee(string ComPortName)
-        {
-
-        }
-
         // Optional: Destructor to release unmanaged resources if Dispose is not called
         ~C8XBee()
         {
@@ -104,41 +72,41 @@ namespace FeedbackDataLib
         /// <param name="SerialPort">Serial Port</param>
         public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
-            XBeeConnection = new CCommXBee(SerialPort, BaudRate_LocalDevice,
-                            BaudRate_RemoteDevice,
-                            CommandChannelNo,
-                            ConnectSequToSend,
-                            ConnectSequToReturn);
+            commXBee = new CCommXBee(SerialPort, BaudRate_LocalDevice,
+                            BaudRate_RemoteDevice);
+                            //CommandChannelNo,
+                            //ConnectSequToSend,
+                            //ConnectSequToReturn);
 
-            Init(ConnectSequToSend, ConnectSequToReturn); 
+            Init(); 
         }
 
 
         public void Init (string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
-            XBeeConnection = new CCommXBee(BaudRate_LocalDevice,
-                BaudRate_RemoteDevice,
-                CommandChannelNo,
-                ConnectSequToSend,
-                ConnectSequToReturn)
+            commXBee = new CCommXBee(BaudRate_LocalDevice,
+                BaudRate_RemoteDevice)
+                //CommandChannelNo,
+                //ConnectSequToSend,
+                //ConnectSequToReturn)
             {
                 PortName = ComPortName
             };
-            Init(ConnectSequToSend, ConnectSequToReturn);
+            Init();
         }
         
         /// <summary>
         ///         /// Function for Constructor
         /// </summary>
         /// <remarks></remarks>
-        private void Init(byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        private void Init()
         {
             XBeeConnection.BaudRate = BaudRate_LocalDevice;
-            XBeeConnection.StopBits = System.IO.Ports.StopBits.One;
+            XBeeConnection.StopBits = StopBits.One;
             if (BaudRate_LocalDevice > 57600)
-                XBeeConnection.StopBits = System.IO.Ports.StopBits.Two;
+                XBeeConnection.StopBits = StopBits.Two;
 
-            XBeeConnection.Handshake = System.IO.Ports.Handshake.RequestToSend;
+            XBeeConnection.Handshake = Handshake.RequestToSend;
         }
 
         /// <summary>
@@ -183,6 +151,28 @@ namespace FeedbackDataLib
 
         //    return ret;
         //}
+
+        public EnumConnectionStatus ConnectionStatus
+        {
+            get
+            {
+                if (commXBee == null)
+                    return EnumConnectionStatus.Not_Connected;
+                if (commXBee.IsOpen)
+                    return EnumConnectionStatus.Connected;
+                return EnumConnectionStatus.Not_Connected;
+            }
+        }
+
+        public void Send_to_Sleep()
+        {
+            if (commXBee != null)
+            {
+                commXBee.GetOpen();
+                commXBee.DtrEnable = false;
+                commXBee.Close();
+            }
+        }
 
         #region IDisposable Members
 

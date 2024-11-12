@@ -13,7 +13,9 @@ namespace FeedbackDataLib
             public EnNeuromasterCommand Command { get; set; }
             public EnModuleCommand ModuleCommand { get; set; } = EnModuleCommand.None;
             public byte[] SendData { get; set; }
+#pragma warning disable IDE0301 // Simplify collection initialization
             public byte[] ResponseData { get; set; } = Array.Empty<byte>();
+#pragma warning restore IDE0301 // Simplify collection initialization
             public bool Success { get; set; } = false;
             public byte HWcn { get; set; } = 0xff;
             public DateTime RunningEnd { get; set; } = DateTime.MinValue;
@@ -27,13 +29,17 @@ namespace FeedbackDataLib
             public CommandRequest()
             {
                 Command = EnNeuromasterCommand.None;
+#pragma warning disable IDE0301 // Simplify collection initialization
                 SendData = Array.Empty<byte>();
+#pragma warning restore IDE0301 // Simplify collection initialization
             }
         }
 
 
         private readonly TimeSpan TsCommandTimeout = TimeSpan.FromSeconds(WaitCommandResponseTimeOutMs / 1000);
+#pragma warning disable IDE0301 // Simplify collection initialization
         private CommandRequest RunningCommand = new(EnNeuromasterCommand.None, Array.Empty<byte>());
+#pragma warning restore IDE0301 // Simplify collection initialization
 
         /// <summary>
         /// Time when next Alive Signal is due
@@ -59,7 +65,9 @@ namespace FeedbackDataLib
         private void SendCommand(EnNeuromasterCommand neuromasterCommand, byte[]? additionalData, CommandRequest? cr= null)
         {
             // Validate AdditionalDataToSend size early
+#pragma warning disable IDE0301 // Simplify collection initialization
             additionalData ??= Array.Empty<byte>();
+#pragma warning restore IDE0301 // Simplify collection initialization
             if (additionalData.Length > 250)
             {
                 throw new ArgumentException("Size of AdditionalDataToSend must be <= 250", nameof(additionalData));
@@ -103,27 +111,42 @@ namespace FeedbackDataLib
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "DistributorThread";
 
-            NextAliveSignalToSend = DateTime.Now;
-            RS232Receiver.Seriell32;
+            if (c8Receiver.Connection == null) throw new Exception("c8Receiver.Connection not allowed to be null");
 
-            while (!cancellationToken.IsCancellationRequested)
+            if (!c8Receiver.Connection.SerialPort.IsOpen) c8Receiver.Connection.SerialPort.GetOpen();
+
+            NextAliveSignalToSend = DateTime.Now;
+            receiver = new CRS232Receiver(0x0f, c8Receiver.Connection.SerialPort);
+
+            // Start the RS232ReceiverThread and pass the cancellation token
+            _ = receiver.StartRS232ReceiverThreadAsync(cancellationToken).ContinueWith(t =>
             {
-                DateTime Now = DateTime.Now;
-                try
+                if (t.Exception != null)
                 {
+                    // Handle exception (log, etc.)
+                    Debug.WriteLine(t.Exception);
+                }
+            }, TaskContinuationOptions.OnlyOnFaulted);
+
+
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    DateTime Now = DateTime.Now;
                     //Any data coming in?
-                    if (!RS232Receiver.CommandResponseQueue.IsEmpty)
+                    if (!receiver.CommandResponseQueue.IsEmpty)
                     {
                         //Correct response?
-                        var pk = RS232Receiver.CommandResponseQueue.Peek();
+                        var pk = receiver.CommandResponseQueue.Peek();
                         if (pk != null && pk[0] == (byte)RunningCommand.Command)
                         {
                             //Yes, get it
-                            byte[]? res = RS232Receiver.CommandResponseQueue.Pop();
+                            byte[]? res = receiver.CommandResponseQueue.Pop();
                             if (res != null)
                             {
                                 RunningCommand.ResponseData = res;
-                                RunningCommand.Success  = true;
+                                RunningCommand.Success = true;
                                 EvalCommandResponse(RunningCommand);
                             }
                             else
@@ -137,25 +160,25 @@ namespace FeedbackDataLib
                     if (Now > RunningCommand.RunningEnd)
                     {
                         //Timeout
-                        _ = RS232Receiver.CommandResponseQueue.Pop();
+                        _ = receiver.CommandResponseQueue.Pop();
                         RunningCommand = new CommandRequest();
                         OnCommandProcessed(RunningCommand);
                     }
 
                     //Incoming: Command to PC 
-                    if (!RS232Receiver.CommandToPCQueue.IsEmpty)
+                    if (!receiver.CommandToPCQueue.IsEmpty)
                     {
                         //Fire event
-                        var buf = RS232Receiver.CommandToPCQueue.Pop();
+                        var buf = receiver.CommandToPCQueue.Pop();
                         if (buf != null)
                             EvalCommunicationToPC(buf);
                     }
 
 
                     // Incoming: Distribute measurement data 
-                    if (!RS232Receiver.MeasurementDataQueue.IsEmpty)
+                    if (!receiver.MeasurementDataQueue.IsEmpty)
                     {
-                        CDataIn[]? buffer = RS232Receiver.MeasurementDataQueue.PopAll();
+                        CDataIn[]? buffer = receiver.MeasurementDataQueue.PopAll();
                         if (buffer?.Length > 0)
                         {
                             EvalMeasurementData(new List<CDataIn>(buffer));
@@ -169,7 +192,7 @@ namespace FeedbackDataLib
                         if (cr is not null && cr.SendData.Length > 0)
                         {
                             RunningCommand = cr;
-                            RS232Receiver.Seriell32.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
+                            c8Receiver.Connection.SerialPort.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
                             RunningCommand.RunningEnd = DateTime.Now + TsCommandTimeout;
                         }
                     }
@@ -187,16 +210,17 @@ namespace FeedbackDataLib
                         await Task.Delay(10, cancellationToken); // Avoid high CPU usage
                     }
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("DistributorThreadAsync Error: " + ex.Message);
-                }
-                finally
-                {
-
-                }
             }
-            Debug.WriteLine("DistributorThreadAsync Closed");
+            catch (Exception ex)
+            {
+                Debug.WriteLine("DistributorThreadAsync Error: " + ex.Message);
+            }
+            finally
+            {
+                receiver.StopRS232ReceiverThread();
+                c8Receiver.Connection.SerialPort.Close();
+                Debug.WriteLine("DistributorThreadAsync Closed");
+            }
         }
 
 
@@ -204,13 +228,14 @@ namespace FeedbackDataLib
         {
             //Prepare message text for display
             ColoredText msg;
+            string? nm = Enum.GetName(typeof(EnNeuromasterCommand), RunningCommand.Command);
             if (rc.Success)
             {
-                msg = new(RunningCommand.ToString() + ": " + "OK", Color.Green);
+                msg = new(nm + ": " + "OK", Color.Green);
             }
             else
             {
-                msg = new(RunningCommand.ToString() + ": " + "Failed", Color.Red);
+                msg = new(nm + ": " + "Failed", Color.Red);
             }
 
             switch (rc.Command)

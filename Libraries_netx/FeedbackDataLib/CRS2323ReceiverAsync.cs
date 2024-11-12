@@ -16,8 +16,8 @@ namespace FeedbackDataLib
         private CDataIn? dataInTemp;
         private int numCommandData = 0;
 
-        private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
-        private byte _CommandChannelNo = 0; //Wird nur im Konstruktor übereschrieben
+        //private readonly TimeSpan DataReceiverTimeout = new(0, 0, 0, 2, 0);
+        private readonly byte _CommandChannelNo = 0; //Wird nur im Konstruktor übereschrieben
 
         /// <summary>
         /// CRC8 Algorithm
@@ -104,12 +104,102 @@ namespace FeedbackDataLib
             Seriell32 = SerialPort;
         }
 
-        private async Task RS232ReceiverThread_DoWorkAsync()
+        private static byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
+        {
+            int mustbeinbuf = -1;
+            int issync;
+            int isEP = 0;
+
+            if (RS232inBytes.Count >= 1)
+            {
+                if ((RS232inBytes.Peek() & 0x80) == 0)
+                {
+                    if (RS232inBytes.Count >= 4)
+                    {
+                        //base packet
+                        issync = (byte)((RS232inBytes.Peek() >> 6) & 0x01);
+                        isEP = (byte)((RS232inBytes.Peek(1) >> 5) & 0x1);
+                        if ((issync == 1) && (isEP == 1))
+                        {
+                            mustbeinbuf = 7; //24bit sync
+                        }
+                        else if (issync == 1)
+                        {
+                            mustbeinbuf = 5; //16 bit sync
+                        }
+                        else if (isEP == 1)
+                        {
+                            mustbeinbuf = 6;  //24 bit
+                        }
+                        else
+                        {
+                            mustbeinbuf = 4; //16 bit
+                        }
+                    }
+
+                    if (RS232inBytes.Count >= mustbeinbuf)
+                    {
+                        if (isEP == 1)
+                        {
+                            int numExtradata = (RS232inBytes.Peek(mustbeinbuf - 2) >> 4) & 0x07;
+                            if (numExtradata > 0)
+                                mustbeinbuf += numExtradata;
+                        }
+                        if (RS232inBytes.Count >= mustbeinbuf)
+                        {
+                            return RS232inBytes.Pop(mustbeinbuf);
+                        }
+                        return null;
+                    }
+                }
+
+                else
+                {
+                    RS232inBytes.Pop();
+                }
+            }
+            return null;
+        }
+
+        #region ReceivrThread
+        private CancellationTokenSource? _cancellationTokenSourceReceiver;
+
+        // Async method to start the RS232 receiver thread with optional external cancellation token
+        public Task StartRS232ReceiverThreadAsync(CancellationToken? externalCancellationToken = null)
+        {
+            // Create a linked token if an external token is provided, or create a new one
+            _cancellationTokenSourceReceiver = externalCancellationToken is not null
+                ? CancellationTokenSource.CreateLinkedTokenSource(externalCancellationToken.Value)
+                : new CancellationTokenSource();
+
+            // Start the RS232ReceiverThreadAsync with the appropriate cancellation token
+            return Task.Run(() => RS232ReceiverThreadAsync(_cancellationTokenSourceReceiver.Token), _cancellationTokenSourceReceiver.Token);
+        }
+
+        // Synchronous method to start the RS232 receiver thread (for non-async usage)
+        public void StartRS232ReceiverThread()
+        {
+            _cancellationTokenSourceReceiver = new CancellationTokenSource();
+            Task.Run(() => RS232ReceiverThreadAsync(_cancellationTokenSourceReceiver.Token), _cancellationTokenSourceReceiver.Token);
+        }
+
+        // Method to stop the receiver thread
+        public void StopRS232ReceiverThread()
+        {
+            if (_cancellationTokenSourceReceiver is not null && !_cancellationTokenSourceReceiver.IsCancellationRequested)
+            {
+                _cancellationTokenSourceReceiver.Cancel();
+                _cancellationTokenSourceReceiver.Dispose();
+                _cancellationTokenSourceReceiver = null;
+            }
+        }
+
+        private async Task RS232ReceiverThreadAsync(CancellationToken cancellationToken)
         {
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232ReceiverThread";
 
-            var cancellationToken = CancellationTokenSourceReceiver?.Token ?? CancellationToken.None;
+            //var cancellationToken = CancellationTokenSourceReceiver?.Token ?? CancellationToken.None;
 
             try
             {
@@ -162,13 +252,10 @@ namespace FeedbackDataLib
                                         }
                                         else
                                         {
-                                            if (EnableDataReadyEvent)
-                                            {
-                                                //Store Measurement Data
-                                                dataInTemp.LastSync = LastSyncSignal;
-                                                dataInTemp.ReceivedAt = Seriell32.Now(EnumTimQueryStatus.isSync);
-                                                MeasurementDataQueue.Push(dataInTemp);
-                                            }
+                                            //Store Measurement Data
+                                            dataInTemp.LastSync = LastSyncSignal;
+                                            dataInTemp.ReceivedAt = Seriell32.Now(EnumTimQueryStatus.isSync);
+                                            MeasurementDataQueue.Push(dataInTemp);
                                             _receiverState = ReceiverState.None;
                                         }
                                     }
@@ -242,81 +329,7 @@ namespace FeedbackDataLib
                 //StopRS232DistributorThread();
             }
         }
-
-        private static byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
-        {
-            int mustbeinbuf = -1;
-            int issync = 0;
-            int isEP = 0;
-
-            if (RS232inBytes.Count >= 1)
-            {
-                if ((RS232inBytes.Peek() & 0x80) == 0)
-                {
-                    if (RS232inBytes.Count >= 4)
-                    {
-                        //base packet
-                        issync = (byte)((RS232inBytes.Peek() >> 6) & 0x01);
-                        isEP = (byte)((RS232inBytes.Peek(1) >> 5) & 0x1);
-                        if ((issync == 1) && (isEP == 1))
-                        {
-                            mustbeinbuf = 7; //24bit sync
-                        }
-                        else if (issync == 1)
-                        {
-                            mustbeinbuf = 5; //16 bit sync
-                        }
-                        else if (isEP == 1)
-                        {
-                            mustbeinbuf = 6;  //24 bit
-                        }
-                        else
-                        {
-                            mustbeinbuf = 4; //16 bit
-                        }
-                    }
-
-                    if (RS232inBytes.Count >= mustbeinbuf)
-                    {
-                        if (isEP == 1)
-                        {
-                            int numExtradata = (RS232inBytes.Peek(mustbeinbuf - 2) >> 4) & 0x07;
-                            if (numExtradata > 0)
-                                mustbeinbuf += numExtradata;
-                        }
-                        if (RS232inBytes.Count >= mustbeinbuf)
-                        {
-                            return RS232inBytes.Pop(mustbeinbuf);
-                        }
-                        return null;
-                    }
-                }
-
-                else
-                {
-                    RS232inBytes.Pop();
-                }
-            }
-            return null;
-        }
-
-        // Method to start the RS232ReceiverThread
-        public void StartRS232ReceiverThread()
-        {
-            CancellationTokenSourceReceiver = new CancellationTokenSource();
-            Task.Run(RS232ReceiverThread_DoWorkAsync);
-        }
-
-        // Method to stop the RS232ReceiverThread
-        public void StopRS232ReceiverThread()
-        {
-            if (CancellationTokenSourceReceiver != null)
-            {
-                CancellationTokenSourceReceiver.Cancel();
-                CancellationTokenSourceReceiver.Dispose();
-                CancellationTokenSourceReceiver = null;
-            }
-        }
+        #endregion
 
         /// <summary>
         /// Closes tryToConnectWorker thread or RS232ReceiverThread
@@ -327,16 +340,6 @@ namespace FeedbackDataLib
             {
                 StopRS232ReceiverThread();
                 Seriell32.Close();  //1st Close, 4th close
-            }
-        }
-
-        public void Send_to_Sleep()
-        {
-            if (Seriell32 != null)
-            {
-                Seriell32.GetOpen();
-                Seriell32.DtrEnable = false;
-                Seriell32.Close();
             }
         }
 
@@ -357,9 +360,7 @@ namespace FeedbackDataLib
 
         public EnumConnectionStatus GetConnectionStatus() => ConnectionStatus;
 
-        public int ReceiverTimerInterval => 0;
-
-        public bool EnableDataReadyEvent { set; get; } = false;
+        //public int ReceiverTimerInterval => 0;
 
         //Die dieses Interface implementierende Komponente empfängt keine Daten!
         public bool EnableDataReceiving { set; get; } = true;
@@ -376,11 +377,12 @@ namespace FeedbackDataLib
         /// <summary>
         /// Setzt vorher ReadTimeout von System.IO.Ports.SerialPort
         /// </summary>
-        public int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut)
+        public int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, int TimeOut)
         {
-            int i = Seriell32.ReadTimeout;
+            int i = Seriell32.ReadTimeout;  //backup timeout
+            Seriell32.ReadTimeout = TimeOut;
             int res = Seriell32.Read(ref DataIn, Offset, NumData);
-            Seriell32.ReadTimeout = i;
+            Seriell32.ReadTimeout = i; //restore timeout
             return res;
         }
         /// <summary>

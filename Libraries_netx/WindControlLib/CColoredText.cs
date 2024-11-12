@@ -7,9 +7,9 @@ namespace WindControlLib
         public string Text { get; set; }
         public Color Color { get; set; }
 
-        public ColoredText(string text, Color color)
+        public ColoredText(string? text, Color color)
         {
-            Text = text;
+            Text = text ?? "";
             Color = color;
         }
 

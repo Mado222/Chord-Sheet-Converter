@@ -47,7 +47,6 @@ namespace BMTCommunicationLib
 
         //Properties
         int ReceiverTimerInterval { get; }
-        bool EnableDataReadyEvent { get; set; }
         bool EnableDataReceiving { get; set; }  //Die dieses Interface implementierende Komponente empfängt keine Daten!
 
         //Methodes

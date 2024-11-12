@@ -1,5 +1,6 @@
 ﻿using BMTCommunicationLib;
 using WindControlLib;
+using static FeedbackDataLib.C8Receiver;
 
 namespace FeedbackDataLib
 {
@@ -9,6 +10,17 @@ namespace FeedbackDataLib
     public partial class C8CommBase
     {
         /// <summary>
+        /// Handles USB, XBee´and Cable connection
+        /// </summary>
+        public C8Receiver c8Receiver = new(); //Just to keep it away from null
+
+        /// <summary>
+        /// Receiver Thread
+        /// </summary>
+        private CRS232Receiver? receiver;
+
+
+        /// <summary>
         /// Converter for Device clock
         /// </summary>
         public CCDateTime DeviceClock {  get; private set; }
@@ -17,11 +29,6 @@ namespace FeedbackDataLib
         /// TimeOut [ms] in WaitCommandResponse
         /// </summary>
         protected const int WaitCommandResponseTimeOutMs = 3000; //ScanModules braucht so eine lange Timeout
-
-        /// <summary>
-        /// RS232Receiver
-        /// </summary>
-        public CRS232Receiver RS232Receiver = new(0, null); //Just to keep it away from null
 
         /// <summary>
         /// The number of SW channels sent by Neuromaster
@@ -75,20 +82,6 @@ namespace FeedbackDataLib
         public readonly CancellationToken cancellationToken = CancellationToken.None;
 
 
-        /// <summary>
-        /// Enables or disables the DataReady event
-        /// </summary>
-        public bool EnableDataReadyEvent
-        {
-            get => RS232Receiver?.EnableDataReadyEvent ?? false;
-            set
-            {
-                if (RS232Receiver != null)
-                    RS232Receiver.EnableDataReadyEvent = value;
-            }
-        }
-
-
         /// <param name="ComPortName">
         /// "COM1","COM2
         /// </param>
@@ -108,17 +101,29 @@ namespace FeedbackDataLib
         /// <summary>
         /// Closes this instance.
         /// </summary>
-        public virtual void Close()
+        public void Close()
         {
-            RS232Receiver?.Close();  //1st Close
+            c8Receiver?.Connection?.Close();  //1st Close
         }
+
+        public EnumConnectionResult Connect()
+        {
+            var conres = c8Receiver.Init_via_D2XX();
+            if (conres == EnumConnectionResult.Connected_via_USBCable || conres == EnumConnectionResult.Connected_via_XBee)
+            {
+                //Start Threads
+                StartDistributorThreadAsync();
+            }
+            return conres;
+        }
+
 
         /// <summary>
         /// Called by constructors
         /// </summary>
-        public virtual void C8KanalReceiverV2_Construct()
+        public void C8KanalReceiverV2_Construct()
         {
-            if (RS232Receiver == null)
+            if (c8Receiver == null)
                 throw new Exception("RS232Receiver mustbe created before calling constructor");
         }
 
@@ -348,8 +353,8 @@ namespace FeedbackDataLib
         /// <returns>Connection status</returns>
         public EnumConnectionStatus GetConnectionStatus()
         {
-            if (RS232Receiver is not null)
-                return RS232Receiver.GetConnectionStatus();
+            if (c8Receiver is not null && c8Receiver.Connection is not null)
+                return c8Receiver.Connection.ConnectionStatus;
             return EnumConnectionStatus.Not_Connected;
         }
 

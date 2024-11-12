@@ -25,14 +25,14 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>xKOKmECpmsElPUUVOQWWlIBIPLCeENbQSkB6RhaMENU=</HashCode>
+      <HashCode>xKOKmEGpmsElPUUVOQWWlIBIPLCeENbQSkB6RhaMENU=</HashCode>
       <FileName>C8CommBase.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="FeedbackDataLib.C8RS232" Collapsed="true">
     <Position X="6" Y="0.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAACAAABAEAgAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <HashCode>AAAADAAAACAAAAAAAgAACAAAIAIAAAAAAgACCACAIAA=</HashCode>
       <FileName>C8RS232.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -40,7 +40,7 @@
   <Class Name="FeedbackDataLib.C8XBee" Collapsed="true">
     <Position X="6" Y="1.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAgIAAAiAAAAAEAAAAAAAAQAAAAAAAAAAAAAAAAFA=</HashCode>
+      <HashCode>AAAADAAAACAAAAAAAgAACAAAYAIAAEAAAAACCACAIBA=</HashCode>
       <FileName>C8XBee.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -59,38 +59,8 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QAAADOEAgLAAICAipAAgIBAAIKgAEACAAAEgCqiBWCI=</HashCode>
+      <HashCode>QAAACOEAgLAAICAipAAgIBAAAKgAEACAAAEgCKiBWCI=</HashCode>
       <FileName>CRS2323Receiver.cs</FileName>
-    </TypeIdentifier>
-    <Lollipop Position="0.2" />
-  </Class>
-  <Class Name="FeedbackDataLib.C8Receiver">
-    <Position X="8.5" Y="0.5" Width="2.25" />
-    <NestedTypes>
-      <Enum Name="FeedbackDataLib.C8Receiver.EnumNeuromasterConnectionType" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>C8Receiver.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Enum>
-      <Enum Name="FeedbackDataLib.C8Receiver.EnumConnectionResult" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>C8Receiver.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Enum>
-      <Delegate Name="FeedbackDataLib.C8Receiver.DeviceDisconnectedEventHandler" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>C8Receiver.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Delegate>
-      <Delegate Name="FeedbackDataLib.C8Receiver.DeviceConnectedEventHandler" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>C8Receiver.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Delegate>
-    </NestedTypes>
-    <TypeIdentifier>
-      <HashCode>AIEZIAAAFDIAABFAgCAQABAKBAIAIIgKIIAiCoCAAgQ=</HashCode>
-      <FileName>C8Receiver.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

@@ -1,9 +1,4 @@
 ﻿using BMTCommunicationLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FeedbackDataLib
 {
@@ -15,6 +10,7 @@ namespace FeedbackDataLib
         int BaudRate_RemoteDevice { get; }
         string LastErrorString { get; }
 
+        EnumConnectionStatus ConnectionStatus { get; }
         public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn);
         public void Init(string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn);
         void Close();

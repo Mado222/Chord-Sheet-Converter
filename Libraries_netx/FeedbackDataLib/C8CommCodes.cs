@@ -280,7 +280,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// CRC8 Algorithm
         /// </summary>
-        protected static CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
+        protected static readonly CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);    //10.1.2013
 
         /// <summary>
         /// Alive Sequence to be sent to Neuromaster

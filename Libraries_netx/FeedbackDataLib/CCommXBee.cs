@@ -8,7 +8,7 @@ using BMTCommunicationLib;
 
 namespace FeedbackDataLib
 {
-    public class CCommXBee : C8CommBase, ISerialPort, IDisposable
+    public class CCommXBee : ISerialPort, IDisposable
     {
 
         //RSSI range: 0x17-0x5C (XBee)
@@ -65,12 +65,12 @@ namespace FeedbackDataLib
         private readonly int NoRetriesinWrite = 10;
         private bool PairingSuceeded = false;
         byte frameID;
-        private readonly CFifoBuffer<CTXStatusResponse> TXStatusResponseBuffer = new();
-        private readonly CFifoBuffer<byte> XBRFDataBuffer = new();
+        private readonly CFifoConcurrentQueue<CTXStatusResponse> TXStatusResponseBuffer = new();
+        private readonly CFifoConcurrentQueue<byte> XBRFDataBuffer = new();
 
-        private byte[] _ConnectSequToSend = [];
-        private byte[] _ConnectToReturn = [];
-        private byte _CommandChannelNo;
+        //private byte[] _ConnectSequToSend = [];
+        //private byte[] _ConnectToReturn = [];
+        //private byte _CommandChannelNo;
 
         private CHighPerformanceDateTime hp_Timer = new();
 
@@ -79,73 +79,86 @@ namespace FeedbackDataLib
             //Just to use some functions
         }
 
-        public CCommXBee(ISerialPort SerialPort, int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public CCommXBee(ISerialPort SerialPort, int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice)//, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = SerialPort;
-            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
+            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice);//, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
         }
 
-        public CCommXBee(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public CCommXBee(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice)//, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             _SerialPort = new CSerialPortWrapper();
-            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
+            InitSerielPort(BaudRateDefault_LocalDevice, BaudRateDefault_RemoteDevice);//, CommandChannelNo, ConnectSequToSend, ConnectSequToReturn);
         }
 
-
-        /// <summary>
-        /// Thread instead of using the SerialDataReceivedEvent
-        /// </summary>
-        private BackgroundWorker SerialDataReceived_BackgroundWorker = new();
-        private void InitSerielPort(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        private void InitSerielPort(int BaudRateDefault_LocalDevice, int BaudRateDefault_RemoteDevice)//, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
-            SerialDataReceived_BackgroundWorker = new BackgroundWorker
-            {
-                WorkerSupportsCancellation = true
-            };
-
-            SerialDataReceived_BackgroundWorker.DoWork += new DoWorkEventHandler(SerialDataReceived_DoWork);
-
-
+            // Initialize serial port settings
             _BaudRateDefault_RemoteDevice = BaudRateDefault_RemoteDevice;
             _BaudRateDefault_LocalDevice = BaudRateDefault_LocalDevice;
-            _ConnectSequToSend = ConnectSequToSend;
-            _ConnectToReturn = ConnectSequToReturn;
-            _CommandChannelNo = CommandChannelNo;
+            //_ConnectSequToSend = ConnectSequToSend;
+            //_ConnectToReturn = ConnectSequToReturn;
+            //_CommandChannelNo = CommandChannelNo;
 
             hp_Timer = new CHighPerformanceDateTime();
+
+            // Start the serial data received thread
+            StartSerialDataReceived();
         }
 
-        void SerialDataReceived_DoWork(object? sender, DoWorkEventArgs e)
-        {
-            if (Thread.CurrentThread.Name == null)
-                Thread.CurrentThread.Name = "SerialDataReceived_BackgroundWorker";
 
+        private Thread? _serialDataReceivedThread;
+        private bool _isRunning = false;
+
+        public void StartSerialDataReceived()
+        {
+            if (_serialDataReceivedThread != null && _serialDataReceivedThread.IsAlive)
+                return;
+
+            _isRunning = true;
+            _serialDataReceivedThread = new Thread(SerialDataReceived_DoWork)
+            {
+                IsBackground = true,
+                Name = "SerialDataReceivedThread"
+            };
+            _serialDataReceivedThread.Start();
+        }
+
+        public void StopSerialDataReceived()
+        {
+            _isRunning = false;
+            _serialDataReceivedThread?.Join(); // Wait for the thread to finish
+            _serialDataReceivedThread = null;
+        }
+
+        private void SerialDataReceived_DoWork()
+        {
 #if DEBUG
-            Debug.WriteLine("SerialDataReceived_BackgroundWorker Started");
+            Debug.WriteLine("SerialDataReceivedThread Started");
 #endif
 
-
-            while (!SerialDataReceived_BackgroundWorker.CancellationPending)
+            while (_isRunning)
             {
                 if (_SerialPort is not null && _SerialPort.IsOpen)
                 {
                     if (PairingSuceeded && (_SerialPort.BytesToRead > 0))
                     {
                         ReadSeriellBufferUntilEmpty();
-                        Thread.Sleep(5); //15
+                        Thread.Sleep(2); //15
                     }
                     else
                     {
-                        Thread.Sleep(20);//100      
+                        Thread.Sleep(10); //100      
                     }
                 }
                 else
                 {
-                    Thread.Sleep(20);//100
+                    Thread.Sleep(10); //100
                 }
             }
+
 #if DEBUG
-            Debug.WriteLine("SerialDataReceived_BackgroundWorker Closed");
+            Debug.WriteLine("SerialDataReceivedThread Closed");
 #endif
         }
 
@@ -243,7 +256,7 @@ namespace FeedbackDataLib
                         while ((cnt != 0) && !PairingSuceeded)
                         {
                             //24.6.2014 try it more than once, because after switch off sometimes the first communication fails
-                            PairingSuceeded = Check4Neuromaster(_XBeeSeries1!.Seriell32);
+                            PairingSuceeded = C8CommBase.Check4Neuromaster(_XBeeSeries1!.Seriell32);
                             cnt--;
                         }
                     }
@@ -475,8 +488,10 @@ namespace FeedbackDataLib
                 _SerialPort.GetOpen();
                 _SerialPort.DtrEnable = true;   //Awake from Sleep 11.12.2012
                 XBRFDataBuffer.Clear();
-                if (!SerialDataReceived_BackgroundWorker.IsBusy && _SerialPort.IsOpen && PairingSuceeded)
-                    SerialDataReceived_BackgroundWorker.RunWorkerAsync();
+                if (!_isRunning && _SerialPort.IsOpen && PairingSuceeded)
+                {
+                    StartSerialDataReceived();
+                }
                 ret = _SerialPort.IsOpen;
             }
             else
@@ -501,7 +516,7 @@ namespace FeedbackDataLib
                 {
                     _SerialPort.DtrEnable = false;   //Sleep 11.12.2012
                     _SerialPort.Close();
-                    SerialDataReceived_BackgroundWorker.CancelAsync();
+                    StopSerialDataReceived();
                 }
 
                 catch { };
