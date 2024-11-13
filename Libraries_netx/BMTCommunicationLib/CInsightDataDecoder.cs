@@ -175,11 +175,11 @@ namespace BMTCommunicationLib
 
         public static CDataIn? DecodePacket_funct(byte[]? src)
         {
-            
+
             if (src == null) return null;
-            
+
             CDataIn? dataIn = Parse4Byte(src);
-            
+
             if (dataIn == null) return null;
 
             int temp;

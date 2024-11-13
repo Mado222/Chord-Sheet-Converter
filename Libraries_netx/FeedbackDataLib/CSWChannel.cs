@@ -27,9 +27,9 @@ namespace FeedbackDataLib
 
         public int SynPackagesreceived = 0;
 
-        public enumModuleType ModuleType { get; set; }
+        public EnModuleType ModuleType { get; set; }
 
-        public enumSWChannelType SWChannelType_enum { get; set; }
+        public EnSWChannelType SWChannelType_enum { get; set; }
 
         public int EEG_related_swcn { get; set; }
 
@@ -67,7 +67,7 @@ namespace FeedbackDataLib
         /// <param name="ModuleTypeCount">1.. number of Modules of the same type</param>
         /// <param name="ModuleType">Type of the module.</param>
         /// <param name="sw_cn">SOftware channel number</param>
-        public void SetVirtualID(uint ModuleTypeCount, enumModuleType ModuleType, uint sw_cn)
+        public void SetVirtualID(uint ModuleTypeCount, EnModuleType ModuleType, uint sw_cn)
         {
             uint u = ModuleTypeCount << 8;
             u += ((uint)ModuleType) << 4;
@@ -186,8 +186,8 @@ namespace FeedbackDataLib
         /// </summary>
         public double Uref
         {
-            set => SWChannelInfo.uref = value;
-            get => SWChannelInfo.uref;
+            set => SWChannelInfo.Uref = value;
+            get => SWChannelInfo.Uref;
         }
 
         /// <summary>
@@ -246,11 +246,11 @@ namespace FeedbackDataLib
         public double GetMinScaledValue()
         {
 
-            if ((SWChannelType_enum == enumSWChannelType.cSWChannelTypeAtem1)
-            || (SWChannelType_enum == enumSWChannelType.cSWChannelTypePulse1)
-            || (SWChannelType_enum == enumSWChannelType.cSWChannelTypeECG1)
-            || (SWChannelType_enum == enumSWChannelType.cSWChannelTypeVaso1)
-            || (SWChannelType_enum == enumSWChannelType.cSWChannelTypeVasoIRDig1))
+            if ((SWChannelType_enum == EnSWChannelType.cSWChannelTypeAtem1)
+            || (SWChannelType_enum == EnSWChannelType.cSWChannelTypePulse1)
+            || (SWChannelType_enum == EnSWChannelType.cSWChannelTypeECG1)
+            || (SWChannelType_enum == EnSWChannelType.cSWChannelTypeVaso1)
+            || (SWChannelType_enum == EnSWChannelType.cSWChannelTypeVasoIRDig1))
             {
                 return Max_BPM;
             }
@@ -272,12 +272,12 @@ namespace FeedbackDataLib
             d -= Offset_hex;
             d = (d * SkalValue_k) + Offset_d;
 
-            if (SWChannelType_enum == enumSWChannelType.cSWChannelTypeSCL ||
-                ((ushort)SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleSCLADS ||
-                ((ushort)SWChannelType_enum >> 8) == (ushort)enumModuleType.cModuleMultiSCL)
+            if (SWChannelType_enum == EnSWChannelType.cSWChannelTypeSCL ||
+                ((ushort)SWChannelType_enum >> 8) == (ushort)EnModuleType.cModuleSCLADS ||
+                ((ushort)SWChannelType_enum >> 8) == (ushort)EnModuleType.cModuleMultiSCL)
 
             {
-                if (d < C8CommBase.minSCLhexValue) d = C8CommBase.minSCLhexValue;
+                if (d < CNMaster.minSCLhexValue) d = CNMaster.minSCLhexValue;
 
                 //Calculate reciprocal
                 if (d < 0) d = 0;       //There are no negative values in SCL
@@ -286,23 +286,23 @@ namespace FeedbackDataLib
                 else
                     d = double.MaxValue;
             }
-            else if (SWChannelType_enum == enumSWChannelType.cSWChannelTypeAtem1)
+            else if (SWChannelType_enum == EnSWChannelType.cSWChannelTypeAtem1)
             {
                 //Atemfrequenz kommt als Zeit rein (Atem-Zeit [ms]) - umrechnen in Atemzüge / min
                 d = IPI_ms_to_BPM(d);
             }
-            else if (SWChannelType_enum == enumSWChannelType.cSWChannelTypePulse1)
+            else if (SWChannelType_enum == EnSWChannelType.cSWChannelTypePulse1)
             {
                 //Pulse kommt als Zeit rein (IPI [ms]) - umrechnen in BPM
                 d = IPI_ms_to_BPM(d);
             }
-            else if (SWChannelType_enum == enumSWChannelType.cSWChannelTypeECG1)
+            else if (SWChannelType_enum == EnSWChannelType.cSWChannelTypeECG1)
             {
                 //Pulse kommt als Zeit rein (IPI [ms]) - umrechnen in BPM
                 d = IPI_ms_to_BPM(d);
             }
-            else if ((SWChannelType_enum == enumSWChannelType.cSWChannelTypeVaso1) ||
-                (SWChannelType_enum == enumSWChannelType.cSWChannelTypeVasoIRDig1))
+            else if ((SWChannelType_enum == EnSWChannelType.cSWChannelTypeVaso1) ||
+                (SWChannelType_enum == EnSWChannelType.cSWChannelTypeVasoIRDig1))
             {
                 //Pulse kommt als Zeit rein (IPI [ms]) - umrechnen in BPM
                 d = IPI_ms_to_BPM(d);
@@ -385,7 +385,7 @@ namespace FeedbackDataLib
 
                     //For relative time
                     //Number of received sync-Packages (1s)+DataIn.SyncVal
-                    int ms_Since_ChannelStarted = C8CommBase.SyncInterval_ms * SynPackagesreceived + DataIn.SyncVal;
+                    int ms_Since_ChannelStarted = CNMaster.SyncInterval_ms * SynPackagesreceived + DataIn.SyncVal;
                     SWChan_ts_Since_ChannelStarted = new TimeSpan(0, 0, 0, 0, ms_Since_ChannelStarted);
 
                     DataIn.Resync = true;

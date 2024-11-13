@@ -1,4 +1,4 @@
-﻿namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLibGUI
 {
     using FeedbackDataLib.Modules;
     partial class CChannelsControlV2x1

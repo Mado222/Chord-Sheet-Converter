@@ -1,14 +1,14 @@
 ﻿using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
-    public partial class ucModuleExGADS_Impedance : UserControl
+    public partial class UcModuleExGADSImpedance : UserControl
     {
-        public CModuleExGADS1294 cModuleExGADS1294 { get; set; }
-        public ucModuleExGADS_Impedance()
+        public CModuleExGADS1294 ModuleExGADS1294 { get; set; }
+        public UcModuleExGADSImpedance()
         {
             InitializeComponent();
-            cModuleExGADS1294 = new CModuleExGADS1294
+            ModuleExGADS1294 = new CModuleExGADS1294
             {
                 name = "ucModuleImpedance"
             };

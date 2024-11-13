@@ -32,7 +32,7 @@ namespace PhidgetLib
             => ReportMeasurementProgress?.Invoke(this, text, col);
         #endregion
 
-        private List<DigitalOutput> ph_digitalOutputs = [];
+        private readonly List<DigitalOutput> ph_digitalOutputs = [];
 
         public CPhidgetLib22()
         {

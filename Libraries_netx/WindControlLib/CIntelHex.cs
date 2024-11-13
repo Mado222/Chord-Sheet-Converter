@@ -262,7 +262,7 @@ namespace WindControlLib
                             {
                                 int HexFileLine_No = HexFile[Edited_HexFile_Entries[j]].LineNo_in_HexFileLines;
                                 //string newLine = HexFileTextLines[HexFileLine_No];
-                                string newLine = HexFileTextLines[HexFileLine_No].Substring(0, 9);     //9 Bytes of beginning of the Line
+                                string newLine = HexFileTextLines[HexFileLine_No][..9];     //9 Bytes of beginning of the Line
                                 newLine += CMyConvert.ByteArrayto_HexString(HexFile[Edited_HexFile_Entries[j]].Values, false);
                                 //Add Checksum
                                 string temp = newLine;

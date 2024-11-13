@@ -1,5 +1,4 @@
 ﻿using BMTCommunicationLib;
-using System;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -16,15 +15,13 @@ namespace FeedbackDataLib
         /// </summary>
         readonly List<byte> DataInBuffer = [];
 
-        private CHighPerformanceDateTime hp_Timer = new();
+        private readonly CHighPerformanceDateTime hp_Timer = new();
 
         private const int Length_of_DataPack = 4;
 
         private int numByteRead = 0;
 
         private TimeSpan FakeTime_Incement;
-
-        private DateTime FakeTime_Start = DateTime.MinValue;
 
         /// <summary>
         /// Just to hold and process Sample Interval
@@ -42,7 +39,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Data about sample Intervals of all channels
         /// </summary>
-        private readonly CSkalData[][] ChanData = new CSkalData[C8CommBase.max_num_HWChannels][];
+        private readonly CSkalData[][] ChanData = new CSkalData[CNMaster.MaxNumHWChannels][];
 
         private bool _isFakeTime = false;
 
@@ -50,7 +47,7 @@ namespace FeedbackDataLib
         /// true if fake time is generated
         /// Set_FakeTime must be called 
         /// </summary>
-        public bool isFakeTime
+        public bool IsFakeTime
         {
             get { return _isFakeTime; }
             set { _isFakeTime = value; }
@@ -60,8 +57,8 @@ namespace FeedbackDataLib
         {
             for (int i = 0; i < ChanData.Length; i++)
             {
-                ChanData[i] = new CSkalData[C8CommBase.maxNumSWChannels];
-                for (int j = 0; j < C8CommBase.maxNumSWChannels; j++)
+                ChanData[i] = new CSkalData[CNMaster.MaxNumSWChannels];
+                for (int j = 0; j < CNMaster.MaxNumSWChannels; j++)
                 {
                     ChanData[i][j] = new CSkalData();
                 }
@@ -70,8 +67,7 @@ namespace FeedbackDataLib
 
         public void Set_FakeTime(DateTime FakeTime_Start, TimeSpan FakeTime_Incement)
         {
-            isFakeTime = true;
-            this.FakeTime_Start = FakeTime_Start;
+            IsFakeTime = true;
             LastSyncSignal = FakeTime_Start;
             this.FakeTime_Incement = FakeTime_Incement;
         }
@@ -108,9 +104,9 @@ namespace FeedbackDataLib
                             //Check for commands that must be processed here
                             switch (buf[0])
                             {
-                                case C8CommBase.cChannelSync:
+                                case CNMaster.cChannelSync:
                                     {
-                                        if (isFakeTime)
+                                        if (IsFakeTime)
                                         {
                                             LastSyncSignal += FakeTime_Incement;
                                         }
@@ -142,14 +138,14 @@ namespace FeedbackDataLib
                             {
                                 //Yes, we can proceed
                                 int sync = DataInBuffer[Length_of_DataPack];   //byte wit idx 4 = 5th byte
-                                sync = sync & 0x7f;
+                                sync &= 0x7f;
                                 if (di.Sync7 == 1) sync += 128;
                                 di.SyncVal = (byte)sync;
 
                                 //All required data here, remove bytes from buffer
                                 DataInBuffer.RemoveRange(0, Length_of_DataPack + 1);
                                 di.LastSync = LastSyncSignal;
-                                if (isFakeTime)
+                                if (IsFakeTime)
                                 {
                                     //Fake Time
                                     ChanData[di.HWcn][di.SWcn].SinceLastSync = new TimeSpan(0, 0, 0, 0, di.SyncVal);
@@ -174,7 +170,7 @@ namespace FeedbackDataLib
                             //It is a standard data packet, remove bytes from buffer
                             DataInBuffer.RemoveRange(0, Length_of_DataPack);
                             di.LastSync = LastSyncSignal;
-                            if (isFakeTime)
+                            if (IsFakeTime)
                             {
                                 //Fake Time
                                 ChanData[di.HWcn][di.SWcn].IncrSinceLastSync();

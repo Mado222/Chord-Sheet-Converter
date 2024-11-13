@@ -93,8 +93,7 @@ namespace WindControlLib
         /// <returns>CRC</returns>
         public byte Calc_CRC8(byte[] data, int End_idx)
         {
-            if (data == null)
-                throw new ArgumentNullException("val");
+            ArgumentNullException.ThrowIfNull(data);
 
             byte c = 0;
             for (int i = 0; i <= End_idx; i++)
@@ -116,10 +115,10 @@ namespace WindControlLib
         /// <param name="data">The data.</param>
         /// <param name="crc">previous crc</param>
         /// <returns></returns>
-        private byte Calc_CRC8(byte data, byte crc)
-        {
-            return _Table[crc ^ data];
-        }
+        //private byte Calc_CRC8(byte data, byte crc)
+        //{
+        //    return _Table[crc ^ data];
+        //}
 
         public void GenerateTable(CRC8_POLY polynomial)
         {

@@ -11,7 +11,7 @@ namespace FeedbackDataLib
     /// um die Anzahl der selben Module zu zählen
     /// </remarks>
     [Serializable()]    //Set this attribute to all the classes that want to serialize
-    public enum enumModuleType
+    public enum EnModuleType
     {
         /// <summary>
         /// ModuleType: Empty

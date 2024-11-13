@@ -3,7 +3,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public partial class C8CommBase
+    public partial class CNMaster
     {
         private List<CModuleBase> moduleInfos = [];
 
@@ -26,12 +26,12 @@ namespace FeedbackDataLib
         /// <summary>
         /// Basic Constructor
         /// </summary>
-        public C8CommBase()
+        public CNMaster()
         {
             DeviceClock = new CCDateTime();
             BatteryVoltage = new CBatteryVoltage();
 
-            for (int i = 0; i < max_num_HWChannels; i++)
+            for (int i = 0; i < MaxNumHWChannels; i++)
             {
                 moduleInfos.Add(new CModuleBase());
             }
@@ -44,7 +44,7 @@ namespace FeedbackDataLib
         {
             foreach (CModuleBase mi in ModuleInfos)
             {
-                if (mi.ModuleType != enumModuleType.cModuleTypeEmpty)
+                if (mi.ModuleType != EnModuleType.cModuleTypeEmpty)
                     mi.Resync();
             }
         }
@@ -58,12 +58,13 @@ namespace FeedbackDataLib
         {
             foreach (CModuleBase mi in ModuleInfos)
             {
-                if (mi.ModuleType != enumModuleType.cModuleTypeEmpty)
+                if (mi.ModuleType != EnModuleType.cModuleTypeEmpty)
                     mi.Calculate_SkalMax_SkalMin();
             }
         }
 
 
+        private static readonly int ModuleTypeCount = Enum.GetNames(typeof(EnModuleType)).Length;
         /// <summary>
         /// Fill properties according to corresponding structure in Device
         /// </summary>
@@ -72,66 +73,63 @@ namespace FeedbackDataLib
         /// Count Modules of same type and Generate/Set Virtual ID
         /// </remarks>
         //public void UbpdateModuleInfoFrom_ByteArray(byte[] InBuf, bool Update_from_xml_File)
-        public bool UpdateModuleInfoFromByteArray(byte[] inBuf)
+        public bool UpdateModuleFromByteArray(byte[] inBuf)
         {
-            uint[] cntTypes = new uint[Enum.GetNames(typeof(enumModuleType)).Length];
+            uint[] cntTypes = new uint[ModuleTypeCount];
             int ptr = 0;
             ushort cntChannels = 0;
 
             while (ptr < inBuf.Length)
             {
                 CModuleBase mi = new();
-                mi.Update_UID_ModuleType_From_ByteArray(inBuf, ptr); // Only to get Module type
+                mi.UpdateUIDModuleTypeFromByteArray(inBuf, ptr); // Only to get Module type and HWcn
 
                 // Compatibility adjustment for older firmware versions
                 if (mi.HWcn == 0xff)
                 {
-                    mi.SetHW_cn(cntChannels);
+                    mi.SetHWcn(cntChannels);
                 }
                 cntChannels++;
 
-                if (mi.HWcn < 0 || mi.HWcn >= ModuleInfos.Count)
-                    return false;
+                if (mi.HWcn < 0 || mi.HWcn >= ModuleInfos.Count) return false;
 
                 // Use a factory method or dictionary to create module instances by type
                 ModuleInfos[mi.HWcn] = CreateModuleInstance(mi.ModuleType);
 
-                ptr = ModuleInfos[mi.HWcn].UpdateFrom_ByteArray(inBuf, ptr); // Populate with full data
+                ptr = ModuleInfos[mi.HWcn].UpdateFromByteArray(inBuf, ptr); // Populate with full data
 
                 // Update count and VirtualID for non-empty modules
-                if (mi.ModuleType != enumModuleType.cModuleTypeEmpty && (uint)mi.ModuleType < cntTypes.Length)
+                if (mi.ModuleType != EnModuleType.cModuleTypeEmpty && (uint)mi.ModuleType < cntTypes.Length)
                 {
                     cntTypes[(uint)mi.ModuleType]++;
-                    UpdateSWChannelsWithVirtualID(ModuleInfos[mi.HWcn], cntTypes[(uint)mi.ModuleType]);
+
+                    var module = ModuleInfos[mi.HWcn];
+                    var count = cntTypes[(uint)mi.ModuleType];
+
+                    for (int i = 0; i < module.NumSWChannels; i++)
+                    {
+                        module.SWChannels[i].SetVirtualID(count, module.ModuleType, (uint)i);
+                    }
                 }
             }
             return true;
         }
 
         // Factory method for module instance creation
-        private static CModuleBase CreateModuleInstance(enumModuleType moduleType) => moduleType switch
+        private static CModuleBase CreateModuleInstance(EnModuleType moduleType) => moduleType switch
         {
-            enumModuleType.cModuleMultisensor => new CModuleMultisensor(),
-            enumModuleType.cModuleMultiSCL => new CModule_MultiSCL(),
-            enumModuleType.cModuleEMG => new CModuleEMG(),
-            enumModuleType.cModuleECG => new CModuleECG(),
-            enumModuleType.cModuleEEG => new CModuleEEG(),
-            enumModuleType.cModuleAtemIRDig => new CModuleRespI(),
-            enumModuleType.cModuleVasosensorDig => new CModuleVasoIR(),
-            enumModuleType.cModuleAtem => new CModuleAtem(),
-            enumModuleType.cModuleTypeEmpty => new CModuleEmpty(),
-            enumModuleType.cModuleExGADS94 => new CModuleExGADS1294_EEG(),
+            EnModuleType.cModuleMultisensor => new CModuleMultisensor(),
+            EnModuleType.cModuleMultiSCL => new CModule_MultiSCL(),
+            EnModuleType.cModuleEMG => new CModuleEMG(),
+            EnModuleType.cModuleECG => new CModuleECG(),
+            EnModuleType.cModuleEEG => new CModuleEEG(),
+            EnModuleType.cModuleAtemIRDig => new CModuleRespI(),
+            EnModuleType.cModuleVasosensorDig => new CModuleVasoIR(),
+            EnModuleType.cModuleAtem => new CModuleAtem(),
+            EnModuleType.cModuleTypeEmpty => new CModuleEmpty(),
+            EnModuleType.cModuleExGADS94 => new CModuleExGADS1294_EEG(),
             _ => new CModuleBase() // Default case
         };
-
-        // Helper method to update SWChannels with VirtualID
-        private static void UpdateSWChannelsWithVirtualID(CModuleBase module, uint count)
-        {
-            for (int i = 0; i < module.NumSWChannels; i++)
-            {
-                module.SWChannels[i].SetVirtualID(count, module.ModuleType, (uint)i);
-            }
-        }
 
 
         /// <summary>

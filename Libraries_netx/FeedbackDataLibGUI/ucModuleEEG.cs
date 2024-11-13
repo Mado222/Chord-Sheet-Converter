@@ -1,15 +1,15 @@
 ﻿using FeedbackDataLib.Modules;
 
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class ucModuleEEG : UserControl
     {
-        public CModuleEEG cModuleEEG { get; set; }
+        public CModuleEEG ModuleEEG { get; set; }
         public ucModuleEEG()
         {
             InitializeComponent();
-            cModuleEEG = new CModuleEEG
+            ModuleEEG = new CModuleEEG
             {
                 name = "ucModuleEEG"
             };

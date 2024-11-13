@@ -73,8 +73,8 @@ namespace FeedbackDataLib.Modules
 
         public CModuleExGADS1294_EEG()
         {
-            _ModuleType_Unmodified = enumModuleType.cModuleExGADS94;
-            _ModuleType = enumModuleType.cModuleEEG;
+            _ModuleType_Unmodified = EnModuleType.cModuleExGADS94;
+            _ModuleType = EnModuleType.cModuleEEG;
             dtNextSpectrumUpdate = new DateTime[NumRawChannels];
             tsSpectrumUpdateInterval_ms = new TimeSpan[NumRawChannels];
             for (int i = 0; i < NumRawChannels; i++)
@@ -139,9 +139,9 @@ namespace FeedbackDataLib.Modules
             }
         }
 
-        public override int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public override int UpdateFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
-            int ret = base.UpdateFrom_ByteArray(InBuf, Pointer_To_Array_Start);
+            int ret = base.UpdateFromByteArray(InBuf, Pointer_To_Array_Start);
 
             //Override Module Type back to EEG
             for (int i = 0; i < SWChannels.Count; i++)

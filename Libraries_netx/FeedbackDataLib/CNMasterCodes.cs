@@ -2,7 +2,7 @@
 
 namespace FeedbackDataLib
 {
-    public partial class C8CommBase
+    public partial class CNMaster
     {
         //configs
         /// <summary>
@@ -159,7 +159,7 @@ namespace FeedbackDataLib
             // Dummy Commands for easier Call back processing
             ////////////////////
             GetDeviceConfig = 1,
-            SetConfigAllModules = 2,
+            SetDeviceConfig = 2,
 
             ////////////////////
             // Commando Codes to Neuromaster
@@ -264,10 +264,10 @@ namespace FeedbackDataLib
         {
             None = 0,
             /// <summary>Returns Module specific data</summary>
-            ModuleGetInfoSpecific = cModuleGetInfoSpecific,
+            GetModuleSpecific = cModuleGetInfoSpecific,
 
             /// <summary>Sets Module specific data</summary>
-            ModuleSetInfoSpecific = cModuleSetInfoSpecific,
+            SetModuleSpecific = cModuleSetInfoSpecific,
 
         }
 

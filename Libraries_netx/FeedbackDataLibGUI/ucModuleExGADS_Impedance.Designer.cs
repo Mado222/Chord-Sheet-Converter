@@ -1,8 +1,8 @@
 ﻿using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
-    partial class ucModuleExGADS_Impedance
+    partial class UcModuleExGADSImpedance
     {
         /// <summary> 
         /// Required designer variable.

@@ -1,6 +1,6 @@
-﻿namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLibGUI
 {
-    partial class ucModuleSpecificSetup_VasoIR
+    partial class UcModuleSpecificSetupVasoIR
     {
         /// <summary> 
         /// Required designer variable.

@@ -17,10 +17,10 @@
                 ];
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeAtemIRDig0,
-                enumSWChannelType.cSWChannelTypeAtemIRDig1,
-                enumSWChannelType.cSWChannelTypeAtemIRDig2,
-                enumSWChannelType.cSWChannelTypeAtemIRDig3
+                EnSWChannelType.cSWChannelTypeAtemIRDig0,
+                EnSWChannelType.cSWChannelTypeAtemIRDig1,
+                EnSWChannelType.cSWChannelTypeAtemIRDig2,
+                EnSWChannelType.cSWChannelTypeAtemIRDig3
             ];
         }
 
@@ -28,7 +28,7 @@
         {
             base.Update_ModuleTypeFromDevice(ModuleTypeFromDevice);
             //Make Infrared Atemsensor to Atemsensor 2.12.2014
-            ModuleTypeNumber = (byte)enumModuleType.cModuleAtem;
+            ModuleTypeNumber = (byte)EnModuleType.cModuleAtem;
         }
 
         #region Atem_IR_Params

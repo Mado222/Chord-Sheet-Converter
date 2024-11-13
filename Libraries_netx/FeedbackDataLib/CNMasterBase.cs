@@ -1,29 +1,31 @@
 ﻿using BMTCommunicationLib;
 using WindControlLib;
-using static FeedbackDataLib.C8Receiver;
+using static FeedbackDataLib.CNMasterReceiver;
 
 namespace FeedbackDataLib
 {
     /// <summary>
     /// Base class for 8 Channel Neuromaster
     /// </summary>
-    public partial class C8CommBase
+    public partial class CNMaster
     {
         /// <summary>
         /// Handles USB, XBee´and Cable connection
         /// </summary>
-        public C8Receiver c8Receiver = new(); //Just to keep it away from null
+        public CNMasterReceiver NMReceiver { get; set; } = new(); //Just to keep it away from null
 
         /// <summary>
         /// Receiver Thread
         /// </summary>
-        private CRS232Receiver? receiver;
+        private CRS232Receiver? RS232Receiver { get; set; }
+
+        public EnumNeuromasterConnectionType ConnectionType { get => NMReceiver.ConnectionType; }
 
 
         /// <summary>
         /// Converter for Device clock
         /// </summary>
-        public CCDateTime DeviceClock {  get; private set; }
+        public CCDateTime DeviceClock { get; private set; }
 
         /// <summary>
         /// TimeOut [ms] in WaitCommandResponse
@@ -33,7 +35,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// The number of SW channels sent by Neuromaster
         /// </summary>
-        public const int numSWChannelsSentByHW = 4;
+        public const int NumSWChannelsSentByHW = 4;
 
         /// <summary>
         /// That is the maximum number of SW Channels one module can have
@@ -41,14 +43,14 @@ namespace FeedbackDataLib
 #if VIRTUAL_EEG
         public const int maxNumSWChannels = 12;
 #else
-        public const int maxNumSWChannels = 4;
+        public const int MaxNumSWChannels = 4;
 
 #endif
 
         /// <summary>
         /// That is the maximum number od HW Channels one module can have
         /// </summary>
-        public const int max_num_HWChannels = 7;
+        public const int MaxNumHWChannels = 7;
 
         /// <summary>
         /// Default Multisensor Channel No
@@ -85,17 +87,17 @@ namespace FeedbackDataLib
         /// <param name="ComPortName">
         /// "COM1","COM2
         /// </param>
-        public C8CommBase(string ComPortName): this()
+        public CNMaster(string ComPortName) : this()
         {
             C8KanalReceiverV2_Construct();
             this.ComPortName = ComPortName;
         }
 
-        public C8CommBase(ISerialPort SerialPort) : this ()
-        { }
+        //public CNMaster(ISerialPort SerialPort) : this()
+        //{ }
 
-        public C8CommBase(string ComPortName, int BaudRate) : this()
-        { }
+        //public CNMaster(string ComPortName, int BaudRate) : this()
+        //{ }
 
 
         /// <summary>
@@ -103,12 +105,12 @@ namespace FeedbackDataLib
         /// </summary>
         public void Close()
         {
-            c8Receiver?.Connection?.Close();  //1st Close
+            NMReceiver?.Connection?.Close();  //1st Close
         }
 
         public EnumConnectionResult Connect()
         {
-            var conres = c8Receiver.Init_via_D2XX();
+            var conres = NMReceiver.Init_via_D2XX();
             if (conres == EnumConnectionResult.Connected_via_USBCable || conres == EnumConnectionResult.Connected_via_XBee)
             {
                 //Start Threads
@@ -123,7 +125,7 @@ namespace FeedbackDataLib
         /// </summary>
         public void C8KanalReceiverV2_Construct()
         {
-            if (c8Receiver == null)
+            if (NMReceiver == null)
                 throw new Exception("RS232Receiver mustbe created before calling constructor");
         }
 
@@ -176,188 +178,6 @@ namespace FeedbackDataLib
             double ret = ModuleInfos[hwcn].SWChannels[swcn].GetScaledValue(DataIn.Value);
             return ret;
         }
-
-        /// <summary>
-        /// Converts CDataIn channel date to double arrays
-        /// Rebuilds time base, equidistantly, from Sample Int
-        /// Synchronices starting point, even if time series have different starting point
-        /// and differnt length
-        /// </summary>
-        /// <param name="data_in">Input data</param>
-        /// <param name="data_time">Time series according to Data_in</param>
-        /// <param name="data_value_scaled">Values scaled series according to Data_in</param>
-        /// <remarks>
-        /// if data channels data_in do not have a common starting point data_time and data_value_scaled are returned as null
-        /// </remarks>
-        public void ConvCDataIn_to_Double_arrays(List<List<CDataIn>> data_in, out List<List<double>> data_time, out List<List<double>> data_value_scaled)
-        {
-            int idx_highestSampleInt = 0;
-            int si_max = 0;
-            DateTime dt_absolute = data_in[0][0].DTAbsolute;
-            DateTime earliestStartingTime = dt_absolute;
-
-            int idx_latestEndTime = 0;
-            DateTime latestEndTime = data_in[0][^1].DTAbsolute;
-
-            data_value_scaled = [];
-            data_time = [];
-
-            for (int i = 0; i < data_in.Count; i++)
-            {
-                //Find channel with highest sample interval
-                ushort si = ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
-                if (si > si_max)
-                {
-                    si_max = si;
-                    idx_highestSampleInt = i;
-                }
-
-                //Check Starting times of channels ... for synchronisation
-                //Find the channel with earlierst starting time
-                if (data_in[i][0].DTAbsolute > earliestStartingTime)
-                {
-                    earliestStartingTime = data_in[i][0].DTAbsolute;
-                }
-
-                //Check Ending times of channels ... 
-                //Find the channel with latest ending time
-                if (data_in[i][^1].DTAbsolute < latestEndTime)
-                {
-                    idx_latestEndTime = i;
-                    latestEndTime = data_in[i][^1].DTAbsolute;
-                }
-            }
-
-            //Find end indizes of channels
-            int[] EndIndizes = new int[data_in.Count];
-            EndIndizes[idx_latestEndTime] = data_in[idx_latestEndTime].Count - 1;
-            for (int i = 0; i < data_in.Count; i++)
-            {
-                if (i != idx_latestEndTime)
-                {
-                    int j = data_in[i].Count - 1;
-                    while (j >= 0)
-                    {
-                        if (data_in[i][j].DTAbsolute > latestEndTime)
-                        {
-                            j--;
-                        }
-                        else
-                        {
-                            EndIndizes[i] = j;
-                            break;
-                        }
-                    }
-                }
-            }
-
-
-            //Find nearest time reference point in the channel with the lowest sample rate
-            int refIndex = 0; //This point is set as starting point
-            while (data_in[idx_highestSampleInt][refIndex].DTAbsolute < earliestStartingTime)
-            {
-                refIndex++;
-                if (refIndex >= data_in[idx_highestSampleInt].Count)
-                    break;
-            }
-
-
-            //find StartingIndizes closest to refPoint
-            if (refIndex < data_in[idx_highestSampleInt].Count)
-            {
-                DateTime refPoint = data_in[idx_highestSampleInt][refIndex].DTAbsolute;
-
-                //Find indizes of other channels closest to the refPoint
-                int[] StartingIndizes = new int[data_in.Count];
-                StartingIndizes[idx_highestSampleInt] = refIndex;
-
-                for (int i = 0; i < data_in.Count; i++)
-                {
-                    //find index closest to refPoint
-                    if (i != idx_highestSampleInt)
-                    {
-                        int j = 0;
-                        while ((j < data_in[i].Count) && (data_in[i][j].DTAbsolute < refPoint))
-                        {
-                            j++;
-                        }
-
-                        //if (j < data_in[i].Count)
-                        if (j <= EndIndizes[i])
-                        {
-                            //j points to next higher point
-                            //Check if j or j-1 is closer to refPoint
-                            TimeSpan tsprev = refPoint - data_in[i][j].DTAbsolute;
-                            TimeSpan tsnxt = data_in[i][j].DTAbsolute - refPoint;
-
-                            StartingIndizes[i] = j;
-                            if (tsprev < tsnxt)
-                            {
-                                //tsprev is closer
-                                StartingIndizes[i] = j - 1;
-                            }
-                        }
-                        else
-                        {
-                            //Could not find a valid starting point
-                            StartingIndizes[i] = -1;
-                        }
-                    }
-                }
-
-                //Build arrays of double, rebuild time base
-                data_time = [];
-                data_value_scaled = [];
-
-                for (int i = 0; i < data_in.Count; i++)
-                {
-                    if (StartingIndizes[i] >= 0)
-                    {
-                        List<double> time = [];
-                        List<double> val = [];
-                        ushort si = ModuleInfos[data_in[i][0].HWcn].SWChannels[data_in[i][0].SWcn].SampleInt;
-                        double si_s = ((double)si) / 1000;
-                        double cnttime = 0;
-                        //for (int j = StartingIndizes[i]; j < data_in[i].Count; j++)
-                        for (int j = StartingIndizes[i]; j <= EndIndizes[i]; j++)
-                        {
-                            time.Add(cnttime);
-                            cnttime += si_s;
-                            //debug
-                            //val.Add(GetScaledValue(data_in[i][j]));
-                            val.Add(data_in[i][j].Value);
-                        }
-                        data_time.Add(time);
-                        data_value_scaled.Add(val);
-                    }
-                    else
-                    {
-                        //In case of error add empty list that indices stay in order
-                        data_time.Add([]);
-                        data_value_scaled.Add([]);
-                    }
-                }
-            } //if (refIndex < data_in[idx_highestSampleInt].Count)
-            else
-            {
-                //data_in not have a common starting point
-                data_time = [];
-                data_value_scaled = [];
-            }
-
-        }
-
-        /// <summary>
-        /// Gets the connection status
-        /// </summary>
-        /// <returns>Connection status</returns>
-        public EnumConnectionStatus GetConnectionStatus()
-        {
-            if (c8Receiver is not null && c8Receiver.Connection is not null)
-                return c8Receiver.Connection.ConnectionStatus;
-            return EnumConnectionStatus.Not_Connected;
-        }
-
         public static bool Check4Neuromaster(ISerialPort Seriell32)
         {
             bool ret = false;

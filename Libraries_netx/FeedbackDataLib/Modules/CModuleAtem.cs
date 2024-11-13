@@ -7,7 +7,7 @@
         {
             ModuleColor = Color.Blue;
             ModuleName = "Atem";
-            ModuleType = enumModuleType.cModuleAtem;
+            ModuleType = EnModuleType.cModuleAtem;
 
             cSWChannelNames =
                 [
@@ -18,10 +18,10 @@
                 ];
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeAtem0,
-                enumSWChannelType.cSWChannelTypeAtem1,
-                enumSWChannelType.cSWChannelTypeAtem2,
-                enumSWChannelType.cSWChannelTypeAtem3
+                EnSWChannelType.cSWChannelTypeAtem0,
+                EnSWChannelType.cSWChannelTypeAtem1,
+                EnSWChannelType.cSWChannelTypeAtem2,
+                EnSWChannelType.cSWChannelTypeAtem3
             ];
         }
     }

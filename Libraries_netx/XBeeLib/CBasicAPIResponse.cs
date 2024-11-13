@@ -20,7 +20,7 @@
         /// length of the api frame
         /// </summary>
         /// <remarks>is not in use at the moment</remarks>
-        public int length
+        public int Length
         {
             get { return _length; }
             set { _length = value; }
@@ -30,7 +30,7 @@
         /// inits the object with the receiving frame
         /// </summary>
         /// <param name="recFrameData">receiving frame data</param>
-        abstract public void initResponse(List<byte> recFrameData);
+        abstract public void InitResponse(List<byte> recFrameData);
 
     }
 }

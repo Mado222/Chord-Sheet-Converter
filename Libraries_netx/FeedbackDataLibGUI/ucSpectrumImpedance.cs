@@ -4,11 +4,11 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class ucSpectrumImpedance : UserControl
     {
-        private PlotView plotView1;
+        private readonly PlotView plotView1;
 
         public int ChanNo { get; }
         public Color ChanColor { get; }
@@ -163,7 +163,7 @@ namespace FeedbackDataLib_GUI
             return 0;
         }
 
-        private void nudYmax_ValueChanged(object sender, EventArgs e)
+        private void NudYmax_ValueChanged(object sender, EventArgs e)
         {
             if (!cbAutoscale.Checked)
             {
@@ -173,7 +173,7 @@ namespace FeedbackDataLib_GUI
             SetYMAX(double.NaN);
         }
 
-        private void cbAutoscale_CheckedChanged(object sender, EventArgs e)
+        private void CbAutoscale_CheckedChanged(object sender, EventArgs e)
         {
             if (!cbAutoscale.Checked)
             {

@@ -3,7 +3,7 @@ using FeedbackDataLib.Modules;
 using System.Xml.Serialization;
 
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class CChannelsControlV2x1 : UserControl
     {
@@ -38,33 +38,33 @@ namespace FeedbackDataLib_GUI
 
             public Default_Scaling_Values()
             {
-                DefaultVals = new Scaling_Values[Enum.GetNames(typeof(enumModuleType)).Length][];
+                DefaultVals = new Scaling_Values[Enum.GetNames(typeof(EnModuleType)).Length][];
 
                 for (int i = 0; i < DefaultVals.Length; i++)
                 {
-                    DefaultVals[i] = new Scaling_Values[C8CommBase.maxNumSWChannels];
+                    DefaultVals[i] = new Scaling_Values[CNMaster.MaxNumSWChannels];
 
                     for (int j = 0; j < DefaultVals[i].Length; j++)
                     {
                         DefaultVals[i][j] = new Scaling_Values
                         {
-                            ModuleName = Enum.GetNames(typeof(enumModuleType))[j] + "_SW" + j.ToString()
+                            ModuleName = Enum.GetNames(typeof(EnModuleType))[j] + "_SW" + j.ToString()
                         };
                     }
                 }
             }
 
-            public void GetScalingValues(ref double DefMax, ref double DefMin, enumModuleType moduleType, int sw_cn)
+            public void GetScalingValues(ref double DefMax, ref double DefMin, EnModuleType moduleType, int sw_cn)
             {
                 DefMax = DefaultVals[(int)moduleType][sw_cn].Default_Max;
                 DefMin = DefaultVals[(int)moduleType][sw_cn].Default_Min;
             }
 
-            public void SetScalingValues(double DefMax, double DefMin, enumModuleType moduleType, int sw_cn)
+            public void SetScalingValues(double DefMax, double DefMin, EnModuleType moduleType, int sw_cn)
             {
                 DefaultVals[(int)moduleType][sw_cn].Default_Max = DefMax;
                 DefaultVals[(int)moduleType][sw_cn].Default_Min = DefMin;
-                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(enumModuleType), moduleType) ?? "Unknown";
+                DefaultVals[(int)moduleType][sw_cn].ModuleName = Enum.GetName(typeof(EnModuleType), moduleType) ?? "Unknown";
             }
 
 
@@ -145,7 +145,7 @@ namespace FeedbackDataLib_GUI
             for (int hw_cn = 0; hw_cn < _ModuleInfos.Count; hw_cn++)
             {
 
-                if (_ModuleInfos[hw_cn].ModuleType != enumModuleType.cModuleTypeEmpty)
+                if (_ModuleInfos[hw_cn].ModuleType != EnModuleType.cModuleTypeEmpty)
                 {
                     if (ChannelTimeouts[hw_cn] < timeout)
                         cModuleInfoDataGridView.Rows[hw_cn].HeaderCell.Style.BackColor = colNotActive;
@@ -181,13 +181,13 @@ namespace FeedbackDataLib_GUI
         {
             if (_ModuleInfos is null) return [];
 
-            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor != null)
+            if (_ModuleInfos[HW_cn].ModuleType_Unmodified == EnModuleType.cModuleMultisensor && ucModuleSpecificSetup_MultiSensor != null)
             {
                 CModuleMultisensor ModuleInfo = new();
                 ucModuleSpecificSetup_MultiSensor.ReadModuleSpecificInfo(ref ModuleInfo);
                 return ModuleInfo.GetModuleSpecific();
             }
-            else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig && ucModuleSpecificSetup_AtemIR != null)
+            else if (_ModuleInfos[HW_cn].ModuleType_Unmodified == EnModuleType.cModuleAtemIRDig && ucModuleSpecificSetup_AtemIR != null)
             {
                 CModuleRespI ModuleInfo = new();
                 ucModuleSpecificSetup_AtemIR.ReadModuleSpecificInfo(ref ModuleInfo);
@@ -237,7 +237,7 @@ namespace FeedbackDataLib_GUI
                 SelectedSWChannel = sWChannelsDataGridView.Rows[0].DataBoundItem as CSWChannel;
 
                 UpdateInfo();
-                UpdateModuleSpecificInfo(SelectedModuleRow);
+                UpdateModuleSpecificInfo(SelectedModuleRow!);
 
                 tmrTimeout.Enabled = true;
             }
@@ -325,7 +325,7 @@ namespace FeedbackDataLib_GUI
         /// <summary>
         /// User selected another SWChannel Row
         /// </summary>
-        public event SWChannelRowChangedEventHandler SWChannelRowChanged;
+        public event SWChannelRowChangedEventHandler? SWChannelRowChanged;
         protected virtual void OnSWChannelRowChanged(CSWChannel? SelectedSWChannel)
         {
             if (SelectedSWChannel != null)
@@ -355,7 +355,7 @@ namespace FeedbackDataLib_GUI
             UpdateInfo();
         }
 
-        public CModuleBase SelectedModuleRow { get; private set; }
+        public CModuleBase? SelectedModuleRow { get; private set; }
 
         public CSWChannel? SelectedSWChannel { get; private set; }
 
@@ -370,12 +370,12 @@ namespace FeedbackDataLib_GUI
                     SelectedModuleRow = module;
                 }
                 UpdateInfo();
-                UpdateModuleSpecificInfo(SelectedModuleRow);
+                UpdateModuleSpecificInfo(SelectedModuleRow!);
 
-                OnModuleRowChanged(SelectedModuleRow);
+                OnModuleRowChanged(SelectedModuleRow!);
 
                 if (_ModuleInfos is null) return;
-                
+
                 if (cModuleInfoDataGridView is not null && cModuleInfoDataGridView.RowHeadersDefaultCellStyle is not null)
                 {
                     if (_ModuleInfos[e.RowIndex].ModuleBootloaderError)
@@ -406,10 +406,12 @@ namespace FeedbackDataLib_GUI
 
         private void SaveCurrentValuesAsDefaultsToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (SelectedModuleRow is null) return;
             Default_Scaling_Values default_Scaling_Values = new();
+
             if (!SelectedModuleRow.ModuleBootloaderError)
             {
-                if (SelectedModuleRow.ModuleType != enumModuleType.cModuleTypeEmpty)
+                if (SelectedModuleRow.ModuleType != EnModuleType.cModuleTypeEmpty)
                 {
                     for (int sw_cn = 0; sw_cn < SelectedModuleRow.NumSWChannels; sw_cn++)
                     {
@@ -423,9 +425,9 @@ namespace FeedbackDataLib_GUI
         }
 
         ucModuleSpecificSetup_AtemIR ucModuleSpecificSetup_AtemIR = new();
-        ucModuleSpecificSetup_VasoIR ucModuleSpecificSetup_VasoIR = new();
+        UcModuleSpecificSetupVasoIR ucModuleSpecificSetup_VasoIR = new();
         ucModuleSpecificSetup_MultiSensor ucModuleSpecificSetup_MultiSensor = new();
-        ucModuleExGADS_Impedance ucModuleExGADS_Impedance = new();
+        UcModuleExGADSImpedance ucModuleExGADS_Impedance = new();
         ucModuleEEG? ucModuleEEG = new();
 
 
@@ -455,7 +457,7 @@ namespace FeedbackDataLib_GUI
             int Top = sWChannelsDataGridView.Top + sWChannelsDataGridView.Height + 5;
             int Width = sWChannelsDataGridView.Width;
 
-            if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig)
+            if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleAtemIRDig)
             {
                 if (ucModuleSpecificSetup_AtemIR == null)
                 {
@@ -474,11 +476,11 @@ namespace FeedbackDataLib_GUI
                     ucModuleSpecificSetup_AtemIR.Visible = false;
             }
 
-            if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleVasosensorDig)
+            if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleVasosensorDig)
             {
                 if (ucModuleSpecificSetup_VasoIR == null)
                 {
-                    ucModuleSpecificSetup_VasoIR = new ucModuleSpecificSetup_VasoIR();
+                    ucModuleSpecificSetup_VasoIR = new UcModuleSpecificSetupVasoIR();
                     Controls.Add(ucModuleSpecificSetup_VasoIR);
                     ucModuleSpecificSetup_VasoIR.Location = new Point(Left, Top);
                     ucModuleSpecificSetup_VasoIR.Name = "ucModuleSpecificSetup_VasoIR";
@@ -494,8 +496,8 @@ namespace FeedbackDataLib_GUI
             }
 
 
-            if ((ModuleInfo.ModuleType == enumModuleType.cModuleMultisensor) ||
-                (ModuleInfo.ModuleType == enumModuleType.cModuleVaso))
+            if ((ModuleInfo.ModuleType == EnModuleType.cModuleMultisensor) ||
+                (ModuleInfo.ModuleType == EnModuleType.cModuleVaso))
             {
                 if (ucModuleSpecificSetup_MultiSensor == null)
                 {
@@ -516,7 +518,7 @@ namespace FeedbackDataLib_GUI
                     ucModuleSpecificSetup_MultiSensor.Visible = false;
             }
 
-            if (ModuleInfo.ModuleType == enumModuleType.cModuleEEG)
+            if (ModuleInfo.ModuleType == EnModuleType.cModuleEEG)
             {
                 //Also Update skal Vals
                 int hw_cn = ModuleInfo.HWcn;
@@ -530,11 +532,11 @@ namespace FeedbackDataLib_GUI
                     }
                 }
 
-                if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
+                if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleExGADS94)
                 {
                     if (ucModuleExGADS_Impedance == null)
                     {
-                        ucModuleExGADS_Impedance = new ucModuleExGADS_Impedance();
+                        ucModuleExGADS_Impedance = new UcModuleExGADSImpedance();
                         Controls.Add(ucModuleExGADS_Impedance);
 
 
@@ -558,12 +560,12 @@ namespace FeedbackDataLib_GUI
 
 #endif
                 }
-                else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
+                else if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleExGADS94)
                 {
 
                 }
 
-                else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleEEG)
+                else if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleEEG)
                 {
                     if (ucModuleEEG == null)
                     {
@@ -619,7 +621,7 @@ namespace FeedbackDataLib_GUI
 
         public void ReadModuleSpecificInfo(ref CModuleBase ModuleInfo)
         {
-            if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleAtemIRDig)
+            if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleAtemIRDig)
             {
                 if (ucModuleSpecificSetup_AtemIR != null)
                 {
@@ -629,22 +631,22 @@ namespace FeedbackDataLib_GUI
                 }
             }
 
-            else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleVasosensorDig)
+            else if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleVasosensorDig)
             {
                 CModuleVasoIR mr = (CModuleVasoIR)ModuleInfo;
                 ucModuleSpecificSetup_VasoIR.ReadModuleSpecificInfo(ref mr);
                 ModuleInfo = mr;
             }
 
-            else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleMultisensor ||
-                ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleVaso)
+            else if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleMultisensor ||
+                ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleVaso)
             {
                 CModuleMultisensor mr = (CModuleMultisensor)ModuleInfo;
                 ucModuleSpecificSetup_MultiSensor.ReadModuleSpecificInfo(ref mr);
                 ModuleInfo = mr;
             }
 
-            else if (ModuleInfo.ModuleType_Unmodified == enumModuleType.cModuleExGADS94)
+            else if (ModuleInfo.ModuleType_Unmodified == EnModuleType.cModuleExGADS94)
             {
                 //frmModuleSpecificSetup_ExGADS.ReadModuleSpecificInfo(ref ModuleInfo);
             }

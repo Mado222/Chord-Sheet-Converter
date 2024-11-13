@@ -1,4 +1,4 @@
-﻿namespace MathNetNuget
+﻿namespace MathNetNugetLib
 {
     /// <summary>
     /// Encapsulates Parameters related to frequency ranges

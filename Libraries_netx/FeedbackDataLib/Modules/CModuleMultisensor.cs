@@ -18,10 +18,10 @@
 
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeSCL,
-                enumSWChannelType.cSWChannelTypeTemp,
-                enumSWChannelType.cSWChannelTypePulse0,
-                enumSWChannelType.cSWChannelTypePulse1
+                EnSWChannelType.cSWChannelTypeSCL,
+                EnSWChannelType.cSWChannelTypeTemp,
+                EnSWChannelType.cSWChannelTypePulse0,
+                EnSWChannelType.cSWChannelTypePulse1
             ];
 
         }

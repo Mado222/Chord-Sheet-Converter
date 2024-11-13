@@ -1,10 +1,10 @@
 ﻿using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     internal class CModuleExGADS1294_EEG_GUI : CModuleExGADS1294_EEG
     {
-        private frmSpectrum frmSpectrum;
+        private readonly frmSpectrum frmSpectrum;
         public CModuleExGADS1294_EEG_GUI() : base()
         {
             frmSpectrum = new frmSpectrum();

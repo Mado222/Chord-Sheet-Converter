@@ -3,7 +3,7 @@ namespace FeedbackDataLib.Modules.CADS1294x
 {
     public class CADS1294x_Gain
     {
-        private List<Gain> gainOrder =
+        private readonly List<Gain> gainOrder =
             [
                 Gain.PGA_GAIN_6,
                 Gain.PGA_GAIN_1,

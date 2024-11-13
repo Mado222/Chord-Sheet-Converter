@@ -327,10 +327,10 @@ namespace BMTCommunicationLib
         /// String that was received
         /// null: if an error occurs
         /// </returns>
-        private string? XBGetString()
-        {
-            return XBGetString(300);
-        }
+        //private string? XBGetString()
+        //{
+        //    return XBGetString(300);
+        //}
 
         /// <summary>
         /// Reads incoming bytes on serial port
@@ -467,7 +467,7 @@ namespace BMTCommunicationLib
 
             List<byte> byteList = new(frameData);
 
-            response.initResponse(byteList);
+            response.InitResponse(byteList);
 
             //read and check checksum
             numberReadByte = Seriell32.Read(ref inBuf, 0, 1, Timeout_ms);
@@ -718,7 +718,7 @@ namespace BMTCommunicationLib
                     {
                         helpList.Add(listEnum.Current);
                     }
-                    NodeInfo.NI_NodeIdentifier = ASCIIEncoding.ASCII.GetString(helpList.ToArray());
+                    NodeInfo.NI_NodeIdentifier = ASCIIEncoding.ASCII.GetString([.. helpList]);
 
                     NodeInfos.Add(NodeInfo);
                 }
@@ -757,7 +757,7 @@ namespace BMTCommunicationLib
             while (DateTime.Now < endTime)
             {
                 var response = XBGetResponse();
-                if (response != null && request.checkResponse(response))
+                if (response != null && request.CheckResponse(response))
                 {
                     return response;
                 }
@@ -1281,7 +1281,7 @@ namespace BMTCommunicationLib
                         CModemStatus? response = (CModemStatus?)XBGetResponse(); //waits for ModemStatus for 500msec.
                         if (response != null)
                         {
-                            return (int)response.modemStatus;
+                            return (int)response.ModemStatus;
                         }
                         return 1;
                     }

@@ -1,5 +1,5 @@
 ﻿using FeedbackDataLib.Modules;
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public interface IModuleSpecificSetup_Base
     {

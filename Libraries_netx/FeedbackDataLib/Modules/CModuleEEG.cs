@@ -6,8 +6,8 @@
         public CModuleEEG()
         {
             _num_raw_Channels = 1;
-            _ModuleType_Unmodified = enumModuleType.cModuleEEG;
-            _ModuleType = enumModuleType.cModuleEEG;
+            _ModuleType_Unmodified = EnModuleType.cModuleEEG;
+            _ModuleType = EnModuleType.cModuleEEG;
             Init();
         }
 

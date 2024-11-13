@@ -8,7 +8,7 @@ namespace FeedbackDataLib
     public class CRS232Receiver : IDisposable
     {
         private readonly CFifoConcurrentQueue<CDataIn> _measurementDataQueue = new();
-        private CFifoConcurrentQueue<byte[]> commandResponseQueue = new();
+        private CFifoConcurrentQueue<(byte[] btreceived, DateTime dtreceived)> commandResponseQueue = new();
         private readonly CFifoConcurrentQueue<byte[]> _commandToPCQueue = new();
 
 
@@ -41,8 +41,8 @@ namespace FeedbackDataLib
             {
                 if (seriell32 == null)
                 {
-                    //throw new InvalidOperationException("The serial connection is not set.");
-                    Debug.WriteLine("The serial connection is not set.");
+                    throw new InvalidOperationException("The serial connection is not set.");
+                    //Debug.WriteLine("The serial connection is not set.");
                 }
                 return seriell32;
             }
@@ -84,8 +84,8 @@ namespace FeedbackDataLib
         private ReceiverState _receiverState = ReceiverState.None;
 
         // Declare cancellationTokenSourceReceiver as a private property
-        private CancellationTokenSource? CancellationTokenSourceReceiver { get; set; }
-        public CFifoConcurrentQueue<byte[]> CommandResponseQueue { get => commandResponseQueue; set => commandResponseQueue = value; }
+        //private CancellationTokenSource? CancellationTokenSourceReceiver { get; set; }
+        public CFifoConcurrentQueue<(byte[] btreceived, DateTime dtreceived)> CommandResponseQueue { get => commandResponseQueue; set => commandResponseQueue = value; }
         public CFifoConcurrentQueue<CDataIn> MeasurementDataQueue => _measurementDataQueue;
 
         public CFifoConcurrentQueue<byte[]> CommandToPCQueue => _commandToPCQueue;
@@ -161,7 +161,7 @@ namespace FeedbackDataLib
             return null;
         }
 
-        #region ReceivrThread
+        #region ReceiverThread
         private CancellationTokenSource? _cancellationTokenSourceReceiver;
 
         // Async method to start the RS232 receiver thread with optional external cancellation token
@@ -199,7 +199,9 @@ namespace FeedbackDataLib
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "RS232ReceiverThread";
 
-            //var cancellationToken = CancellationTokenSourceReceiver?.Token ?? CancellationToken.None;
+            _measurementDataQueue.Clear();
+            commandResponseQueue.Clear();
+            _commandToPCQueue.Clear();
 
             try
             {
@@ -281,16 +283,17 @@ namespace FeedbackDataLib
                                         // Process different command codes
                                         switch (buf[0])
                                         {
-                                            case C8CommBase.cChannelSync:
+                                            case CNMaster.cChannelSync:
                                                 {
                                                     LastSyncSignal = Seriell32.Now(EnumTimQueryStatus.isSync);
                                                     break;
                                                 }
-                                            case C8CommBase.cDeviceAlive:
+                                            case CNMaster.cDeviceAlive:
                                                 {
+                                                    CommandResponseQueue.Push((buf, DateTime.Now)); // Store command for further processing
                                                     break;
                                                 }
-                                            case C8CommBase.cNeuromasterToPC:
+                                            case CNMaster.cNeuromasterToPC:
                                                 {
                                                     CommandToPCQueue.Push(buf);
                                                     break;
@@ -298,7 +301,7 @@ namespace FeedbackDataLib
                                             default:
                                                 {
                                                     Debug.WriteLine("default: " + BitConverter.ToString(buf).Replace("-", " "));
-                                                    CommandResponseQueue.Push(buf); // Store command for further processing
+                                                    CommandResponseQueue.Push((buf, DateTime.Now)); // Store command for further processing
                                                     break;
                                                 }
                                         }
@@ -326,7 +329,6 @@ namespace FeedbackDataLib
             }
             finally
             {
-                //StopRS232DistributorThread();
             }
         }
         #endregion

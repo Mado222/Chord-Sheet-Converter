@@ -16,22 +16,22 @@ namespace XBeeLib
         /// <remarks>inits the AP-ID</remarks>
         public CATCommand() => APID = CXBAPICommands.ATCommand;
 
-        private bool _ApplyCommandImmediately = true; // default: AT Command
+        //private bool _ApplyCommandImmediately = true; // default: AT Command
         /// <summary>
         /// to distinguish between "AT Command" and "AT Command - Queue Parameter Value"
         /// </summary>
-        private bool ApplyCommandImmediately
-        {
-            get { return _ApplyCommandImmediately; }
-            set
-            {
-                _ApplyCommandImmediately = value;
-                if (value == true)
-                    APID = CXBAPICommands.ATCommand;
-                else
-                    APID = CXBAPICommands.ATCommandQueueParameterValue;
-            }
-        }
+        //private bool ApplyCommandImmediately
+        //{
+        //    get { return _ApplyCommandImmediately; }
+        //    set
+        //    {
+        //        _ApplyCommandImmediately = value;
+        //        if (value == true)
+        //            APID = CXBAPICommands.ATCommand;
+        //        else
+        //            APID = CXBAPICommands.ATCommandQueueParameterValue;
+        //    }
+        //}
 
         private bool _ATCommandResponse;
         /// <summary>
@@ -157,7 +157,7 @@ namespace XBeeLib
         /// <returns>
         /// true: if the response corresponses the the request
         /// false: if not</returns>
-        override public bool checkResponse(CBasicAPIResponse response)
+        override public bool CheckResponse(CBasicAPIResponse response)
         {
             bool IsResponseCorrect = false;
             switch (response.APID)

@@ -12,7 +12,7 @@ namespace FeedbackDataLib
     /// <summary>
     /// Basic Component for Insight Instruments 8 Channel Device
     /// </summary>
-    public class C8RS232: IC8Base, IDisposable
+    public class CNMasterRS232 : IC8Base, IDisposable
     {
         /// <summary>
         /// Serial Port used by this class
@@ -31,12 +31,12 @@ namespace FeedbackDataLib
         public int BaudRate_LocalDevice => baudRate_LocalDevice;
         public int BaudRate_RemoteDevice => baudRate_RemoteDevice;
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8RS232" /> class.
+        /// Initializes a new instance of the <see cref="CNMasterRS232" /> class.
         /// </summary>
         /// <param name="ComPortName">
         /// Com Port Name (COM1, COM2, ..) in case of Serial Port Connection
         /// </param>
-        public C8RS232(string ComPortName)
+        public CNMasterRS232(string ComPortName)
         {
             serialPort = new CSerialPortWrapper
             {
@@ -59,10 +59,10 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8RS232" /> class.
+        /// Initializes a new instance of the <see cref="CNMasterRS232" /> class.
         /// </summary>
         /// <param name="SerialPort">The serial port.</param>
-        public C8RS232()
+        public CNMasterRS232()
         {
             serialPort = new CSerialPortWrapper();
         }

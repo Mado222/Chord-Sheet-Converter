@@ -43,7 +43,7 @@ namespace WindControlLib
         /// <summary>
         /// Value between Tiks, calculated in SetParams
         /// </summary>
-        public double deltaTik
+        public double DeltaTik
         {
             get { return _deltaTik; }
         }

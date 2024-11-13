@@ -15,12 +15,12 @@
             _APID = CXBAPICommands.ModemStatus;
         }
 
-        private ModemStatus _modemStatus = ModemStatus.HardwareReset;
+        private EnModemStatus _modemStatus = EnModemStatus.HardwareReset;
 
         /// <summary>
         /// modem status
         /// </summary>
-        virtual public ModemStatus modemStatus
+        virtual public EnModemStatus ModemStatus
         {
             get { return _modemStatus; }
             set { _modemStatus = value; }
@@ -30,9 +30,9 @@
         /// inits the object with the receiving frame
         /// </summary>
         /// <param name="recFrameData">frame data</param>
-        public override void initResponse(List<byte> recFrameData)
+        public override void InitResponse(List<byte> recFrameData)
         {
-            modemStatus = (ModemStatus)recFrameData[0];
+            ModemStatus = (EnModemStatus)recFrameData[0];
         }
 
     }
@@ -40,7 +40,7 @@
     /// <summary>
     /// enum for possible modem status
     /// </summary>
-    public enum ModemStatus
+    public enum EnModemStatus
     {
         HardwareReset,
         WatchdogTimerReset,

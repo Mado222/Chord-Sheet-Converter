@@ -1,4 +1,4 @@
-﻿namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLibGUI
 {
     partial class ucSpectrumImpedance
     {
@@ -219,7 +219,7 @@
             cbAutoscale.TabIndex = 7;
             cbAutoscale.Text = "Autoscale";
             cbAutoscale.UseVisualStyleBackColor = true;
-            cbAutoscale.CheckedChanged += cbAutoscale_CheckedChanged;
+            cbAutoscale.CheckedChanged += CbAutoscale_CheckedChanged;
             // 
             // label4
             // 
@@ -245,7 +245,7 @@
             nudYmax.TabIndex = 9;
             nudYmax.TextAlign = HorizontalAlignment.Right;
             nudYmax.Value = new decimal(new int[] { 10, 0, 0, 0 });
-            nudYmax.ValueChanged += nudYmax_ValueChanged;
+            nudYmax.ValueChanged += NudYmax_ValueChanged;
             // 
             // uc_Spectrum_Impedance
             // 

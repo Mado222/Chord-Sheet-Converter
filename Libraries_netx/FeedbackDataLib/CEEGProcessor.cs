@@ -5,7 +5,7 @@ namespace FeedbackDataLib
     public class CEEGProcessor
     {
         public CEEGCalcChannels EEGSWChannels;
-        private CEEGSpectrum _CEEG_Spectrum;
+        private readonly CEEGSpectrum _CEEG_Spectrum;
 
 
         /// <summary>
@@ -42,7 +42,6 @@ namespace FeedbackDataLib
 
         private int num_samples_to_calc = 0;
         private DateTime SWCha_NextSampleTime = DateTime.Now;
-        private readonly CSWChannel? rawChannel = null;
         public bool SpectrumChannelsactive = false;
         public TimeSpan SpectrumChannelSampleTime = TimeSpan.FromMilliseconds(200);
 
@@ -52,11 +51,7 @@ namespace FeedbackDataLib
         {
             EEGSWChannels = eegChannels;
             _CEEG_Spectrum = new CEEGSpectrum(eegChannels.EEG_FrequencyRanges);
-            this.rawChannel = rawChannel;
-            if (rawChannel != null)
-            {
-                SampleInt_ms = rawChannel.SampleInt;
-            }
+            SampleInt_ms = rawChannel?.SampleInt ?? SampleInt_ms;
         }
 
         private void Update()

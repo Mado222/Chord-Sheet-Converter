@@ -4,7 +4,7 @@ using FeedbackDataLib.Modules;
 using WindControlLib;
 
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public class UcFlowChartDX_NM : ucLCharts2_chart
     {
@@ -84,7 +84,7 @@ namespace FeedbackDataLib_GUI
             {
                 if (ModuleInfos[i] is not null)
                 {
-                    if (ModuleInfos[i].ModuleType != enumModuleType.cModuleTypeEmpty)
+                    if (ModuleInfos[i].ModuleType != EnModuleType.cModuleTypeEmpty)
                     {
                         int cnt_active_swchannels = -1;
                         numberOfCharts = Def.DefChannel.Count;
@@ -123,12 +123,12 @@ namespace FeedbackDataLib_GUI
             /// <summary>
             /// 
             /// </summary>
-            public class CDefChannel(enumModuleType ModuleType, int SW_cn)
+            public class CDefChannel(EnModuleType ModuleType, int SW_cn)
             {
                 /// <summary>
                 /// The module type
                 /// </summary>
-                public enumModuleType ModuleType = ModuleType;
+                public EnModuleType ModuleType = ModuleType;
                 /// <summary>
                 /// The S W_CN
                 /// </summary>
@@ -145,13 +145,13 @@ namespace FeedbackDataLib_GUI
             /// </summary>
             public CDefaultChannels()
             {
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleAtem, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleECG, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleEEG, 3));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleAtem, 1));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleECG, 1));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleEEG, 3));       //
                 //DefChannel.Add(new CDefChannel(enumModuleType.cModuleEEGADS, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleExGADS94, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleEMG, 1));       //
-                DefChannel.Add(new CDefChannel(enumModuleType.cModuleMultisensor, 2));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleExGADS94, 1));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleEMG, 1));       //
+                DefChannel.Add(new CDefChannel(EnModuleType.cModuleMultisensor, 2));       //
             }
         }
 
@@ -182,7 +182,7 @@ namespace FeedbackDataLib_GUI
                 int ret = -1;
                 foreach (CLinkedValues clv in LinkedValues)
                 {
-                    if ((clv.HW_cn == Hw_cn) && (clv.SW_cn == Sw_cn))
+                    if (clv.HW_cn == Hw_cn && clv.SW_cn == Sw_cn)
                     {
                         ret = clv.idx_Track;
                         break;
@@ -196,7 +196,7 @@ namespace FeedbackDataLib_GUI
                 int ret = -1;
                 foreach (CLinkedValues clv in LinkedValues)
                 {
-                    if ((clv.HW_cn == Hw_cn) && (clv.SW_cn == Sw_cn))
+                    if (clv.HW_cn == Hw_cn && clv.SW_cn == Sw_cn)
                     {
                         ret = clv.idx_ModuleInfos;
                         break;

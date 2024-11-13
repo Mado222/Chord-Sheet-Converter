@@ -16,7 +16,7 @@ namespace FeedbackDataLib
     public class CSerialModule_MDB
     {
         public string SerialNumber { get; set; } = "";
-        public enumModuleType Type { get; set; } = enumModuleType.cModuleTypeEmpty;
+        public EnModuleType Type { get; set; } = EnModuleType.cModuleTypeEmpty;
         public float Ampl1 { get; set; } = 0;
         public float Ampl1_soll { get; set; }
         public float Ampl2 { get; set; } = 0;
@@ -215,7 +215,8 @@ namespace FeedbackDataLib
 
         public string GetFWVersionString()
         {
-            return $"Neuromaster: {Uuid} connected{Environment.NewLine}" +
+            string cleanedUuid = new (Uuid.Where(c => !char.IsControl(c)).ToArray());
+            return $"Neuromaster: {cleanedUuid}{Environment.NewLine}" +
                    $"Neuromaster HW-Version: {HWVersionString}{Environment.NewLine}" +
                    $"Neuromaster SW-Version: {SWVersionString}";
         }

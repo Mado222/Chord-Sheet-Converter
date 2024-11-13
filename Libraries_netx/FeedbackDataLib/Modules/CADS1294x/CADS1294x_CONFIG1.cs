@@ -9,27 +9,27 @@
         private byte registerValue;
 
         // Properties to access and modify specific bits in the register using enums
-        public dataRate DataRate
+        public EnDataRate DataRate
         {
-            get => (dataRate)(registerValue & 0x07);
+            get => (EnDataRate)(registerValue & 0x07);
             set => registerValue = (byte)((registerValue & ~0x07) | ((byte)value & 0x07));
         }
 
-        public clkEn ClkEn
+        public EnClkEn ClkEn
         {
-            get => (clkEn)((registerValue >> 5) & 0x01);
+            get => (EnClkEn)((registerValue >> 5) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 5)) | (((byte)value & 0x01) << 5));
         }
 
-        public daisyEn DaisyEn
+        public EnDaisyEn DaisyEn
         {
-            get => (daisyEn)((registerValue >> 6) & 0x01);
+            get => (EnDaisyEn)((registerValue >> 6) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 6)) | (((byte)value & 0x01) << 6));
         }
 
-        public resMode ResMode
+        public EnResMode ResMode
         {
-            get => (resMode)((registerValue >> 7) & 0x01);
+            get => (EnResMode)((registerValue >> 7) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 7)) | (((byte)value & 0x01) << 7));
         }
 
@@ -47,7 +47,7 @@
 
 
         // Enums to define values for each bit field
-        public enum dataRate : byte
+        public enum EnDataRate : byte
         {
             DataRate32K = 0,
             DataRate16K,
@@ -59,19 +59,19 @@
             DataRateReserved
         }
 
-        public enum clkEn : byte
+        public enum EnClkEn : byte
         {
             OscillatorClockDisabled = 0,
             OscillatorClockEnabled = 1
         }
 
-        public enum daisyEn : byte
+        public enum EnDaisyEn : byte
         {
             DaisyChainMode = 0,
             MultipleReadbackMode = 1
         }
 
-        public enum resMode : byte
+        public enum EnResMode : byte
         {
             LowPowerMode = 0,
             HighResolutionMode = 1

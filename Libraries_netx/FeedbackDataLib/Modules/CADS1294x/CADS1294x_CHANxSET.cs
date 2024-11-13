@@ -7,7 +7,7 @@
     public class CADS1294x_CHANxSET
     {
         private byte registerValue;
-        private CADS1294x_Gain gainControl = new();
+        private readonly CADS1294x_Gain gainControl = new();
 
         // Properties for each field in the register using corresponding enums and the GainControl class
         public MUX Mux

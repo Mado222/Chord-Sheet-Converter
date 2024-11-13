@@ -6,7 +6,7 @@ namespace FeedbackDataLib
     {
         ISerialPort SerialPort { get; }
         //const string DriverSearchName = "";
-        int BaudRate_LocalDevice {get; }
+        int BaudRate_LocalDevice { get; }
         int BaudRate_RemoteDevice { get; }
         string LastErrorString { get; }
 

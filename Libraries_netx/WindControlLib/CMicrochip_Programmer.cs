@@ -1,15 +1,9 @@
 ﻿namespace WindControlLib
 {
-    public class CMicrochip_Programmer
+    public class CMicrochip_Programmer(string Name, string SerialNo)
     {
-        public string Name { get; set; }
-        public string SerialNo { get; set; }
-
-        public CMicrochip_Programmer(string Name, string SerialNo)
-        {
-            this.Name = Name;
-            this.SerialNo = SerialNo;
-        }
+        public string Name { get; set; } = Name;
+        public string SerialNo { get; set; } = SerialNo;
 
         public string FullInfo
         {

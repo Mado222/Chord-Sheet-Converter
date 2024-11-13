@@ -1,5 +1,4 @@
 ﻿using FeedbackDataLib.Modules;
-using System.Collections.Concurrent;
 using WindControlLib;
 
 
@@ -10,14 +9,14 @@ namespace FeedbackDataLib
     /// </summary>
     /// 
 
-    public partial class C8CommBase
+    public partial class CNMaster
     {
-        private int cntDeviceConfigs = 0;
+        //private int cntDeviceConfigs = 0;
         private readonly List<byte> allDeviceConfigData = [];
-        private readonly ConcurrentQueue<byte[]> getModulesqueue = new();
+        //private readonly ConcurrentQueue<byte[]> getModulesqueue = new();
 
 
-        public event EventHandler<List<CDataIn>>?  DataReadyResponse;
+        public event EventHandler<List<CDataIn>>? DataReadyResponse;
         /// <summary>
         /// Data Ready
         /// </summary>
@@ -48,7 +47,33 @@ namespace FeedbackDataLib
             handler?.Invoke(this, (cmb, msg));
         }
 
-        // Event for GetClock with DateTime response
+        public event EventHandler<(bool isSuccess, ColoredText msg)>? SetDeviceConfigResponse;
+        protected virtual void OnSetDeviceConfigResponse(bool isSuccess, ColoredText msg)
+        {
+            var handler = SetDeviceConfigResponse;
+            handler?.Invoke(this, (isSuccess, msg));
+        }
+
+        /// <summary>
+        /// Module Config 
+        /// </summary>
+        public event EventHandler<(CModuleBase? cmb, ColoredText msg)>? GetModuleConfigResponse;
+        protected virtual void OnGetModuleConfigResponse(CModuleBase? cmb, ColoredText msg)
+        {
+            var handler = GetModuleConfigResponse;
+            handler?.Invoke(this, (cmb, msg));
+        }
+
+        public event EventHandler<(bool isSuccess, byte HWcn, ColoredText msg)>? SetModuleConfigResponse;
+        protected virtual void OnSetModuleConfigResponse(bool isSuccess, byte HWcn, ColoredText msg)
+        {
+            var handler = SetModuleConfigResponse;
+            handler?.Invoke(this, (isSuccess, HWcn, msg));
+        }
+
+        /// <summary>
+        /// Clock
+        /// </summary>
         public event EventHandler<(DateTime? clock, ColoredText msg)>? GetClockResponse;
 
         protected virtual void OnGetClockResponse(DateTime? clock, ColoredText msg)
@@ -57,7 +82,6 @@ namespace FeedbackDataLib
             handler?.Invoke(this, (clock, msg));
         }
 
-        // Event for SetClock with bool response
         public event EventHandler<(bool success, ColoredText msg)>? SetClockResponse;
 
         protected virtual void OnSetClockResponse(bool success, ColoredText msg)
@@ -66,7 +90,9 @@ namespace FeedbackDataLib
             handler?.Invoke(this, (success, msg));
         }
 
-        // Event for SetConnectionClosed with bool response
+        /// <summary>
+        /// Event for SetConnectionClosed with bool response        
+        /// </summary>
         public event EventHandler<(bool isClosed, ColoredText msg)>? SetConnectionClosedResponse;
 
         protected virtual void OnSetConnectionClosedResponse(bool isClosed, ColoredText msg)
@@ -75,25 +101,32 @@ namespace FeedbackDataLib
             handler?.Invoke(this, (isClosed, msg));
         }
 
-        // Event for ScanModules with bool response
-        public event EventHandler<(bool isSuccessful, ColoredText msg)>? ScanModulesResponse;
-
-        protected virtual void OnScanModulesResponse(bool isSuccessful, ColoredText msg)
+        /// <summary>
+        /// Scann modules
+        /// </summary>
+        public event EventHandler<(bool isSuccess, ColoredText msg)>? ScanModulesResponse;
+        protected virtual void OnScanModulesResponse(bool isSuccess, ColoredText msg)
         {
             var handler = ScanModulesResponse;
-            handler?.Invoke(this, (isSuccessful, msg));
+            handler?.Invoke(this, (isSuccess, msg));
         }
 
-        // Event for ScanModules with bool response
-        public event EventHandler<(byte[] response, ColoredText msg)>? ModuleGetInfoSpecificResponse;
-
-        protected virtual void OnModuleGetInfoSpecificResponse(byte[] response, ColoredText msg)
+        /// <summary>
+        /// Module Specific
+        /// </summary>
+        public event EventHandler<(bool isSuccess, byte HWcn, ColoredText msg)>? GetModuleSpecificResponse;
+        protected virtual void OnGetModuleSpecificResponse(bool isSuccess, byte HWcn, ColoredText msg)
         {
-            var handler = ModuleGetInfoSpecificResponse;
-            handler?.Invoke(this, (response, msg));
+            var handler = GetModuleSpecificResponse;
+            handler?.Invoke(this, (isSuccess, HWcn, msg));
         }
 
-
+        public event EventHandler<(bool isSuccess, byte HWcn, ColoredText msg)>? SetModuleSpecificResponse;
+        protected virtual void OnSetModuleSpecificResponse(bool isSuccess, byte HWcn, ColoredText msg)
+        {
+            var handler = SetModuleSpecificResponse;
+            handler?.Invoke(this, (isSuccess, HWcn, msg));
+        }
         #endregion
 
         #region Events_for_communication_NM_to PC
@@ -146,8 +179,8 @@ namespace FeedbackDataLib
         #region HelperFunctions
         public bool IsDeviceAvailable()
         {
-            if (c8Receiver is null || c8Receiver.Connection is null) return false;
-            return c8Receiver.Connection.SerialPort.IsOpen;
+            if (NMReceiver is null || NMReceiver.Connection is null) return false;
+            return NMReceiver.Connection.SerialPort.IsOpen;
         }
         #endregion
 
@@ -234,106 +267,152 @@ namespace FeedbackDataLib
         /// <remarks>Checks if ModuleType != cModuleTypeEmpty</remarks>
         public bool SetModuleConfig(int HWcn)
         {
-            if (HWcn == 0xff)
-            {
-                return false;
-            }
-
             var moduleInfo = ModuleInfos[HWcn];
-            if (moduleInfo.ModuleType == enumModuleType.cModuleTypeEmpty)
+            if (moduleInfo.ModuleType == EnModuleType.cModuleTypeEmpty)
             {
                 return false;
             }
 
-            SendCommand(EnNeuromasterCommand.SetModuleConfig, moduleInfo.Get_SWConfigChannelsByteArray());
+            CommandRequest cr = new()
+            {
+                HWcn = (byte)HWcn
+            };
+            SendCommand(EnNeuromasterCommand.SetModuleConfig, moduleInfo.Get_SWConfigChannelsByteArray(), cr);
             return true;
         }
 
 
+        private bool SetDeviceConfigAsync_Success = false;
         /// <summary>
         /// Sets configuration of all Modules
-        /// according to ModuleInfos
         /// </summary>
         /// <returns></returns>
-        public bool SetConfigAllModules()
+        public async Task SetDeviceConfigAsync()
         {
-            for (int HWcn = 0; HWcn < ModuleInfos.Count; HWcn++)
+            var tcs = new TaskCompletionSource<bool>();
+            EventHandler<(bool success, byte HWcn, ColoredText msg)>? originalHandler = null;
+            SetDeviceConfigAsync_Success = true;
+            int numChanSet = 0;
+
+            try
             {
-                if (!SetModuleConfig(HWcn)) return false;
+                //Backup the original handler
+                if (SetModuleConfigResponse != null)
+                {
+                    foreach (Delegate d in SetModuleConfigResponse.GetInvocationList())
+                    {
+                        if (d is EventHandler<(bool success, byte HWcn, ColoredText msg)> handler)
+                        {
+                            originalHandler = handler;
+                            SetModuleConfigResponse -= handler;  // Detach the original handler
+                        }
+                    }
+                }
+
+                SetModuleConfigResponse += CNMaster_SetModuleConfigResponse;
+                for (int HWcn = 0; HWcn < ModuleInfos.Count; HWcn++)
+                {
+                    if (ModuleInfos[HWcn].ModuleType != EnModuleType.cModuleTypeEmpty)
+                    {
+                        SetModuleConfig(HWcn);
+                        numChanSet++;
+                    }
+                }
+
+                cntIncomingdata = 0;
+                DateTime timeout = DateTime.Now + TimeSpan.FromMilliseconds(WaitCommandResponseTimeOutMs);
+
+                // Asynchronously poll for incoming data until all expected data is received or timeout is reached
+                while (cntIncomingdata < numChanSet && DateTime.Now < timeout)
+                {
+                    // Delay to avoid a tight polling loop and allow other asynchronous tasks to run
+                    await Task.Delay(50);
+                }
+
+                ColoredText msg;
+                if (cntIncomingdata < numChanSet)
+                {
+                    // Timeout occurred
+                    msg = new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: Timeout", Color.Red);
+                }
+                else
+                {
+                    msg = !SetDeviceConfigAsync_Success
+                        ? new ColoredText($"{EnNeuromasterCommand.SetDeviceConfig}: Failed", Color.Red)
+                        : new ColoredText($"{EnNeuromasterCommand.SetDeviceConfig}: OK", Color.Green);
+
+                    if (ModuleInfos is not null)
+                        OnSetDeviceConfigResponse(SetDeviceConfigAsync_Success, msg);
+                }
             }
-            return true;
+            finally
+            {
+                // Detach the temporary handler
+                SetModuleConfigResponse -= CNMaster_SetModuleConfigResponse;
+
+                // Restore the original handler, if any
+                if (originalHandler != null)
+                {
+                    SetModuleConfigResponse += originalHandler;
+                }
+            }
+
+            // Await completion of the operation
+            await tcs.Task;
+        }
+
+        private void CNMaster_SetModuleConfigResponse(object? sender, (bool success, byte HWcn, ColoredText msg) e)
+        {
+            cntIncomingdata++;
+            if (!SetDeviceConfigAsync_Success) SetDeviceConfigAsync_Success = false;
         }
 
         private void GetModuleConfig(int HWcn)
         {
-            SendCommand(EnNeuromasterCommand.GetModuleConfig, [(byte) HWcn]);
+            SendCommand(EnNeuromasterCommand.GetModuleConfig, [(byte)HWcn]);
         }
 
+        private int cntIncomingdata = 0;
+        private CModuleBase? incomingCmb;
         /// <summary>
         /// Gets ConfigModules and puts result into Device
         /// </summary>
         public async Task GetDeviceConfigAsync()
         {
             var tcs = new TaskCompletionSource<bool>();
-            cntDeviceConfigs = max_num_HWChannels;
             allDeviceConfigData.Clear();
-            getModulesqueue.Clear();
 
             // Subscribe to the response event
-            ModuleGetInfoSpecificResponse += GetInfoSpecificResponse;
+            GetModuleConfigResponse += CNMaster_GetModuleConfigResponse;
 
             // Initiate the configuration process for each module
-            for (int hwCn = 0; hwCn < max_num_HWChannels; hwCn++)
+            for (int hwCn = 0; hwCn < MaxNumHWChannels; hwCn++)
             {
-                // Trigger each device configuration retrieval here
-                GetModuleConfig(hwCn);
+                GetModuleConfig(hwCn); // Trigger each device configuration
             }
 
-            int cntIncomingdata = 0;
+            cntIncomingdata = 0;
             bool failed = false;
             DateTime timeout = DateTime.Now + TimeSpan.FromMilliseconds(WaitCommandResponseTimeOutMs);
 
             // Asynchronously poll for incoming data until all expected data is received or timeout is reached
-            while (cntIncomingdata < max_num_HWChannels && DateTime.Now < timeout)
+            while (cntIncomingdata < MaxNumHWChannels && DateTime.Now < timeout)
             {
-                // Check if data is available in the queue
-                while (!getModulesqueue.IsEmpty)
-                {
-                    if (getModulesqueue.TryDequeue(out var responseData))
-                    {
-                        if (responseData == null)
-                        {
-                            failed = true;
-#pragma warning disable IDE0301 // Simplify collection initialization
-                            responseData = Array.Empty<byte>();
-#pragma warning restore IDE0301 // Simplify collection initialization
-                        }
-
-                        allDeviceConfigData.AddRange(responseData);
-                        cntIncomingdata++;
-                    }
-                }
-
                 // Delay to avoid a tight polling loop and allow other asynchronous tasks to run
                 await Task.Delay(10);
             }
 
             // Unsubscribe from the response event after processing is complete
-            ModuleGetInfoSpecificResponse -= GetInfoSpecificResponse;
+            GetModuleConfigResponse -= CNMaster_GetModuleConfigResponse;
 
             ColoredText msg;
-            if (cntIncomingdata < max_num_HWChannels)
+            if (cntIncomingdata < MaxNumHWChannels)
             {
                 // Timeout occurred
                 msg = new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: Timeout", Color.Red);
-                OnGetDeviceConfigResponse([], msg);
             }
             else
             {
-                // Process the received data
-                UpdateModuleInfoFromByteArray([.. allDeviceConfigData]);
-                Calculate_SkalMax_SkalMin(); // Calculate max and mins
-
                 msg = failed
                     ? new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: Failed", Color.Red)
                     : new ColoredText($"{EnNeuromasterCommand.GetDeviceConfig}: OK", Color.Green);
@@ -343,19 +422,21 @@ namespace FeedbackDataLib
             }
 
             // Complete the TaskCompletionSource based on the result
-            tcs.SetResult(cntIncomingdata >= max_num_HWChannels);
+            tcs.SetResult(cntIncomingdata >= MaxNumHWChannels);
 
             // Await completion of the operation
             await tcs.Task;
         }
 
-        private void GetInfoSpecificResponse(object? sender, (byte[] response, ColoredText msg) e)
+        private void CNMaster_GetModuleConfigResponse(object? sender, (CModuleBase? cmb, ColoredText msg) e)
         {
-            getModulesqueue.Enqueue(e.response);
+            cntIncomingdata++;
+            incomingCmb = e.cmb;
         }
 
+
         /// <summary>
-        /// Sends Command to specific module and
+        /// Sends Command to module and
         /// Reads data back: ByteIn.Length defines number of bytes to read back
         /// ByteOut can be null
         /// </summary>
@@ -372,7 +453,7 @@ namespace FeedbackDataLib
             OutBuf[0] = Hwcn;
             OutBuf[1] = (byte)(l + 1);
             OutBuf[2] = numByteIn;
-            OutBuf[3] = (byte) ModuleCommand;
+            OutBuf[3] = (byte)ModuleCommand;
             if (ByteOut != null && ByteOut.Length > 0)
             {
                 Buffer.BlockCopy(ByteOut, 0, OutBuf, 4, l);
@@ -380,7 +461,8 @@ namespace FeedbackDataLib
 
             CommandRequest cr = new()
             {
-                ModuleCommand = ModuleCommand
+                ModuleCommand = ModuleCommand,
+                HWcn = Hwcn
             };
             SendCommand(EnNeuromasterCommand.WrRdModuleCommand, OutBuf, cr);
         }
@@ -425,11 +507,11 @@ namespace FeedbackDataLib
         /// <summary>
         /// Sets the Module specific information
         /// </summary>
-        public bool SetModuleInfoSpecific(int HWcn, int get_Imp_chan_x = -1)
+        public bool SetModuleSpecific(int HWcn, int get_Imp_chan_x = -1)
         {
             bool ret = false;
 
-            if (ModuleInfos[HWcn].ModuleType == enumModuleType.cModuleTypeEmpty)
+            if (ModuleInfos[HWcn].ModuleType == EnModuleType.cModuleTypeEmpty)
                 return ret;
 
 
@@ -442,7 +524,7 @@ namespace FeedbackDataLib
 
             //Data[Data.Length - 1] = ...
             Data[^1] = CRC8.Calc_CRC8(Data, Data.Length - 2);
-            ModuleCommand((byte)HWcn, EnModuleCommand.ModuleSetInfoSpecific, Data, 1);
+            ModuleCommand((byte)HWcn, EnModuleCommand.SetModuleSpecific, Data, 1);
 
             return ret;
         }
@@ -452,11 +534,11 @@ namespace FeedbackDataLib
         /// <summary>
         /// Gets the Module specific information
         /// </summary>
-        public void GetModuleInfoSpecific(int HWcn, bool UpdateModuleInfo)
+        public void GetModuleSpecific(int HWcn, bool UpdateModuleInfo)
         {
-            ModuleCommand((byte)HWcn, EnModuleCommand.ModuleGetInfoSpecific, [(byte) HWcn], 17);
+            ModuleCommand((byte)HWcn, EnModuleCommand.GetModuleSpecific, [(byte)HWcn], 17);
             this.UpdateModuleInfo = UpdateModuleInfo;
-            HWcnGetModuleInfoSpecific = (byte) HWcn;
+            HWcnGetModuleInfoSpecific = (byte)HWcn;
         }
 
         #endregion

@@ -1,6 +1,6 @@
 ﻿using WindControlLib;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class UcSignalAnalyser : UserControl
     {

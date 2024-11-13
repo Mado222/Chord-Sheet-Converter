@@ -10,7 +10,7 @@
         /// <summary>
         /// frame id
         /// </summary>
-        virtual public byte frameId
+        virtual public byte FrameId
         {
             get { return _frameId; }
             set { _frameId = value; }
@@ -40,14 +40,14 @@
         /// inits the object with the receiving frame
         /// </summary>
         /// <param name="recFrameData">receiving frame data</param>
-        override public void initResponse(List<byte> recFrameData)
+        override public void InitResponse(List<byte> recFrameData)
         {
             List<byte>.Enumerator listEnum = recFrameData.GetEnumerator();
 
             //Frame ID
             if (listEnum.MoveNext())
             {
-                frameId = listEnum.Current;
+                FrameId = listEnum.Current;
 
                 //Status
                 if (listEnum.MoveNext())

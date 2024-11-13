@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Runtime.Serialization.Json;
+﻿using System.Runtime.Serialization.Json;
 using WindControlLib;
 
 namespace Neuromaster_Demo_Library_Reduced__netx
@@ -10,12 +9,9 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         {
             DataContractJsonSerializer serializer = new(typeof(CDataIn));
 
-            using (MemoryStream ms = new())
-            {
-                serializer.WriteObject(ms, data);
-                //return Encoding.UTF8.GetString(ms.ToArray());
-                return ms.ToArray();
-            }
+            using MemoryStream ms = new();
+            serializer.WriteObject(ms, data);
+            return ms.ToArray();
         }
     }
 }

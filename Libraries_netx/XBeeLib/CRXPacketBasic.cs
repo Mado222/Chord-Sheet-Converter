@@ -45,7 +45,7 @@
         /// <summary>
         /// received RF data
         /// </summary>
-        virtual public List<byte> rfData
+        virtual public List<byte> RfData
         {
             get { return _rfData; }
             set { _rfData = value; }
@@ -55,7 +55,7 @@
         /// inits the members of this class
         /// </summary>
         /// <param name="listEnum">enumerator of a byte array (containing all bytes of framedata beginning with the RSSI)</param>
-        virtual protected void initMembers(List<byte>.Enumerator listEnum)
+        virtual protected void InitMembers(List<byte>.Enumerator listEnum)
         {
             //RSSI
             listEnum.MoveNext();
@@ -75,7 +75,7 @@
             {
                 ByteListOfRFData.Add(listEnum.Current);
             }
-            rfData = ByteListOfRFData;
+            RfData = ByteListOfRFData;
         }
 
     }

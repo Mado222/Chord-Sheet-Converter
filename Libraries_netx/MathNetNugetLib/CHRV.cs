@@ -1,7 +1,7 @@
 ﻿using ComponentsLib;
 using WindControlLib;
 
-namespace MathNetNuget
+namespace MathNetNugetLib
 {
     /// <summary>
     /// Class, using Math_net functions (Math.net Library (http://www.mathdotnet.com/) to calculate HRV related parameters

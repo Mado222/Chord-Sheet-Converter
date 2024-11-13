@@ -10,29 +10,29 @@
         private byte registerValue;
 
         // Properties to access and modify specific bits in the register using enums
-        public testFreq TestFrequ
+        public EnTestFreq TestFrequ
         {
-            get => (testFreq)(registerValue & 0x03);
+            get => (EnTestFreq)(registerValue & 0x03);
             set => registerValue = (byte)((registerValue & ~0x03) | ((byte)value & 0x03));
         }
 
-        public testAmp TestAmp
+        public EnTestAmp TestAmp
         {
-            get => (testAmp)((registerValue >> 2) & 0x01);
+            get => (EnTestAmp)((registerValue >> 2) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 2)) | (((byte)value & 0x01) << 2));
         }
 
         // Reserved bits should not be settable so no property for them
 
-        public testSource TestSource
+        public EnTestSource TestSource
         {
-            get => (testSource)((registerValue >> 4) & 0x01);
+            get => (EnTestSource)((registerValue >> 4) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 4)) | (((byte)value & 0x01) << 4));
         }
 
-        public wctChop WctChop
+        public EnWctChop WctChop
         {
-            get => (wctChop)((registerValue >> 5) & 0x01);
+            get => (EnWctChop)((registerValue >> 5) & 0x01);
             set => registerValue = (byte)((registerValue & ~(0x01 << 5)) | (((byte)value & 0x01) << 5));
         }
 
@@ -52,7 +52,7 @@
         { return registerValue; }
 
         // Enums to define values for each bit field
-        public enum testFreq : byte
+        public enum EnTestFreq : byte
         {
             TEST_FREQ_FCLK_DIV_2_21 = 0, // Pulsed at fCLK / 2^21
             TEST_FREQ_FCLK_DIV_2_20,     // Pulsed at fCLK / 2^20
@@ -60,19 +60,19 @@
             TEST_FREQ_DC                 // At dc
         }
 
-        public enum testAmp : byte
+        public enum EnTestAmp : byte
         {
             TEST_AMP_1X_VREF_DIV_2400 = 0, // 1 x -(VREFP - VREFN) / 2400 V
             TEST_AMP_2X_VREF_DIV_2400      // 2 x -(VREFP - VREFN) / 2400 V
         }
 
-        public enum testSource : byte
+        public enum EnTestSource : byte
         {
             TEST_SIGNAL_EXTERNAL = 0, // Test signals are driven externally
             TEST_SIGNAL_INTERNAL      // Test signals are generated internally
         }
 
-        public enum wctChop : byte
+        public enum EnWctChop : byte
         {
             WCT_CHOP_FREQ_VARIES = 0,  // Chopping frequency varies
             WCT_CHOP_FREQ_CONSTANT     // Chopping frequency constant at fMOD / 16

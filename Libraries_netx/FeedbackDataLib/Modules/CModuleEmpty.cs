@@ -16,9 +16,5 @@
                 "unused 0"
     ];
         }
-
-        public CModuleEmpty(CModuleBase cModuleBase)
-        {
-        }
     }
 }

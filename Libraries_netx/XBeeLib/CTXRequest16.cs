@@ -19,7 +19,7 @@
             set { _DestinationAddress16 = value; }
         }
 
-        override public TXRequestOptions options
+        override public TXRequestOptions Options
         {
             get { return _options; }
             set
@@ -48,7 +48,7 @@
                 //FrameData Byte 0
                 APID,
                 //FrameData Byte 1
-                frameId
+                FrameId
             ];
 
             //FrameData Byte 2-3: 16 Bit Destination Address
@@ -56,8 +56,8 @@
             for (int i = be.Length - 1; i >= 0; i--)
                 FrameData.Add(be[i]);
 
-            FrameData.Add((byte)options);
-            FrameData.AddRange(rfData);
+            FrameData.Add((byte)Options);
+            FrameData.AddRange(RfData);
 
             return MakeBasicDataFrame(FrameData, ApiMode);
         }

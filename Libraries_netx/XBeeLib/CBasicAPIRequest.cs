@@ -132,7 +132,7 @@
         /// true: if the received response corresponse to the request
         /// false: if not 
         /// </returns>
-        abstract public bool checkResponse(CBasicAPIResponse response);
+        abstract public bool CheckResponse(CBasicAPIResponse response);
 
         /// <summary>
         /// returns the byte array representation of the frame

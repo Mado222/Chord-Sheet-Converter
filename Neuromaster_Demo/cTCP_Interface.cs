@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using WindControlLib;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace Neuromaster_Demo_Library_Reduced__netx
@@ -41,7 +35,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             // Erstellen eines neuen Listeners.
             IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
 
-            IPAddress IPtoUse = new (new byte[] { 127, 0, 0, 1 });
+            IPAddress IPtoUse = new([127, 0, 0, 1]);
 
             tcpListener = new TcpListener(IPtoUse, TCPPort);
             OnStatusMessage("Listening on " + IPtoUse.ToString() + ": " + TCPPort.ToString(), Color.Green);
@@ -52,17 +46,17 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             tmrCheckIncomingConns ??= new System.Threading.Timer(timerCallback, null, 1000, 1000);
         }
 
-        public void Write (CDataIn data)
+        public void Write(CDataIn data)
         {
             foreach (ClientHandler handler in ClientHandlers)
             {
-                handler.Write (data);
+                handler.Write(data);
             }
         }
 
-        public void Close ()
+        public void Close()
         {
-           tmrCheckIncomingConns?.Dispose();
+            tmrCheckIncomingConns?.Dispose();
             if (ClientHandlers != null)
             {
                 foreach (ClientHandler handler in ClientHandlers)
@@ -90,7 +84,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                 TCP_ClientHandler.ConnectionClosed += new ClientHandler.ConnectionClosedEventHandler(TCP_ClientHandler_ConnectionClosed);
 
                 // Dieses Objekt in einem anderen Thread ausführen.
-                Thread handlerThread = new (new ThreadStart(TCP_ClientHandler.Start))
+                Thread handlerThread = new(new ThreadStart(TCP_ClientHandler.Start))
                 {
                     IsBackground = true
                 };
@@ -242,7 +236,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             stream = tcpClient.GetStream();
             stream.Flush();
 
-            CTCPPacketHeader TCPPacketHeader = new ();
+            CTCPPacketHeader TCPPacketHeader = new();
             byte[] barr = new byte[1];
             int bytesread;
             bool ReadHeader = true;
@@ -289,7 +283,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                     ReadHeader = false;
                     try
                     {
-                        TCPPacketHeader.UpdateFrom_ByteArray(barr, 0, 0);
+                        TCPPacketHeader.UpdateFrom_ByteArray(barr, 0);
                     }
                     catch
                     {

@@ -284,13 +284,13 @@ namespace WindControlLib
     public class CLinearInterpolation
     {
         private double _k = 0;
-        public double k
+        public double K
         {
             get { return _k; }
         }
 
         private double _d = 0;
-        public double d
+        public double D
         {
             get { return _d; }
         }
@@ -308,12 +308,12 @@ namespace WindControlLib
 
         public double GetX(double y)
         {
-            return (y - d) / k;
+            return (y - D) / K;
         }
 
         public double GetY(double x)
         {
-            return k * x + d;
+            return K * x + D;
         }
 
     }

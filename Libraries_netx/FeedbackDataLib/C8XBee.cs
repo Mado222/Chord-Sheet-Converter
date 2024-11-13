@@ -74,27 +74,27 @@ namespace FeedbackDataLib
         {
             commXBee = new CCommXBee(SerialPort, BaudRate_LocalDevice,
                             BaudRate_RemoteDevice);
-                            //CommandChannelNo,
-                            //ConnectSequToSend,
-                            //ConnectSequToReturn);
+            //CommandChannelNo,
+            //ConnectSequToSend,
+            //ConnectSequToReturn);
 
-            Init(); 
+            Init();
         }
 
 
-        public void Init (string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public void Init(string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
         {
             commXBee = new CCommXBee(BaudRate_LocalDevice,
                 BaudRate_RemoteDevice)
-                //CommandChannelNo,
-                //ConnectSequToSend,
-                //ConnectSequToReturn)
+            //CommandChannelNo,
+            //ConnectSequToSend,
+            //ConnectSequToReturn)
             {
                 PortName = ComPortName
             };
             Init();
         }
-        
+
         /// <summary>
         ///         /// Function for Constructor
         /// </summary>

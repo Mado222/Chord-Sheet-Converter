@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            btGetConfigModules = new Button();
-            btSetConfig = new Button();
+            btGetDevice = new Button();
+            btSetModuleConfig = new Button();
             btGetClock = new Button();
             btSetClock = new Button();
             pnControls = new Panel();
-            cChannelsControlV2x11 = new FeedbackDataLib_GUI.CChannelsControlV2x1();
+            cChannelsControlV2x11 = new FeedbackDataLibGUI.CChannelsControlV2x1();
             btSetAllConfig = new Button();
             gbConnectivitie = new GroupBox();
             pbXBEESignalStrength = new ProgressBar();
@@ -62,27 +62,27 @@
             groupBox2.SuspendLayout();
             SuspendLayout();
             // 
-            // btGetConfigModules
+            // btGetDevice
             // 
-            btGetConfigModules.Location = new Point(19, 491);
-            btGetConfigModules.Margin = new Padding(4, 5, 4, 5);
-            btGetConfigModules.Name = "btGetConfigModules";
-            btGetConfigModules.Size = new Size(261, 43);
-            btGetConfigModules.TabIndex = 129;
-            btGetConfigModules.Text = "Get Config Modules";
-            btGetConfigModules.UseVisualStyleBackColor = true;
-            btGetConfigModules.Click += BtGetConfigModules_Click;
+            btGetDevice.Location = new Point(19, 491);
+            btGetDevice.Margin = new Padding(4, 5, 4, 5);
+            btGetDevice.Name = "btGetConfigModules";
+            btGetDevice.Size = new Size(261, 43);
+            btGetDevice.TabIndex = 129;
+            btGetDevice.Text = "Get Config Modules";
+            btGetDevice.UseVisualStyleBackColor = true;
+            btGetDevice.Click += BtGetDeviceConfig_Click;
             // 
-            // btSetConfig
+            // btSetModuleConfig
             // 
-            btSetConfig.Location = new Point(303, 488);
-            btSetConfig.Margin = new Padding(4, 5, 4, 5);
-            btSetConfig.Name = "btSetConfig";
-            btSetConfig.Size = new Size(232, 46);
-            btSetConfig.TabIndex = 130;
-            btSetConfig.Text = "Set Config";
-            btSetConfig.UseVisualStyleBackColor = true;
-            btSetConfig.Click += BtSetConfig_Click;
+            btSetModuleConfig.Location = new Point(303, 488);
+            btSetModuleConfig.Margin = new Padding(4, 5, 4, 5);
+            btSetModuleConfig.Name = "btSetConfig";
+            btSetModuleConfig.Size = new Size(232, 46);
+            btSetModuleConfig.TabIndex = 130;
+            btSetModuleConfig.Text = "Set Config";
+            btSetModuleConfig.UseVisualStyleBackColor = true;
+            btSetModuleConfig.Click += BtSetModuleConfig_Click;
             // 
             // btGetClock
             // 
@@ -110,8 +110,8 @@
             // 
             pnControls.Controls.Add(cChannelsControlV2x11);
             pnControls.Controls.Add(btSetAllConfig);
-            pnControls.Controls.Add(btGetConfigModules);
-            pnControls.Controls.Add(btSetConfig);
+            pnControls.Controls.Add(btGetDevice);
+            pnControls.Controls.Add(btSetModuleConfig);
             pnControls.Location = new Point(887, 15);
             pnControls.Margin = new Padding(4, 5, 4, 5);
             pnControls.Name = "pnControls";
@@ -137,7 +137,7 @@
             btSetAllConfig.TabIndex = 144;
             btSetAllConfig.Text = "Set whole Configuration";
             btSetAllConfig.UseVisualStyleBackColor = true;
-            btSetAllConfig.Click += BtSetAllConfig_Click;
+            btSetAllConfig.Click += BtSetDeviceConfig_Click;
             // 
             // gbConnectivitie
             // 
@@ -389,8 +389,8 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btGetConfigModules;
-        private System.Windows.Forms.Button btSetConfig;
+        private System.Windows.Forms.Button btGetDevice;
+        private System.Windows.Forms.Button btSetModuleConfig;
         private System.Windows.Forms.Button btGetClock;
         private System.Windows.Forms.Button btSetClock;
         private System.Windows.Forms.Panel pnControls;
@@ -411,7 +411,7 @@
         private System.Windows.Forms.TextBox txtData;
         private System.Windows.Forms.ProgressBar pbXBEESignalStrength;
         private System.Windows.Forms.Label label1;
-        private FeedbackDataLib_GUI.CChannelsControlV2x1 cChannelsControlV2x11;
+        private FeedbackDataLibGUI.CChannelsControlV2x1 cChannelsControlV2x11;
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private Button btOpenTCP;

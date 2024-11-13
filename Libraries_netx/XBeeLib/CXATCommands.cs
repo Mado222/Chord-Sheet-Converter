@@ -146,7 +146,7 @@
             else
             {
                 if (nodeId.Length > 20)
-                    return "ATNI " + nodeId.Substring(0, 20) + "\r";
+                    return string.Concat("ATNI ", nodeId.AsSpan(0, 20), "\r");
                 else
                     return "ATNI " + nodeId + "\r";
             }
@@ -189,7 +189,7 @@
         public static string XBAT_GetDestinationNode(string nodeId)
         {
             if (nodeId.Length > 20)
-                return "ATDN " + nodeId.Substring(0, 20) + "\r";
+                return string.Concat("ATDN ", nodeId.AsSpan(0, 20), "\r");
             else
                 return "ATDN " + nodeId + "\r";
         }
@@ -272,7 +272,7 @@
         public const string XBAT_AESEncryptionDisable = "ATEE 00\r";
 
         //AES Encryption Key
-        public static string XBAT_GetAESEncryptionKey = "ATKY\r";
+        public const string XBAT_GetAESEncryptionKey = "ATKY\r";
         public static string XBAT_SetAESEncryptionKey(ulong bitfieldH, ulong bitfieldL)
         {
             return "ATKY " + bitfieldH.ToString("X8") + bitfieldL.ToString("X8") + "\r";
@@ -391,7 +391,7 @@
             return "ATBD " + br.ToString("X") + "\r";
         }
 
-        public static string XBAT_GetBaudRate = "ATBD\r";
+        public const string XBAT_GetBaudRate = "ATBD\r";
 
         //Packetizing Timeout
         public const string XBAT_GetPacketizingTimeout = "ATRO\r";
@@ -404,18 +404,13 @@
         public const string XBAT_GetAPIMode = "ATAP\r";
         public static string XBAT_SetAPIMode(XBAPIMode mode)
         {
-            byte i;
-            switch (mode)
+            byte i = mode switch
             {
-                case XBAPIMode.Disabled:
-                    i = 0; break;
-                case XBAPIMode.Enabled:
-                    i = 1; break;
-                case XBAPIMode.Enabled_w_Escape_Control_Chars:
-                    i = 2; break;
-                default:
-                    i = 0; break;
-            }
+                XBAPIMode.Disabled => (byte)0,
+                XBAPIMode.Enabled => (byte)1,
+                XBAPIMode.Enabled_w_Escape_Control_Chars => (byte)2,
+                _ => (byte)0,
+            };
             return "ATAP " + i.ToString("X2") + "\r";
         }
 

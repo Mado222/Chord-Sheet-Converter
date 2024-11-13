@@ -5,10 +5,10 @@
 
         public short ProcessSample(short sval)
         {
-            return round_long_to_short(HP_Butter_2nd_int_red(sval));
+            return RoundLongToShort(HP_Butter_2nd_int_red(sval));
         }
 
-        private static short round_long_to_short(long l)
+        private static short RoundLongToShort(long l)
         {
             if (l > short.MaxValue)
                 return short.MaxValue;

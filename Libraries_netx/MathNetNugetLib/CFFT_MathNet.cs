@@ -1,7 +1,7 @@
 ﻿using MathNet.Numerics.IntegralTransforms;
 using WindControlLib;
 
-namespace MathNetNuget
+namespace MathNetNugetLib
 {
     /// <summary>
     /// FFT class

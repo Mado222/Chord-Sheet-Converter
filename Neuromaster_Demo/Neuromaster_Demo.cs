@@ -1,10 +1,9 @@
 ﻿using BMTCommunicationLib;
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
-using MathNetNuget;
 using Neuromaster_Demo_Library_Reduced__netx;
 using WindControlLib;
-using static FeedbackDataLib.C8Receiver;
+using static FeedbackDataLib.CNMasterReceiver;
 
 namespace Neuromaster_Demo
 {
@@ -21,17 +20,17 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Class to connect to Neuromaster
         /// </summary>
-        private C8CommBase? c8CommBase;
+        private CNMaster? cNMaster;
 
         /// <summary>
         /// Locking property
         /// </summary>
-        private bool DontReconnectOntbConnect_ToState1 = false;
+        private bool dontReconnectOntbConnect_ToState1 = false;
 
         /// <summary>
         /// Saves recent Connection status
         /// </summary>
-        private EnumConnectionStatus OldConnection_Status = EnumConnectionStatus.Not_Connected;
+        private EnumConnectionStatus oldConnection_Status = EnumConnectionStatus.Not_Connected;
 
         /// <summary>
         /// Result of the last attempt to connect to Neuromaster
@@ -41,24 +40,26 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Ringpuffer for Status Messages (used from tmrStatusMessages)
         /// </summary>
-        private readonly CFifoBuffer<ColoredText> StatusMessages = new ();
+        private readonly CFifoBuffer<ColoredText> statusMessages = new();
 
         /// <summary>
         /// Index of the currently selected module
         /// </summary>
-        private int idx_SelectedModule;
+        private int idxSelectedModule;
 
         /// <summary>
         /// Buckup of the Index of the currently selected module
         /// </summary>
-        private int BU_idx_SelectedModule = -1;
+        private int buIdxSelectedModule = -1;
 
         /// <summary>
         /// Flag for USB disconnection / reconnection
         /// </summary>
-        private bool USB_Reconnected = false;
+        private bool uSB_Reconnected = false;
 
-        private CTCPInterface? TCP_Interface;
+        private CTCPInterface? tCPInterface;
+
+        private int HWcnSelected { get => cNMaster!.ModuleInfos[idxSelectedModule].HWcn; }
 
 
 
@@ -96,24 +97,24 @@ namespace Neuromaster_Demo
         /// </summary>
         private async void StartConnection()
         {
-            DontReconnectOntbConnect_ToState1 = true;
+            dontReconnectOntbConnect_ToState1 = true;
             AddStatusString("Searching for Neurolink ....");
 
             await Task.Run(() =>
             {
                 // Create Receiver if it does not exist
-                c8CommBase ??= new C8CommBase();
+                cNMaster ??= new CNMaster();
 
                 EnumConnectionResult? conres; // Connection Result
 
                 // Perform initialization and connection in the background thread
-                conres = c8CommBase.Connect(); // Init via FTDI D2XX Driver (faster)
+                conres = cNMaster.Connect(); // Init via FTDI D2XX Driver (faster)
 
                 if (conres == EnumConnectionResult.Connected_via_USBCable ||
                     conres == EnumConnectionResult.Connected_via_XBee)
                 {
                     // Neurolink is detected and initialized
-                    Invoke(() => AddStatusString("Neurolink: " + c8CommBase.c8Receiver.NeurolinkSerialNumber, Color.Blue));
+                    Invoke(() => AddStatusString("Neurolink: " + cNMaster.NMReceiver.NeurolinkSerialNumber, Color.Blue));
                 }
                 // Update GUI based on connection results
                 // Possible errors if no Neurolink is detected
@@ -122,11 +123,11 @@ namespace Neuromaster_Demo
                     switch (conres)
                     {
                         case EnumConnectionResult.Connected_via_XBee:
-                            AddStatusString("XBee Connection found: " + c8CommBase.c8Receiver.PortName, Color.Green);
+                            AddStatusString("XBee Connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
                         case EnumConnectionResult.Connected_via_USBCable:
-                            AddStatusString("USB cable connection found: " + c8CommBase.c8Receiver.PortName, Color.Green);
+                            AddStatusString("USB cable connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
 
@@ -156,55 +157,136 @@ namespace Neuromaster_Demo
         private void AddEvents()
         {
             //Event for Data
-            if (c8CommBase?.c8Receiver is not null)
+            if (cNMaster?.NMReceiver is not null)
             {
-                c8CommBase.DataReadyResponse -= Connection_DataReadyResponse;
-                c8CommBase.DataReadyResponse += Connection_DataReadyResponse; ;
+                cNMaster.DataReadyResponse -= CNMaster_DataReadyResponse;
+                cNMaster.DataReadyResponse += CNMaster_DataReadyResponse;
 
                 //Event to inform PC about Battery Status
-                c8CommBase.DeviceToPC_BatteryStatus -= Connection_DeviceToPC_BatteryStatus;
-                c8CommBase.DeviceToPC_BatteryStatus += Connection_DeviceToPC_BatteryStatus; ;
+                cNMaster.DeviceToPC_BatteryStatus -= CNMaster_DeviceToPC_BatteryStatus;
+                cNMaster.DeviceToPC_BatteryStatus += CNMaster_DeviceToPC_BatteryStatus;
 
                 //Buffer in Neuromaster is full
-                c8CommBase.DeviceToPC_BufferFull -= Connection_DeviceToPC_BufferFull;
-                c8CommBase.DeviceToPC_BufferFull += Connection_DeviceToPC_BufferFull;
-
-                //Error in Neuromodule occured - for future use
-                //DataReceiver.Connection.DeviceToPC_ModuleError -= Connection_DeviceToPC_ModuleError;
-                //DataReceiver.Connection.DeviceToPC_ModuleError += Connection_DeviceToPC_ModuleError;
-
-                c8CommBase.GetClockResponse += Connection_GetClockResponse;
-                c8CommBase.SetConnectionClosedResponse += Connection_SetConnectionClosedResponse;
-                c8CommBase.GetDeviceConfigResponse += Connection_GetDeviceConfigResponse;
-                c8CommBase.GetFirmwareVersionResponse += Connection_GetFirmwareVersionResponse;
+                cNMaster.DeviceToPC_BufferFull -= CNMaster_DeviceToPC_BufferFull;
+                cNMaster.DeviceToPC_BufferFull += CNMaster_DeviceToPC_BufferFull;
 
                 //Events for Device Connection / Disconnection
-                c8CommBase.c8Receiver.DeviceConnected -= DataReceiver_DeviceConnected;
-                c8CommBase.c8Receiver.DeviceConnected += DataReceiver_DeviceConnected;
+                cNMaster.NMReceiver.DeviceConnected -= NMReceiver_DeviceConnected;
+                cNMaster.NMReceiver.DeviceConnected += NMReceiver_DeviceConnected;
 
-                c8CommBase.c8Receiver.DeviceDisconnected -= DataReceiver_DeviceDisconnected;
-                c8CommBase.c8Receiver.DeviceDisconnected += DataReceiver_DeviceDisconnected; ;
+                cNMaster.NMReceiver.DeviceDisconnected -= NMReceiver_DeviceDisconnected;
+                cNMaster.NMReceiver.DeviceDisconnected += NMReceiver_DeviceDisconnected;
+
+                //Responses to Commands sent to Neuromaster
+                cNMaster.GetClockResponse += CNMaster_GetClockResponse;
+                cNMaster.SetClockResponse += CNMaster_SetClockResponse;
+                cNMaster.ScanModulesResponse += CNMaster_ScanModulesResponse;
+                cNMaster.SetModuleConfigResponse += CNMaster_SetModuleConfigResponse;
+                cNMaster.SetConnectionClosedResponse += CNMaster_SetConnectionClosedResponse;
+                cNMaster.GetFirmwareVersionResponse += CNMaster_GetFirmwareVersionResponse;
+
+
+                cNMaster.GetDeviceConfigResponse += CNMaster_GetDeviceConfigResponse;
+                cNMaster.SetDeviceConfigResponse += CNMaster_SetDeviceConfigResponse;
+
+                cNMaster.GetModuleSpecificResponse += CNMaster_GetModuleSpecificResponse;
+                cNMaster.SetModuleSpecificResponse += CNMaster_SetModuleSpecificResponse;
+
             }
         }
 
-        private void Connection_GetFirmwareVersionResponse(object? sender, (CNMFirmwareVersion? FWVersion, ColoredText msg) e)
+        private void CNMaster_SetModuleSpecificResponse(object? sender, (bool isSuccess, byte HWcn, ColoredText msg) e)
         {
-            if (e.FWVersion != null)
-                AddStatusString(e.FWVersion.GetFWVersionString(), Color.Blue);
-            AddStatusString(e.msg.Text, e.msg.Color);
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+                if (e.isSuccess)
+                {
+                    cChannelsControlV2x11.UpdateModuleSpecificInfo(cNMaster!.ModuleInfos[e.HWcn]);
+                    cChannelsControlV2x11.Refresh();
+                }
+            });
         }
 
-        private void Connection_GetDeviceConfigResponse(object? sender, (List<CModuleBase>? cmb, ColoredText msg) e)
+        private void CNMaster_GetModuleSpecificResponse(object? sender, (bool isSuccess, byte HWcn, ColoredText msg) e)
         {
-            throw new NotImplementedException();
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+
+            });
         }
 
-        private void Connection_SetConnectionClosedResponse(object? sender, (bool isClosed, ColoredText msg) e)
+        private void CNMaster_SetDeviceConfigResponse(object? sender, (bool success, ColoredText msg) e)
         {
-            throw new NotImplementedException();
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+
+            });
         }
 
-        private void Connection_GetClockResponse(object? sender, (DateTime? clock, ColoredText msg) e)
+        private void CNMaster_SetModuleConfigResponse(object? sender, (bool success, byte HWcn, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+                if (e.success)
+                {
+                    AddStatusString("Config set @ Channel " + e.HWcn.ToString(), Color.Green);
+                    pbXBeeChannelCapacity.Value = cNMaster?.GetChannelCapcity() ?? 0;  //Calculate channel capacity with the new setting
+                    lblXBeeCapacity.Text = pbXBeeChannelCapacity.Value.ToString();  //Display
+                }
+                else
+                    AddStatusString("Config not set", Color.Red);    //Error
+            });
+        }
+
+        private void CNMaster_ScanModulesResponse(object? sender, (bool isSuccessful, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+            });
+        }
+
+        private void CNMaster_GetFirmwareVersionResponse(object? sender, (CNMFirmwareVersion? FWVersion, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                if (e.FWVersion != null)
+                    AddStatusString(e.FWVersion.GetFWVersionString(), Color.Violet);
+                AddStatusString(e.msg.Text, e.msg.Color);
+            });
+        }
+
+        private void CNMaster_GetDeviceConfigResponse(object? sender, (List<CModuleBase>? cmb, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+                if (cNMaster != null)
+                    cChannelsControlV2x11.SetModuleInfos(cNMaster.ModuleInfos);
+            });
+        }
+
+        private void CNMaster_SetConnectionClosedResponse(object? sender, (bool isClosed, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+            });
+        }
+
+        private void CNMaster_SetClockResponse(object? sender, (bool success, ColoredText msg) e)
+        {
+            RunOnUiThread(() =>
+            {
+                AddStatusString(e.msg);
+            });
+        }
+
+        private void CNMaster_GetClockResponse(object? sender, (DateTime? clock, ColoredText msg) e)
         {
             RunOnUiThread(() =>
             {
@@ -220,7 +302,7 @@ namespace Neuromaster_Demo
         /// <remarks>
         /// Neuromaster stops sampling - must be reconfigured
         /// </remarks>
-        private void Connection_DeviceToPC_BufferFull(object? sender, EventArgs e)
+        private void CNMaster_DeviceToPC_BufferFull(object? sender, EventArgs e)
         {
             RunOnUiThread(() =>
             {
@@ -234,23 +316,23 @@ namespace Neuromaster_Demo
         /// <param name="Voltage_mV">Battery Voltage [mV]</param>
         /// <param name="percentage">Percentage of Battery Capacity</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private void Connection_DeviceToPC_BatteryStatus(object? sender, (uint BatteryVoltageMV, uint Percentage, uint SupplyVoltageMV) e)
+        private void CNMaster_DeviceToPC_BatteryStatus(object? sender, (uint BatteryVoltageMV, uint Percentage, uint SupplyVoltageMV) e)
         {
             // Implemented in last hardware version, not yet tested
             RunOnUiThread(() => AddStatusString($"Battery Status: {e.Percentage}%", Color.Blue));
         }
 
 
-    #endregion
+        #endregion
 
-    #region DataReady_Event
-    /// <summary>
-    /// Data is comming in
-    /// </summary>
-    /// <param name="sender">sender</param>
-    /// <param name="DataChannel">There can be more than one Datapoint in the list</param>
-    private void Connection_DataReadyResponse(object? sender, List<CDataIn> DataChannel)
-    {
+        #region DataReady_Event
+        /// <summary>
+        /// Data is comming in
+        /// </summary>
+        /// <param name="sender">sender</param>
+        /// <param name="DataChannel">There can be more than one Datapoint in the list</param>
+        private void CNMaster_DataReadyResponse(object? sender, List<CDataIn> DataChannel)
+        {
             if (!IsDeviceAvailable()) return;
             try //Because of some issues when closing the app
             {
@@ -263,12 +345,12 @@ namespace Neuromaster_Demo
                             xData = ci.DTAbsolute
                         };   //Just another data structure
 
-                        c.yData[0] = c8CommBase!.GetScaledValue(ci);
+                        c.yData[0] = cNMaster!.GetScaledValue(ci);
 
                         //Display value ... just that something happens in the GUI
                         string s = c.xData.ToString() + "\t" + c.yData[0].ToString() + "\t" + ci.HWcn.ToString() + "\t" + ci.SWcn.ToString() + Environment.NewLine;
                         txtData.AppendText(s);
-                        TCP_Interface?.Write(ci);
+                        tCPInterface?.Write(ci);
                     }
                 });
             }
@@ -287,7 +369,7 @@ namespace Neuromaster_Demo
         private void TbConnect_ToState1(object sender, EventArgs e)
         {
             GoDisconnected();
-            DontReconnectOntbConnect_ToState1 = true;
+            dontReconnectOntbConnect_ToState1 = true;
         }
 
         /// <summary>
@@ -313,7 +395,7 @@ namespace Neuromaster_Demo
         private void GoDisconnected()
         {
             tbConnect.GoToState1(false);    //Just set Button to Red
-            c8CommBase?.c8Receiver.Close_All();
+            cNMaster?.NMReceiver.Close_All();
         }
 
         #endregion
@@ -323,10 +405,10 @@ namespace Neuromaster_Demo
         /// </summary>
         private void TmrStatusMessages_Tick(object sender, EventArgs e)
         {
-            while (StatusMessages?.Count > 0)
+            while (statusMessages?.Count > 0)
             {
                 //Output status Messages to Screen
-                ColoredText? tc = StatusMessages?.Pop();
+                ColoredText? tc = statusMessages?.Pop();
                 if (tc != null)
                 {
                     txtStatus.AppendText(Environment.NewLine);
@@ -347,16 +429,16 @@ namespace Neuromaster_Demo
             if (IsDeviceAvailable())
             {
                 //Update XBEE signal strength
-                int b = c8CommBase?.c8Receiver.RSSI_percent ?? 0;
+                int b = cNMaster?.NMReceiver.RSSI_percent ?? 0;
 
                 if (b > pbXBEESignalStrength.Maximum) b = pbXBEESignalStrength.Maximum;
                 pbXBEESignalStrength.Value = b;
 
-                if (c8CommBase is not null && OldConnection_Status != c8CommBase.c8Receiver.ConnectionStatus)   //Status changed?
+                if (cNMaster is not null && oldConnection_Status != cNMaster.NMReceiver.ConnectionStatus)   //Status changed?
                 {
-                    OldConnection_Status = c8CommBase.c8Receiver.ConnectionStatus;
+                    oldConnection_Status = cNMaster.NMReceiver.ConnectionStatus;
 
-                    switch (OldConnection_Status)
+                    switch (oldConnection_Status)
                     {
                         case EnumConnectionStatus.Connected:
                             {
@@ -365,13 +447,13 @@ namespace Neuromaster_Demo
                                 GoConnected();
 
                                 //If USB connection crashed - restore configuration on the fly (see Disconnect())
-                                if (USB_Reconnected)
+                                if (uSB_Reconnected)
                                 {
-                                    USB_Reconnected = false;
+                                    uSB_Reconnected = false;
 
                                     //Reload old configuration
-                                    c8CommBase.ModuleInfos = new List<CModuleBase>(BU_ModuleInfo);
-                                    idx_SelectedModule = BU_idx_SelectedModule;
+                                    cNMaster.ModuleInfos = new List<CModuleBase>(BU_ModuleInfo);
+                                    idxSelectedModule = buIdxSelectedModule;
 
                                     RestoreOldConfiguration();
                                     btSetAllConfig.PerformClick();  //Send entire configuration to Neuromaster
@@ -394,7 +476,7 @@ namespace Neuromaster_Demo
                                 AddStatusString("Dis-Connected", Color.Red);
                                 GoDisconnected();
 
-                                if (!DontReconnectOntbConnect_ToState1)
+                                if (!dontReconnectOntbConnect_ToState1)
                                 {
                                     //Start new connection
                                     //Debug
@@ -433,12 +515,12 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Read the current Module-configuration (which modules are connected) from Neuromaster
         /// </summary>
-        private async void BtGetConfigModules_Click(object sender, EventArgs e)
+        private async void BtGetDeviceConfig_Click(object sender, EventArgs e)
         {
-            if (c8CommBase is not null )
+            if (cNMaster is not null)
             {
-                c8CommBase!.ScanModules();
-                await c8CommBase!.GetDeviceConfigAsync();
+                cNMaster!.ScanModules();
+                await cNMaster!.GetDeviceConfigAsync();
             }
         }
 
@@ -446,39 +528,35 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Handles the Click event of the btSetConfig control.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private void BtSetConfig_Click(object sender, EventArgs e)
+        private void BtSetModuleConfig_Click(object sender, EventArgs e)
         {
             if (!IsDeviceAvailable()) return;
-            //Get the Hardware Channel number of the currently selected Module
-            int HW_cn = c8CommBase!.ModuleInfos[idx_SelectedModule].HWcn;
-            var mi = cChannelsControlV2x11.GetModuleInfo(HW_cn);
-            
-            if (mi != null)
-            c8CommBase!.ModuleInfos[HW_cn] = mi;
 
-            if (c8CommBase.SetModuleConfig(HW_cn)) //Set the configuration
-            {
-                AddStatusString("Config set: " + HW_cn.ToString(), Color.Green);
-                pbXBeeChannelCapacity.Value = c8CommBase.GetChannelCapcity();  //Calculate channel capacity with the new setting
-                lblXBeeCapacity.Text = pbXBeeChannelCapacity.Value.ToString();  //Display
-            }
-            else
-                AddStatusString("Config not set" + HW_cn.ToString(), Color.Red);    //Error
+            var mi = cChannelsControlV2x11.GetModuleInfo(HWcnSelected);
+            if (mi is not null)
+                cNMaster!.ModuleInfos[idxSelectedModule] = mi;
+
+            cNMaster?.SetModuleConfig(HWcnSelected); //Sets Configuration of all Channels
         }
-
 
         /// <summary>
         /// Handles the Click event of the btSetAllConfig control.
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
-        private void BtSetAllConfig_Click(object sender, EventArgs e)
+        private async void BtSetDeviceConfig_Click(object sender, EventArgs e)
         {
-            c8CommBase?.SetConfigAllModules(); //Sets Configuration of all Channels
-        }
+            if (cNMaster != null)
+            {
+                //Update all configs
+                for (int HWcn = 0; HWcn < cNMaster!.ModuleInfos.Count; HWcn++)
+                {
+                    var mi = cChannelsControlV2x11.GetModuleInfo(HWcn);
+                    if (mi != null)
+                        cNMaster!.ModuleInfos[HWcn] = mi;
+                }
 
+                await cNMaster!.SetDeviceConfigAsync();
+            }
+        }
 
         /// <summary>
         /// Handles the Click event of the btGetClock control.
@@ -490,7 +568,7 @@ namespace Neuromaster_Demo
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void BtGetClock_Click(object sender, EventArgs e)
         {
-            c8CommBase?.GetClock();
+            cNMaster?.GetClock();
         }
 
         /// <summary>
@@ -503,24 +581,57 @@ namespace Neuromaster_Demo
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void BtSetClock_Click(object sender, EventArgs e)
         {
-            c8CommBase?.SetClock(DateTime.Now); //Set clock to PC time
+            cNMaster?.SetClock(DateTime.Now); //Set clock to PC time
         }
 
-        /*******************************************************************************/
-        /************************Feedback from the Communication ***********************/
-        /*******************************************************************************/
-
-
-        #endregion
-
+        private void BtNMInfo_Click(object sender, EventArgs e)
+        {
+            cNMaster?.GetNMFirmwareVersion();
+        }
 
         /// <summary>
         /// In case relative time differs from the absolute time
         /// </summary>
         private void BtResync_Click(object sender, EventArgs e)
         {
-            c8CommBase?.Resync();
+            cNMaster?.Resync();
         }
+
+        private void BtGetModuleSpecific_Click(object sender, EventArgs e)
+        {
+            if (!IsDeviceAvailable()) return;
+
+            if (cNMaster!.ModuleInfos[idxSelectedModule].IsModuleActive())
+            {
+
+                cNMaster.GetModuleSpecific(HWcnSelected, true);
+            }
+            else
+            {
+                AddStatusString("Module specific read only possible if module is active", Color.Red);
+            }
+        }
+
+        private void BtSetModuleSpecific_Click(object sender, EventArgs e)
+        {
+            if (!IsDeviceAvailable()) return;
+
+            if (cNMaster!.ModuleInfos[idxSelectedModule].IsModuleActive())
+            {
+                byte[] buf = cChannelsControlV2x11.GetModuleSpecific(HWcnSelected);
+                cNMaster.ModuleInfos[idxSelectedModule].SetModuleSpecific(buf);
+
+                var HWcn = HWcnSelected;
+                cNMaster.SetModuleSpecific(HWcn);
+            }
+            else
+            {
+                AddStatusString("Module specific write only possible if module is active", Color.Red);
+            }
+        }
+
+
+        #endregion
 
 
         #region USB_Connect_Disconnect
@@ -532,7 +643,7 @@ namespace Neuromaster_Demo
         /// USB port is monitored in the background if cable is plugged in again
         /// </remarks>
         /// <param name="PID_VID">ProductID & VendorID of the disconnected device</param>
-        private void DataReceiver_DeviceDisconnected(string PID_VID)
+        private void NMReceiver_DeviceDisconnected(string PID_VID)
         {
             RunOnUiThread(() =>
             {
@@ -547,7 +658,7 @@ namespace Neuromaster_Demo
         /// Neuromaster_s the connection_ device connected.
         /// </summary>
         /// <param name="ConnectionResult">The connection result.</param>
-        private void DataReceiver_DeviceConnected(EnumConnectionResult ConnectionResult)
+        private void NMReceiver_DeviceConnected(EnumConnectionResult ConnectionResult)
         {
             RunOnUiThread(() =>
             {
@@ -564,12 +675,12 @@ namespace Neuromaster_Demo
             tbConnect.Enabled = false;  //Just to make GUI save
 
             //Backup current configuration
-            if (IsDeviceAvailable() && c8CommBase!.ModuleInfos != null)
+            if (IsDeviceAvailable() && cNMaster!.ModuleInfos != null)
             {
-                BU_ModuleInfo = new List<CModuleBase>(c8CommBase!.ModuleInfos);
+                BU_ModuleInfo = new List<CModuleBase>(cNMaster!.ModuleInfos);
             }
-            BU_idx_SelectedModule = idx_SelectedModule;
-            c8CommBase?.c8Receiver.Close_Connection(); //Close Background threads responsible for receiving
+            buIdxSelectedModule = idxSelectedModule;
+            cNMaster?.NMReceiver.Close_Connection(); //Close Background threads responsible for receiving
         }
 
         /// <summary>
@@ -579,7 +690,7 @@ namespace Neuromaster_Demo
         {
             StartConnection();          //Reestablish connection - restore backup
             tbConnect.Enabled = true;   //Just to make GUI save
-            USB_Reconnected = true;
+            uSB_Reconnected = true;
         }
 
 
@@ -602,7 +713,7 @@ namespace Neuromaster_Demo
         private void AddStatusString(string text, Color Col)
         {
             ColoredText tc = new(text, Col);
-            StatusMessages.Push(tc);
+            statusMessages.Push(tc);
         }
 
 
@@ -623,7 +734,7 @@ namespace Neuromaster_Demo
 
         private bool IsDeviceAvailable()
         {
-            if (c8CommBase is null) return false;
+            if (cNMaster is null) return false;
             return true;
         }
 
@@ -639,21 +750,21 @@ namespace Neuromaster_Demo
             if ((BU_ModuleInfo != null) && (BU_ModuleInfo.Count > 0) && IsDeviceAvailable())
             {
                 //Check if possible
-                for (int HW_cn = 0; HW_cn < c8CommBase!.ModuleInfos.Count; HW_cn++)
+                for (int HW_cn = 0; HW_cn < cNMaster!.ModuleInfos.Count; HW_cn++)
                 {
-                    if ((c8CommBase!.ModuleInfos[HW_cn].ModuleType == BU_ModuleInfo[HW_cn].ModuleType) &&
-                        (c8CommBase!.ModuleInfos[HW_cn].ModuleType != enumModuleType.cModuleTypeEmpty))
+                    if ((cNMaster!.ModuleInfos[HW_cn].ModuleType == BU_ModuleInfo[HW_cn].ModuleType) &&
+                        (cNMaster!.ModuleInfos[HW_cn].ModuleType != EnModuleType.cModuleTypeEmpty))
                     {
                         //Only if Module Types are equal
-                        for (int SW_cn = 0; SW_cn < c8CommBase.ModuleInfos[HW_cn].SWChannels.Count; SW_cn++)
+                        for (int SW_cn = 0; SW_cn < cNMaster.ModuleInfos[HW_cn].SWChannels.Count; SW_cn++)
                         {
-                            c8CommBase.ModuleInfos[HW_cn].SWChannels[SW_cn].SampleInt =
+                            cNMaster.ModuleInfos[HW_cn].SWChannels[SW_cn].SampleInt =
                                 BU_ModuleInfo[HW_cn].SWChannels[SW_cn].SampleInt;
 
-                            c8CommBase.ModuleInfos[HW_cn].SWChannels[SW_cn].SaveChannel =
+                            cNMaster.ModuleInfos[HW_cn].SWChannels[SW_cn].SaveChannel =
                                 BU_ModuleInfo[HW_cn].SWChannels[SW_cn].SaveChannel;
 
-                            c8CommBase.ModuleInfos[HW_cn].SWChannels[SW_cn].SendChannel =
+                            cNMaster.ModuleInfos[HW_cn].SWChannels[SW_cn].SendChannel =
                                 BU_ModuleInfo[HW_cn].SWChannels[SW_cn].SendChannel;
                         }
                         AddStatusString("HW channel " + HW_cn.ToString() + " updated", Color.Green);
@@ -670,94 +781,29 @@ namespace Neuromaster_Demo
         private void CChannelsControlV2x11_ModuleRowChanged(object sender, CModuleBase ModuleInfo)
         {
             if (IsDeviceAvailable())
-                for (int i = 0; i < c8CommBase!.ModuleInfos.Count; i++)
+                for (int i = 0; i < cNMaster!.ModuleInfos.Count; i++)
                 {
                     //Find index of the recently selected Module
-                    if (c8CommBase.ModuleInfos[i].HWcn == ModuleInfo.HWcn)
+                    if (cNMaster.ModuleInfos[i].HWcn == ModuleInfo.HWcn)
                     {
-                        idx_SelectedModule = i;
+                        idxSelectedModule = i;
                         break;
                     }
                 }
         }
         #endregion
 
-        private void BtGetModuleSpecific_Click(object sender, EventArgs e)
-        {
-            if (!IsDeviceAvailable()) return;
-            
-            int HWcn = c8CommBase!.ModuleInfos[idx_SelectedModule].HWcn;
 
-            if (c8CommBase!.ModuleInfos[idx_SelectedModule].IsModuleActive())
-            {
-
-                c8CommBase.GetModuleInfoSpecific(HWcn, true);
-            }
-            else
-            {
-                AddStatusString("Module specific read only possible if module is active", Color.Red);
-            }
-        }
-
-        private void BtSetModuleSpecific_Click(object sender, EventArgs e)
-        {
-            if (!IsDeviceAvailable()) return;
-            
-            int HW_cn = c8CommBase!.ModuleInfos[idx_SelectedModule].HWcn;
-
-            if (c8CommBase.ModuleInfos[idx_SelectedModule].IsModuleActive())
-            {
-                byte[] buf = cChannelsControlV2x11.GetModuleSpecific(HW_cn);
-                c8CommBase.ModuleInfos[idx_SelectedModule].SetModuleSpecific(buf);
-
-                if (c8CommBase.SetModuleInfoSpecific(HW_cn))
-                {
-                    AddStatusString("Module specific write OK", Color.Green);
-                    string s = "Sent: ";
-                    for (int i = 0; i < buf.Length; i++)
-                    {
-                        s += buf[i].ToString() + ", ";
-                    }
-                    AddStatusString(s, Color.Orange);
-
-                    Application.DoEvents();
-                    cChannelsControlV2x11.UpdateModuleSpecificInfo(c8CommBase.ModuleInfos[HW_cn]);
-                    cChannelsControlV2x11.Refresh();
-
-                    buf = c8CommBase.ModuleInfos[HW_cn].GetModuleSpecific();
-                    s = "Reci: ";
-                    for (int i = 0; i < buf.Length; i++)
-                    {
-                        s += buf[i].ToString() + ", ";
-                    }
-                    AddStatusString(s, Color.Blue);
-
-                }
-                else
-                { AddStatusString("Module specific write failed", Color.Red); }
-            }
-            else
-            {
-                AddStatusString("Module specific write only possible if module is active", Color.Red);
-            }
-        }
-
-        
         private void BtOpenTCP_Click(object sender, EventArgs e)
         {
-            TCP_Interface ??= new CTCPInterface();
-            TCP_Interface.StatusMessage += TCP_Interface_StatusMessage;
-            TCP_Interface.Init();
+            tCPInterface ??= new CTCPInterface();
+            tCPInterface.StatusMessage += TCP_Interface_StatusMessage;
+            tCPInterface.Init();
         }
 
         private void TCP_Interface_StatusMessage(string data, Color color)
         {
             AddStatusString(data, color);
-        }
-
-        private void BtNMInfo_Click(object sender, EventArgs e)
-        {
-            c8CommBase?.GetNMFirmwareVersion();
         }
     }
 }

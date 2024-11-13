@@ -5,7 +5,7 @@ namespace WindControlLib
     {
         double val;
         private int _count;
-        public int count
+        public int Count
         {
             get { return _count; }
         }
@@ -43,38 +43,38 @@ namespace WindControlLib
     [Serializable()]    //Set this attribute to all the classes that want to serialize
     public class CIntegerMovingAverager
     {
-        private long SumofValues;
-        private long SumofValuesTemp;
-        private int CountValues;
-        private CRingpuffer RP;
-        private int buffer_size;
+        private long sumofValues;
+        private long sumofValuesTemp;
+        private int countValues;
+        private readonly CRingpuffer rp;
+        private readonly int buffer_size;
 
         public CIntegerMovingAverager(int size)
         {
-            RP = new CRingpuffer(size);
+            rp = new CRingpuffer(size);
             buffer_size = size;
-            SumofValues = 0;
-            CountValues = size;
-            for (int i = 0; i < size; i++) RP.Push(0);
-            SumofValuesTemp = 0;
-            RP.IgnoreOverflowDuringPush = true;
+            sumofValues = 0;
+            countValues = size;
+            for (int i = 0; i < size; i++) rp.Push(0);
+            sumofValuesTemp = 0;
+            rp.IgnoreOverflowDuringPush = true;
         }
 
         public int Push(int Value)
         {
-            SumofValues += Value;
-            SumofValuesTemp += Value;
-            SumofValues -= (int)RP.NextLostValue();
-            RP.Push(Value);
-            CountValues--;
-            if (CountValues == 0)
+            sumofValues += Value;
+            sumofValuesTemp += Value;
+            sumofValues -= (int)rp.NextLostValue();
+            rp.Push(Value);
+            countValues--;
+            if (countValues == 0)
             {
                 //SumofValues immer wieder aktualisieren damit Rundungsfehler nicht kumulieren
-                SumofValues = SumofValuesTemp;
-                SumofValuesTemp = 0;
-                CountValues = buffer_size;
+                sumofValues = sumofValuesTemp;
+                sumofValuesTemp = 0;
+                countValues = buffer_size;
             }
-            _Average = (int)(SumofValues / (double)buffer_size);
+            _Average = (int)(sumofValues / (double)buffer_size);
             return _Average;
         }
 
@@ -91,8 +91,8 @@ namespace WindControlLib
         private double SumofValues;
         private double SumofValuesTemp;
         private int CountValues;
-        private CRingpuffer RP;
-        private int buffer_size;
+        private readonly CRingpuffer RP;
+        private readonly int buffer_size;
 
 
         public CDoubleMovingAverager(int size)

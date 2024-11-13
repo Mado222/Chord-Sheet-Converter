@@ -1,4 +1,4 @@
-﻿namespace MathNetNuget
+﻿namespace MathNetNugetLib
 {
     public class CPeakDetect
     {

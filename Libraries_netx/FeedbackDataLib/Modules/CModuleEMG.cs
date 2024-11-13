@@ -7,7 +7,7 @@
         {
             ModuleColor = Color.Gray;   //Color.FromArgb(Convert.ToInt32("FFACAAAE", 16)); //Grey
             ModuleName = "EMG";
-            ModuleType = enumModuleType.cModuleEMG;
+            ModuleType = EnModuleType.cModuleEMG;
 
             cSWChannelNames =
                 [
@@ -19,10 +19,10 @@
 
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeEMG0,
-                enumSWChannelType.cSWChannelTypeEMG1,
-                enumSWChannelType.cSWChannelTypeEMG2,
-                enumSWChannelType.cSWChannelTypeEMG3
+                EnSWChannelType.cSWChannelTypeEMG0,
+                EnSWChannelType.cSWChannelTypeEMG1,
+                EnSWChannelType.cSWChannelTypeEMG2,
+                EnSWChannelType.cSWChannelTypeEMG3
             ];
         }
     }

@@ -23,7 +23,7 @@
             set { _DestinationAddress64 = value; }
         }
 
-        public override TXRequestOptions options
+        public override TXRequestOptions Options
         {
             get { return _options; }
             set
@@ -44,7 +44,7 @@
                 //FrameData Byte 0
                 APID,
                 //FrameData Byte 1
-                frameId
+                FrameId
             ];
 
             //FrameData Byte 2-9: 64 Bit Destination Address
@@ -52,8 +52,8 @@
             for (int i = be.Length - 1; i >= 0; i--)
                 FrameData.Add(be[i]);
 
-            FrameData.Add((byte)options);
-            FrameData.AddRange(rfData);
+            FrameData.Add((byte)Options);
+            FrameData.AddRange(RfData);
 
             return MakeBasicDataFrame(FrameData, ApiMode);
         }
@@ -63,7 +63,7 @@
         /// </summary>
         public byte[] Get_TX_TransmmitRequest_DataFrame(XBAPIMode ApiMode, byte[] RFData)
         {
-            rfData = new List<byte>(RFData);
+            RfData = new List<byte>(RFData);
             //rfData = RFData.ToList(); //--> braucht LINQ
             APID = CXBAPICommands.TXRequest64bitAddress;
             return Get_CommandRequest_DataFrame(ApiMode);

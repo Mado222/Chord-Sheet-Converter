@@ -84,10 +84,10 @@ namespace FeedbackDataLib.Modules
 
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeExGADS0,
-                enumSWChannelType.cSWChannelTypeExGADS1,
-                enumSWChannelType.cSWChannelTypeExGADS2,
-                enumSWChannelType.cSWChannelTypeExGADS3
+                EnSWChannelType.cSWChannelTypeExGADS0,
+                EnSWChannelType.cSWChannelTypeExGADS1,
+                EnSWChannelType.cSWChannelTypeExGADS2,
+                EnSWChannelType.cSWChannelTypeExGADS3
             ];
 
             extraDatas = new ExtraData<EnTypeExtradat_ADS>[NumRawChannels][];
@@ -291,32 +291,32 @@ namespace FeedbackDataLib.Modules
         {
             CADS1294x_CONFIG1 c1 = new()
             {
-                ClkEn = CADS1294x_CONFIG1.clkEn.OscillatorClockDisabled,
-                DaisyEn = CADS1294x_CONFIG1.daisyEn.MultipleReadbackMode,
-                DataRate = CADS1294x_CONFIG1.dataRate.DataRate500,
-                ResMode = CADS1294x_CONFIG1.resMode.LowPowerMode
+                ClkEn = CADS1294x_CONFIG1.EnClkEn.OscillatorClockDisabled,
+                DaisyEn = CADS1294x_CONFIG1.EnDaisyEn.MultipleReadbackMode,
+                DataRate = CADS1294x_CONFIG1.EnDataRate.DataRate500,
+                ResMode = CADS1294x_CONFIG1.EnResMode.LowPowerMode
             };
 
             CONFIG1 = [c1];
 
             CADS1294x_CONFIG2 c2 = new()
             {
-                TestSource = CADS1294x_CONFIG2.testSource.TEST_SIGNAL_INTERNAL,
-                TestAmp = CADS1294x_CONFIG2.testAmp.TEST_AMP_2X_VREF_DIV_2400,
-                TestFrequ = CADS1294x_CONFIG2.testFreq.TEST_FREQ_NOT_USED,
-                WctChop = CADS1294x_CONFIG2.wctChop.WCT_CHOP_FREQ_CONSTANT
+                TestSource = CADS1294x_CONFIG2.EnTestSource.TEST_SIGNAL_INTERNAL,
+                TestAmp = CADS1294x_CONFIG2.EnTestAmp.TEST_AMP_2X_VREF_DIV_2400,
+                TestFrequ = CADS1294x_CONFIG2.EnTestFreq.TEST_FREQ_NOT_USED,
+                WctChop = CADS1294x_CONFIG2.EnWctChop.WCT_CHOP_FREQ_CONSTANT
             };
 
             CONFIG2 = [c2];
 
             CADS1294x_CONFIG3 c3 = new()
             {
-                PdRefbuf = CADS1294x_CONFIG3.pdRefbuf.REFBUF_ON,
-                RldBufferPower = CADS1294x_CONFIG3.rldBufferPower.RLD_BUFFER_POWER_DOWN,
-                RldRefSignal = CADS1294x_CONFIG3.rldRefSignal.RLDREF_INT_AVDD,
-                RldSenseFunction = CADS1294x_CONFIG3.rldSenseFunction.RLD_SENSE_DISABLED,
-                VrefSetting = CADS1294x_CONFIG3.vrefSetting.VREFP_4V,
-                RldStatus = CADS1294x_CONFIG3.rldStatus.RLD_NOT_CONNECTED
+                PdRefbuf = CADS1294x_CONFIG3.EnPdRefbuf.REFBUF_ON,
+                RldBufferPower = CADS1294x_CONFIG3.EnRldBufferPower.RLD_BUFFER_POWER_DOWN,
+                RldRefSignal = CADS1294x_CONFIG3.EnRldRefSignal.RLDREF_INT_AVDD,
+                RldSenseFunction = CADS1294x_CONFIG3.EnRldSenseFunction.RLD_SENSE_DISABLED,
+                VrefSetting = CADS1294x_CONFIG3.EnVrefSetting.VREFP_4V,
+                RldStatus = CADS1294x_CONFIG3.EnRldStatus.RLD_NOT_CONNECTED
             };
 
             CONFIG3 = [c3];

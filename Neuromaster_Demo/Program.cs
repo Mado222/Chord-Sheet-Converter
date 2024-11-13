@@ -1,5 +1,3 @@
-using Neuromaster_Demo;
-
 namespace Neuromaster_Demo_Library_Reduced__netx
 {
     internal static class Program

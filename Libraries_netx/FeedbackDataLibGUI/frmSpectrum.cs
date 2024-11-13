@@ -1,6 +1,6 @@
 ﻿using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class frmSpectrum : Form
     {

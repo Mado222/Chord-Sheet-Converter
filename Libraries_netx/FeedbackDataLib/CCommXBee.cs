@@ -1,10 +1,9 @@
-﻿using System.ComponentModel;
+﻿using BMTCommunicationLib;
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Xml.Serialization;
 using WindControlLib;
 using XBeeLib;
-using System.Diagnostics;
-using BMTCommunicationLib;
 
 namespace FeedbackDataLib
 {
@@ -256,7 +255,7 @@ namespace FeedbackDataLib
                         while ((cnt != 0) && !PairingSuceeded)
                         {
                             //24.6.2014 try it more than once, because after switch off sometimes the first communication fails
-                            PairingSuceeded = C8CommBase.Check4Neuromaster(_XBeeSeries1!.Seriell32);
+                            PairingSuceeded = CNMaster.Check4Neuromaster(_XBeeSeries1!.Seriell32);
                             cnt--;
                         }
                     }
@@ -466,7 +465,7 @@ namespace FeedbackDataLib
 
                         if (barp != null)
                         {
-                            XBRFDataBuffer.Push(barp.rfData);
+                            XBRFDataBuffer.Push(barp.RfData);
                         }
                     } //if (o != null)
                     //while ((_SerialPort.BytesToRead > 0) && (barp != null));
@@ -566,14 +565,14 @@ namespace FeedbackDataLib
             CTXRequest64 TXRequest64 = new(EndDevSerialNumber);
             if (CheckXBeeresponse)
             {
-                TXRequest64.options = TXRequestOptions.noOption;    //Activate Response Packet
+                TXRequest64.Options = TXRequestOptions.noOption;    //Activate Response Packet
                 frameID++; if (frameID == 0) frameID = 1;
-                TXRequest64.frameId = frameID;
+                TXRequest64.FrameId = frameID;
             }
             else
             {
-                TXRequest64.options = TXRequestOptions.disableACK;    //DeActivate Response Packet
-                TXRequest64.frameId = 0; //No response
+                TXRequest64.Options = TXRequestOptions.disableACK;    //DeActivate Response Packet
+                TXRequest64.FrameId = 0; //No response
 
             }
             byte[] buf = new byte[count];
@@ -603,7 +602,7 @@ namespace FeedbackDataLib
                         while (TXStatusResponseBuffer.Count > 0)
                         {
                             CTXStatusResponse? txsr = TXStatusResponseBuffer.Pop();
-                            if (txsr is not null && txsr.frameId == frameID)
+                            if (txsr is not null && txsr.FrameId == frameID)
                             {
                                 if (txsr.TXStatus != TXStatusOptions.Success)
                                 {

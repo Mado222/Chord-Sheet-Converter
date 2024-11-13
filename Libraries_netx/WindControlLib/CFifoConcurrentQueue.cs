@@ -51,7 +51,7 @@
             queue.TryDequeue(out T? item);
             return item;
         }
-        
+
         // Remove and return the oldest n items from the buffer
         public T[]? Pop(int n)
         {
@@ -79,19 +79,20 @@
         {
             if (dataFromQueue.Length <= 0)
             {
-                throw new ArgumentOutOfRangeException("The size of dataFromQueue cannot be 0 or negative.");
+                throw new ArgumentOutOfRangeException(nameof(dataFromQueue), "The size of dataFromQueue cannot be 0 or negative.");
+
             }
             if (Count < dataFromQueue.Length)
             {
-                dataFromQueue= Array.Empty<T>();
+                dataFromQueue = Array.Empty<T>();
                 return;
             }
-            
+
             for (int i = 0; i < dataFromQueue.Length; i++)
             {
                 if (queue.TryDequeue(out T? item))
                 {
-                    dataFromQueue[i]= item;
+                    dataFromQueue[i] = item;
                 }
             }
         }

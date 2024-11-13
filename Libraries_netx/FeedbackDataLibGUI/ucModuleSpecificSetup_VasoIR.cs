@@ -1,10 +1,10 @@
 ﻿using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
-    public partial class ucModuleSpecificSetup_VasoIR : UserControl
+    public partial class UcModuleSpecificSetupVasoIR : UserControl
     {
-        public ucModuleSpecificSetup_VasoIR()
+        public UcModuleSpecificSetupVasoIR()
         {
             InitializeComponent();
             toolTip1.SetToolTip(txtt_calc_new_scaling_ms, "The interval in [ms] after which the amplification is checked");

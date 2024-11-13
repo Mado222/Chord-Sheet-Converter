@@ -141,7 +141,7 @@
         /// <returns>
         /// true: if the response corresponses the the request
         /// false: if not</returns>
-        override public bool checkResponse(CBasicAPIResponse response)
+        override public bool CheckResponse(CBasicAPIResponse response)
         {
             bool IsResponseCorrect = false;
             switch (response.APID)

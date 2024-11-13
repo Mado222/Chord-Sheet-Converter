@@ -30,7 +30,7 @@
         /// inits the object with the receiving frame
         /// </summary>
         /// <param name="recFrameData">receiving frame data</param>
-        override public void initResponse(List<byte> recFrameData)
+        override public void InitResponse(List<byte> recFrameData)
         {
             List<byte>.Enumerator listEnum = recFrameData.GetEnumerator();
 
@@ -43,7 +43,7 @@
             }
             SourceAddress16 = BitConverter.ToUInt16(be, 0);
 
-            initMembers(listEnum);
+            InitMembers(listEnum);
 
         }
     }

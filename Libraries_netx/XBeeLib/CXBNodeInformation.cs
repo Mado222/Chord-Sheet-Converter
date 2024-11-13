@@ -292,9 +292,7 @@ namespace XBeeLib
         #region IComparable Members
         public int CompareTo(object? obj)
         {
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
-
-            return Compare(this, (CXBNodeInformation)obj);
+            return obj == null ? throw new ArgumentNullException(nameof(obj)) : Compare(this, (CXBNodeInformation)obj);
         }
         #endregion
 

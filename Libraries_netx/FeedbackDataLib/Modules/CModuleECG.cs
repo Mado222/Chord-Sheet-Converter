@@ -9,7 +9,7 @@ namespace FeedbackDataLib.Modules
         {
             ModuleColor = Color.Orange;
             ModuleName = "ECG";
-            ModuleType = enumModuleType.cModuleECG;
+            ModuleType = EnModuleType.cModuleECG;
 
             cSWChannelNames =
                 [
@@ -21,10 +21,10 @@ namespace FeedbackDataLib.Modules
 
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeECG0,
-                enumSWChannelType.cSWChannelTypeECG1,
-                enumSWChannelType.cSWChannelTypeECG2,
-                enumSWChannelType.cSWChannelTypeECG3
+                EnSWChannelType.cSWChannelTypeECG0,
+                EnSWChannelType.cSWChannelTypeECG1,
+                EnSWChannelType.cSWChannelTypeECG2,
+                EnSWChannelType.cSWChannelTypeECG3
             ];
         }
 
@@ -32,7 +32,7 @@ namespace FeedbackDataLib.Modules
         {
             List<CDataIn> _DataIn = [];
             //Not sending of 0 values in ECG bpm channel added 24.10.2014
-            if (SWChannels[di.SWcn].SWChannelType_enum == enumSWChannelType.cSWChannelTypeECG1)
+            if (SWChannels[di.SWcn].SWChannelType_enum == EnSWChannelType.cSWChannelTypeECG1)
             {
                 if (di.Value != 0)
                     _DataIn.Add(di);

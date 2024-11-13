@@ -1,4 +1,4 @@
-﻿namespace FeedbackDataLib_GUI
+﻿namespace FeedbackDataLibGUI
 {
     partial class ucModuleEEG
     {

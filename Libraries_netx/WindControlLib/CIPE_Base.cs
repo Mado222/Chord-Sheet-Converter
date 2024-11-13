@@ -30,7 +30,7 @@ namespace WindControlLib
             System.Diagnostics.ProcessStartInfo psi = new()
             {
                 ///Prozess-Konfiguration//////////////////////////
-                FileName = GetMPLABX_ipecmd_Path() //@"c:\Program Files (x86)\Microchip\MPLABX\v5.30\mplab_platform\mplab_ipe\c" 
+                FileName = GetMPLABXIpecmdPath() //@"c:\Program Files (x86)\Microchip\MPLABX\v5.30\mplab_platform\mplab_ipe\c" 
             };
 
             if (psi.FileName != "")
@@ -88,7 +88,7 @@ namespace WindControlLib
             }
         }
 
-        public static string GetMPLABX_ipecmd_Path()
+        public static string GetMPLABXIpecmdPath()
         {
             string path = @"c:\Program Files\Microchip\MPLABX\v6.00\mplab_platform\mplab_ipe\ipecmd.exe";
             if (File.Exists(path))
@@ -99,10 +99,10 @@ namespace WindControlLib
             //Achtung ob von 32 oder 64 bit SW darauf zugegriffen wird ... ohne Massnahmen 
             //liest 32bit SW immer von "SOFTWARE\WOW6432Node\Microchip"
             //siehe CRegistryAccess_64_32
-            List<string> Regkeys = new(new string[] {
+            List<string> Regkeys = new([
                  @"SOFTWARE\WOW6432Node\Microchip",
                 @"SOFTWARE\Microchip" //location >= MPLABX Version 5.45
-            });
+            ]);
 
             foreach (string srk in Regkeys)
             {
@@ -164,7 +164,7 @@ namespace WindControlLib
                     string[] seperator = ["  "];
                     for (int i = 0; i < res.Count; i++)
                     {
-                        if (res[i].Contains("ICD") | res[i].ToLower().Contains("pickit"))
+                        if (res[i].Contains("ICD") | res[i].Contains("pickit", StringComparison.CurrentCultureIgnoreCase))
                         {
                             //"1  ICD 3 S.No : JIT124112949"
                             //"1  PICkit 4 S.No : BUR225175376"

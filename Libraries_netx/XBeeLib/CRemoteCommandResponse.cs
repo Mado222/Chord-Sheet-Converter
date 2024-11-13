@@ -43,7 +43,7 @@ namespace XBeeLib
         /// inits the object with the receiving frame data
         /// </summary>
         /// <param name="recFrameData">received frame data</param>
-        override public void initResponse(List<byte> recFrameData)
+        override public void InitResponse(List<byte> recFrameData)
         {
             List<byte>.Enumerator listEnum = recFrameData.GetEnumerator();
 

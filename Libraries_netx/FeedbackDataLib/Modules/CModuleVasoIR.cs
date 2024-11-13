@@ -7,7 +7,7 @@
         {
             ModuleColor = Color.DarkViolet;
             ModuleName = "Vaso";
-            ModuleType = enumModuleType.cModuleVasosensorDig;
+            ModuleType = EnModuleType.cModuleVasosensorDig;
 
             cSWChannelNames =
                 [
@@ -18,10 +18,10 @@
                 ];
             cSWChannelTypes =
             [
-                enumSWChannelType.cSWChannelTypeVaso0,
-                enumSWChannelType.cSWChannelTypeVaso1,
-                enumSWChannelType.cSWChannelTypeVaso2,
-                enumSWChannelType.cSWChannelTypeVaso3
+                EnSWChannelType.cSWChannelTypeVaso0,
+                EnSWChannelType.cSWChannelTypeVaso1,
+                EnSWChannelType.cSWChannelTypeVaso2,
+                EnSWChannelType.cSWChannelTypeVaso3
             ];
         }
 
@@ -29,7 +29,7 @@
         {
             base.Update_ModuleTypeFromDevice(ModuleTypeFromDevice);
             //Make Infrared Dig Vasosensor to Vasosensor 13.6.2017
-            ModuleTypeNumber = (byte)enumModuleType.cModuleVaso;
+            ModuleTypeNumber = (byte)EnModuleType.cModuleVaso;
         }
 
         #region Vaso_IR_Params
@@ -41,7 +41,7 @@
         unsigned char MovingAVG_Buffersize_asPowerof2;
         unsigned char MovingAVG_Buffersize_overload_asPowerof2;
         */
-        private double _vasoIR_Current_scalingfactor;
+        //private double _vasoIR_Current_scalingfactor;
 
         //positions of variables in byte array ModuleSpecific
         private const int vpos_t_calc_new_scaling_ms = 0;
@@ -116,7 +116,7 @@
                 return _VasoIR_Current_scalingfactor;
             }
 
-            set => _vasoIR_Current_scalingfactor = value;
+            //set => _vasoIR_Current_scalingfactor = value;
         }
 
 

@@ -1,36 +1,36 @@
 ﻿using MathNet.Filtering;
 
-namespace MathNetNuget
+namespace MathNetNugetLib
 {
     public class CSignalFilterFIR : CSignalFilterBase
     {
 
-        public CSignalFilterFIR(enumSignalFilterType SignalFilterType, double fg, double sampleRate, int order = 2) :
+        public CSignalFilterFIR(EnSignalFilterType SignalFilterType, double fg, double sampleRate, int order = 2) :
             base(SignalFilterType, fg, sampleRate, order)
         {
 
             int half_order = (order - 1) / 2;
             switch (SignalFilterType)
             {
-                case enumSignalFilterType.BandPass:
+                case EnSignalFilterType.BandPass:
                     {
                         //_SignalFilter = MathNet.Filtering.FIR.OnlineFirFilter.CreateBandpass(ImpulseResponse.Finite, (double)this.sampleRate, 1 / this.fg);
                         break;
                     }
-                case enumSignalFilterType.BandStop:
+                case EnSignalFilterType.BandStop:
                     {
                         //_SignalFilter = MathNet.Filtering.OnlineFilter.CreateBandstop(ImpulseResponse.Finite, (double)this.sampleRate, 1 / this.fg, this.order);
                         break;
                     }
-                case enumSignalFilterType.HighPass:
+                case EnSignalFilterType.HighPass:
                     {
-                        _SignalFilter = MathNet.Filtering.FIR.OnlineFirFilter.CreateHighpass(ImpulseResponse.Finite, (double)this.sampleRate, (double)this.fg, half_order);
+                        _SignalFilter = MathNet.Filtering.FIR.OnlineFirFilter.CreateHighpass(ImpulseResponse.Finite, (double)this.SampleRate, (double)this.Fg, half_order);
 
                         break;
                     }
-                case enumSignalFilterType.LowPass:
+                case EnSignalFilterType.LowPass:
                     {
-                        _SignalFilter = MathNet.Filtering.FIR.OnlineFirFilter.CreateLowpass(ImpulseResponse.Finite, (double)this.sampleRate, this.fg, this.order);
+                        _SignalFilter = MathNet.Filtering.FIR.OnlineFirFilter.CreateLowpass(ImpulseResponse.Finite, (double)this.SampleRate, this.Fg, this.Order);
                         break;
                     }
             }

@@ -2,7 +2,7 @@
 {
     public class CADS1294x_ElectrodeImp
     {
-        private List<CElectrode_InputImp[]> electrodeInfo;
+        private readonly List<CElectrode_InputImp[]> electrodeInfo;
 
         public List<CElectrode_InputImp[]> ElectrodeInfo { get => electrodeInfo; }
 
@@ -55,12 +55,12 @@
         private const double CONF_SWCH0_VREF = 4.033;
         private const double Imp_Iconst = 6e-6;
         private const double Rprotect_Ohm = 68000;              //Schutzwiderstand R4, R7, R12, R13
-        private int channel_no;
-        private double impedance_Ohm = -1;
-        private double uElektrode_V = -1;
-        private int succeeded = -1;
-        private int gain = -1;
-        private bool isN;
+        private readonly int channel_no;
+        private readonly double impedance_Ohm = -1;
+        private readonly double uElektrode_V = -1;
+        private readonly int succeeded = -1;
+        private readonly int gain = -1;
+        private readonly bool isN;
 
         public int Channel_no { get => channel_no; }
         public double Impedance_Ohm { get => impedance_Ohm; }
@@ -89,7 +89,7 @@
                 int UOFFxNP = BitConverter.ToInt32(bitin, i); i += 4;
                 int UOFFxNPF = BitConverter.ToInt32(bitin, i); i += 4;
                 gain = bitin[i]; i++;
-                succeeded = bitin[i]; i++;
+                succeeded = bitin[i]; //i++;
 
                 impedance_Ohm = (GetScaledValue(Math.Abs(UOFFxNP - UOFFxNPF), Gain) / Imp_Iconst) - Rprotect_Ohm;
                 uElektrode_V = GetScaledValue((UOFFxNP + UOFFxNPF) >> 1, Gain); //dUelxPN;

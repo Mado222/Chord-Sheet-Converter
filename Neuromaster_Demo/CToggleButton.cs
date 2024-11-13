@@ -89,13 +89,13 @@
             set { _AcceptChange = value; }
         }
 
-        public event EventHandler ToState2;
+        public event EventHandler? ToState2;
         protected virtual void OnToState2(EventArgs e)
         {
             ToState2?.Invoke(this, e);
         }
 
-        public event EventHandler ToState1;
+        public event EventHandler? ToState1;
         protected virtual void OnToState1(EventArgs e)
         {
             ToState1?.Invoke(this, e);

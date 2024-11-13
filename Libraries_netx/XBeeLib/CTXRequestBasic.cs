@@ -4,14 +4,14 @@
     {
 
         protected byte _frameId = 1;
-        public byte frameId
+        public byte FrameId
         {
             get { return _frameId; }
             set { _frameId = value; }
         }
 
         protected TXRequestOptions _options = TXRequestOptions.noOption;
-        virtual public TXRequestOptions options
+        virtual public TXRequestOptions Options
         {
             get { return _options; }
             set
@@ -21,12 +21,12 @@
         }
 
         protected List<byte> _rfData = [];
-        public List<byte> rfData
+        public List<byte> RfData
         {
             get { return _rfData; }
             set
             {
-                if (rfData.Count > 100)
+                if (RfData.Count > 100)
                 {
                     throw new Exception("Max. RFData site = 100");
                 }
@@ -37,7 +37,7 @@
         /// <summary>
         /// Returns complete byte [] to be sent to configure remote device
         /// </summary>
-        public override bool checkResponse(CBasicAPIResponse response)
+        public override bool CheckResponse(CBasicAPIResponse response)
         {
             bool IsResponseCorrect = false;
             switch (response.APID)
@@ -46,7 +46,7 @@
 
                     CTXStatusResponse responseNew = (CTXStatusResponse)response;
 
-                    if (frameId == responseNew.frameId)
+                    if (FrameId == responseNew.FrameId)
                     {
                         IsResponseCorrect = true;
                     }

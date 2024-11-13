@@ -1,7 +1,7 @@
 ﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public partial class ucModuleSpecificSetup_MultiSensor : UserControl
     {
@@ -23,7 +23,7 @@ namespace FeedbackDataLib_GUI
             gbPulse.Visible = true;
             gbSCL.Visible = false;
 
-            if (ModuleInfo.ModuleType == enumModuleType.cModuleMultisensor)
+            if (ModuleInfo.ModuleType == EnModuleType.cModuleMultisensor)
             {
                 gbSCL.Visible = true;
                 cbTestMultisensor.Checked = ModuleInfo.SCLTest;

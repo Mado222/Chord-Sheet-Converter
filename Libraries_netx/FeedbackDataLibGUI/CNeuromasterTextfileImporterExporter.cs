@@ -4,7 +4,7 @@ using FeedbackDataLib.Modules;
 using WindControlLib;
 
 
-namespace FeedbackDataLib_GUI
+namespace FeedbackDataLibGUI
 {
     public class CNeuromasterTextfileImporterExporter
     {
@@ -355,11 +355,11 @@ namespace FeedbackDataLib_GUI
 
         public class CNMValues
         {
-            public double time_ms { get; set; }
-            public double time_ms_rebuilt { get; set; }
-            public double y_scaled { get; set; }
-            public double y_unscaled { get; set; }
-            public DateTime dt { get; set; }
+            public double TimeMs { get; set; }
+            public double TimeMsRebuilt { get; set; }
+            public double YScaled { get; set; }
+            public double YUnscaled { get; set; }
+            public DateTime DT { get; set; }
 
         }
 
@@ -380,11 +380,11 @@ namespace FeedbackDataLib_GUI
                 dt1 = [];
             }
 
-            public List<double> time_ms { get => time_ms1; }
-            public List<double> time_ms_rebuilt { get => time_ms_rebuilt1; }
-            public List<double> y_scaled { get => y_scaled1; }
-            public List<double> y_unscaled { get => y_unscaled1; }
-            public List<DateTime> dt { get => dt1; }
+            public List<double> TimeMs { get => time_ms1; }
+            public List<double> TimeMsRebuilt { get => time_ms_rebuilt1; }
+            public List<double> YScaled { get => y_scaled1; }
+            public List<double> YUnscaled { get => y_unscaled1; }
+            public List<DateTime> DT { get => dt1; }
 
             public void Clear()
             {

@@ -17,7 +17,7 @@ namespace FeedbackDataLib.Modules
         public const int ModuleSpecific_sizeof = 16;
         protected byte[] ModuleSpecific = new byte[ModuleSpecific_sizeof];
 
-        protected byte num_SWChannels_sent_by_HW = C8CommBase.numSWChannelsSentByHW;
+        protected byte num_SWChannels_sent_by_HW = CNMaster.NumSWChannelsSentByHW;
 
         public CModuleBase()
         {
@@ -48,12 +48,12 @@ namespace FeedbackDataLib.Modules
             "SWChan3",
         ];
 
-        protected enumSWChannelType[] cSWChannelTypes =
+        protected EnSWChannelType[] cSWChannelTypes =
 [
-            enumSWChannelType.cSWChannelTypeNotDefined,
-            enumSWChannelType.cSWChannelTypeNotDefined,
-            enumSWChannelType.cSWChannelTypeNotDefined,
-            enumSWChannelType.cSWChannelTypeNotDefined,
+            EnSWChannelType.cSWChannelTypeNotDefined,
+            EnSWChannelType.cSWChannelTypeNotDefined,
+            EnSWChannelType.cSWChannelTypeNotDefined,
+            EnSWChannelType.cSWChannelTypeNotDefined,
         ];
 
 
@@ -86,7 +86,7 @@ namespace FeedbackDataLib.Modules
         /// </summary>
         public ushort HWcn { get; private set; }
 
-        public void SetHW_cn(ushort HW_cn) => this.HWcn = HW_cn;
+        public void SetHWcn(ushort HW_cn) => this.HWcn = HW_cn;
 
         /// <summary>
         /// Gets or sets the SW channels for the GUI
@@ -192,14 +192,14 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// For internal storage
         /// </summary>
-        protected enumModuleType _ModuleType = enumModuleType.cModuleTypeEmpty;
-        protected enumModuleType _ModuleType_Unmodified = enumModuleType.cModuleTypeEmpty;
+        protected EnModuleType _ModuleType = EnModuleType.cModuleTypeEmpty;
+        protected EnModuleType _ModuleType_Unmodified = EnModuleType.cModuleTypeEmpty;
 
         /// <summary>
         /// Gets the type of the module.
         /// </summary>
-        public enumModuleType ModuleType { get; protected set; }
-        public enumModuleType ModuleType_Unmodified { get; protected set; }
+        public EnModuleType ModuleType { get; protected set; }
+        public EnModuleType ModuleType_Unmodified { get; protected set; }
 
         /// <summary>
         /// Gets the module type number
@@ -287,7 +287,7 @@ namespace FeedbackDataLib.Modules
         }
 
 
-        public virtual int Update_UID_ModuleType_From_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public virtual int UpdateUIDModuleTypeFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
             int ptr = Pointer_To_Array_Start; //Array Pointer
             Array.Copy(InBuf, ptr, UUID_bytearray, 0, UUID_bytearray.Length); ptr += UUID_bytearray.Length;
@@ -302,16 +302,16 @@ namespace FeedbackDataLib.Modules
         /// <summary>
         /// Fill properties according to corresponding structure in Device
         /// </summary>
-        public virtual int UpdateFrom_ByteArray(byte[] InBuf, int Pointer_To_Array_Start)
+        public virtual int UpdateFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
-            int ptr = Update_UID_ModuleType_From_ByteArray(InBuf, Pointer_To_Array_Start);
+            int ptr = UpdateUIDModuleTypeFromByteArray(InBuf, Pointer_To_Array_Start);
             sWChannels_Module = [];
 
             /* 30.9.2024
              * alte Module senden immer alle 4 SW Kanäle, Neu haben unterschiedliche Anzahl
              */
-            int numswchan = C8CommBase.numSWChannelsSentByHW;
-            if (ModuleTypeNumber >= (int)enumModuleType.cModuleExGADS94)
+            int numswchan = CNMaster.NumSWChannelsSentByHW;
+            if (ModuleTypeNumber >= (int)EnModuleType.cModuleExGADS94)
                 numswchan = num_SWChannels_sent_by_HW;
 
             for (uint i = 0; i < numswchan; i++)
@@ -353,7 +353,7 @@ namespace FeedbackDataLib.Modules
             }
 
             ModuleTypeNumber = (byte)(CMyConvert.HighByte(ModuleTypeFromDevice) & 0xf);
-            ModuleType = (enumModuleType)ModuleTypeNumber;
+            ModuleType = (EnModuleType)ModuleTypeNumber;
             ModuleType_Unmodified = ModuleType;
             HWRevision = CMyConvert.LowByte(ModuleTypeFromDevice);
 

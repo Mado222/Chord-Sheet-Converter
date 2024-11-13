@@ -1,32 +1,18 @@
-using System.Runtime.InteropServices;
-
 namespace WindControlLib
 {
+    using System;
+    using System.Diagnostics;
+
     public class CHighPerformanceDateTime
     {
-        //QueryPerformanceCounter, returns the current processor's amount of ticks.
-        [DllImport("Kernel32.dll")]
-        private static extern bool QueryPerformanceCounter(out long lpPerformanceCount);
-
-        //This function returns the performance frequency: the number of performance counter values per second. 
-        [DllImport("Kernel32.dll")]
-        private static extern bool QueryPerformanceFrequency(out long lpFrequency);
-
-        private readonly long startTime;
-        private readonly long freq;
-        private readonly DateTime _dt;
+        private readonly Stopwatch stopwatch;
+        private readonly DateTime startDateTime;
 
         // Constructor
         public CHighPerformanceDateTime()
         {
-            startTime = 0;
-            if (QueryPerformanceFrequency(out freq) == false)
-            {
-                // high-performance counter not supported
-                throw new Exception();
-            }
-            _dt = DateTime.Now;
-            QueryPerformanceCounter(out startTime);
+            stopwatch = Stopwatch.StartNew();
+            startDateTime = DateTime.Now;
         }
 
         // Returns the duration of the timer (in seconds)
@@ -34,9 +20,9 @@ namespace WindControlLib
         {
             get
             {
-                QueryPerformanceCounter(out long ticksNow);
-                long ticks = (long)((ticksNow - startTime) / (double)freq * 10000000);
-                return _dt.AddTicks(ticks); ;
+                // Calculate elapsed ticks based on the stopwatch's elapsed time in ticks
+                long elapsedTicks = stopwatch.ElapsedTicks * 10_000_000 / Stopwatch.Frequency;
+                return startDateTime.AddTicks(elapsedTicks);
             }
         }
     }

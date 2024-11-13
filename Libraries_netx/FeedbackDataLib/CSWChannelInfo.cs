@@ -31,7 +31,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Reference voltage source installed
         /// </summary>
-        public double uref
+        public double Uref
         {
             get { return _uref; }
             set { _uref = value; }
@@ -80,7 +80,7 @@ namespace FeedbackDataLib
             ADResolution = BitConverter.ToUInt16(InBuf, ptr); ptr += Marshal.SizeOf(ADResolution);
             Offset_hex = BitConverter.ToInt16(InBuf, ptr); ptr += Marshal.SizeOf(Offset_hex);
             MidofRange = BitConverter.ToUInt16(InBuf, ptr); ptr += Marshal.SizeOf(MidofRange);
-            uref = BitConverter.ToDouble(InBuf, ptr); ptr += Marshal.SizeOf(uref);
+            Uref = BitConverter.ToDouble(InBuf, ptr); ptr += Marshal.SizeOf(Uref);
             SkalValue_k = BitConverter.ToDouble(InBuf, ptr); ptr += Marshal.SizeOf(SkalValue_k);
             Offset_d = BitConverter.ToDouble(InBuf, ptr); ptr += Marshal.SizeOf(Offset_d);
             return ptr;
@@ -93,14 +93,14 @@ namespace FeedbackDataLib
                 .. BitConverter.GetBytes(ADResolution),
                 .. BitConverter.GetBytes(Offset_hex),
                 .. BitConverter.GetBytes(MidofRange),
-                .. BitConverter.GetBytes(uref),
+                .. BitConverter.GetBytes(Uref),
                 .. BitConverter.GetBytes(SkalValue_k),
                 .. BitConverter.GetBytes(Offset_d),
             ];
             return [.. Buf];
         }
 
-        public static uint get_size_of()
+        public static uint GetSizeOf()
         {
             CSWChannelInfo c = new();
             int ptr = 0;
