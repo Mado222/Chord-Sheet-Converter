@@ -52,7 +52,7 @@ namespace FeedbackDataLib
 
         #region properties
         private CNMasterRS232? c8RS232;
-        private C8XBee? c8XBee;
+        private CXBee? c8XBee;
 
         public EnumNeuromasterConnectionType ConnectionType = EnumNeuromasterConnectionType.NoConnection;
 
@@ -205,28 +205,19 @@ namespace FeedbackDataLib
 
         #region events
 
-        public delegate void DeviceDisconnectedEventHandler(string PID_VID);
-        /// <summary>
+        public event EventHandler<string>? DeviceDisconnected;
         /// Occurs when Neurolink is disconnected from USB
-        /// </summary>
-        public event DeviceDisconnectedEventHandler? DeviceDisconnected;
-        /// <summary>
-        /// Occurs when Neurolink is disconnected from USB
-        /// </summary>
-        /// <param name="PID_VID">PID_VID</param>
-        protected virtual void OnDeviceDisconnected(string PID_VID)
+        protected virtual void OnDeviceDisconnected(string pidVid)
         {
-            DeviceDisconnected?.Invoke(PID_VID);
+            DeviceDisconnected?.Invoke(this, pidVid);
         }
 
-        public delegate void DeviceConnectedEventHandler(EnumConnectionResult ConnectionResult);
-        /// <summary>
-        /// /// Occurs when Neurolink is re-connected to USB
-        /// </summary>
-        public event DeviceConnectedEventHandler? DeviceConnected;
-        protected virtual void OnDeviceConnected(EnumConnectionResult ConnectionResult)
+
+        public event EventHandler<EnumConnectionResult>? DeviceConnected;
+        protected virtual void OnDeviceConnected(EnumConnectionResult connectionResult)
         {
-            DeviceConnected?.Invoke(ConnectionResult);
+            var handler = DeviceConnected;
+            handler?.Invoke(this, connectionResult);
         }
 
         #endregion
@@ -347,7 +338,7 @@ namespace FeedbackDataLib
                             {
                                 IndexOfDeviceToOpen = idxXBEeeConnection
                             };
-                            c8XBee ??= new C8XBee();
+                            c8XBee ??= new CXBee();
                             c8XBee.Init(
                                 FTDI_D2xx_temp,
                                 CNMaster.CommandChannelNo,
@@ -369,7 +360,7 @@ namespace FeedbackDataLib
                             c8RS232.Close();
                             FTDI_D2xx.IndexOfDeviceToOpen = idxXBEeeConnection;
                             ConnectionType = EnumNeuromasterConnectionType.XBeeConnection;
-                            c8XBee = new C8XBee();
+                            c8XBee = new CXBee();
                             c8XBee.Init(
                                 FTDI_D2xx,
                                 CNMaster.CommandChannelNo,
@@ -431,13 +422,14 @@ namespace FeedbackDataLib
             if (usbm == null)
             {
                 usbm = new USBMonitor();
-                usbm.USBDeviceConnectedEvent += new USBMonitor.USBDeviceConnectedHandler(Usbm_USBDeviceConnectedEvent);
+                usbm.USBDeviceConnectedEvent += Usbm_USBDeviceConnectedEvent;
                 usbm.USBDeviceDisConnectedEvent += new USBMonitor.USBDeviceDisConnectedHandler(Usbm_USBDeviceDisConnectedEvent);
             }
             //usbm.StartUSBMonitoring("0403", "6010", "");
             VID_PID_opened = VID_PID;
             //usbm.StartUSBMonitoring("", "", VID_PID_opened);
         }
+
 
         /// <summary>
         /// Stops the usb monitoring.
@@ -457,7 +449,7 @@ namespace FeedbackDataLib
             }
         }
 
-        private void Usbm_USBDeviceConnectedEvent()
+        private void Usbm_USBDeviceConnectedEvent(object? sender, EventArgs e)
         {
             if (_ConnectionStatus != EnumConnectionStatus.USB_reconnected)
             {

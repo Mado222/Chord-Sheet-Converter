@@ -195,6 +195,7 @@ namespace Neuromaster_Demo
             }
         }
 
+
         private void CNMaster_SetModuleSpecificResponse(object? sender, (bool isSuccess, byte HWcn, ColoredText msg) e)
         {
             RunOnUiThread(() =>
@@ -643,12 +644,12 @@ namespace Neuromaster_Demo
         /// USB port is monitored in the background if cable is plugged in again
         /// </remarks>
         /// <param name="PID_VID">ProductID & VendorID of the disconnected device</param>
-        private void NMReceiver_DeviceDisconnected(string PID_VID)
+        private void NMReceiver_DeviceDisconnected(object? sender, string e)
         {
             RunOnUiThread(() =>
             {
 
-                AddStatusString("USB Device " + PID_VID + " disconnected", Color.Red);
+                AddStatusString("USB Device " + e + " disconnected", Color.Red);
                 //Only close Connection, USB Monitoring Stays On
                 Disconnect();
             });
@@ -658,11 +659,11 @@ namespace Neuromaster_Demo
         /// Neuromaster_s the connection_ device connected.
         /// </summary>
         /// <param name="ConnectionResult">The connection result.</param>
-        private void NMReceiver_DeviceConnected(EnumConnectionResult ConnectionResult)
+        private void NMReceiver_DeviceConnected(object? sender, EnumConnectionResult e)
         {
             RunOnUiThread(() =>
             {
-                AddStatusString("USB Device: " + ConnectionResult, Color.Green);
+                AddStatusString("USB Device: " + e, Color.Green);
                 Reconnect();
             });
         }

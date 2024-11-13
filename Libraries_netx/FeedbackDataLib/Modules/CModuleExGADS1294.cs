@@ -11,11 +11,11 @@ namespace FeedbackDataLib.Modules
         public bool visible = true;
 
         //Change gain
-        public delegate void ChangeGainEventHandler(object sender, CModuleExGADS1294 origin, CADS1294x_Gain gain);
-        public event ChangeGainEventHandler? ChangeGainEvent;
+        public event EventHandler<(CModuleExGADS1294 origin, CADS1294x_Gain gain)>? ChangeGainEvent;
         protected virtual void OnChangeGainEvent(CADS1294x_Gain gain)
         {
-            ChangeGainEvent?.Invoke(this, this, gain);
+            var handler = ChangeGainEvent;
+            handler?.Invoke(this, (this, gain));
         }
 
         public enum EnTypeExtradat_ADS

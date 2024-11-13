@@ -476,18 +476,19 @@ vergebenen ids gibt, weiss ich nicht.
     public class USBMonitor
     {
 
-        public delegate void USBDeviceConnectedHandler();
         /// <summary>
         /// Occurs when USB device is connected
         /// </summary>
-        public event USBDeviceConnectedHandler? USBDeviceConnectedEvent;
+        public event EventHandler? USBDeviceConnectedEvent;
+
         /// <summary>
         /// Called when USB device is connected
         /// </summary>
         protected virtual void OnUSBDeviceConnected()
         {
-            USBDeviceConnectedEvent?.Invoke();
+            USBDeviceConnectedEvent?.Invoke(this, EventArgs.Empty);
         }
+
 
         public delegate void USBDeviceDisConnectedHandler();
         /// <summary>

@@ -3,7 +3,7 @@ using WindControlLib;
 
 namespace FeedbackDataLib
 {
-    public class C8DataStreamParser
+    public class CNMasterStreamParser
     {
         /// <summary>
         /// Last Sync Signal received from Device = when Device timer has full second
@@ -53,7 +53,7 @@ namespace FeedbackDataLib
             set { _isFakeTime = value; }
         }
 
-        public C8DataStreamParser()
+        public CNMasterStreamParser()
         {
             for (int i = 0; i < ChanData.Length; i++)
             {

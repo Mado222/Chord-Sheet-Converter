@@ -9,11 +9,11 @@ namespace WindControlLib
     {
         //c:\Program Files (x86)\Microchip\MPLABX\v5.30\docs\Readme for MPLAB IPE.htm
 
-        public delegate void ReportMeasurementProgressEventHandler(object sender, string text, System.Drawing.Color col);
-        public event ReportMeasurementProgressEventHandler? ReportMeasurementProgress;
-        protected virtual void OnReportMeasurementProgress(string text, System.Drawing.Color col)
+        public event EventHandler<(string text, Color col)>? ReportMeasurementProgress;
+        protected virtual void OnReportMeasurementProgress(string text, Color col)
         {
-            ReportMeasurementProgress?.Invoke(this, text, col);
+            var handler = ReportMeasurementProgress;
+            handler?.Invoke(this, (text, col));
         }
 
 

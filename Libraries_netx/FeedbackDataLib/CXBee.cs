@@ -12,7 +12,7 @@ namespace FeedbackDataLib
     /// Basic Component for Insight Instruments "Neuromaster" with XBee Connection
     /// </summary>
     /// <remarks></remarks>
-    public class C8XBee : IC8Base, IDisposable
+    public class CXBee : IC8Base, IDisposable
     {
 
         /// <summary>
@@ -52,11 +52,11 @@ namespace FeedbackDataLib
             }
         }
 
-        public C8XBee()
+        public CXBee()
         { }
 
         // Optional: Destructor to release unmanaged resources if Dispose is not called
-        ~C8XBee()
+        ~CXBee()
         {
             Close();
         }
@@ -67,7 +67,7 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="C8XBee" /> class.
+        /// Initializes a new instance of the <see cref="CXBee" /> class.
         /// </summary>
         /// <param name="SerialPort">Serial Port</param>
         public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)

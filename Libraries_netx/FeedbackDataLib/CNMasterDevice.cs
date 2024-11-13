@@ -19,10 +19,6 @@ namespace FeedbackDataLib
             return moduleInfos;
         }
 
-#pragma warning disable CS0067
-        public event CModuleExGADS1294.ChangeGainEventHandler? ChangeGainEvent;
-#pragma warning restore CS0067
-
         /// <summary>
         /// Basic Constructor
         /// </summary>
