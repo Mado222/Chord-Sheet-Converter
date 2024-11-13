@@ -41,6 +41,24 @@ namespace BMTCommunicationLib
         DateTime Now(EnumTimQueryStatus TimQueryStatus);
     }
 
+    public enum EnumConnectionStatus : int
+    {
+        Not_Connected,
+        Connected,
+        Dis_Connected,
+        Wrong_Device,
+        PortError,
+        Connecting,
+        No_Data_Link,
+        USB_disconnected,
+        USB_reconnected
+    }
+
+    public enum EnumTimQueryStatus : int
+    {
+        no_Special,
+        isSync
+    }
 
     /// <summary>
     /// Implements ISerialPort for Microsoft class: System.IO.Ports.SerialPort

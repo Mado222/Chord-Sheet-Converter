@@ -798,13 +798,13 @@ namespace Neuromaster_Demo
         private void BtOpenTCP_Click(object sender, EventArgs e)
         {
             tCPInterface ??= new CTCPInterface();
-            tCPInterface.StatusMessage += TCP_Interface_StatusMessage;
+            tCPInterface.StatusMessage += TCPInterface_StatusMessage;
             tCPInterface.Init();
         }
 
-        private void TCP_Interface_StatusMessage(string data, Color color)
+        private void TCPInterface_StatusMessage(object? sender, (string data, Color color) e)
         {
-            AddStatusString(data, color);
+            AddStatusString(e.data, e.color);
         }
     }
 }

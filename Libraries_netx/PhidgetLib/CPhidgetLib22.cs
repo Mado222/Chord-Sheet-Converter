@@ -26,10 +26,10 @@ namespace PhidgetLib
         #endregion
 
         #region Events
-        public delegate void ReportStatusEventHandler(object sender, string text, System.Drawing.Color col);
-        public event ReportStatusEventHandler? ReportMeasurementProgress;
-        protected virtual void OnReportMeasurementProgress(string text, System.Drawing.Color col)
-            => ReportMeasurementProgress?.Invoke(this, text, col);
+        public event EventHandler<(string text, Color col)>? ReportMeasurementProgress;
+        protected virtual void OnReportMeasurementProgress(string text, Color col)
+            => ReportMeasurementProgress?.Invoke(this, (text, col));
+
         #endregion
 
         private readonly List<DigitalOutput> ph_digitalOutputs = [];

@@ -423,11 +423,9 @@ namespace FeedbackDataLib
             {
                 usbm = new USBMonitor();
                 usbm.USBDeviceConnectedEvent += Usbm_USBDeviceConnectedEvent;
-                usbm.USBDeviceDisConnectedEvent += new USBMonitor.USBDeviceDisConnectedHandler(Usbm_USBDeviceDisConnectedEvent);
+                usbm.USBDeviceDisConnectedEvent += Usbm_USBDeviceDisConnectedEvent;
             }
-            //usbm.StartUSBMonitoring("0403", "6010", "");
             VID_PID_opened = VID_PID;
-            //usbm.StartUSBMonitoring("", "", VID_PID_opened);
         }
 
 
@@ -440,7 +438,7 @@ namespace FeedbackDataLib
         }
 
         /* Events kommen 3x!!!!         */
-        private void Usbm_USBDeviceDisConnectedEvent()
+        private void Usbm_USBDeviceDisConnectedEvent(object? sender, EventArgs e)
         {
             if (_ConnectionStatus != EnumConnectionStatus.USB_disconnected)
             {

@@ -8,7 +8,6 @@
 
 namespace FeedbackDataLib
 {
-
     /// <summary>
     /// Class to help interchanging data between Qinno mdb database and importable values for calibration
     /// </summary>

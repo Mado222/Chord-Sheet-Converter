@@ -489,19 +489,15 @@ vergebenen ids gibt, weiss ich nicht.
             USBDeviceConnectedEvent?.Invoke(this, EventArgs.Empty);
         }
 
-
-        public delegate void USBDeviceDisConnectedHandler();
-        /// <summary>
-        /// Occurs when USB device disconnected
-        /// </summary>
-        public event USBDeviceDisConnectedHandler? USBDeviceDisConnectedEvent;
+        public event EventHandler? USBDeviceDisConnectedEvent;
         /// <summary>
         /// Called when USB device disconnected
         /// </summary>
         protected virtual void OnUSBDeviceDisConnected()
         {
-            USBDeviceDisConnectedEvent?.Invoke();
+            USBDeviceDisConnectedEvent?.Invoke(this, EventArgs.Empty);
         }
+
 
         private bool _IsMonitoring = false;
         public bool IsMonitoring

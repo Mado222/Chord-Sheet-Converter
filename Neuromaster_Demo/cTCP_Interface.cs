@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using WindControlLib;
 
 
@@ -17,14 +18,14 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         /// </summary>
         List<ClientHandler> ClientHandlers = [];
 
-        public delegate void StatusMessageEventHandler(string data, Color color);
-        public event StatusMessageEventHandler? StatusMessage;
+        #region Events
+        public event EventHandler<(string data, Color color)>? StatusMessage;
         protected virtual void OnStatusMessage(string data, Color color)
         {
-            // Check if there are any subscribers to the event
-            StatusMessage?.Invoke(data, color);
+            StatusMessage?.Invoke(this, (data, color));
         }
 
+        #endregion
 
         public CTCPInterface()
         {
@@ -80,8 +81,8 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
                 OnStatusMessage("Connected to: " + tcpClient.Client.RemoteEndPoint + "(" + g + ")", Color.Orange);
 
-                TCP_ClientHandler.MessageReady += new ClientHandler.MessageReadyEventHandler(TCP_ClientHandler_MessageReady);
-                TCP_ClientHandler.ConnectionClosed += new ClientHandler.ConnectionClosedEventHandler(TCP_ClientHandler_ConnectionClosed);
+                TCP_ClientHandler.MessageReady += TCP_ClientHandler_MessageReady;
+                TCP_ClientHandler.ConnectionClosed += TCP_ClientHandler_ConnectionClosed;
 
                 // Dieses Objekt in einem anderen Thread ausführen.
                 Thread handlerThread = new(new ThreadStart(TCP_ClientHandler.Start))
@@ -92,17 +93,18 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             }
         }
 
-        void TCP_ClientHandler_MessageReady(object sender, string ID, CTCPDataPacket TCPPacket)
+
+        private void TCP_ClientHandler_MessageReady(object? sender, (string ID, CTCPDataPacket TCPPacket) e)
         {
         }
 
         /************************************************************/
         /******************** ConnectionClosed **************************/
         /************************************************************/
-        void TCP_ClientHandler_ConnectionClosed(object sender, string ID)
+        private void TCP_ClientHandler_ConnectionClosed(object? sender, string e)
         {
-            int idx = GetClientHandler_index(ID);
-            OnStatusMessage("IP: " + ClientHandlers[idx].RemoteAddress.ToString() + " closed" + " (" + ID + ")", Color.Red);
+            int idx = GetClientHandler_index(e);
+            OnStatusMessage("IP: " + ClientHandlers[idx].RemoteAddress.ToString() + " closed" + " (" + e + ")", Color.Red);
 
             //Remove from List
             if (idx >= 0)
@@ -132,6 +134,33 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         private readonly TcpClient? tcpClient = client;
         private NetworkStream? stream;
 
+        #region Events
+        public event EventHandler<(string ID, CTCPDataPacket TCPPacket)>? MessageReady;
+        protected virtual void OnMessageReady(CTCPDataPacket tcpPacket)
+        {
+            MessageReady?.Invoke(this, (_ID, tcpPacket));
+        }
+
+        public event EventHandler<(string ID, CTCPErrorPacket TCPErrorPacket)>? ErrorMessageReady;
+        protected virtual void OnErrorMessageReady(CTCPErrorPacket tcpErrorPacket)
+        {
+            ErrorMessageReady?.Invoke(this, (_ID, tcpErrorPacket));
+        }
+
+        public event EventHandler<string>? ConnectionClosed;
+        protected virtual void OnConnectionClosed()
+        {
+            ConnectionClosed?.Invoke(this, _ID);
+        }
+
+        public event EventHandler<string>? ConnectionOpened;
+        protected virtual void OnConnectionOpened()
+        {
+            ConnectionOpened?.Invoke(this, _ID);
+        }
+        #endregion
+
+        #region Properties
         private readonly string _ID = ID;
         public string ID
         {
@@ -167,7 +196,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
 
         public int Port { get; set; }
-
+        #endregion
 
         public void Connect()
         {
@@ -186,36 +215,6 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                 };
                 OnErrorMessageReady(TCPErrorPacket);
             }
-        }
-
-
-
-        public delegate void MessageReadyEventHandler(object sender, string ID, CTCPDataPacket TCPPacket);
-        public event MessageReadyEventHandler? MessageReady;
-        protected virtual void OnMessageReady(CTCPDataPacket TCPPacket)
-        {
-            MessageReady?.Invoke(this, _ID, TCPPacket);
-        }
-
-        public delegate void ErrorMessageReadyEventHandler(object sender, string ID, CTCPErrorPacket TCPErrorPacket);
-        public event ErrorMessageReadyEventHandler? ErrorMessageReady;
-        protected virtual void OnErrorMessageReady(CTCPErrorPacket TCPErrorPacket)
-        {
-            ErrorMessageReady?.Invoke(this, _ID, TCPErrorPacket);
-        }
-
-        public delegate void ConnectionClosedEventHandler(object sender, string ID);
-        public event ConnectionClosedEventHandler? ConnectionClosed;
-        protected virtual void OnConnectionClosed()
-        {
-            ConnectionClosed?.Invoke(this, _ID);
-        }
-
-        public delegate void ConnectionOpenedEventHandler(object sender, string ID);
-        public event ConnectionOpenedEventHandler? ConnectionOpened;
-        protected virtual void OnConnectionOpened()
-        {
-            ConnectionOpened?.Invoke(this, _ID);
         }
 
         public void Write(CDataIn DataIn)

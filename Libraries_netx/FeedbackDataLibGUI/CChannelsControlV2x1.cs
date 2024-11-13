@@ -308,30 +308,24 @@ namespace FeedbackDataLibGUI
 
         //Events
         #region Events
-        public delegate void ModuleRowChangedEventHandler(object sender, CModuleBase ModuleInfo);
-
+        public event EventHandler<CModuleBase>? ModuleRowChanged;
         /// <summary>
         /// User selected another Module Row
         /// </summary>
-        public event ModuleRowChangedEventHandler? ModuleRowChanged;
-        protected virtual void OnModuleRowChanged(CModuleBase ModuleInfo)
+        protected virtual void OnModuleRowChanged(CModuleBase moduleInfo)
         {
-            var handle = ModuleRowChanged;
-            handle?.Invoke(this, ModuleInfo);
+            ModuleRowChanged?.Invoke(this, moduleInfo);
         }
 
-        public delegate void SWChannelRowChangedEventHandler(object sender, CSWChannel SelectedSWChannel);
-
+        public event EventHandler<CSWChannel>? SWChannelRowChanged;
         /// <summary>
         /// User selected another SWChannel Row
         /// </summary>
-        public event SWChannelRowChangedEventHandler? SWChannelRowChanged;
-        protected virtual void OnSWChannelRowChanged(CSWChannel? SelectedSWChannel)
+        protected virtual void OnSWChannelRowChanged(CSWChannel? selectedSWChannel)
         {
-            if (SelectedSWChannel != null)
+            if (selectedSWChannel != null)
             {
-                var handle = SWChannelRowChanged;
-                handle?.Invoke(this, SelectedSWChannel);
+                SWChannelRowChanged?.Invoke(this, selectedSWChannel);
             }
         }
 

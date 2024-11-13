@@ -347,13 +347,13 @@ namespace FeedbackDataLib
 
         #region ICommunication Members
 
-        public event StatusChangedEventHandler? StatusChangedComm = null;
+        public event EventHandler? StatusChangedComm;
         protected virtual void OnStatusChangedComm()
         {
-            StatusChangedComm?.Invoke(this);
+            StatusChangedComm?.Invoke(this, EventArgs.Empty);
         }
 
-        public event DeviceCommunicationToPCEventHandler? DeviceCommunicationToPC = null;
+        public event EventHandler<byte[]>? DeviceCommunicationToPC;
         protected virtual void OnDeviceCommunicationToPC(byte[]? buf)
         {
             if (buf != null)
