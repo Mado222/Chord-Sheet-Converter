@@ -1,4 +1,4 @@
-﻿namespace FeedbackDataLib.Modules
+﻿namespace FeedbackDataLib.Modules.CADS1294x
 {
     public class CADS1294x_ElectrodeImp
     {
@@ -79,7 +79,7 @@
 
         public CElectrode_InputImp(byte[] bitin)
         {
-            if ((bitin != null) && bitin.Length > 10)
+            if (bitin != null && bitin.Length > 10)
             {
                 channel_no = bitin[0] & 0x3F;                   //0b00111111;
                 isN = false;
@@ -91,8 +91,8 @@
                 gain = bitin[i]; i++;
                 succeeded = bitin[i]; //i++;
 
-                impedance_Ohm = (GetScaledValue(Math.Abs(UOFFxNP - UOFFxNPF), Gain) / Imp_Iconst) - Rprotect_Ohm;
-                uElektrode_V = GetScaledValue((UOFFxNP + UOFFxNPF) >> 1, Gain); //dUelxPN;
+                impedance_Ohm = GetScaledValue(Math.Abs(UOFFxNP - UOFFxNPF), Gain) / Imp_Iconst - Rprotect_Ohm;
+                uElektrode_V = GetScaledValue(UOFFxNP + UOFFxNPF >> 1, Gain); //dUelxPN;
             }
         }
     }

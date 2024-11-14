@@ -1,5 +1,4 @@
 ﻿using MathNetNugetLib;
-using MathNetNuget;
 
 /*
  * Es sollte ja nun die FFT Analyse im PC gemacht werden und wir benötigen folgende Berechnungen online (während der Messung).

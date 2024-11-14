@@ -95,15 +95,15 @@ namespace FeedbackDataLib
             SerialPort.StopBits = System.IO.Ports.StopBits.One;
         }
 
-        public EnumConnectionStatus ConnectionStatus
+        public EnConnectionResult ConnectionStatus
         {
             get
             {
                 if (serialPort == null)
-                    return EnumConnectionStatus.Not_Connected;
+                    return EnConnectionResult.NoConnection;
                 if (serialPort.IsOpen)
-                    return EnumConnectionStatus.Connected;
-                return EnumConnectionStatus.Not_Connected;
+                    return EnConnectionResult.Connected_via_RS232;
+                return EnConnectionResult.NoConnection;
             }
         }
 

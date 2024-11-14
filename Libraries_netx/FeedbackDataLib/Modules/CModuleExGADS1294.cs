@@ -316,7 +316,7 @@ namespace FeedbackDataLib.Modules
                 RldRefSignal = CADS1294x_CONFIG3.EnRldRefSignal.RLDREF_INT_AVDD,
                 RldSenseFunction = CADS1294x_CONFIG3.EnRldSenseFunction.RLD_SENSE_DISABLED,
                 VrefSetting = CADS1294x_CONFIG3.EnVrefSetting.VREFP_4V,
-                RldStatus = CADS1294x_CONFIG3.EnRldStatus.RLD_NOT_CONNECTED
+                RldStatus = CADS1294x_CONFIG3.EnRldStatus.RLD_NoConnection
             };
 
             CONFIG3 = [c3];

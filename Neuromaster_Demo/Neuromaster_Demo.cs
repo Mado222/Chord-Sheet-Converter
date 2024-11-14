@@ -30,7 +30,7 @@ namespace Neuromaster_Demo
         /// <summary>
         /// Saves recent Connection status
         /// </summary>
-        private EnumConnectionStatus oldConnection_Status = EnumConnectionStatus.Not_Connected;
+        private EnConnectionResult oldConnection_Status = EnConnectionResult.NoConnection;
 
         /// <summary>
         /// Result of the last attempt to connect to Neuromaster
@@ -105,13 +105,13 @@ namespace Neuromaster_Demo
                 // Create Receiver if it does not exist
                 cNMaster ??= new CNMaster();
 
-                EnumConnectionResult? conres; // Connection Result
+                EnConnectionResult? conres; // Connection Result
 
                 // Perform initialization and connection in the background thread
                 conres = cNMaster.Connect(); // Init via FTDI D2XX Driver (faster)
 
-                if (conres == EnumConnectionResult.Connected_via_USBCable ||
-                    conres == EnumConnectionResult.Connected_via_XBee)
+                if (conres == EnConnectionResult.Connected_via_USBCable ||
+                    conres == EnConnectionResult.Connected_via_XBee)
                 {
                     // Neurolink is detected and initialized
                     Invoke(() => AddStatusString("Neurolink: " + cNMaster.NMReceiver.NeurolinkSerialNumber, Color.Blue));
@@ -122,23 +122,23 @@ namespace Neuromaster_Demo
                 {
                     switch (conres)
                     {
-                        case EnumConnectionResult.Connected_via_XBee:
+                        case EnConnectionResult.Connected_via_XBee:
                             AddStatusString("XBee Connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
-                        case EnumConnectionResult.Connected_via_USBCable:
+                        case EnConnectionResult.Connected_via_USBCable:
                             AddStatusString("USB cable connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
 
                         // Possible errors if no Neurolink is detected
-                        case EnumConnectionResult.Error_during_Port_scan:
+                        case EnConnectionResult.Error_during_Port_scan:
                             AddStatusString("Error during Port scan.", Color.Red);
                             break;
-                        case EnumConnectionResult.More_than_one_Neurolink_detected:
+                        case EnConnectionResult.More_than_one_Neurolink_detected:
                             AddStatusString("Please connect only one Neurolink", Color.Orange);
                             break;
-                        case EnumConnectionResult.No_Active_Neurolink:
+                        case EnConnectionResult.No_Active_Neurolink:
                             AddStatusString("No active Neurolink found.", Color.Orange);
                             break;
                         default:
@@ -156,45 +156,59 @@ namespace Neuromaster_Demo
         /// </summary>
         private void AddEvents()
         {
-            //Event for Data
+            // Event for Data
             if (cNMaster?.NMReceiver is not null)
             {
-                cNMaster.DataReadyResponse -= CNMaster_DataReadyResponse;
+                cNMaster.DataReadyResponse -= CNMaster_DataReadyResponse; // Ensure unsubscribing
                 cNMaster.DataReadyResponse += CNMaster_DataReadyResponse;
 
-                //Event to inform PC about Battery Status
-                cNMaster.DeviceToPC_BatteryStatus -= CNMaster_DeviceToPC_BatteryStatus;
+                // Event to inform PC about Battery Status
+                cNMaster.DeviceToPC_BatteryStatus -= CNMaster_DeviceToPC_BatteryStatus; 
                 cNMaster.DeviceToPC_BatteryStatus += CNMaster_DeviceToPC_BatteryStatus;
 
-                //Buffer in Neuromaster is full
-                cNMaster.DeviceToPC_BufferFull -= CNMaster_DeviceToPC_BufferFull;
+                // Buffer in Neuromaster is full
+                cNMaster.DeviceToPC_BufferFull -= CNMaster_DeviceToPC_BufferFull; 
                 cNMaster.DeviceToPC_BufferFull += CNMaster_DeviceToPC_BufferFull;
 
-                //Events for Device Connection / Disconnection
-                cNMaster.NMReceiver.DeviceConnected -= NMReceiver_DeviceConnected;
+                // Events for Device Connection / Disconnection
+                cNMaster.NMReceiver.DeviceConnected -= NMReceiver_DeviceConnected; 
                 cNMaster.NMReceiver.DeviceConnected += NMReceiver_DeviceConnected;
 
-                cNMaster.NMReceiver.DeviceDisconnected -= NMReceiver_DeviceDisconnected;
+                cNMaster.NMReceiver.DeviceDisconnected -= NMReceiver_DeviceDisconnected; 
                 cNMaster.NMReceiver.DeviceDisconnected += NMReceiver_DeviceDisconnected;
 
-                //Responses to Commands sent to Neuromaster
+                // Responses to Commands sent to Neuromaster
+                cNMaster.GetClockResponse -= CNMaster_GetClockResponse; 
                 cNMaster.GetClockResponse += CNMaster_GetClockResponse;
+
+                cNMaster.SetClockResponse -= CNMaster_SetClockResponse; 
                 cNMaster.SetClockResponse += CNMaster_SetClockResponse;
+
+                cNMaster.ScanModulesResponse -= CNMaster_ScanModulesResponse; 
                 cNMaster.ScanModulesResponse += CNMaster_ScanModulesResponse;
+
+                cNMaster.SetModuleConfigResponse -= CNMaster_SetModuleConfigResponse; 
                 cNMaster.SetModuleConfigResponse += CNMaster_SetModuleConfigResponse;
+
+                cNMaster.SetConnectionClosedResponse -= CNMaster_SetConnectionClosedResponse; 
                 cNMaster.SetConnectionClosedResponse += CNMaster_SetConnectionClosedResponse;
+
+                cNMaster.GetFirmwareVersionResponse -= CNMaster_GetFirmwareVersionResponse; 
                 cNMaster.GetFirmwareVersionResponse += CNMaster_GetFirmwareVersionResponse;
 
-
+                cNMaster.GetDeviceConfigResponse -= CNMaster_GetDeviceConfigResponse; 
                 cNMaster.GetDeviceConfigResponse += CNMaster_GetDeviceConfigResponse;
+
+                cNMaster.SetDeviceConfigResponse -= CNMaster_SetDeviceConfigResponse; 
                 cNMaster.SetDeviceConfigResponse += CNMaster_SetDeviceConfigResponse;
 
+                cNMaster.GetModuleSpecificResponse -= CNMaster_GetModuleSpecificResponse; 
                 cNMaster.GetModuleSpecificResponse += CNMaster_GetModuleSpecificResponse;
-                cNMaster.SetModuleSpecificResponse += CNMaster_SetModuleSpecificResponse;
 
+                cNMaster.SetModuleSpecificResponse -= CNMaster_SetModuleSpecificResponse; 
+                cNMaster.SetModuleSpecificResponse += CNMaster_SetModuleSpecificResponse;
             }
         }
-
 
         private void CNMaster_SetModuleSpecificResponse(object? sender, (bool isSuccess, byte HWcn, ColoredText msg) e)
         {
@@ -396,7 +410,8 @@ namespace Neuromaster_Demo
         private void GoDisconnected()
         {
             tbConnect.GoToState1(false);    //Just set Button to Red
-            cNMaster?.NMReceiver.Close_All();
+            cNMaster?.Close();
+            
         }
 
         #endregion
@@ -417,7 +432,8 @@ namespace Neuromaster_Demo
                     txtStatus.AppendText(tc.Text);
                 }
             }
-            CheckConnectionStatus();
+            if (cNMaster is not null && cNMaster.NMReceiver.ConnectionStatus != EnConnectionResult.NoConnection)
+                CheckConnectionStatus();
         }
 
         #region Communication_with_Neuromaster
@@ -441,7 +457,9 @@ namespace Neuromaster_Demo
 
                     switch (oldConnection_Status)
                     {
-                        case EnumConnectionStatus.Connected:
+                        case EnConnectionResult.Connected_via_RS232:
+                        case EnConnectionResult.Connected_via_XBee:
+                        case EnConnectionResult.Connected_via_SDCard:
                             {
                                 //Connection has (re-) appeard
                                 AddStatusString("Connected", Color.Green);
@@ -461,18 +479,18 @@ namespace Neuromaster_Demo
                                 }
                                 break;
                             }
-                        case EnumConnectionStatus.Connecting:
+                        case EnConnectionResult.Connecting:
                             {
                                 AddStatusString("Connecting", Color.Green);
                                 break;
                             }
-                        case EnumConnectionStatus.Not_Connected:
+                        case EnConnectionResult.NoConnection:
                             {
                                 AddStatusString("Not Connected", Color.Red);
                                 GoDisconnected();
                                 break;
                             }
-                        case EnumConnectionStatus.Dis_Connected:
+                        case EnConnectionResult.Dis_Connected:
                             {
                                 AddStatusString("Dis-Connected", Color.Red);
                                 GoDisconnected();
@@ -485,21 +503,21 @@ namespace Neuromaster_Demo
                                 }
                                 break;
                             }
-                        case EnumConnectionStatus.No_Data_Link:
+                        case EnConnectionResult.No_Data_Link:
                             {
                                 AddStatusString("No Data Link", Color.Red);
                                 break;
                             }
-                        case EnumConnectionStatus.PortError:
+                        case EnConnectionResult.PortError:
                             {
                                 AddStatusString("Cannot open COM - restart", Color.Red);
                                 break;
                             }
-                        case EnumConnectionStatus.USB_disconnected:
+                        case EnConnectionResult.USB_disconnected:
                             {
                                 break;
                             }
-                        case EnumConnectionStatus.USB_reconnected:
+                        case EnConnectionResult.USB_reconnected:
                             {
                                 break;
                             }
@@ -659,7 +677,7 @@ namespace Neuromaster_Demo
         /// Neuromaster_s the connection_ device connected.
         /// </summary>
         /// <param name="ConnectionResult">The connection result.</param>
-        private void NMReceiver_DeviceConnected(object? sender, EnumConnectionResult e)
+        private void NMReceiver_DeviceConnected(object? sender, EnConnectionResult e)
         {
             RunOnUiThread(() =>
             {
@@ -681,7 +699,8 @@ namespace Neuromaster_Demo
                 BU_ModuleInfo = new List<CModuleBase>(cNMaster!.ModuleInfos);
             }
             buIdxSelectedModule = idxSelectedModule;
-            cNMaster?.NMReceiver.Close_Connection(); //Close Background threads responsible for receiving
+            //cNMaster?.NMReceiver.Close_Connection(); //Close Background threads responsible for receiving
+            cNMaster?.Close();
         }
 
         /// <summary>

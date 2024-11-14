@@ -324,7 +324,7 @@ namespace FeedbackDataLib
                 {
                     if (_XBeeSeries1 == null)
                     {
-                        Close();
+                        //Close();
                         _XBeeSeries1 = new CXBeeSeries1(_SerialPort)
                         {
                             DisplayMessages = false

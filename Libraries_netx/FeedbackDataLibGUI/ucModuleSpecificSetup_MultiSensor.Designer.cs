@@ -1,6 +1,6 @@
 ﻿namespace FeedbackDataLibGUI
 {
-    partial class ucModuleSpecificSetup_MultiSensor
+    partial class UcModuleSpecificSetupMultiSensor
     {
         /// <summary> 
         /// Required designer variable.

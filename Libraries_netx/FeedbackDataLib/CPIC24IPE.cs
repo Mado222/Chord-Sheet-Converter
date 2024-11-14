@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using FeedbackDataLib.Modules;
+using System.Text;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -420,15 +421,12 @@ namespace FeedbackDataLib
                     }
                 }
             }
-
-
             public bool isNeuromaster = false;
             public bool isValid = true;
         }
 
-        public CModuleInformation Get_FullInfo(string hexPath)
+        public static CModuleInformation Get_FullInfo(string hexPath)
         {
-
             //try Neuromodul
             CModuleInformation ModuleInfo = new();
             EnModuleType _ModuleType = EnModuleType.cModuleAtem;

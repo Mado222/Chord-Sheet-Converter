@@ -1,6 +1,6 @@
 ﻿namespace FeedbackDataLibGUI
 {
-    partial class ucModuleSpecificSetup_AtemIR
+    partial class UcModuleSpecificSetupAtemIR
     {
         /// <summary> 
         /// Required designer variable.

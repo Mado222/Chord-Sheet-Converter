@@ -216,8 +216,8 @@ namespace FeedbackDataLib
                                     Debug.WriteLine("Sending: " + Enum.GetName(typeof(EnNeuromasterCommand), cr.Command));
                                 }
                                 RunningCommand = cr;
-                                NMReceiver.Connection.SerialPort.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
                                 RunningCommand.RunningEnd = DateTime.Now + TsCommandTimeout;
+                                NMReceiver.Connection.SerialPort.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
                             }
                         }
                     }
@@ -242,8 +242,8 @@ namespace FeedbackDataLib
             }
             finally
             {
-                RS232Receiver.StopRS232ReceiverThread();
                 NMReceiver.Connection.SerialPort.Close();
+                RS232Receiver.StopRS232ReceiverThread();
                 Debug.WriteLine("DistributorThreadAsync Closed");
             }
         }
@@ -396,7 +396,7 @@ namespace FeedbackDataLib
                     }
                 case CNMtoPCCommands.cBatteryStatus:
                     {
-                        if (ConnectionType == CNMasterReceiver.EnumNeuromasterConnectionType.XBeeConnection)
+                        if (ConnectionType ==  EnConnectionResult.Connected_via_XBee)
                         {
                             //buf[2] ... Battery Low    
                             //buf[3] ... Battery High [1/10V]

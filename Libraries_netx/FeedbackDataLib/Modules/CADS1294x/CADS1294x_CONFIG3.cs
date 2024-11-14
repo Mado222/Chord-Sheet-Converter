@@ -78,7 +78,7 @@
         public enum EnRldStatus : byte
         {
             RLD_CONNECTED = 0,
-            RLD_NOT_CONNECTED = 1
+            RLD_NoConnection = 1
         }
 
         public enum EnRldSenseFunction : byte

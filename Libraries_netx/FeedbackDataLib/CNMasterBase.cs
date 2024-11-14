@@ -1,4 +1,6 @@
 ﻿using BMTCommunicationLib;
+using System.ComponentModel;
+using System.Data;
 using WindControlLib;
 using static FeedbackDataLib.CNMasterReceiver;
 
@@ -19,7 +21,7 @@ namespace FeedbackDataLib
         /// </summary>
         private CRS232Receiver? RS232Receiver { get; set; }
 
-        public EnumNeuromasterConnectionType ConnectionType { get => NMReceiver.ConnectionType; }
+        public EnConnectionResult ConnectionType { get => NMReceiver.ConnectionResult; }
 
 
         /// <summary>
@@ -105,18 +107,57 @@ namespace FeedbackDataLib
         /// </summary>
         public void Close()
         {
-            NMReceiver?.Connection?.Close();  //1st Close
+            SendCloseConnection();
+            Thread.Sleep(1000);  // 1000 milliseconds = 1 second
+            StopDistributorThreadAsync();
+            NMReceiver.Close();
         }
 
-        public EnumConnectionResult Connect()
+        public EnConnectionResult ConnectionStatus {get => NMReceiver.ConnectionStatus; set => NMReceiver.ConnectionStatus = value; }
+
+        public EnConnectionResult Connect()
         {
+            if (NMReceiver is null) return EnConnectionResult.NoConnection;
+            
             var conres = NMReceiver.Init_via_D2XX();
-            if (conres == EnumConnectionResult.Connected_via_USBCable || conres == EnumConnectionResult.Connected_via_XBee)
+            
+            if (NMReceiver.Connection is null) return EnConnectionResult.NoConnection;
+
+            if (conres == EnConnectionResult.Connected_via_USBCable || conres == EnConnectionResult.Connected_via_XBee)
             {
-                //Start Threads
-                StartDistributorThreadAsync();
+                var sp = NMReceiver.Connection.SerialPort;
+
+                if (Check4Neuromaster(sp))
+                {
+                    //Succeeded
+                    //Gerät da
+                    StartDistributorThreadAsync();
+                    NMReceiver.StartUSBMonitoring();
+
+                    if (conres == EnConnectionResult.Connected_via_USBCable)
+                        ConnectionStatus = EnConnectionResult.Connected_via_RS232;
+                    else
+                        ConnectionStatus = EnConnectionResult.Connected_via_XBee;
+                }
+                else
+                {
+                    if (conres == EnConnectionResult.Connected_via_USBCable)
+                        ConnectionStatus = EnConnectionResult.Error_during_USBcable_connection;
+                    else
+                        ConnectionStatus = EnConnectionResult.Error_during_XBee_connection;
+
+                }
             }
-            return conres;
+            else if (ConnectionType == EnConnectionResult.Connected_via_SDCard)
+            {
+                //if (_8KanalReceiverV2_SDCard != null)
+                //{
+                //    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
+                //    return EnumConnectionResult.Connected_via_SDCard;
+                //}
+                ConnectionStatus =  EnConnectionResult.Error_read_SDCard;
+            }
+            return ConnectionStatus;
         }
 
 

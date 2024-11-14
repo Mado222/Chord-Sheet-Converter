@@ -6,8 +6,35 @@
  * 0 könnte in der Routine GetScaledValue ausgenommen werden, dann liefert aber auch GetMinScaledValue einen falschen Wert.
 */
 
+using FeedbackDataLib.Modules;
+
 namespace FeedbackDataLib
 {
+    /// <summary>
+    /// Represents the state Connect returns
+    /// </summary>
+    public enum EnConnectionResult
+    {
+        NoConnection,
+        Error_during_Port_scan,
+        No_Active_Neurolink,
+        More_than_one_Neurolink_detected,
+        Connected_via_XBee,
+        Connected_via_USBCable,
+        Connected_via_RS232,
+        Error_during_XBee_connection,
+        Error_during_USBcable_connection,
+        Connected_via_SDCard,
+        Error_read_SDCard,
+        Dis_Connected,
+        Wrong_Device,
+        PortError,
+        Connecting,
+        No_Data_Link,
+        USB_disconnected,
+        USB_reconnected
+    }
+
     /// <summary>
     /// Class to help interchanging data between Qinno mdb database and importable values for calibration
     /// </summary>

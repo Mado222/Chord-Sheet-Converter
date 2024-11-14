@@ -2,11 +2,11 @@
 
 namespace FeedbackDataLibGUI
 {
-    public partial class frmSpectrum : Form
+    public partial class FrmSpectrum : Form
     {
         private readonly ucSpectrumImpedance[] spectrumViews;
         private readonly Color[] cols = [Color.MintCream, Color.MintCream, Color.MintCream, Color.MintCream];
-        public frmSpectrum(int no_of_Charts = 4)
+        public FrmSpectrum(int no_of_Charts = 4)
         {
             InitializeComponent();
 

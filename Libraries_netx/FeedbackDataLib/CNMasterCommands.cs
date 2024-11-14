@@ -1,4 +1,5 @@
 ﻿using FeedbackDataLib.Modules;
+using FeedbackDataLib.Modules.CADS1294x;
 using WindControlLib;
 
 
@@ -185,6 +186,7 @@ namespace FeedbackDataLib
         #endregion
 
         #region Commands_to_NM
+#pragma warning disable IDE0301 // Simplify collection initialization
         /// <summary>
         /// Set Clock in Device
         /// </summary>
@@ -193,11 +195,8 @@ namespace FeedbackDataLib
         public void SetClock(DateTime dt)
         {
             DeviceClock.Dt = dt;
-#pragma warning disable IDE0301 // Simplify collection initialization
             byte[] additionalData = Array.Empty<byte>();
-#pragma warning restore IDE0301 // Simplify collection initialization
             DeviceClock.GetByteArray(ref additionalData, 0);
-
             SendCommand(EnNeuromasterCommand.SetClock, additionalData);
         }
 
@@ -208,9 +207,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetClock()
         {
-#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetClock, Array.Empty<byte>());
-#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -219,9 +216,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void SendCloseConnection()
         {
-#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.SetConnectionClosed, Array.Empty<byte>());
-#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -230,9 +225,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetNMFirmwareVersion()
         {
-#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetFirmwareVersion, Array.Empty<byte>());
-#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -241,9 +234,7 @@ namespace FeedbackDataLib
         /// <returns></returns>
         public void GetSDCardInfo()
         {
-#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.GetSDCardInfo, Array.Empty<byte>());
-#pragma warning restore IDE0301 // Simplify collection initialization
         }
 
         /// <summary>
@@ -254,10 +245,9 @@ namespace FeedbackDataLib
         /// </remarks>
         public virtual void ScanModules()
         {
-#pragma warning disable IDE0301 // Simplify collection initialization
             SendCommand(EnNeuromasterCommand.ScanModules, Array.Empty<byte>());
-#pragma warning restore IDE0301 // Simplify collection initialization
         }
+#pragma warning restore IDE0301 // Simplify collection initialization
 
         /// <summary>
         /// Sets configuration of all SW Channels of one Module

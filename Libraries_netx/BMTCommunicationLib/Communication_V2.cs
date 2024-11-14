@@ -25,7 +25,7 @@ namespace BMTCommunicationLib
     //    bool EnableDataReceiving { get; set; }  //Die dieses Interface implementierende Komponente empfängt keine Daten!
 
     //    //Methodes
-    //    EnumConnectionStatus GetConnectionStatus();
+    //    EnumConnectionResult GetConnectionStatus();
     //    //int SendByteData(byte[] DataOut, int NumData);      //Ermölicht den direkten Zugriff auf die Kommunikation
     //    int GetByteData(ref byte[] DataIn, int NumData, int Offset);        //Rückgabe der tatsächlich gelesenen Daten
     //    int GetByteDataTimeOut(ref byte[] DataIn, int NumData, int Offset, uint TimeOut);

@@ -1,11 +1,10 @@
-﻿using FeedbackDataLib;
-using FeedbackDataLib.Modules;
+﻿using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLibGUI
 {
-    public partial class ucModuleSpecificSetup_MultiSensor : UserControl
+    public partial class UcModuleSpecificSetupMultiSensor : UserControl
     {
-        public ucModuleSpecificSetup_MultiSensor()
+        public UcModuleSpecificSetupMultiSensor()
         {
             InitializeComponent();
         }

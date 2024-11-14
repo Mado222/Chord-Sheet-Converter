@@ -1,6 +1,6 @@
 ﻿namespace FeedbackDataLibGUI
 {
-    partial class frmSpectrum
+    partial class FrmSpectrum
     {
         /// <summary>
         /// Required designer variable.

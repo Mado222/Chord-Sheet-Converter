@@ -2,9 +2,9 @@
 
 namespace FeedbackDataLibGUI
 {
-    public partial class ucModuleSpecificSetup_AtemIR : UserControl
+    public partial class UcModuleSpecificSetupAtemIR : UserControl
     {
-        public ucModuleSpecificSetup_AtemIR()
+        public UcModuleSpecificSetupAtemIR()
         {
             InitializeComponent();
             toolTip1.SetToolTip(txtt_calc_new_scaling_ms, "The interval in [ms] after which the amplification is checked");

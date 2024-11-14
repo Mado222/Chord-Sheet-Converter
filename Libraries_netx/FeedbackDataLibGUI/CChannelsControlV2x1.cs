@@ -1,5 +1,6 @@
 ﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
+using FeedbackDataLib.Modules.CADS1294x;
 using System.Xml.Serialization;
 
 
@@ -418,9 +419,9 @@ namespace FeedbackDataLibGUI
             default_Scaling_Values.SaveConfigData();
         }
 
-        ucModuleSpecificSetup_AtemIR ucModuleSpecificSetup_AtemIR = new();
+        UcModuleSpecificSetupAtemIR ucModuleSpecificSetup_AtemIR = new();
         UcModuleSpecificSetupVasoIR ucModuleSpecificSetup_VasoIR = new();
-        ucModuleSpecificSetup_MultiSensor ucModuleSpecificSetup_MultiSensor = new();
+        UcModuleSpecificSetupMultiSensor ucModuleSpecificSetup_MultiSensor = new();
         UcModuleExGADSImpedance ucModuleExGADS_Impedance = new();
         ucModuleEEG? ucModuleEEG = new();
 
@@ -455,7 +456,7 @@ namespace FeedbackDataLibGUI
             {
                 if (ucModuleSpecificSetup_AtemIR == null)
                 {
-                    ucModuleSpecificSetup_AtemIR = new ucModuleSpecificSetup_AtemIR();
+                    ucModuleSpecificSetup_AtemIR = new UcModuleSpecificSetupAtemIR();
                     Controls.Add(ucModuleSpecificSetup_AtemIR);
                     ucModuleSpecificSetup_AtemIR.Location = new Point(Left, Top);
                     ucModuleSpecificSetup_AtemIR.Name = "ucModuleSpecificSetup_AtemIR";
@@ -495,7 +496,7 @@ namespace FeedbackDataLibGUI
             {
                 if (ucModuleSpecificSetup_MultiSensor == null)
                 {
-                    ucModuleSpecificSetup_MultiSensor = new ucModuleSpecificSetup_MultiSensor();
+                    ucModuleSpecificSetup_MultiSensor = new UcModuleSpecificSetupMultiSensor();
                     Controls.Add(ucModuleSpecificSetup_MultiSensor);
 
 

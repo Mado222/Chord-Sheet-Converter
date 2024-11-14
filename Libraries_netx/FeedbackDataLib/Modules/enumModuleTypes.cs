@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace FeedbackDataLib
+namespace FeedbackDataLib.Modules
 {
     /// <summary>
     /// Types of Modules

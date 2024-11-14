@@ -40,18 +40,6 @@ namespace FeedbackDataLib
         /// </summary>
         public int BaudRate_RemoteDevice => baudRate_RemoteDevice;
 
-        private readonly string _LastXBeeErrorString = "";
-        public string LastErrorString
-        {
-            get
-            {
-                string s = _LastXBeeErrorString;
-                if (XBeeConnection != null)
-                    s += "; " + XBeeConnection.LastErrorString;
-                return s;
-            }
-        }
-
         public CXBee()
         { }
 
@@ -152,15 +140,15 @@ namespace FeedbackDataLib
         //    return ret;
         //}
 
-        public EnumConnectionStatus ConnectionStatus
+        public EnConnectionResult ConnectionStatus
         {
             get
             {
                 if (commXBee == null)
-                    return EnumConnectionStatus.Not_Connected;
+                    return EnConnectionResult.NoConnection;
                 if (commXBee.IsOpen)
-                    return EnumConnectionStatus.Connected;
-                return EnumConnectionStatus.Not_Connected;
+                    return EnConnectionResult.Connected_via_XBee;
+                return EnConnectionResult.NoConnection;
             }
         }
 

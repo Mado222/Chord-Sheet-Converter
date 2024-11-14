@@ -84,14 +84,12 @@ Generated code is based on the following filter design:
 
         public double ProcessSample(double sval)
         {
-            switch (FilterForm)
+            return FilterForm switch
             {
-                case EnFilterForm.Form1:
-                    return HP_Butter_2nd_Form1(sval);
-                case EnFilterForm.Form2:
-                    return HP_Butter_2nd_Form2(sval);
-            }
-            return HP_Butter_2nd_Form1(sval);
+                EnFilterForm.Form1 => HP_Butter_2nd_Form1(sval),
+                EnFilterForm.Form2 => HP_Butter_2nd_Form2(sval),
+                _ => HP_Butter_2nd_Form1(sval),
+            };
         }
 
         private double HP_Butter_2nd_Form1(double input)

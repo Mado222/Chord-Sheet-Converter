@@ -1,6 +1,6 @@
 ﻿using MathNet.Numerics.Statistics;
 
-namespace MathNetNuget
+namespace MathNetNugetLib
 {
     public static class StatsHelper
     {
