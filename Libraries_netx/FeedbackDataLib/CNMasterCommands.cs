@@ -180,8 +180,8 @@ namespace FeedbackDataLib
         #region HelperFunctions
         public bool IsDeviceAvailable()
         {
-            if (NMReceiver is null || NMReceiver.Connection is null) return false;
-            return NMReceiver.Connection.SerialPort.IsOpen;
+            if (NMReceiver is null || NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return false;
+            return NMReceiver.Connection.SerPort.IsOpen;
         }
         #endregion
 

@@ -21,7 +21,7 @@ namespace FeedbackDataLib
         private readonly int baudRate_RemoteDevice = 250000;
         private readonly int baudRate_LocalDevice = 250000;
 
-        public ISerialPort SerialPort { get => serialPort; }
+        public ISerialPort? SerPort { get => serialPort; }
 
         /// <summary>
         /// Part of the USB-XBee Driver Name that identifies the Neurolink
@@ -50,14 +50,6 @@ namespace FeedbackDataLib
             serialPort?.Close();
         }
 
-        public string LastErrorString
-        {
-            get
-            {
-                return "";
-            }
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CNMasterRS232" /> class.
         /// </summary>
@@ -67,18 +59,9 @@ namespace FeedbackDataLib
             serialPort = new CSerialPortWrapper();
         }
 
-        public void Init(ISerialPort SerialPort, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
+        public void Init(ISerialPort SerialPort)
         {
             serialPort = SerialPort;
-            Init();
-        }
-
-        public void Init(string ComPortName, byte CommandChannelNo, byte[] ConnectSequToSend, byte[] ConnectSequToReturn)
-        {
-            serialPort = new CSerialPortWrapper
-            {
-                PortName = ComPortName
-            };
             Init();
         }
 
@@ -87,23 +70,25 @@ namespace FeedbackDataLib
         /// </summary>
         private void Init()
         {
-            SerialPort.BaudRate = BaudRate_LocalDevice;
-            SerialPort.Handshake = System.IO.Ports.Handshake.None;
+            if (SerPort is null) { return; }
 
-            SerialPort.Parity = System.IO.Ports.Parity.None;
-            SerialPort.DataBits = 8;
-            SerialPort.StopBits = System.IO.Ports.StopBits.One;
+            SerPort.BaudRate = BaudRate_LocalDevice;
+            SerPort.Handshake = System.IO.Ports.Handshake.None;
+
+            SerPort.Parity = System.IO.Ports.Parity.None;
+            SerPort.DataBits = 8;
+            SerPort.StopBits = System.IO.Ports.StopBits.One;
         }
 
-        public EnConnectionResult ConnectionStatus
+        public EnConnectionStatus ConnectionStatus
         {
             get
             {
                 if (serialPort == null)
-                    return EnConnectionResult.NoConnection;
+                    return EnConnectionStatus.NoConnection;
                 if (serialPort.IsOpen)
-                    return EnConnectionResult.Connected_via_RS232;
-                return EnConnectionResult.NoConnection;
+                    return EnConnectionStatus.Connected_via_RS232;
+                return EnConnectionStatus.NoConnection;
             }
         }
 

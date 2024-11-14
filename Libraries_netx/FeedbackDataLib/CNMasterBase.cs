@@ -1,8 +1,7 @@
 ﻿using BMTCommunicationLib;
-using System.ComponentModel;
-using System.Data;
 using WindControlLib;
-using static FeedbackDataLib.CNMasterReceiver;
+using Microsoft.Extensions.Logging;
+using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib
 {
@@ -21,7 +20,7 @@ namespace FeedbackDataLib
         /// </summary>
         private CRS232Receiver? RS232Receiver { get; set; }
 
-        public EnConnectionResult ConnectionType { get => NMReceiver.ConnectionResult; }
+        public EnConnectionStatus ConnectionType { get => NMReceiver.ConnectionResult; }
 
 
         /// <summary>
@@ -85,6 +84,23 @@ namespace FeedbackDataLib
         /// <summary>Cancellation token for called async operations</summary>
         public readonly CancellationToken cancellationToken = CancellationToken.None;
 
+        private readonly ILogger<CNMaster> _logger;
+
+
+        /// <summary>
+        /// Basic Constructor
+        /// </summary>
+        public CNMaster()
+        {
+            DeviceClock = new CCDateTime();
+            BatteryVoltage = new CBatteryVoltage();
+
+            for (int i = 0; i < MaxNumHWChannels; i++)
+            {
+                moduleInfos.Add(new CModuleBase());
+            }
+            _logger = AppLogger.CreateLogger<CNMaster>();
+        }
 
         /// <param name="ComPortName">
         /// "COM1","COM2
@@ -113,19 +129,19 @@ namespace FeedbackDataLib
             NMReceiver.Close();
         }
 
-        public EnConnectionResult ConnectionStatus {get => NMReceiver.ConnectionStatus; set => NMReceiver.ConnectionStatus = value; }
+        public EnConnectionStatus ConnectionStatus {get => NMReceiver.ConnectionStatus; set => NMReceiver.ConnectionStatus = value; }
 
-        public EnConnectionResult Connect()
+        public EnConnectionStatus Connect()
         {
-            if (NMReceiver is null) return EnConnectionResult.NoConnection;
-            
-            var conres = NMReceiver.Init_via_D2XX();
-            
-            if (NMReceiver.Connection is null) return EnConnectionResult.NoConnection;
+            if (NMReceiver is null) return EnConnectionStatus.NoConnection;
 
-            if (conres == EnConnectionResult.Connected_via_USBCable || conres == EnConnectionResult.Connected_via_XBee)
+            EnConnectionStatus conres = NMReceiver.Init_via_D2XX();
+            
+            if (NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return EnConnectionStatus.NoConnection;
+
+            if (conres == EnConnectionStatus.Connected_via_USBCable || conres == EnConnectionStatus.Connected_via_XBee)
             {
-                var sp = NMReceiver.Connection.SerialPort;
+                var sp = NMReceiver.Connection.SerPort;
 
                 if (Check4Neuromaster(sp))
                 {
@@ -134,28 +150,28 @@ namespace FeedbackDataLib
                     StartDistributorThreadAsync();
                     NMReceiver.StartUSBMonitoring();
 
-                    if (conres == EnConnectionResult.Connected_via_USBCable)
-                        ConnectionStatus = EnConnectionResult.Connected_via_RS232;
+                    if (conres == EnConnectionStatus.Connected_via_USBCable)
+                        ConnectionStatus = EnConnectionStatus.Connected_via_RS232;
                     else
-                        ConnectionStatus = EnConnectionResult.Connected_via_XBee;
+                        ConnectionStatus = EnConnectionStatus.Connected_via_XBee;
                 }
                 else
                 {
-                    if (conres == EnConnectionResult.Connected_via_USBCable)
-                        ConnectionStatus = EnConnectionResult.Error_during_USBcable_connection;
+                    if (conres == EnConnectionStatus.Connected_via_USBCable)
+                        ConnectionStatus = EnConnectionStatus.Error_during_USBcable_connection;
                     else
-                        ConnectionStatus = EnConnectionResult.Error_during_XBee_connection;
+                        ConnectionStatus = EnConnectionStatus.Error_during_XBee_connection;
 
                 }
             }
-            else if (ConnectionType == EnConnectionResult.Connected_via_SDCard)
+            else if (ConnectionType == EnConnectionStatus.Connected_via_SDCard)
             {
                 //if (_8KanalReceiverV2_SDCard != null)
                 //{
                 //    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
                 //    return EnumConnectionResult.Connected_via_SDCard;
                 //}
-                ConnectionStatus =  EnConnectionResult.Error_read_SDCard;
+                ConnectionStatus =  EnConnectionStatus.Error_read_SDCard;
             }
             return ConnectionStatus;
         }

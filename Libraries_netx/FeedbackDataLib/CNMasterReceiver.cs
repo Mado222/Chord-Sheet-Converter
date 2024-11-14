@@ -1,5 +1,5 @@
 using BMTCommunicationLib;
-using System.IO.Ports;
+using System.Diagnostics;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -38,7 +38,7 @@ namespace FeedbackDataLib
         private CNMasterRS232? c8RS232;
         private CXBee? c8XBee;
 
-        public EnConnectionResult ConnectionResult = EnConnectionResult.NoConnection;
+        public EnConnectionStatus ConnectionResult = EnConnectionStatus.NoConnection;
 
         /// <summary>
         /// THE connection to the Neuromaster
@@ -49,11 +49,11 @@ namespace FeedbackDataLib
             {
                 switch (ConnectionResult)
                 {
-                    case EnConnectionResult.Connected_via_XBee:
+                    case EnConnectionStatus.Connected_via_XBee:
                         {
                             return c8XBee;
                         }
-                    case EnConnectionResult.Connected_via_RS232:
+                    case EnConnectionStatus.Connected_via_RS232:
                         {
                             return c8RS232;
                         }
@@ -84,7 +84,7 @@ namespace FeedbackDataLib
         /// </value>
         public byte RSSI_percent
         {
-            get => c8XBee?.XBeeConnection.RSSI_percent ?? 0;
+            get => c8XBee?.RSSI_percent ?? 0;
         }
         /// <summary>
         /// Gets the neurolink serial number.
@@ -158,8 +158,8 @@ namespace FeedbackDataLib
             {
                 return ConnectionResult switch
                 {
-                    EnConnectionResult.Connected_via_XBee => c8XBee?.XBeeConnection?.PortName ?? "",
-                    EnConnectionResult.Connected_via_RS232 => c8RS232?.SerialPort?.PortName ?? "",
+                    EnConnectionStatus.Connected_via_XBee => c8XBee?.PortName ?? "",
+                    EnConnectionStatus.Connected_via_RS232 => c8RS232?.SerPort?.PortName ?? "",
                     _ => ""
                 };
             }
@@ -169,7 +169,7 @@ namespace FeedbackDataLib
         /// <summary>
         /// Connectionstatus
         /// </summary>
-        public EnConnectionResult ConnectionStatus { get; set; }
+        public EnConnectionStatus ConnectionStatus { get; set; }
 
         public CComPortInfo? ComPortInfo { get; private set; } = null;
         #endregion
@@ -184,8 +184,8 @@ namespace FeedbackDataLib
         }
 
 
-        public event EventHandler<EnConnectionResult>? DeviceConnected;
-        protected virtual void OnDeviceConnected(EnConnectionResult connectionResult)
+        public event EventHandler<EnConnectionStatus>? DeviceConnected;
+        protected virtual void OnDeviceConnected(EnConnectionStatus connectionResult)
         {
             var handler = DeviceConnected;
             handler?.Invoke(this, connectionResult);
@@ -219,11 +219,11 @@ namespace FeedbackDataLib
         /// </summary>
         /// <param name="DescriptionContains">Might search for other names than "Neurolink" too</param>
         /// <returns></returns>
-        public EnConnectionResult Init_via_D2XX(List<string>? DescriptionContains = null)
+        public EnConnectionStatus Init_via_D2XX(List<string>? DescriptionContains = null)
         {
             Close();
             List<int> idxNeurolinkDevices = [];
-            EnConnectionResult ret = EnConnectionResult.No_Active_Neurolink;
+            EnConnectionStatus ret = EnConnectionStatus.No_Active_Neurolink;
 
             FTDI_D2xx ??= new CFTDI_D2xx();
             int numDevices = FTDI_D2xx.CheckForConnectedDevices();  //fast
@@ -256,7 +256,7 @@ namespace FeedbackDataLib
 
                 if (idxNeurolinkDevices.Count > 2)
                 {
-                    ret = EnConnectionResult.More_than_one_Neurolink_detected;
+                    ret = EnConnectionStatus.More_than_one_Neurolink_detected;
                 }
 
                 if (idxNeurolinkDevices.Count == 2)
@@ -285,24 +285,19 @@ namespace FeedbackDataLib
 
                     //First look for RS232 because it is faster
                     //Open the related Port
-                    ConnectionResult = EnConnectionResult.Connected_via_RS232;
+                    ConnectionResult = EnConnectionStatus.Connected_via_RS232;
                     c8RS232 ??= new CNMasterRS232();
-                    c8RS232.Init(
-                        FTDI_D2xx,
-                        CNMaster.CommandChannelNo,
-                        CNMaster.AliveSequToSend(),
-                        CNMaster.AliveSequToReturn()
-                    );
+                    c8RS232.Init(FTDI_D2xx);
 
                     FTDI_D2xx.BaudRate = c8RS232.BaudRate_LocalDevice;     //4.2.2016
                     FTDI_D2xx.IndexOfDeviceToOpen = idxRS232Connection;
 
-                    if (c8RS232 is not null)
+                    if (c8RS232 is not null && c8RS232.SerPort is not null)
                     {
-                        if (CNMaster.Check4Neuromaster(c8RS232.SerialPort))   //fast
+                        if (CNMaster.Check4Neuromaster(c8RS232.SerPort))   //fast
                         {
                             //RS232 Connection is OK
-                            ConnectionResult = EnConnectionResult.Connected_via_RS232;
+                            ConnectionResult = EnConnectionStatus.Connected_via_RS232;
 
                             //Make sure that XBEE is in Sleep
                             CFTDI_D2xx FTDI_D2xx_temp = new()
@@ -310,19 +305,14 @@ namespace FeedbackDataLib
                                 IndexOfDeviceToOpen = idxXBEeeConnection
                             };
                             c8XBee ??= new CXBee();
-                            c8XBee.Init(
-                                FTDI_D2xx_temp,
-                                CNMaster.CommandChannelNo,
-                                CNMaster.AliveSequToSend(),
-                                CNMaster.AliveSequToReturn()
-                            );
+                            c8XBee.Init(FTDI_D2xx_temp);
                             c8XBee.Send_to_Sleep();
                             c8XBee.Close();
 
                             FTDI_D2xx_temp.Close();
                             FTDI_D2xx_temp.Dispose();
                             StartUSBMonitoring();
-                            ret = EnConnectionResult.Connected_via_USBCable;
+                            ret = EnConnectionStatus.Connected_via_USBCable;
                         }
                         else
                         {
@@ -330,34 +320,25 @@ namespace FeedbackDataLib
                             //It must be XBee ... leave Connection to the calling routine
                             c8RS232.Close();
                             FTDI_D2xx.IndexOfDeviceToOpen = idxXBEeeConnection;
-                            ConnectionResult = EnConnectionResult.Connected_via_XBee;
+                            ConnectionResult = EnConnectionStatus.Connected_via_XBee;
                             c8XBee = new CXBee();
-                            c8XBee.Init(
-                                FTDI_D2xx,
-                                CNMaster.CommandChannelNo,
-                                CNMaster.AliveSequToSend(),
-                                CNMaster.AliveSequToReturn()
-                            );
+                            c8XBee.Init(FTDI_D2xx);
 
                             try
                             {
-                                if (c8XBee.XBeeConnection.InitXBee())
+                                if (c8XBee.InitXBee())
                                 {
-                                    
-
-
-
-                                    ret = EnConnectionResult.Connected_via_XBee;
+                                    ret = EnConnectionStatus.Connected_via_XBee;
                                     StartUSBMonitoring();
                                 }
                                 else
                                 {
-                                    ret = EnConnectionResult.Error_during_XBee_connection;
+                                    ret = EnConnectionStatus.Error_during_XBee_connection;
                                 }
                             }
                             catch
                             {
-                                ret = EnConnectionResult.Error_during_XBee_connection;
+                                ret = EnConnectionStatus.Error_during_XBee_connection;
                             }
                         }
                     }
@@ -396,6 +377,7 @@ namespace FeedbackDataLib
                 usbm = new USBMonitor();
                 usbm.USBDeviceConnectedEvent += Usbm_USBDeviceConnectedEvent;
                 usbm.USBDeviceDisConnectedEvent += Usbm_USBDeviceDisConnectedEvent;
+                Debug.WriteLine("USBMonitor started");
             }
             VID_PID_opened = VID_PID;
         }
@@ -407,24 +389,25 @@ namespace FeedbackDataLib
         public void StopUSBMonitoring()
         {
             usbm?.Close();
+            Debug.WriteLine("USBMonitor stopped");
         }
 
         /* Events kommen 3x!!!!         */
         private void Usbm_USBDeviceDisConnectedEvent(object? sender, EventArgs e)
         {
-            if (ConnectionStatus != EnConnectionResult.USB_disconnected)
+            if (ConnectionStatus != EnConnectionStatus.USB_disconnected)
             {
-                ConnectionStatus = EnConnectionResult.USB_disconnected;
+                ConnectionStatus = EnConnectionStatus.USB_disconnected;
                 OnDeviceDisconnected(VID_PID_opened);
             }
         }
 
         private void Usbm_USBDeviceConnectedEvent(object? sender, EventArgs e)
         {
-            if (ConnectionStatus != EnConnectionResult.USB_reconnected)
+            if (ConnectionStatus != EnConnectionStatus.USB_reconnected)
             {
-                ConnectionStatus = EnConnectionResult.USB_reconnected;
-                OnDeviceConnected(EnConnectionResult.NoConnection);
+                ConnectionStatus = EnConnectionStatus.USB_reconnected;
+                OnDeviceConnected(EnConnectionStatus.NoConnection);
             }
         }
 
@@ -457,7 +440,6 @@ namespace FeedbackDataLib
 
             FTDI_D2xx?.Dispose();
         }
-
         #endregion
     }
 

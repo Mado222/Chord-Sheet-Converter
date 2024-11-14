@@ -31,8 +31,6 @@ namespace BMTCommunicationLib
         // Async method
         Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default);
 
-        //event LogErrorEventHandler LogError;
-        //string UniqueIdentifier { get; }
         event SerialDataReceivedEventHandler SerialDataReceivedEvent;
         string LastErrorString { get; set; }
         bool DtrEnable { get; set; }

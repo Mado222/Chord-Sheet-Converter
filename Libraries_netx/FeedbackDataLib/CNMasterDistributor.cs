@@ -105,15 +105,17 @@ namespace FeedbackDataLib
         /// </summary>
         private async Task DistributorThreadAsync(CancellationToken cancellationToken)
         {
+            if (NMReceiver is null || NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return;
+
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "DistributorThread";
 
             if (NMReceiver.Connection == null) throw new Exception("c8Receiver.Connection not allowed to be null");
 
-            if (!NMReceiver.Connection.SerialPort.IsOpen) NMReceiver.Connection.SerialPort.GetOpen();
+            if (!NMReceiver.Connection.SerPort.IsOpen) NMReceiver.Connection.SerPort.GetOpen();
 
             NextAliveSignalToSend = DateTime.Now;
-            RS232Receiver = new CRS232Receiver(0x0f, NMReceiver.Connection.SerialPort);
+            RS232Receiver = new CRS232Receiver(0x0f, NMReceiver.Connection.SerPort);
 
             // Start the RS232ReceiverThread and pass the cancellation token
             _ = RS232Receiver.StartRS232ReceiverThreadAsync(cancellationToken).ContinueWith(t =>
@@ -128,8 +130,6 @@ namespace FeedbackDataLib
             _sendingQueue.Clear();
             _runningCommandsQueue.Clear();
             RunningCommand = null;
-
-
 
             try
             {
@@ -147,7 +147,6 @@ namespace FeedbackDataLib
                             cmdin = (EnNeuromasterCommand)btreceived[0];
                             Debug.WriteLine("Receiving: " + Enum.GetName(typeof(EnNeuromasterCommand), cmdin));
                         }
-
                         if (btreceived != null && RunningCommand is not null && btreceived[0] == (byte)RunningCommand.Command)
                         {
                             //Yes, get it
@@ -192,7 +191,6 @@ namespace FeedbackDataLib
                             EvalCommunicationToPC(buf);
                     }
 
-
                     // Incoming: Distribute measurement data 
                     if (!RS232Receiver.MeasurementDataQueue.IsEmpty)
                     {
@@ -217,7 +215,7 @@ namespace FeedbackDataLib
                                 }
                                 RunningCommand = cr;
                                 RunningCommand.RunningEnd = DateTime.Now + TsCommandTimeout;
-                                NMReceiver.Connection.SerialPort.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
+                                NMReceiver.Connection.SerPort.Write(cr.SendData, 0, cr.SendData.Length); // Adjust cancellation token as needed
                             }
                         }
                     }
@@ -242,7 +240,7 @@ namespace FeedbackDataLib
             }
             finally
             {
-                NMReceiver.Connection.SerialPort.Close();
+                NMReceiver.Connection.SerPort.Close();
                 RS232Receiver.StopRS232ReceiverThread();
                 Debug.WriteLine("DistributorThreadAsync Closed");
             }
@@ -256,14 +254,7 @@ namespace FeedbackDataLib
             //Prepare message text for display
             ColoredText msg;
             string? nm = Enum.GetName(typeof(EnNeuromasterCommand), RunningCommand.Command);
-            if (rc.Success)
-            {
-                msg = new(nm + ": " + "OK", Color.Green);
-            }
-            else
-            {
-                msg = new(nm + ": " + "Failed", Color.Red);
-            }
+            msg = new($"{nm}: {(rc.Success ? "OK" : "Failed")}", rc.Success ? Color.Green : Color.Red);
 
             switch (rc.Command)
             {
@@ -396,7 +387,7 @@ namespace FeedbackDataLib
                     }
                 case CNMtoPCCommands.cBatteryStatus:
                     {
-                        if (ConnectionType ==  EnConnectionResult.Connected_via_XBee)
+                        if (ConnectionType ==  EnConnectionStatus.Connected_via_XBee)
                         {
                             //buf[2] ... Battery Low    
                             //buf[3] ... Battery High [1/10V]

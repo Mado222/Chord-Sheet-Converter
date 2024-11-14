@@ -50,13 +50,13 @@ namespace FeedbackDataLib
         }
 
 
-        private EnConnectionResult _ConnectionStatus = EnConnectionResult.NoConnection;
-        private EnConnectionResult _ConnectionStatusOld = EnConnectionResult.NoConnection;
+        private EnConnectionStatus _ConnectionStatus = EnConnectionStatus.NoConnection;
+        private EnConnectionStatus _ConnectionStatusOld = EnConnectionStatus.NoConnection;
 
         /// <summary>
         /// Gets or sets the ConnectionStatus
         /// </summary>
-        private EnConnectionResult ConnectionStatus
+        private EnConnectionStatus ConnectionStatus
         {
             get { return _ConnectionStatus; }
             set
@@ -65,7 +65,7 @@ namespace FeedbackDataLib
             }
         }
 
-        private void SetConnectionStatus(EnConnectionResult value)
+        private void SetConnectionStatus(EnConnectionStatus value)
         {
             _ConnectionStatus = value;
             if (_ConnectionStatus != _ConnectionStatusOld)
@@ -360,7 +360,7 @@ namespace FeedbackDataLib
                 DeviceCommunicationToPC?.Invoke(this, buf);
         }
 
-        public EnConnectionResult GetConnectionStatus() => ConnectionStatus;
+        public EnConnectionStatus GetConnectionStatus() => ConnectionStatus;
 
         //public int ReceiverTimerInterval => 0;
 

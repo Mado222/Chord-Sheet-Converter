@@ -16,11 +16,11 @@
             set { _frameId = value; }
         }
 
-        private TXStatusOptions _TXStatus;
+        private EnTXStatusOptions _TXStatus;
         /// <summary>
         /// transmit status
         /// </summary>
-        virtual public TXStatusOptions TXStatus
+        virtual public EnTXStatusOptions TXStatus
         {
             get { return _TXStatus; }
             set { _TXStatus = value; }
@@ -52,13 +52,13 @@
                 //Status
                 if (listEnum.MoveNext())
                 {
-                    TXStatus = (TXStatusOptions)listEnum.Current;
+                    TXStatus = (EnTXStatusOptions)listEnum.Current;
                 }
             }
         }
     }
 
-    public enum TXStatusOptions
+    public enum EnTXStatusOptions
     {
         Success,
         NoACKReceived,

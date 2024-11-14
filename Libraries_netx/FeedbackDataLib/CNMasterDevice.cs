@@ -20,20 +20,6 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Basic Constructor
-        /// </summary>
-        public CNMaster()
-        {
-            DeviceClock = new CCDateTime();
-            BatteryVoltage = new CBatteryVoltage();
-
-            for (int i = 0; i < MaxNumHWChannels; i++)
-            {
-                moduleInfos.Add(new CModuleBase());
-            }
-        }
-
-        /// <summary>
         /// Resyncs all channels
         /// </summary>
         public void Resync()

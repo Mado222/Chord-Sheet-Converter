@@ -6,14 +6,23 @@
  * 0 könnte in der Routine GetScaledValue ausgenommen werden, dann liefert aber auch GetMinScaledValue einen falschen Wert.
 */
 
+using BMTCommunicationLib;
 using FeedbackDataLib.Modules;
 
 namespace FeedbackDataLib
 {
+    public interface IC8Base
+    {
+        public ISerialPort? SerPort { get; }
+        EnConnectionStatus ConnectionStatus { get; }
+        public void Init(ISerialPort SerialPort);
+        void Close();
+    }
+
     /// <summary>
     /// Represents the state Connect returns
     /// </summary>
-    public enum EnConnectionResult
+    public enum EnConnectionStatus
     {
         NoConnection,
         Error_during_Port_scan,
@@ -121,7 +130,7 @@ namespace FeedbackDataLib
             {
                 _dt = new DateTime(tm_year + 1900, tm_mon + 1, tm_mday, tm_hour, tm_min, tm_sec);
             }
-            catch (System.ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException)
             {
                 _dt = new DateTime(1800, 1, 1, 0, 0, 0, 0);
             }
