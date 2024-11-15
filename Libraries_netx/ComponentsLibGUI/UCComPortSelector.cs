@@ -9,7 +9,7 @@ namespace ComponentsLib_GUI
     /// <summary>
     /// Summary description for UCComPortSelector.
     /// </summary>
-    public class UCComPortSelector : System.Windows.Forms.ComboBox
+    public class UCComPortSelector : ComboBox
     {
         /// <summary> 
         /// Required designer variable.
@@ -91,7 +91,7 @@ namespace ComponentsLib_GUI
         /// <remarks>
         /// Also reads registry to find DefaultCom and sets index accordingly
         /// </remarks>
-        public void Init(string DriverName, WindControlLib.CVID_PID? VIDPID = null)
+        public void Init(string DriverName, WindControlLib.CVidPid? VIDPID = null)
         {
             //Alten Wert fuer COM aus der Registry holen
             string regkey = RegKey + Name + "\\";

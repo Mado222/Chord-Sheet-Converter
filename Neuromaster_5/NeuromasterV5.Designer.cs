@@ -1,4 +1,4 @@
-﻿using FeedbackDataLib_GUI;
+﻿using FeedbackDataLibGUI;
 
 namespace Neuromaster_V5
 {
