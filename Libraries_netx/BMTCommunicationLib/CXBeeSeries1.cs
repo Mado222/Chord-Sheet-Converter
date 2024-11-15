@@ -57,9 +57,6 @@ namespace BMTCommunicationLib
 
         public CXBNodeInformation? LocalDevice { get; set; } = new CXBNodeInformation();
         public CXBNodeInformation? CurrentEndDevice { get; set; } = new CXBNodeInformation();
-        public bool DisplayMessages { get; set; }
-
-        //private const string MessageBoxCaption = "XBee Error";
 
         /// <summary>
         /// commom sequence character
@@ -2114,10 +2111,6 @@ namespace BMTCommunicationLib
             if ((NodeInfos == null) || (NodeInfos.Count == 0))
             {
                 _Error.SetError_NoRemoteDevice();    //Error
-                if (DisplayMessages)
-                {
-                    //MessageBox.Show(_Error.LastError_String, MessageBoxCaption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
             }
             else if (NodeInfos.Count == 1)
             {

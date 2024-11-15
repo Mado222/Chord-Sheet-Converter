@@ -1,6 +1,6 @@
 ﻿using BMTCommunicationLib;
+using Microsoft.Extensions.Logging;
 using System.Buffers;
-using System.Diagnostics;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -24,6 +24,8 @@ namespace FeedbackDataLib
         /// </summary>
         public CCRC8 CRC8 = new(CCRC8.CRC8_POLY.CRC8_CCITT);
 
+        private readonly ILogger<CRS232Receiver> _logger;
+
 
         /// <summary>
         /// Last Sync Signal received from Device = when Device timer has full second
@@ -42,7 +44,6 @@ namespace FeedbackDataLib
                 if (seriell32 == null)
                 {
                     throw new InvalidOperationException("The serial connection is not set.");
-                    //Debug.WriteLine("The serial connection is not set.");
                 }
                 return seriell32;
             }
@@ -75,13 +76,13 @@ namespace FeedbackDataLib
             }
         }
 
-        enum ReceiverState
+        enum EnReceiverState
         {
             None,
             WaitingForCommandData
         }
 
-        private ReceiverState _receiverState = ReceiverState.None;
+        private EnReceiverState _receiverState = EnReceiverState.None;
 
         // Declare cancellationTokenSourceReceiver as a private property
         //private CancellationTokenSource? CancellationTokenSourceReceiver { get; set; }
@@ -102,6 +103,7 @@ namespace FeedbackDataLib
         {
             _CommandChannelNo = CommandChannelNo;
             Seriell32 = SerialPort;
+            _logger = AppLogger.CreateLogger<CRS232Receiver>();
         }
 
         private static byte[]? PrecheckBuffer(ref CFifoConcurrentQueue<byte> RS232inBytes)
@@ -231,7 +233,7 @@ namespace FeedbackDataLib
                     //Receiver state machine
                     switch (_receiverState)
                     {
-                        case ReceiverState.None:
+                        case EnReceiverState.None:
                             // Process incoming data if available
                             if (rs232InBytes.Count >= 4)
                             {
@@ -248,7 +250,7 @@ namespace FeedbackDataLib
                                         // Process command if it matches _CommandChannelNo
                                         if (dataInTemp.HWcn == _CommandChannelNo)
                                         {
-                                            _receiverState = ReceiverState.WaitingForCommandData;
+                                            _receiverState = EnReceiverState.WaitingForCommandData;
                                             // Allocate buffer for the expected data length including CRC
                                             numCommandData = dataInTemp.Value;
                                         }
@@ -258,7 +260,7 @@ namespace FeedbackDataLib
                                             dataInTemp.LastSync = LastSyncSignal;
                                             dataInTemp.ReceivedAt = Seriell32.Now(EnumTimQueryStatus.isSync);
                                             MeasurementDataQueue.Push(dataInTemp);
-                                            _receiverState = ReceiverState.None;
+                                            _receiverState = EnReceiverState.None;
                                         }
                                     }
                                 }
@@ -269,12 +271,12 @@ namespace FeedbackDataLib
                             }
                             break;
 
-                        case ReceiverState.WaitingForCommandData:
+                        case EnReceiverState.WaitingForCommandData:
                             if (rs232InBytes.Count >= numCommandData)
                             {
                                 byte[]? buf = rs232InBytes.Pop(numCommandData); //ArrayPool<byte>.Shared.Rent(numCommandData);
                                 //rs232InBytes.Pop(ref buf);
-                                _receiverState |= ReceiverState.None;
+                                _receiverState |= EnReceiverState.None;
                                 if (buf != null && buf.Length > 0)
                                 {
                                     // Check CRC of the received buffer
@@ -300,7 +302,7 @@ namespace FeedbackDataLib
                                                 }
                                             default:
                                                 {
-                                                    Debug.WriteLine("default: " + BitConverter.ToString(buf).Replace("-", " "));
+                                                    _logger.LogInformation("RS232ReceiverThreadAsync default: {Message}" ,BitConverter.ToString(buf).Replace("-", " "));
                                                     CommandResponseQueue.Push((buf, DateTime.Now)); // Store command for further processing
                                                     break;
                                                 }
@@ -309,9 +311,9 @@ namespace FeedbackDataLib
                                     else
                                     {
                                         // CRC check failed, handle accordingly
-                                        Debug.WriteLine("CRC check failed for received buffer.");
+                                        _logger.LogWarning("CRC check failed for received buffer.");
                                     }
-                                    _receiverState = ReceiverState.None;
+                                    _receiverState = EnReceiverState.None;
                                     //ArrayPool<byte>.Shared.Return(buf);
                                 }
                             }
@@ -323,9 +325,9 @@ namespace FeedbackDataLib
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine($"Error: {e}");
+                _logger.LogError("RS232ReceiverThreadAsync default: {Message}", ex.Message);
             }
             finally
             {

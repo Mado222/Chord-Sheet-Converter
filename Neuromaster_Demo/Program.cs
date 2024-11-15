@@ -39,11 +39,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                 .Build();
 
             // Initialize AppLogger with the logger factory
-            var loggingSettings = new LoggingSettings
-            {
-                IsLoggingEnabled = true,
-                LogFilePath = "logs/app.log"
-            };
+            var loggingSettings = new LoggingSettings();
 
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             AppLogger.Initialize(loggerFactory, loggingSettings);

@@ -1,4 +1,6 @@
 using BMTCommunicationLib;
+using FeedbackDataLib.Modules.CADS1294x;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.IO.Ports;
 using System.Xml.Serialization;
@@ -44,8 +46,12 @@ namespace FeedbackDataLib
 
         private readonly CHighPerformanceDateTime hp_Timer = new();
 
+        private readonly ILogger<CXBee> _logger;
+
         public CXBee()
-        { }
+        {
+            _logger = AppLogger.CreateLogger<CXBee>();
+        }
 
         // Optional: Destructor to release unmanaged resources if Dispose is not called
         ~CXBee()
@@ -167,7 +173,8 @@ namespace FeedbackDataLib
 
         private void SerialXBeeReceiverAsync(CancellationToken token)
         {
-            Debug.WriteLine("SerialXBeeReceiverThread Started");
+            
+            _logger.LogInformation("SerialXBeeReceiverThread Started");
             try
             {
                 while (!token.IsCancellationRequested)
@@ -190,11 +197,13 @@ namespace FeedbackDataLib
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                _logger.LogError("SerialXBeeReceiverThread: {Message}", ex.Message);
+            }
             finally
             {
-#if DEBUG
-                Debug.WriteLine("SerialXBeeReceiverThread Closed");
-#endif
+               _logger.LogInformation("SerialXBeeReceiverThread Closed");
             }
         }
 
@@ -261,9 +270,10 @@ namespace FeedbackDataLib
                     if (!_SerPort!.IsOpen)  Thread.Sleep(1000);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 //Comport not valid
+                _logger.LogError("Start_XBee_Pairing: {Message}", ex.Message);
                 PairingSuceeded = false;
             }
 
@@ -313,7 +323,7 @@ namespace FeedbackDataLib
                                     }
                                     else
                                     {
-                                        Debug.WriteLine( "ManageXBeePairing: Failed");
+                                        _logger.LogWarning( "ManageXBeePairing: Failed");
                                     }
                                     break;
                                 }
@@ -321,17 +331,17 @@ namespace FeedbackDataLib
                     }//if (!PairingSuceeded)
                     else
                     {
-                        Debug.WriteLine("Start_XBee_Pairing: Pairing did not succeed");
+                        _logger.LogWarning("Start_XBee_Pairing: Pairing did not succeed");
                     }
                 }//if (IsOpen)
                 else
                 {
-                    Debug.WriteLine("Start_XBee_Pairing: IsOpen==false");
+                    _logger.LogInformation("Start_XBee_Pairing: IsOpen==false");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                //log.Error("XBPairing: " + ee.Message);
+                _logger.LogError("Start_XBee_Pairing: {Message}", ex.Message);
                 PairingSuceeded = false;
             }
             finally
@@ -351,21 +361,18 @@ namespace FeedbackDataLib
                     if (_XBeeSeries1 == null)
                     {
                         //Close();
-                        _XBeeSeries1 = new CXBeeSeries1(_SerPort)
-                        {
-                            DisplayMessages = false
-                        };
+                        _XBeeSeries1 = new CXBeeSeries1(_SerPort);
                         //Does the whole pairing process
                         ret = Start_XBee_Pairing();
                     }
                     else
                     {
-                        Debug.WriteLine("_XBeeSeries1 != null");
+                        _logger.LogWarning("InitXBee: _XBeeSeries1 must be null");
                     }
                 }
-                catch (Exception ee)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine(ee.Message);
+                    _logger.LogError("InitXBee: {Message}", ex.Message);
                     ret = false;
                 }
                 finally
@@ -486,8 +493,8 @@ namespace FeedbackDataLib
                             }
                             catch (Exception ex)
                             {
-                                Debug.WriteLine("ReadSeriellBufferUntilEmpty: " + ex.Message);
-                            };
+                                _logger.LogError("ReadSeriellBufferUntilEmpty: {Message}", ex.Message);
+                            }
                         }
 
                         if (barp != null)
@@ -810,7 +817,7 @@ namespace FeedbackDataLib
                 }
                 else
                 {
-                    Debug.WriteLine("Warning: Attempted to set DataBits, but _SerialPort is null.");
+                    _logger.LogWarning("Warning: Attempted to set DataBits, but _SerialPort is null.");
                 }
             }
         }

@@ -1,4 +1,5 @@
 ﻿using FeedbackDataLib.Modules;
+using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using WindControlLib;
 
@@ -7,6 +8,10 @@ namespace FeedbackDataLib
 {
     public partial class CNMaster
     {
+        private int cntSyncPackages = 0;                        //Counts the incoming sync packages
+        private DateTime OldLastSync = DateTime.MinValue;       //Time when the previous package was received
+        private DateTime ReceivingStarted = DateTime.MinValue;  //Receiving started at
+
         // Define a custom struct or class to hold input data and TCS
         public class CommandRequest
         {
@@ -123,7 +128,7 @@ namespace FeedbackDataLib
                 if (t.Exception != null)
                 {
                     // Handle exception (log, etc.)
-                    Debug.WriteLine(t.Exception);
+                    _logger.LogError("DistributorThreadAsync: {Message}", t.Exception.Message);
                 }
             }, TaskContinuationOptions.OnlyOnFaulted);
 
@@ -145,7 +150,7 @@ namespace FeedbackDataLib
                         if (btreceived != null)
                         {
                             cmdin = (EnNeuromasterCommand)btreceived[0];
-                            Debug.WriteLine("Receiving: " + Enum.GetName(typeof(EnNeuromasterCommand), cmdin));
+                            _logger.LogInformation("DistributorThreadAsync Receiving: {Message}", Enum.GetName(typeof(EnNeuromasterCommand), cmdin));
                         }
                         if (btreceived != null && RunningCommand is not null && btreceived[0] == (byte)RunningCommand.Command)
                         {
@@ -156,6 +161,7 @@ namespace FeedbackDataLib
                                 RunningCommand.ResponseData = res;
                                 RunningCommand.Success = true;
                                 if (cmdin != EnNeuromasterCommand.DeviceAlive)
+                                    
                                     EvalCommandResponse(RunningCommand);
                             }
                             else
@@ -211,7 +217,7 @@ namespace FeedbackDataLib
                             {
                                 if (cr.Command is not EnNeuromasterCommand.DeviceAlive)
                                 {
-                                    Debug.WriteLine("Sending: " + Enum.GetName(typeof(EnNeuromasterCommand), cr.Command));
+                                    _logger.LogInformation("DistributorThreadAsync Sending: {Message}", Enum.GetName(typeof(EnNeuromasterCommand), cr.Command));
                                 }
                                 RunningCommand = cr;
                                 RunningCommand.RunningEnd = DateTime.Now + TsCommandTimeout;
@@ -236,13 +242,13 @@ namespace FeedbackDataLib
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("DistributorThreadAsync Error: " + ex.Message);
+                _logger.LogError("DistributorThreadAsync: {Message}", ex.Message);
             }
             finally
             {
                 NMReceiver.Connection.SerPort.Close();
                 RS232Receiver.StopRS232ReceiverThread();
-                Debug.WriteLine("DistributorThreadAsync Closed");
+                _logger.LogInformation("DistributorThreadAsync Closed");
             }
         }
 
@@ -287,7 +293,7 @@ namespace FeedbackDataLib
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine("C8KanalReceiverV2_CommBase_#01: " + ex.Message);
+                            _logger.LogError("C8KanalReceiverV2_CommBase_#01: {Message}", ex.Message);
                             rc.Success = false;
                             OnGetModuleConfigResponse(null, msg);
                         }
@@ -314,8 +320,7 @@ namespace FeedbackDataLib
                                     // Check CRC and debug output
                                     byte crc = CRC8.Calc_CRC8(btin, btin.Length - 2);
 
-                                    Debug.WriteLine("GetModuleInfoSpecific: " +
-                                                    string.Join(", ", btin.Select(b => b.ToString("X2"))) +
+                                    _logger.LogInformation("GetModuleInfoSpecific: {Message}", string.Join(", ", btin.Select(b => b.ToString("X2"))) +
                                                     $" / CalcCRC={crc:X2}");
 
                                     if (UpdateModuleInfo)

@@ -1,5 +1,6 @@
 using BMTCommunicationLib;
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using System.Reflection.Emit;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -20,10 +21,6 @@ namespace FeedbackDataLib
         //    RS232Connection = 0x02,
         //    SDCardConnection = 0x03
         //}
-        public string LastErrorString { get; private set; } = "";
-
-
-
         private const CFTDI_D2xx.FTDI_Types Accepted_FTDI_Single_Device = CFTDI_D2xx.FTDI_Types.FT_DEVICE_232R;
         private const CFTDI_D2xx.FTDI_Types Accepted_FTDI_Dual_Device = CFTDI_D2xx.FTDI_Types.FT_DEVICE_2232;
 
@@ -39,6 +36,8 @@ namespace FeedbackDataLib
         private CXBee? c8XBee;
 
         public EnConnectionStatus ConnectionResult = EnConnectionStatus.NoConnection;
+
+        private readonly ILogger<CNMasterReceiver> _logger;
 
         /// <summary>
         /// THE connection to the Neuromaster
@@ -95,57 +94,24 @@ namespace FeedbackDataLib
         public string NeurolinkSerialNumber { get; private set; } = "";
 
         /// <summary>
-        /// FTDI Product ID (PID)
-        /// </summary>
-        public string PID
-        {
-            get
-            {
-                if (ComPortInfo != null)
-                {
-                    return new CVID_PID { VID_PID = ComPortInfo.VID_PID }.PID;
-                }
-
-                return FTDI_D2xx == null ? "" : FTDI_D2xx.PID(FTDI_D2xx.IndexOfDeviceToOpen);
-            }
-        }
-
-
-        /// <summary>
-        /// FTDI Vendor ID (VID)
-        /// </summary>
-        public string VID
-        {
-            get
-            {
-                if (ComPortInfo != null)
-                {
-                    return new CVID_PID { VID_PID = ComPortInfo.VID_PID }.VID;
-                }
-
-                return FTDI_D2xx == null ? "" : FTDI_D2xx.VID(FTDI_D2xx.IndexOfDeviceToOpen);
-            }
-        }
-
-
-        /// <summary>
         /// VID & PID
         /// </summary>
         /// <value>
         /// "VID_0403&PID_6001"
         /// </value>
-        public string VID_PID
+        public CVidPid VidPid
         {
             get
             {
-                if (ComPortInfo != null)
-                    return ComPortInfo.VID_PID;
+                if (ComPortInfo != null) return ComPortInfo.VID_PID;
 
-                return new CVID_PID
+                string vid = FTDI_D2xx == null ? "" : FTDI_D2xx.VID(FTDI_D2xx.IndexOfDeviceToOpen);
+                string pid = FTDI_D2xx == null ? "" : FTDI_D2xx.PID(FTDI_D2xx.IndexOfDeviceToOpen);
+                return new ()
                 {
-                    PID = PID,
-                    VID = VID
-                }.VID_PID;
+                    PID = pid,
+                    VID = vid
+                };
             }
         }
 
@@ -165,20 +131,19 @@ namespace FeedbackDataLib
             }
         }
 
-
         /// <summary>
         /// Connectionstatus
         /// </summary>
         public EnConnectionStatus ConnectionStatus { get; set; }
 
-        public CComPortInfo? ComPortInfo { get; private set; } = null;
+        public CComPortProcessing.CComPortInfo? ComPortInfo { get; private set; } = null;
         #endregion
 
         #region events
 
-        public event EventHandler<string>? DeviceDisconnected;
+        public event EventHandler<CVidPid>? DeviceDisconnected;
         /// Occurs when Neurolink is disconnected from USB
-        protected virtual void OnDeviceDisconnected(string pidVid)
+        protected virtual void OnDeviceDisconnected(CVidPid pidVid)
         {
             DeviceDisconnected?.Invoke(this, pidVid);
         }
@@ -193,12 +158,19 @@ namespace FeedbackDataLib
 
         #endregion
 
+        /// <summary>Initializes a new instance of the <see cref="CNMasterReceiver" /> class.</summary>
+        public CNMasterReceiver()
+        {
+            _logger = AppLogger.CreateLogger<CNMasterReceiver>();
+        }
+
         /// <summary>
         /// Finalizes an instance of the <see cref="CNMasterReceiver"/> class.
         /// </summary>
         ~CNMasterReceiver()
         {
             //Make sure that USB monitoring and all other stuff is down
+            StopUSBMonitoring();
             Dispose();
         }
 
@@ -355,16 +327,18 @@ namespace FeedbackDataLib
                     //ret = EnumConnectionResult.Connected_via_XBee;
                 }
             }
+            else
+            {
+                //numDevices == 0
+                ret = EnConnectionStatus.No_Active_Neurolink;
+            }
             return ret;
         }
 
         #region USBMonitoring
-        private USBMonitor? usbm = null;
-        private string VID_PID_opened = ""; //Tp back up PID VID for OnDeviceDisconnected Event - IF FTDI is gone, PID VID (this.VID_PID) are also gone
+        private CUSBDeviceMonitor? usbm = null;
+        private CVidPid VID_PID_opened = new (); //Tp back up PID VID for OnDeviceDisconnected Event - IF FTDI is gone, PID VID (this.VID_PID) are also gone
 
-        public CNMasterReceiver()
-        {
-        }
 
         //private bool USBMonitorIsConnected = false;
         /// <summary>
@@ -374,12 +348,13 @@ namespace FeedbackDataLib
         {
             if (usbm == null)
             {
-                usbm = new USBMonitor();
+                usbm = new (VidPid);
                 usbm.USBDeviceConnectedEvent += Usbm_USBDeviceConnectedEvent;
                 usbm.USBDeviceDisConnectedEvent += Usbm_USBDeviceDisConnectedEvent;
-                Debug.WriteLine("USBMonitor started");
+                usbm.StartMonitoring();
+                _logger.LogInformation("USBMonitor started");
             }
-            VID_PID_opened = VID_PID;
+            VID_PID_opened = VidPid;
         }
 
 
@@ -388,8 +363,8 @@ namespace FeedbackDataLib
         /// </summary>
         public void StopUSBMonitoring()
         {
-            usbm?.Close();
-            Debug.WriteLine("USBMonitor stopped");
+            usbm?.StopMonitoring();
+            _logger.LogInformation("USBMonitor stopped");
         }
 
         /* Events kommen 3x!!!!         */
@@ -418,7 +393,7 @@ namespace FeedbackDataLib
         /// </summary>
         public void Close()
         {
-            StopUSBMonitoring();
+            //StopUSBMonitoring();
             c8XBee?.Close();
             c8RS232?.Close();
             FTDI_D2xx?.Close();  //2nd Close

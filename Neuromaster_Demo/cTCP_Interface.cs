@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using FeedbackDataLib;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -18,6 +20,8 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         /// </summary>
         List<ClientHandler> ClientHandlers = [];
 
+        private readonly ILogger<CTCPInterface> _logger;
+
         #region Events
         public event EventHandler<(string data, Color color)>? StatusMessage;
         protected virtual void OnStatusMessage(string data, Color color)
@@ -29,6 +33,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
 
         public CTCPInterface()
         {
+            _logger = AppLogger.CreateLogger<CTCPInterface>();
         }
 
         public void Init()
@@ -85,7 +90,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                 TCP_ClientHandler.ConnectionClosed += TCP_ClientHandler_ConnectionClosed;
 
                 // Dieses Objekt in einem anderen Thread ausführen.
-                Thread handlerThread = new(new ThreadStart(TCP_ClientHandler.Start))
+                Thread handlerThread = new(new ThreadStart(TCP_ClientHandler.TCPStart))
                 {
                     IsBackground = true
                 };
@@ -129,10 +134,11 @@ namespace Neuromaster_Demo_Library_Reduced__netx
     /// <summary>
     /// Handler, der mehrere TCP-Clients gleichzeitig bearbeiten kann. 
     /// </summary>
-    public class ClientHandler(TcpClient client, string ID)
+    public class ClientHandler
     {
-        private readonly TcpClient? tcpClient = client;
+        private readonly TcpClient? tcpClient;
         private NetworkStream? stream;
+        private readonly ILogger<CNMaster> _logger;
 
         #region Events
         public event EventHandler<(string ID, CTCPDataPacket TCPPacket)>? MessageReady;
@@ -161,7 +167,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         #endregion
 
         #region Properties
-        private readonly string _ID = ID;
+        private readonly string _ID;
         public string ID
         {
             get { return _ID; }
@@ -196,8 +202,15 @@ namespace Neuromaster_Demo_Library_Reduced__netx
         }
 
         public int Port { get; set; }
+
         #endregion
 
+        public ClientHandler(TcpClient client, string id)
+        {
+            tcpClient = client;
+            _ID = id;
+            _logger = AppLogger.CreateLogger<CNMaster>();
+        }
         public void Connect()
         {
             if (tcpClient == null) return;
@@ -225,7 +238,7 @@ namespace Neuromaster_Demo_Library_Reduced__netx
             stream?.Write(bu, 0, bu.Length);
         }
 
-        public void Start()
+        public void TCPStart()
         {
             // Den Netzwerk-Stream abrufen.
             if (tcpClient == null)
@@ -316,9 +329,9 @@ namespace Neuromaster_Demo_Library_Reduced__netx
                                 }
                         }
                     }
-                    catch (Exception ee)
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine(ee.Message);
+                       _logger.LogError("TCPStart: {Message}", ex.Message);
                     }
                     //Read Headder next
                     ReadHeader = true;

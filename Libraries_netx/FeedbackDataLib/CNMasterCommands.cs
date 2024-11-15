@@ -359,7 +359,11 @@ namespace FeedbackDataLib
 
         private void GetModuleConfig(int HWcn)
         {
-            SendCommand(EnNeuromasterCommand.GetModuleConfig, [(byte)HWcn]);
+            CommandRequest crequ = new()
+            {
+                HWcn = (byte)HWcn
+            };
+            SendCommand(EnNeuromasterCommand.GetModuleConfig, [(byte)HWcn], crequ);
         }
 
         private int cntIncomingdata = 0;

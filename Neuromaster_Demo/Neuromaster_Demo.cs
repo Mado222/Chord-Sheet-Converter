@@ -2,6 +2,8 @@
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using Neuromaster_Demo_Library_Reduced__netx;
+using Serilog.Events;
+using System.Reflection;
 using WindControlLib;
 using static FeedbackDataLib.CNMasterReceiver;
 
@@ -33,19 +35,9 @@ namespace Neuromaster_Demo
         private EnConnectionStatus oldConnection_Status = EnConnectionStatus.NoConnection;
 
         /// <summary>
-        /// Result of the last attempt to connect to Neuromaster
-        /// </summary>
-        //private EnumConnectionResult LastConnectionResult = EnumConnectionResult.No_Active_Neurolink;
-
-        /// <summary>
         /// Ringpuffer for Status Messages (used from tmrStatusMessages)
         /// </summary>
         private readonly CFifoBuffer<ColoredText> statusMessages = new();
-
-        /// <summary>
-        /// Index of the currently selected module
-        /// </summary>
-        private int idxSelectedModule;
 
         /// <summary>
         /// Buckup of the Index of the currently selected module
@@ -57,10 +49,28 @@ namespace Neuromaster_Demo
         /// </summary>
         private bool uSB_Reconnected = false;
 
+        /// <summary>TCP Interface to access data</summary>
         private CTCPInterface? tCPInterface;
 
+        /// <summary>
+        /// Index of the currently selected module
+        /// </summary>
+        private int idxSelectedModule;
+
+        /// <summary>
+        /// Currently selected HWcn
+        /// </summary>
+        /// <value>The h WCN selected.</value>
         private int HWcnSelected { get => cNMaster!.ModuleInfos[idxSelectedModule].HWcn; }
 
+
+        /// <summary>Logging device for all modules - see code in Program.cs</summary>
+        public readonly LoggingSettings _loggingSettings = new();
+
+        /// <summary>
+        /// Dumb helper field
+        /// </summary>
+        bool lockCbLogLevel = false;
 
 
         /// <summary>
@@ -79,6 +89,14 @@ namespace Neuromaster_Demo
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         private void NeuromasterV2_Load(object sender, EventArgs e)
         {
+            //Init GUI for selecting logging - Demo
+            CbLogging.Checked = _loggingSettings.IsLoggingEnabled;
+            LblLogFilePath.Text = _loggingSettings.LogFilePath;
+            lockCbLogLevel = true;
+            CbLogLevel.DataSource = Enum.GetValues(typeof(LogEventLevel));
+            CbLogLevel.SelectedItem = _loggingSettings.LogLevel;
+            lockCbLogLevel = false;
+
         }
 
         /// <summary>
@@ -151,8 +169,9 @@ namespace Neuromaster_Demo
         }
 
 
+        #region Events_for_async_communication_with_Neuromaster
         /// <summary>
-        /// Attaches events 
+        /// Required ecents for async data provessing
         /// </summary>
         private void AddEvents()
         {
@@ -310,7 +329,6 @@ namespace Neuromaster_Demo
             });
         }
 
-        #region DeviceCommunicationToPC_Event
         /// <summary>
         /// Buffer is full in Neuromaster
         /// </summary>
@@ -336,8 +354,6 @@ namespace Neuromaster_Demo
             // Implemented in last hardware version, not yet tested
             RunOnUiThread(() => AddStatusString($"Battery Status: {e.Percentage}%", Color.Blue));
         }
-
-
         #endregion
 
         #region DataReady_Event
@@ -414,8 +430,6 @@ namespace Neuromaster_Demo
 
         }
 
-        #endregion
-
         /// <summary>
         /// Handles the Tick event of the tmrStatusMessages control.
         /// </summary>
@@ -435,6 +449,8 @@ namespace Neuromaster_Demo
             if (cNMaster is not null && cNMaster.NMReceiver.ConnectionStatus != EnConnectionStatus.NoConnection)
                 CheckConnectionStatus();
         }
+
+        #endregion
 
         #region Communication_with_Neuromaster
         /// <summary>
@@ -652,7 +668,6 @@ namespace Neuromaster_Demo
 
         #endregion
 
-
         #region USB_Connect_Disconnect
 
         /// <summary>
@@ -662,12 +677,12 @@ namespace Neuromaster_Demo
         /// USB port is monitored in the background if cable is plugged in again
         /// </remarks>
         /// <param name="PID_VID">ProductID & VendorID of the disconnected device</param>
-        private void NMReceiver_DeviceDisconnected(object? sender, string e)
+        private void NMReceiver_DeviceDisconnected(object? sender, CVidPid e)
         {
             RunOnUiThread(() =>
             {
 
-                AddStatusString("USB Device " + e + " disconnected", Color.Red);
+                AddStatusString("USB Device " + e.VID_PID + " disconnected", Color.Red);
                 //Only close Connection, USB Monitoring Stays On
                 Disconnect();
             });
@@ -716,10 +731,44 @@ namespace Neuromaster_Demo
 
         #endregion
 
-        #region AddStatusString
+        #region TCPInterfacing
+        private void BtOpenTCP_Click(object sender, EventArgs e)
+        {
+            tCPInterface ??= new CTCPInterface();
+            tCPInterface.StatusMessage += TCPInterface_StatusMessage;
+            tCPInterface.Init();
+        }
+
+        private void TCPInterface_StatusMessage(object? sender, (string data, Color color) e)
+        {
+            AddStatusString(e.data, e.color);
+        }
+        #endregion
+
+        #region Logging
+
+        private void CbLogging_CheckedChanged(object sender, EventArgs e)
+        {
+            _loggingSettings.IsLoggingEnabled = CbLogging.Checked;
+            //_loggingSettings.LogFilePath = "logs/app.log";
+
+            // Apply updated settings to AppLogger
+            AppLogger.UpdateLoggingSettings(_loggingSettings);
+        }
+
+        private void CbLogLevel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (CbLogLevel.SelectedItem is null || lockCbLogLevel) return;
+            _loggingSettings.LogLevel = (LogEventLevel)CbLogLevel.SelectedItem;
+            AppLogger.UpdateLoggingSettings(_loggingSettings); // Reconfigure logger
+        }
+        #endregion
+
+        #region Helper_Functions_only_of_value_for_this_Application
+
         /*
-         * Routines to display status messages
-         */
+        * Routines to display status messages
+        */
         private void AddStatusString(string text)
         {
             AddStatusString(text, Color.Black);
@@ -736,10 +785,11 @@ namespace Neuromaster_Demo
             statusMessages.Push(tc);
         }
 
-
-        #endregion
-
-        #region Helper_Functions_only_of_value_for_this_Application
+        /// <summary>
+        ///   <para>
+        /// Helper to switch Threads to GUI Thread</para>
+        /// </summary>
+        /// <param name="action">The action.</param>
         private void RunOnUiThread(Action action)
         {
             if (InvokeRequired)
@@ -812,29 +862,5 @@ namespace Neuromaster_Demo
                 }
         }
         #endregion
-
-
-        private void BtOpenTCP_Click(object sender, EventArgs e)
-        {
-            tCPInterface ??= new CTCPInterface();
-            tCPInterface.StatusMessage += TCPInterface_StatusMessage;
-            tCPInterface.Init();
-        }
-
-        private void TCPInterface_StatusMessage(object? sender, (string data, Color color) e)
-        {
-            AddStatusString(e.data, e.color);
-        }
-
-        private readonly LoggingSettings _settings;
-
-        private void CbLogging_CheckedChanged(object sender, EventArgs e)
-        {
-            _settings.IsLoggingEnabled = CbLogging.Checked;
-            _settings.LogFilePath = "logs/app.log";
-
-            // Apply updated settings to AppLogger
-            AppLogger.UpdateLoggingSettings(_settings);
-        }
     }
 }

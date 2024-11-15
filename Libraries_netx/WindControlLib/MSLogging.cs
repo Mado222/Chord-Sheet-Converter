@@ -1,18 +1,33 @@
 ﻿using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
+using System.Reflection;
 
 namespace WindControlLib
 {
     public class LoggingSettings
     {
         public bool IsLoggingEnabled { get; set; } = true;
-        public string LogFilePath { get; set; } = "logs/app.log";
+        public string LogFilePath { get; set; } = "";
+        public string LogFileName { get; set; } = "";
+        public LogEventLevel LogLevel { get; set; } = LogEventLevel.Error;
+
+        public LoggingSettings()
+        {
+            var applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "noName";
+
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), applicationName, "logs");
+            Directory.CreateDirectory(logPath); // Ensure the directory exists
+
+            LogFileName = $"{applicationName}.log";
+            LogFilePath = Path.Combine(logPath, LogFileName);
+        }
     }
     public static class AppLogger
     {
         private static ILoggerFactory? _loggerFactory;
-        private static LoggingSettings _loggingSettings = new LoggingSettings();
+        private static LoggingSettings _loggingSettings = new ();
         private static Logger? _serilogLogger;
 
         public static void Initialize(ILoggerFactory loggerFactory, LoggingSettings settings)
@@ -31,7 +46,7 @@ namespace WindControlLib
         private static void ConfigureSerilog()
         {
             var config = new LoggerConfiguration()
-                .MinimumLevel.Debug()  // Set minimum logging level
+                .MinimumLevel.Is(_loggingSettings.LogLevel)  // Set minimum logging level
 
                 // Write to both file and debug output
                 .WriteTo.File(_loggingSettings.LogFilePath, rollingInterval: RollingInterval.Day)

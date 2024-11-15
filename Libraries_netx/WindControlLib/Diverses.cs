@@ -488,43 +488,6 @@ namespace WindControlLib
 
 #endif
 
-
-    /// <summary>
-    /// Zur Verwaltung von PID und VID
-    /// </summary>
-    public class CVID_PID
-    {
-        public CVID_PID()
-        { }
-        public CVID_PID(string vID, string pID)
-        {
-            VID = vID;
-            PID = pID;
-        }
-
-        public string VID { get; set; } = "";
-        public string PID { get; set; } = "";
-
-
-        private static readonly string[] separator = ["&", "_"];
-        //"VID_0403&PID_6010"
-        public virtual string VID_PID
-        {
-            get { return "VID_" + VID + "&PID_" + PID; }
-            set
-            {
-                string[] st = value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                VID = ""; PID = "";
-                if ((st != null) && (st.Length >= 4))
-                {
-                    if (st[0] == "VID")
-                        VID = st[1];
-                    if (st[2] == "PID")
-                        PID = st[3];
-                }
-            }
-        }
-    }
 }
 
 

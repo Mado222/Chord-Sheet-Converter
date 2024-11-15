@@ -79,8 +79,6 @@ namespace FeedbackDataLib
         /// </summary>
         private readonly CBatteryVoltage BatteryVoltage = new();
 
-        public string ComPortName { get; private set; } = "";
-
         /// <summary>Cancellation token for called async operations</summary>
         public readonly CancellationToken cancellationToken = CancellationToken.None;
 
@@ -92,6 +90,7 @@ namespace FeedbackDataLib
         /// </summary>
         public CNMaster()
         {
+            _logger = AppLogger.CreateLogger<CNMaster>();
             DeviceClock = new CCDateTime();
             BatteryVoltage = new CBatteryVoltage();
 
@@ -99,25 +98,8 @@ namespace FeedbackDataLib
             {
                 moduleInfos.Add(new CModuleBase());
             }
-            _logger = AppLogger.CreateLogger<CNMaster>();
         }
-
-        /// <param name="ComPortName">
-        /// "COM1","COM2
-        /// </param>
-        public CNMaster(string ComPortName) : this()
-        {
-            C8KanalReceiverV2_Construct();
-            this.ComPortName = ComPortName;
-        }
-
-        //public CNMaster(ISerialPort SerialPort) : this()
-        //{ }
-
-        //public CNMaster(string ComPortName, int BaudRate) : this()
-        //{ }
-
-
+      
         /// <summary>
         /// Closes this instance.
         /// </summary>
@@ -137,7 +119,7 @@ namespace FeedbackDataLib
 
             EnConnectionStatus conres = NMReceiver.Init_via_D2XX();
             
-            if (NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return EnConnectionStatus.NoConnection;
+            if (NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return conres;
 
             if (conres == EnConnectionStatus.Connected_via_USBCable || conres == EnConnectionStatus.Connected_via_XBee)
             {
@@ -175,22 +157,6 @@ namespace FeedbackDataLib
             }
             return ConnectionStatus;
         }
-
-
-        /// <summary>
-        /// Called by constructors
-        /// </summary>
-        public void C8KanalReceiverV2_Construct()
-        {
-            if (NMReceiver == null)
-                throw new Exception("RS232Receiver mustbe created before calling constructor");
-        }
-
-
-        //For RS232Receiver_DataReadyComm
-        private int cntSyncPackages = 0;                        //Counts the incoming sync packages
-        private DateTime OldLastSync = DateTime.MinValue;       //Time when the previous package was received
-        private DateTime ReceivingStarted = DateTime.MinValue;  //Receiving started at
 
 
         /// <summary>
@@ -256,10 +222,10 @@ namespace FeedbackDataLib
                     Seriell32.Write(SequToSend, 0, SequToSend.Length);
                     //Thread.Sleep(300);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    //OnLogError(ee.Message);
-                    //log.Error(ee.Message, ee);
+                    var logger = AppLogger.CreateLogger<CNMaster>(); // Create a logger for this class
+                    logger.LogError("Check4Neuromaster: {Message}", ex.Message);
                     Failed = true;
                 }
                 if (!Failed)

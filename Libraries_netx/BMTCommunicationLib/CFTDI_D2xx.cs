@@ -86,10 +86,10 @@ namespace BMTCommunicationLib
         {
             string ComPort = "";
             //FTDI.FT_STATUS stat= myFtdiDevice.GetCOMPort(out ComPort);
-            List<CComPortInfo> ComPortInfo = CGetComPorts.GetComPortInfo(string.Empty, string.Empty, ftdiDeviceList[idx].SerialNumber);
+            List<CComPortProcessing.CComPortInfo> ComPortInfo = CComPortProcessing.GetComPortInfo(string.Empty, string.Empty);//, ftdiDeviceList[idx].SerialNumber);
 
             //Remove not active Ports from the List
-            List<string> ActiveComPorts = CGetComPorts.GetActiveComPorts(string.Empty);
+            List<string> ActiveComPorts = CComPortProcessing.GetActiveComPorts(string.Empty);
             for (int i = ComPortInfo.Count - 1; i >= 0; i--)
             {
                 bool isActife = false;

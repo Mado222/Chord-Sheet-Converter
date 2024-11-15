@@ -4,6 +4,7 @@ using System.IO.Ports;
 using System.Xml.Serialization;
 using WindControlLib;
 using XBeeLib;
+using Microsoft.Extensions.Logging;
 
 namespace FeedbackDataLib
 {
@@ -20,6 +21,8 @@ namespace FeedbackDataLib
         private const float _RSSI_d = _RSSI_percent_max - _RSSI_k * _RSSI_max;
 
         private const int _pairing_retries = 6; //18.10.2023, früher 3
+
+        private readonly ILogger<CNMasterReceiver> _logger;
 
         /// <summary>
         /// Signal strength
@@ -132,9 +135,7 @@ namespace FeedbackDataLib
 
         private void SerialDataReceived_DoWork()
         {
-#if DEBUG
-            Debug.WriteLine("SerialDataReceivedThread Started");
-#endif
+            _logger..WriteLine("SerialDataReceivedThread Started");
 
             while (_isRunning)
             {
@@ -156,9 +157,7 @@ namespace FeedbackDataLib
                 }
             }
 
-#if DEBUG
-            Debug.WriteLine("SerialDataReceivedThread Closed");
-#endif
+            _logger.LogInformation("SerialDataReceivedThread Closed");
         }
 
         public enum EnumConfigureEnDeviceTo
@@ -443,13 +442,11 @@ namespace FeedbackDataLib
                         {
                             barp = (CRXPacket16)o;
                             _RSSI = barp.RSSI;
-                            //Debug.WriteLine("ReadSeriellBufferUntilEmpty: CRXPacket16: " + barp.rfData.Count + " RFData Received");
                         }
                         else if (o.GetType() == typeof(CRXPacket64))
                         {
                             barp = (CRXPacket64)o;
                             _RSSI = barp.RSSI;
-                            //Debug.WriteLine("ReadSeriellBufferUntilEmpty: CRXPacket64: " + barp.rfData.Count + " RFData Received");
                         }
                         else
                         {
@@ -458,9 +455,10 @@ namespace FeedbackDataLib
                                 CTXStatusResponse s = (CTXStatusResponse)o;
                                 TXStatusResponseBuffer.Push(s);
                             }
-                            catch
-                            { };
-                            //Debug.WriteLine("ReadSeriellBufferUntilEmpty: FrameID: " + s.frameId.ToString() + " Status: " + s.TXStatus.ToString());
+                            catch (Exception ex)
+                            {
+                                logger. ("ReadSeriellBufferUntilEmpty: " + ex)
+                            }
                         }
 
                         if (barp != null)
@@ -835,13 +833,6 @@ namespace FeedbackDataLib
 #pragma warning disable CS0067
         public event SerialDataReceivedEventHandler? SerialDataReceivedEvent;
 #pragma warning restore CS0067
-
-        private string _LastErrorString = "";
-        public string LastErrorString
-        {
-            get { return _LastErrorString; }
-            set { _LastErrorString = value; }
-        }
 
         public DateTime Now(EnumTimQueryStatus TimQueryStatus)
         {
