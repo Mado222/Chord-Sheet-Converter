@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
-namespace ComponentsLib_GUI
-{
+namespace ComponentsLibGUI 
+{ 
     public class CTextFileImporterDialog
     {
         /// <summary>

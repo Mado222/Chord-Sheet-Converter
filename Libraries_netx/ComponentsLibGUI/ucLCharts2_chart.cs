@@ -18,9 +18,9 @@ namespace ComponentsLib_GUI
     [SupportedOSPlatform("windows")]
     public partial class ucLCharts2_chart : UserControl
     {
-        private List<CartesianChart> charts = [];
+        private readonly List<CartesianChart> charts = [];
         private List<ObservableCollection<ObservablePoint>> chartData = [];
-        private System.Timers.Timer displayRefreshTimer;
+        private readonly System.Timers.Timer displayRefreshTimer;
         private CFifoBuffer<CYvsTimeData>[] data_in;
 
         /********************** Properties ***********************/
@@ -54,7 +54,7 @@ namespace ComponentsLib_GUI
             }
         }
 
-        private Color defaultBackColor = Color.Beige;
+        private readonly Color defaultBackColor = Color.Beige;
         [Category("Chart Settings")]
         [Description("Sets the display ChartColot")]
         [DefaultValue(typeof(Color), "Color.Beige")]
@@ -100,7 +100,7 @@ namespace ComponentsLib_GUI
             var chart = charts[chartIndex];
 
             // Ensure the chart has a Y-axis configured.
-            if (chart.YAxes.Count() > 0)
+            if (chart.YAxes.Any())
             {
                 // Set the minimum and maximum values for the Y-axis.
                 chart.YAxes.ElementAt(0).MinLimit = ymin;

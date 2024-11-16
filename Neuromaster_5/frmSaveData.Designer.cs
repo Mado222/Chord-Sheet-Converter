@@ -30,7 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSaveData));
             this.txtComment = new System.Windows.Forms.TextBox();
-            this.ctbSaving = new ComponentsLib_GUI.CToggleButton();
+            this.ctbSaving = new ComponentsLibGUI.CToggleButton();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.txtPath = new System.Windows.Forms.TextBox();
@@ -133,7 +133,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.PictureBox pictureBox1;
-        public ComponentsLib_GUI.CToggleButton ctbSaving;
+        public ComponentsLibGUI.CToggleButton ctbSaving;
         public System.Windows.Forms.TextBox txtComment;
         public System.Windows.Forms.TextBox txtPath;
         private System.Windows.Forms.SaveFileDialog saveFileDialog_data;

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Versioning;
 
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
     [SupportedOSPlatform("windows")]
     public class CToggleButton : Button

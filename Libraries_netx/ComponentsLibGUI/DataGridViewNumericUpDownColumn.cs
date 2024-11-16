@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
     /// <summary>
     /// Custom column type dedicated to the DataGridViewNumericUpDownCell cell type.

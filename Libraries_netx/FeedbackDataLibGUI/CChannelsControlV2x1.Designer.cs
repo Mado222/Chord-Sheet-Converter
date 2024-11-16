@@ -47,7 +47,7 @@
             sWChannelsDataGridView = new DataGridView();
             dataGridViewTextBoxColumn7 = new DataGridViewTextBoxColumn();
             dataGridViewTextBoxColumn8 = new DataGridViewTextBoxColumn();
-            dataGridViewTextBoxColumn9 = new ComponentsLib_GUI.DataGridViewNumericUpDownColumn();
+            dataGridViewTextBoxColumn9 = new ComponentsLibGUI.DataGridViewNumericUpDownColumn();
             dataGridViewCheckBoxColumn1 = new DataGridViewCheckBoxColumn();
             dataGridViewCheckBoxColumn2 = new DataGridViewCheckBoxColumn();
             SkalMax = new DataGridViewTextBoxColumn();
@@ -374,7 +374,7 @@
         private System.Windows.Forms.TextBox txtInfo2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private ComponentsLib_GUI.DataGridViewNumericUpDownColumn dataGridViewTextBoxColumn9;
+        private ComponentsLibGUI.DataGridViewNumericUpDownColumn dataGridViewTextBoxColumn9;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn dataGridViewCheckBoxColumn2;
         private System.Windows.Forms.DataGridViewTextBoxColumn SkalMax;

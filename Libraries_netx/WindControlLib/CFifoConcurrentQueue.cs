@@ -84,7 +84,7 @@
             }
             if (Count < dataFromQueue.Length)
             {
-                dataFromQueue = Array.Empty<T>();
+                dataFromQueue = [];
                 return;
             }
 

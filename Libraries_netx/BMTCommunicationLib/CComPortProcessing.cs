@@ -109,19 +109,17 @@ namespace BMTCommunicationLib
                 Parallel.ForEach(allEntries, s =>
                 {
                     string subkey = $"{key_List_of_ComPorts}\\{s}";
-                    using (RegistryKey? subRk = Registry.LocalMachine.OpenSubKey(subkey, false))
+                    using RegistryKey? subRk = Registry.LocalMachine.OpenSubKey(subkey, false);
+                    if (subRk != null && subRk.GetValue("DriverDesc") is string driverDesc && driverDesc.Contains(driverSearchString, StringComparison.CurrentCultureIgnoreCase))
                     {
-                        if (subRk != null && subRk.GetValue("DriverDesc") is string driverDesc && driverDesc.ToLower().Contains(driverSearchString))
+                        if (subRk.GetValue("MatchingDeviceId") is string matchingDeviceId && matchingDeviceId.Contains(pidVidSearchString, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            if (subRk.GetValue("MatchingDeviceId") is string matchingDeviceId && matchingDeviceId.Contains(pidVidSearchString, StringComparison.CurrentCultureIgnoreCase))
+                            var comPortInfo = new CComPortInfo
                             {
-                                var comPortInfo = new CComPortInfo
-                                {
-                                    DriverDesc = driverDesc,
-                                    MatchingDeviceId = matchingDeviceId
-                                };
-                                comPortInfoList.Add(comPortInfo);
-                            }
+                                DriverDesc = driverDesc,
+                                MatchingDeviceId = matchingDeviceId
+                            };
+                            comPortInfoList.Add(comPortInfo);
                         }
                     }
                 });
@@ -147,7 +145,7 @@ namespace BMTCommunicationLib
 
                 string searchStringLower = searchString.ToLower();
 
-                foreach (ManagementObject queryObj in results)
+                foreach (ManagementObject queryObj in results.Cast<ManagementObject>())
                 {
                     if (queryObj["Caption"] is string caption)
                     {

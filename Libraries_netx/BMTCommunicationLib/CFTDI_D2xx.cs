@@ -82,7 +82,7 @@ namespace BMTCommunicationLib
             return ftdiDeviceList[idx].SerialNumber;
         }
 
-        public string RelatedCom(int idx)
+        public static string RelatedCom()
         {
             string ComPort = "";
             //FTDI.FT_STATUS stat= myFtdiDevice.GetCOMPort(out ComPort);

@@ -121,41 +121,49 @@ namespace FeedbackDataLib
             
             if (NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return conres;
 
-            if (conres == EnConnectionStatus.Connected_via_USBCable || conres == EnConnectionStatus.Connected_via_XBee)
+            switch (conres)
             {
-                var sp = NMReceiver.Connection.SerPort;
+                case EnConnectionStatus.Connected_via_RS232:
+                case EnConnectionStatus.Connected_via_XBee:
+                    {
+                        var sp = NMReceiver.Connection.SerPort;
 
-                if (Check4Neuromaster(sp))
-                {
-                    //Succeeded
-                    //Gerät da
-                    StartDistributorThreadAsync();
-                    NMReceiver.StartUSBMonitoring();
+                        if (Check4Neuromaster(sp))
+                        {
+                            //Succeeded
+                            //Gerät da
+                            StartDistributorThreadAsync();
+                            NMReceiver.StartUSBMonitoring();
+                        }
+                        else
+                        {
+                            if (conres == EnConnectionStatus.Connected_via_RS232)
+                                conres = EnConnectionStatus.Error_during_RS232_connection;
+                            else
+                                conres = EnConnectionStatus.Error_during_XBee_connection;
 
-                    if (conres == EnConnectionStatus.Connected_via_USBCable)
-                        ConnectionStatus = EnConnectionStatus.Connected_via_RS232;
-                    else
-                        ConnectionStatus = EnConnectionStatus.Connected_via_XBee;
-                }
-                else
-                {
-                    if (conres == EnConnectionStatus.Connected_via_USBCable)
-                        ConnectionStatus = EnConnectionStatus.Error_during_USBcable_connection;
-                    else
-                        ConnectionStatus = EnConnectionStatus.Error_during_XBee_connection;
+                        }
 
-                }
+                        break;
+                    }
+                case EnConnectionStatus.Error_during_RS232_connection:
+                case EnConnectionStatus.Error_during_XBee_connection:
+                    break;
+                default:
+                    if (ConnectionType == EnConnectionStatus.Connected_via_SDCard)
+                    {
+                        //if (_8KanalReceiverV2_SDCard != null)
+                        //{
+                        //    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
+                        //    return EnumConnectionResult.Connected_via_SDCard;
+                        //}
+                        ConnectionStatus = EnConnectionStatus.Error_read_SDCard;
+                    }
+
+                    break;
             }
-            else if (ConnectionType == EnConnectionStatus.Connected_via_SDCard)
-            {
-                //if (_8KanalReceiverV2_SDCard != null)
-                //{
-                //    _8KanalReceiverV2_SDCard.CheckConnection_Start_trytoConnectWorker();
-                //    return EnumConnectionResult.Connected_via_SDCard;
-                //}
-                ConnectionStatus =  EnConnectionStatus.Error_read_SDCard;
-            }
-            return ConnectionStatus;
+            ConnectionStatus = conres;
+            return conres;
         }
 
 

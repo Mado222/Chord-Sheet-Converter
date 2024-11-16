@@ -2,10 +2,8 @@ using BMTCommunicationLib;
 using Microsoft.Win32;
 using System.Diagnostics;
 
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
-
-
     /// <summary>
     /// Summary description for UCComPortSelector.
     /// </summary>
@@ -17,7 +15,7 @@ namespace ComponentsLib_GUI
         private System.ComponentModel.Container? components = null;
         private readonly List<int> ComNo = [];
         private static readonly string RegKey = "Software\\" + Application.CompanyName + "\\" + Application.ProductName + "\\";
-        private const int _NumberofComPortstoInvestigate = 16;
+        //private const int _NumberofComPortstoInvestigate = 16;
 
         private string DefaultCom = "";
 
@@ -145,11 +143,11 @@ namespace ComponentsLib_GUI
                 }
                 else
                 {
-                    List<CComPortInfo> cpi = CGetComPorts.GetComPortInfo("");
+                    List<CComPortProcessing.CComPortInfo> cpi = CComPortProcessing.GetComPortInfo("");
 
                     if (DriverName != "")
                     {
-                        foreach (CComPortInfo ci in cpi)
+                        foreach (CComPortProcessing.CComPortInfo ci in cpi)
                         {
                             if (ci.FriendlyName.Contains(DriverName, StringComparison.CurrentCultureIgnoreCase))
                                 ComNames.Add(ci.ComName);
@@ -157,9 +155,9 @@ namespace ComponentsLib_GUI
                     }
                     if (VIDPID != null)
                     {
-                        foreach (CComPortInfo ci in cpi)
+                        foreach (CComPortProcessing.CComPortInfo ci in cpi)
                         {
-                            if (ci.VID_PID.Contains(VIDPID.VID_PID, StringComparison.CurrentCultureIgnoreCase))
+                            if (ci.VID_PID.VID_PID.Contains(VIDPID.VID_PID, StringComparison.CurrentCultureIgnoreCase))
                                 ComNames.Add(ci.ComName);
                         }
                     }

@@ -62,7 +62,7 @@ namespace Neuromaster_V5
             label2 = new Label();
             pbXBeeChannelCapacity = new ProgressBar();
             txtStatus = new RichTextBox();
-            tbConnect = new ComponentsLib_GUI.CToggleButton();
+            tbConnect = new ComponentsLibGUI.CToggleButton();
             groupBox2 = new GroupBox();
             radioButton1 = new RadioButton();
             radioButton2 = new RadioButton();
@@ -102,7 +102,7 @@ namespace Neuromaster_V5
             openFileDialog_cfg = new OpenFileDialog();
             tmrFileDataReader = new System.Windows.Forms.Timer(components);
             tlpMeasure = new TableLayoutPanel();
-            ucSignalAnalyser1 = new FeedbackDataLib_GUI.UcSignalAnalyser();
+            ucSignalAnalyser1 = new FeedbackDataLibGUI.UcSignalAnalyser();
             openFileDialog_nmc = new OpenFileDialog();
             panel1 = new Panel();
             cFlowChartDX1 = new UcFlowChartDX_NM();
@@ -260,7 +260,7 @@ namespace Neuromaster_V5
             resources.ApplyResources(btSetAllConfig, "btSetAllConfig");
             btSetAllConfig.Name = "btSetAllConfig";
             btSetAllConfig.UseVisualStyleBackColor = true;
-            btSetAllConfig.Click += BtSetAllConfig_Click;
+            btSetAllConfig.Click += BtSetDeviceConfig_Click;
             // 
             // gbConnectivitie
             // 
@@ -637,7 +637,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.Button btSetClock;
         private System.Windows.Forms.Panel pnControls;
         private System.Windows.Forms.GroupBox gbConnectivitie;
-        private ComponentsLib_GUI.CToggleButton tbConnect;
+        private ComponentsLibGUI.CToggleButton tbConnect;
         private System.Windows.Forms.GroupBox gbClock;
         private System.Windows.Forms.TextBox txtTime;
         private System.Windows.Forms.ProgressBar pbXBeeChannelCapacity;
@@ -663,7 +663,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.Button btGetFirmwareVersion;
         private System.Windows.Forms.Timer tmrSDDataReader;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private FeedbackDataLib_GUI.UcSignalAnalyser ucSignalAnalyser1;
+        private FeedbackDataLibGUI.UcSignalAnalyser ucSignalAnalyser1;
         private System.Windows.Forms.Button btGetModuleSpecific;
         private System.Windows.Forms.Button btSetModuleSpecific;
         private System.Windows.Forms.RichTextBox txtStatus;
@@ -695,7 +695,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.ToolStripMenuItem saveDataToFileToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem readDataFromFileToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog_cfg;
-        private FeedbackDataLib_GUI.CChannelsControlV2x1 cChannelsControlV2x11;
+        private FeedbackDataLibGUI.CChannelsControlV2x1 cChannelsControlV2x11;
         private System.Windows.Forms.Timer tmrFileDataReader;
         private System.Windows.Forms.TableLayoutPanel tlpMeasure;
         private System.Windows.Forms.OpenFileDialog openFileDialog_nmc;

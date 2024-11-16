@@ -1,4 +1,4 @@
-﻿using ComponentsLib_GUI;
+﻿using ComponentsLibGUI;
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using WindControlLib;

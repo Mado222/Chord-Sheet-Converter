@@ -15,7 +15,7 @@ namespace FeedbackDataLib
         // Define a custom struct or class to hold input data and TCS
         public class CommandRequest
         {
-            private byte[] responseData = Array.Empty<byte>();
+            private byte[] responseData = [];
 
             public EnNeuromasterCommand Command { get; set; }
             public EnModuleCommand ModuleCommand { get; set; } = EnModuleCommand.None;

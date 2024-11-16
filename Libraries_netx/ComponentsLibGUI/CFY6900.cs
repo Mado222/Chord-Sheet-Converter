@@ -2,7 +2,7 @@
 using System.Runtime.Versioning;
 using System.Text;
 
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
     [SupportedOSPlatform("windows")]
     /// <summary>

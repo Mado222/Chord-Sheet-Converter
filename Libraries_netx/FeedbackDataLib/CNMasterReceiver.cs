@@ -1,6 +1,5 @@
 using BMTCommunicationLib;
 using Microsoft.Extensions.Logging;
-using System.Reflection.Emit;
 using WindControlLib;
 
 namespace FeedbackDataLib
@@ -284,7 +283,7 @@ namespace FeedbackDataLib
                             FTDI_D2xx_temp.Close();
                             FTDI_D2xx_temp.Dispose();
                             StartUSBMonitoring();
-                            ret = EnConnectionStatus.Connected_via_USBCable;
+                            ret = EnConnectionStatus.Connected_via_RS232;
                         }
                         else
                         {

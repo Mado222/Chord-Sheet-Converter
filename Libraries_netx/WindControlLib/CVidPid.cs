@@ -16,7 +16,7 @@
         public string VID { get; set; } = string.Empty;
         public string PID { get; set; } = string.Empty;
 
-        private static readonly string[] separator = { "&", "_" };
+        private static readonly string[] separator = ["&", "_"];
 
         // "VID_0403&PID_6010"
         public virtual string VID_PID

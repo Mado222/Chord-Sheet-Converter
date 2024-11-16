@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
 
     /// <summary>

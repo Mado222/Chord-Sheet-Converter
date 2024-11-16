@@ -1,11 +1,8 @@
-﻿using BMTCommunicationLib;
-using FeedbackDataLib;
+﻿using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using Neuromaster_Demo_Library_Reduced__netx;
 using Serilog.Events;
-using System.Reflection;
 using WindControlLib;
-using static FeedbackDataLib.CNMasterReceiver;
 
 namespace Neuromaster_Demo
 {
@@ -128,7 +125,7 @@ namespace Neuromaster_Demo
                 // Perform initialization and connection in the background thread
                 conres = cNMaster.Connect(); // Init via FTDI D2XX Driver (faster)
 
-                if (conres == EnConnectionStatus.Connected_via_USBCable ||
+                if (conres == EnConnectionStatus.Connected_via_RS232 ||
                     conres == EnConnectionStatus.Connected_via_XBee)
                 {
                     // Neurolink is detected and initialized
@@ -144,8 +141,8 @@ namespace Neuromaster_Demo
                             AddStatusString("XBee Connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
-                        case EnConnectionStatus.Connected_via_USBCable:
-                            AddStatusString("USB cable connection found: " + cNMaster.NMReceiver.PortName, Color.Green);
+                        case EnConnectionStatus.Connected_via_RS232:
+                            AddStatusString("RS232 connection (cable) found: " + cNMaster.NMReceiver.PortName, Color.Green);
                             AddEvents(); // Attach events
                             break;
 
@@ -189,7 +186,7 @@ namespace Neuromaster_Demo
                 cNMaster.DeviceToPC_BufferFull -= CNMaster_DeviceToPC_BufferFull;
                 cNMaster.DeviceToPC_BufferFull += CNMaster_DeviceToPC_BufferFull;
 
-                // Events for Device Connection / Disconnection
+                //Events for USB-Device Connection / Disconnection = USB Cable goes away!!
                 cNMaster.NMReceiver.DeviceConnected -= NMReceiver_DeviceConnected;
                 cNMaster.NMReceiver.DeviceConnected += NMReceiver_DeviceConnected;
 
@@ -226,6 +223,9 @@ namespace Neuromaster_Demo
 
                 cNMaster.SetModuleSpecificResponse -= CNMaster_SetModuleSpecificResponse;
                 cNMaster.SetModuleSpecificResponse += CNMaster_SetModuleSpecificResponse;
+
+
+                
             }
         }
 

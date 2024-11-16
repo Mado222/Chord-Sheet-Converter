@@ -1,4 +1,4 @@
-﻿namespace ComponentsLib_GUI
+﻿namespace ComponentsLibGUI
 {
     public class CStatusText : RichTextBox
     {

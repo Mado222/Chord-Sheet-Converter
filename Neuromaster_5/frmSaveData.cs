@@ -1,4 +1,4 @@
-﻿using ComponentsLib_GUI;
+﻿using ComponentsLibGUI;
 
 namespace Neuromaster_V5
 {

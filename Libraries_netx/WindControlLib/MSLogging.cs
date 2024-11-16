@@ -24,7 +24,86 @@ namespace WindControlLib
             LogFilePath = Path.Combine(logPath, LogFileName);
         }
     }
-    public static class AppLogger
+public static class AppLogger
+    {
+        private static readonly object _lock = new();
+        private static ILoggerFactory? _loggerFactory;
+        private static LoggingSettings _loggingSettings = new();
+        private static Logger? _serilogLogger;
+
+        public static void Initialize(ILoggerFactory loggerFactory, LoggingSettings settings)
+        {
+            if (_loggerFactory != null)
+            {
+                throw new InvalidOperationException("AppLogger has already been initialized.");
+            }
+
+            lock (_lock)
+            {
+                if (_loggerFactory == null)
+                {
+                    _loggerFactory = loggerFactory;
+                    _loggingSettings = settings;
+                    ConfigureSerilog();
+                }
+            }
+        }
+
+        public static void UpdateLoggingSettings(LoggingSettings settings)
+        {
+            lock (_lock)
+            {
+                _loggingSettings = settings;
+                ConfigureSerilog();
+            }
+        }
+
+        public static Microsoft.Extensions.Logging.ILogger<T> CreateLogger<T>()
+        {
+            EnsureInitialized();
+            return _loggerFactory!.CreateLogger<T>();
+        }
+
+        private static void EnsureInitialized()
+        {
+            if (_loggerFactory == null)
+            {
+                lock (_lock)
+                {
+                    if (_loggerFactory == null)
+                    {
+                        _loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+                        _loggingSettings = new LoggingSettings
+                        {
+                            LogLevel = LogEventLevel.Information,
+                            LogFilePath = "logs\\default.log"
+                        };
+                        ConfigureSerilog();
+                    }
+                }
+            }
+        }
+
+        private static void ConfigureSerilog()
+        {
+            if (_loggingSettings == null)
+            {
+                throw new InvalidOperationException("Logging settings must not be null.");
+            }
+
+            var config = new LoggerConfiguration()
+                .MinimumLevel.Is(_loggingSettings.LogLevel)
+                .WriteTo.File(_loggingSettings.LogFilePath, rollingInterval: RollingInterval.Day)
+                .WriteTo.Debug();
+
+            Log.CloseAndFlush();
+            _serilogLogger = config.CreateLogger();
+            Log.Logger = _serilogLogger;
+        }
+    }
+
+
+    public static class AppLogger_old
     {
         private static ILoggerFactory? _loggerFactory;
         private static LoggingSettings _loggingSettings = new ();

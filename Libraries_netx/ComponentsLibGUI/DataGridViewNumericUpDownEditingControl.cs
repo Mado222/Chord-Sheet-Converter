@@ -1,7 +1,5 @@
-namespace ComponentsLib_GUI
+namespace ComponentsLibGUI
 {
-
-
     /// <summary>
     /// Defines the editing control for the DataGridViewNumericUpDownCell custom cell type.
     /// </summary>
