@@ -41,7 +41,6 @@ namespace FeedbackDataLib
 
 
         private readonly TimeSpan TsCommandTimeout = TimeSpan.FromMilliseconds(WaitCommandResponseTimeOutMs);
-        private CommandRequest? RunningCommand;
 
         /// <summary>
         /// Time when next Alive Signal is due
@@ -135,13 +134,12 @@ namespace FeedbackDataLib
 
             _sendingQueue.Clear();
             _runningCommandsQueue.Clear();
-            RunningCommand = null;
+            CommandRequest? RunningCommand = null;
 
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    DateTime Now = DateTime.Now;
                     //Any data coming in?
                     if (!RS232Receiver.CommandResponseQueue.IsEmpty)
                     {
@@ -152,6 +150,7 @@ namespace FeedbackDataLib
                         {
                             cmdin = (EnNeuromasterCommand)btreceived[0];
                             _logger.LogInformation("DistributorThreadAsync Receiving: {Message}", Enum.GetName(typeof(EnNeuromasterCommand), cmdin));
+                            _logger.LogInformation("DistributorThreadAsync CommandResponseQueue : SendingQueue => {Message}", RS232Receiver.CommandResponseQueue.Count.ToString() + ":" + SendingQueue.Count.ToString());
                         }
                         if (btreceived != null && RunningCommand is not null && btreceived[0] == (byte)RunningCommand.Command)
                         {
@@ -161,18 +160,9 @@ namespace FeedbackDataLib
                             {
                                 RunningCommand.ResponseData = res;
                                 RunningCommand.Success = true;
-                                if (cmdin != EnNeuromasterCommand.DeviceAlive)
-                                    EvalCommandResponse(RunningCommand);
-                                else
-                                {
-                                    _ = RS232Receiver.CommandResponseQueue.Pop();
+                                EvalCommandResponse(RunningCommand);
+                                if (cmdin == EnNeuromasterCommand.DeviceAlive)
                                     _logger.LogInformation("Popped DeviceAlive");
-                                    RunningCommand = null;
-                                }
-                            }
-                            else
-                            {
-                                OnCommandProcessed(new());
                             }
                             RunningCommand = null;
                         }
@@ -188,9 +178,8 @@ namespace FeedbackDataLib
                     }
 
                     //Check Timeout
-                    if (RunningCommand != null && Now > RunningCommand.RunningEnd)
+                    if (RunningCommand != null && DateTime.Now > RunningCommand.RunningEnd)
                     {
-                        //_ = RS232Receiver.CommandResponseQueue.Pop();
                         OnCommandProcessed(RunningCommand);
                         _logger.LogWarning("DistributorThreadAsync: Timeout {Message}", Enum.GetName(typeof(EnNeuromasterCommand), RunningCommand.Command));
                         RunningCommand = null;
@@ -237,6 +226,7 @@ namespace FeedbackDataLib
                     }
 
                     // Send "alive" signal periodically
+                    DateTime Now = DateTime.Now;
                     if (Now > NextAliveSignalToSend)
                     {
                         CommandRequest cr = new(EnNeuromasterCommand.DeviceAlive, AliveSequToSend());
@@ -271,11 +261,9 @@ namespace FeedbackDataLib
 
         protected virtual void EvalCommandResponse(CommandRequest rc)
         {
-            if (RunningCommand is null) return;
-
             //Prepare message text for display
             ColoredText msg;
-            string? nm = Enum.GetName(typeof(EnNeuromasterCommand), RunningCommand.Command);
+            string? nm = Enum.GetName(typeof(EnNeuromasterCommand), rc.Command);
             msg = new($"{nm}: {(rc.Success ? "OK" : "Failed")}", rc.Success ? Color.Green : Color.Red);
 
             switch (rc.Command)
@@ -305,7 +293,7 @@ namespace FeedbackDataLib
                         {
                             UpdateModuleFromByteArray(rc.ResponseData);
                             Calculate_SkalMax_SkalMin(); // Calculate max and mins
-                            OnGetModuleConfigResponse(ModuleInfos[RunningCommand.HWcn], msg);
+                            OnGetModuleConfigResponse(ModuleInfos[rc.HWcn], msg);
                         }
                         catch (Exception ex)
                         {
@@ -327,7 +315,7 @@ namespace FeedbackDataLib
                     {
                         try
                         {
-                            switch (RunningCommand.ModuleCommand)
+                            switch (rc.ModuleCommand)
                             {
                                 case EnModuleCommand.GetModuleSpecific:
                                     byte[] btin = new byte[CModuleBase.ModuleSpecific_sizeof];
@@ -342,11 +330,11 @@ namespace FeedbackDataLib
                                     if (UpdateModuleInfo)
                                         ModuleInfos[HWcnGetModuleInfoSpecific].SetModuleSpecific(btin);
 
-                                    OnGetModuleSpecificResponse(rc.Success, RunningCommand.HWcn, msg);
+                                    OnGetModuleSpecificResponse(rc.Success, rc.HWcn, msg);
 
                                     break;
                                 case EnModuleCommand.SetModuleSpecific:
-                                    OnSetModuleSpecificResponse(rc.Success, RunningCommand.HWcn, msg);
+                                    OnSetModuleSpecificResponse(rc.Success, rc.HWcn, msg);
                                     break;
                             }
                         }
@@ -356,13 +344,13 @@ namespace FeedbackDataLib
                     }
                     else
                     {
-                        switch (RunningCommand.ModuleCommand)
+                        switch (rc.ModuleCommand)
                         {
                             case EnModuleCommand.GetModuleSpecific:
-                                OnGetModuleSpecificResponse(rc.Success, RunningCommand.HWcn, msg);
+                                OnGetModuleSpecificResponse(rc.Success, rc.HWcn, msg);
                                 break;
                             case EnModuleCommand.SetModuleSpecific:
-                                OnSetModuleSpecificResponse(rc.Success, RunningCommand.HWcn, msg);
+                                OnSetModuleSpecificResponse(rc.Success, rc.HWcn, msg);
                                 break;
                         }
                     }
@@ -380,10 +368,6 @@ namespace FeedbackDataLib
                     break;
                 case EnNeuromasterCommand.SetClock:
                     OnSetClockResponse(rc.Success, msg);
-                    break;
-                
-                case EnNeuromasterCommand.DeviceAlive:
-                    RunningCommand = null;
                     break;
             }
         }
@@ -497,7 +481,7 @@ namespace FeedbackDataLib
         public void StartDistributorThreadAsync()
         {
             cancellationTokenDistributor = new CancellationTokenSource();
-            Task.Run(() => DistributorThreadAsync(cancellationTokenDistributor.Token));
+            Task.Run(function: () => DistributorThreadAsync(cancellationTokenDistributor.Token));
         }
 
         public void StopDistributorThreadAsync()

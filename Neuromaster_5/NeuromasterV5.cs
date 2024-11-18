@@ -1,4 +1,5 @@
-﻿using FeedbackDataLib;
+﻿using ComponentsLibGUI;
+using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using FeedbackDataLibGUI;
 using System.Diagnostics;
@@ -100,7 +101,6 @@ namespace Neuromaster_V5
             }
             Setup_tlpMeasure();
         }
-
 
         enum EnDisplayState
         {
@@ -255,31 +255,29 @@ namespace Neuromaster_V5
         private async void StartConnection()
         {
             DontReconnectOntbConnect_ToState1 = false;
-            EnConnectionStatus conres;
 
-            cNMaster ??= new CNMaster();
+            //if (sDCardToolStripMenuItem.Checked)
+            //{
+            //    // SD Card mode
+            //    await Task.Run(() =>
+            //    {
+            //        LastConnectionResult = cNMaster.Connect();
+            //    });
 
-            if (sDCardToolStripMenuItem.Checked)
-            {
-                // SD Card mode
-                await Task.Run(() =>
-                {
-                    LastConnectionResult = cNMaster.Connect();
-                });
-
-                Invoke(() => AddEvents());
-            }
-            else
+            //    Invoke(() => AddEvents());
+            //}
+            //else
             {
                 AddStatusString("Searching for Neurolink  ...." + "sw: " + stopwatch.ElapsedMilliseconds.ToString());
 
                 // Run the connection logic on a background task
                 await Task.Run(() =>
                 {
-                    // Choose connection initialization method
-                    conres = cNMaster.Connect();
+                    // Create Receiver if it does not exist
+                    cNMaster ??= new CNMaster();
+                    LastConnectionResult = cNMaster.Connect();
 
-                    switch (conres)
+                    switch (LastConnectionResult)
                     {
                         case EnConnectionStatus.Connected_via_RS232:
                         case EnConnectionStatus.Connected_via_XBee:
@@ -287,8 +285,6 @@ namespace Neuromaster_V5
                             Invoke(() =>
                                 AddStatusString("Neurolink: " + cNMaster.NMReceiver.NeurolinkSerialNumber + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Blue)
                             );
-
-                            LastConnectionResult = cNMaster.Connect();
 
                             // Use Invoke for UI updates in each case
                             Invoke(() =>
@@ -327,21 +323,22 @@ namespace Neuromaster_V5
                         case EnConnectionStatus.Error_during_XBee_connection:
                             //Neurolink must have been found
                             // Successfully connected Neurolink
-                            Invoke(() => {
+                            Invoke(() =>
+                            {
                                 AddStatusString("Neurolink: " + cNMaster.NMReceiver.NeurolinkSerialNumber + "  sw: " + stopwatch.ElapsedMilliseconds.ToString(), Color.Blue);
-                                if (conres == EnConnectionStatus.Error_during_RS232_connection)
+                                if (LastConnectionResult == EnConnectionStatus.Error_during_RS232_connection)
                                 {
                                     AddStatusString("RS232: Error", Color.Red);
                                 }
                                 else
                                     AddStatusString("XBee: Error", Color.Red);
-                            }) ; 
+                            });
                             break;
                         default:
                             // Handle error cases if no Neurolink is detected
                             Invoke(() =>
                             {
-                                switch (conres)
+                                switch (LastConnectionResult)
                                 {
                                     case EnConnectionStatus.Error_during_Port_scan:
                                         AddStatusString("Error during Port scan.", Color.Red);
@@ -740,7 +737,7 @@ namespace Neuromaster_V5
         private void CheckConnectionStatus()
         {
             //if (!(sDCardToolStripMenuItem.Checked))
-            if ((cNMaster != null) && (cNMaster.NMReceiver!= null))
+            if ((cNMaster != null) && (cNMaster.NMReceiver != null))
             {
                 //Update XBEE signal strength
                 int b = cNMaster.NMReceiver.RSSI_percent;
@@ -1795,7 +1792,20 @@ namespace Neuromaster_V5
                 action();
             }
         }
-    
+
+        private LoggingSettings _loggingSettings = new();
+        private void loggingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var loggingForm = new FrmSetLogging(_loggingSettings))
+            {
+                var result = loggingForm.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    var updatedSettings = loggingForm.GetLoggingSettings();
+                    // You can now use `updatedSettings` even though the form is closed
+                }
+            }
+        }
     }
 }
 #pragma warning restore // Disables all warnings for this file

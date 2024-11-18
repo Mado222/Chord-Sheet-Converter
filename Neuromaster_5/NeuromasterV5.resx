@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
-    Microsoft ResX Schema 
+    Microsoft ResX Schema
 
     Version 2.0
 
@@ -48,7 +48,7 @@
     value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
     value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
@@ -241,189 +241,6 @@
   <data name="&gt;&gt;btSetClock.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;btGetElectrodeInfo.Name" xml:space="preserve">
-    <value>btGetElectrodeInfo</value>
-  </data>
-  <data name="&gt;&gt;btGetElectrodeInfo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btGetElectrodeInfo.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btGetElectrodeInfo.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;cChannelsControlV2x11.Name" xml:space="preserve">
-    <value>cChannelsControlV2x11</value>
-  </data>
-  <data name="&gt;&gt;cChannelsControlV2x11.Type" xml:space="preserve">
-    <value>FeedbackDataLib_GUI.CChannelsControlV2x1, FeedbackDataLib_GUI, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;cChannelsControlV2x11.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;cChannelsControlV2x11.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;btGetModuleSpecific.Name" xml:space="preserve">
-    <value>btGetModuleSpecific</value>
-  </data>
-  <data name="&gt;&gt;btGetModuleSpecific.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btGetModuleSpecific.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btGetModuleSpecific.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;btSetModuleSpecific.Name" xml:space="preserve">
-    <value>btSetModuleSpecific</value>
-  </data>
-  <data name="&gt;&gt;btSetModuleSpecific.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btSetModuleSpecific.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btSetModuleSpecific.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;btGetFirmwareVersion.Name" xml:space="preserve">
-    <value>btGetFirmwareVersion</value>
-  </data>
-  <data name="&gt;&gt;btGetFirmwareVersion.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btGetFirmwareVersion.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btGetFirmwareVersion.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;AllDefaultOn.Name" xml:space="preserve">
-    <value>AllDefaultOn</value>
-  </data>
-  <data name="&gt;&gt;AllDefaultOn.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;AllDefaultOn.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;AllDefaultOn.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;btGetSDCardInfo.Name" xml:space="preserve">
-    <value>btGetSDCardInfo</value>
-  </data>
-  <data name="&gt;&gt;btGetSDCardInfo.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btGetSDCardInfo.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btGetSDCardInfo.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;btAllCnhan0On.Name" xml:space="preserve">
-    <value>btAllCnhan0On</value>
-  </data>
-  <data name="&gt;&gt;btAllCnhan0On.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btAllCnhan0On.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btAllCnhan0On.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;gbClock.Name" xml:space="preserve">
-    <value>gbClock</value>
-  </data>
-  <data name="&gt;&gt;gbClock.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;gbClock.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;gbClock.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;btLoadConfig.Name" xml:space="preserve">
-    <value>btLoadConfig</value>
-  </data>
-  <data name="&gt;&gt;btLoadConfig.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btLoadConfig.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btLoadConfig.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;btSaveConfig.Name" xml:space="preserve">
-    <value>btSaveConfig</value>
-  </data>
-  <data name="&gt;&gt;btSaveConfig.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btSaveConfig.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btSaveConfig.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;btRestoreLastConfig.Name" xml:space="preserve">
-    <value>btRestoreLastConfig</value>
-  </data>
-  <data name="&gt;&gt;btRestoreLastConfig.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btRestoreLastConfig.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btRestoreLastConfig.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;btSetAllConfig.Name" xml:space="preserve">
-    <value>btSetAllConfig</value>
-  </data>
-  <data name="&gt;&gt;btSetAllConfig.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;btSetAllConfig.Parent" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;btSetAllConfig.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="pnControls.Enabled" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="pnControls.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1055, 41</value>
-  </data>
-  <data name="pnControls.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 5, 4, 5</value>
-  </data>
-  <data name="pnControls.Size" type="System.Drawing.Size, System.Drawing">
-    <value>796, 748</value>
-  </data>
-  <data name="pnControls.TabIndex" type="System.Int32, mscorlib">
-    <value>143</value>
-  </data>
-  <data name="&gt;&gt;pnControls.Name" xml:space="preserve">
-    <value>pnControls</value>
-  </data>
-  <data name="&gt;&gt;pnControls.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pnControls.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;pnControls.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
   <data name="btGetElectrodeInfo.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
@@ -470,7 +287,7 @@
     <value>cChannelsControlV2x11</value>
   </data>
   <data name="&gt;&gt;cChannelsControlV2x11.Type" xml:space="preserve">
-    <value>FeedbackDataLib_GUI.CChannelsControlV2x1, FeedbackDataLib_GUI, Culture=neutral, PublicKeyToken=null</value>
+    <value>FeedbackDataLibGUI.CChannelsControlV2x1, FeedbackDataLibGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cChannelsControlV2x11.Parent" xml:space="preserve">
     <value>pnControls</value>
@@ -658,6 +475,18 @@
   <data name="&gt;&gt;btAllCnhan0On.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
+  <data name="txtTime.Location" type="System.Drawing.Point, System.Drawing">
+    <value>8, 32</value>
+  </data>
+  <data name="txtTime.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 5, 4, 5</value>
+  </data>
+  <data name="txtTime.Size" type="System.Drawing.Size, System.Drawing">
+    <value>207, 27</value>
+  </data>
+  <data name="txtTime.TabIndex" type="System.Int32, mscorlib">
+    <value>138</value>
+  </data>
   <data name="&gt;&gt;txtTime.Name" xml:space="preserve">
     <value>txtTime</value>
   </data>
@@ -699,30 +528,6 @@
   </data>
   <data name="&gt;&gt;gbClock.ZOrder" xml:space="preserve">
     <value>8</value>
-  </data>
-  <data name="txtTime.Location" type="System.Drawing.Point, System.Drawing">
-    <value>8, 32</value>
-  </data>
-  <data name="txtTime.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 5, 4, 5</value>
-  </data>
-  <data name="txtTime.Size" type="System.Drawing.Size, System.Drawing">
-    <value>207, 27</value>
-  </data>
-  <data name="txtTime.TabIndex" type="System.Int32, mscorlib">
-    <value>138</value>
-  </data>
-  <data name="&gt;&gt;txtTime.Name" xml:space="preserve">
-    <value>txtTime</value>
-  </data>
-  <data name="&gt;&gt;txtTime.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtTime.Parent" xml:space="preserve">
-    <value>gbClock</value>
-  </data>
-  <data name="&gt;&gt;txtTime.ZOrder" xml:space="preserve">
-    <value>0</value>
   </data>
   <data name="btLoadConfig.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -847,131 +652,32 @@
   <data name="&gt;&gt;btSetAllConfig.ZOrder" xml:space="preserve">
     <value>12</value>
   </data>
-  <data name="&gt;&gt;txtBattery.Name" xml:space="preserve">
-    <value>txtBattery</value>
+  <data name="pnControls.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
-  <data name="&gt;&gt;txtBattery.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="pnControls.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1055, 41</value>
   </data>
-  <data name="&gt;&gt;txtBattery.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;txtBattery.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;pbXBEESignalStrength.Name" xml:space="preserve">
-    <value>pbXBEESignalStrength</value>
-  </data>
-  <data name="&gt;&gt;pbXBEESignalStrength.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pbXBEESignalStrength.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;pbXBEESignalStrength.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;label1.Name" xml:space="preserve">
-    <value>label1</value>
-  </data>
-  <data name="&gt;&gt;label1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label1.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;lblXBeeCapacity.Name" xml:space="preserve">
-    <value>lblXBeeCapacity</value>
-  </data>
-  <data name="&gt;&gt;lblXBeeCapacity.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;lblXBeeCapacity.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;lblXBeeCapacity.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;label2.Name" xml:space="preserve">
-    <value>label2</value>
-  </data>
-  <data name="&gt;&gt;label2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label2.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;pbXBeeChannelCapacity.Name" xml:space="preserve">
-    <value>pbXBeeChannelCapacity</value>
-  </data>
-  <data name="&gt;&gt;pbXBeeChannelCapacity.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ProgressBar, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pbXBeeChannelCapacity.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;pbXBeeChannelCapacity.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;txtStatus.Name" xml:space="preserve">
-    <value>txtStatus</value>
-  </data>
-  <data name="&gt;&gt;txtStatus.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RichTextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;txtStatus.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;txtStatus.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;tbConnect.Name" xml:space="preserve">
-    <value>tbConnect</value>
-  </data>
-  <data name="&gt;&gt;tbConnect.Type" xml:space="preserve">
-    <value>ComponentsLib.CToggleButton, ComponentsLib_GUI, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;tbConnect.Parent" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;tbConnect.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="gbConnectivitie.Location" type="System.Drawing.Point, System.Drawing">
-    <value>1056, 795</value>
-  </data>
-  <data name="gbConnectivitie.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="pnControls.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 5, 4, 5</value>
   </data>
-  <data name="gbConnectivitie.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 5, 4, 5</value>
+  <data name="pnControls.Size" type="System.Drawing.Size, System.Drawing">
+    <value>796, 748</value>
   </data>
-  <data name="gbConnectivitie.Size" type="System.Drawing.Size, System.Drawing">
-    <value>785, 292</value>
+  <data name="pnControls.TabIndex" type="System.Int32, mscorlib">
+    <value>143</value>
   </data>
-  <data name="gbConnectivitie.TabIndex" type="System.Int32, mscorlib">
-    <value>157</value>
+  <data name="&gt;&gt;pnControls.Name" xml:space="preserve">
+    <value>pnControls</value>
   </data>
-  <data name="gbConnectivitie.Text" xml:space="preserve">
-    <value>Connectivity</value>
+  <data name="&gt;&gt;pnControls.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;gbConnectivitie.Name" xml:space="preserve">
-    <value>gbConnectivitie</value>
-  </data>
-  <data name="&gt;&gt;gbConnectivitie.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;gbConnectivitie.Parent" xml:space="preserve">
+  <data name="&gt;&gt;pnControls.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;gbConnectivitie.ZOrder" xml:space="preserve">
-    <value>2</value>
+  <data name="&gt;&gt;pnControls.ZOrder" xml:space="preserve">
+    <value>3</value>
   </data>
   <data name="txtBattery.Location" type="System.Drawing.Point, System.Drawing">
     <value>9, 29</value>
@@ -1153,6 +859,9 @@
   <data name="&gt;&gt;pbXBeeChannelCapacity.Parent" xml:space="preserve">
     <value>gbConnectivitie</value>
   </data>
+  <data name="&gt;&gt;pbXBeeChannelCapacity.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
   <data name="txtStatus.Location" type="System.Drawing.Point, System.Drawing">
     <value>304, 28</value>
   </data>
@@ -1205,7 +914,7 @@
     <value>tbConnect</value>
   </data>
   <data name="&gt;&gt;tbConnect.Type" xml:space="preserve">
-    <value>ComponentsLib.CToggleButton, ComponentsLib_GUI, Culture=neutral, PublicKeyToken=null</value>
+    <value>ComponentsLibGUI.CToggleButton, ComponentsLibGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;tbConnect.Parent" xml:space="preserve">
     <value>gbConnectivitie</value>
@@ -1213,47 +922,35 @@
   <data name="&gt;&gt;tbConnect.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
-  <data name="&gt;&gt;radioButton1.Name" xml:space="preserve">
-    <value>radioButton1</value>
+  <data name="gbConnectivitie.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1056, 795</value>
   </data>
-  <data name="&gt;&gt;radioButton1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="gbConnectivitie.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 5, 4, 5</value>
   </data>
-  <data name="&gt;&gt;radioButton1.Parent" xml:space="preserve">
-    <value>groupBox2</value>
+  <data name="gbConnectivitie.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 5, 4, 5</value>
   </data>
-  <data name="&gt;&gt;radioButton1.ZOrder" xml:space="preserve">
-    <value>0</value>
+  <data name="gbConnectivitie.Size" type="System.Drawing.Size, System.Drawing">
+    <value>785, 292</value>
   </data>
-  <data name="&gt;&gt;radioButton2.Name" xml:space="preserve">
-    <value>radioButton2</value>
+  <data name="gbConnectivitie.TabIndex" type="System.Int32, mscorlib">
+    <value>157</value>
   </data>
-  <data name="&gt;&gt;radioButton2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="gbConnectivitie.Text" xml:space="preserve">
+    <value>Connectivity</value>
   </data>
-  <data name="&gt;&gt;radioButton2.Parent" xml:space="preserve">
-    <value>groupBox2</value>
+  <data name="&gt;&gt;gbConnectivitie.Name" xml:space="preserve">
+    <value>gbConnectivitie</value>
   </data>
-  <data name="&gt;&gt;radioButton2.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="groupBox2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>402, 503</value>
-  </data>
-  <data name="groupBox2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>119, 75</value>
-  </data>
-  <data name="groupBox2.TabIndex" type="System.Int32, mscorlib">
-    <value>167</value>
-  </data>
-  <data name="groupBox2.Text" xml:space="preserve">
-    <value>Time Base</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.Name" xml:space="preserve">
-    <value>groupBox2</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.Type" xml:space="preserve">
+  <data name="&gt;&gt;gbConnectivitie.Type" xml:space="preserve">
     <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;gbConnectivitie.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;gbConnectivitie.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
   <data name="radioButton1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -1315,6 +1012,24 @@
   <data name="&gt;&gt;radioButton2.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="groupBox2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>402, 503</value>
+  </data>
+  <data name="groupBox2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 75</value>
+  </data>
+  <data name="groupBox2.TabIndex" type="System.Int32, mscorlib">
+    <value>167</value>
+  </data>
+  <data name="groupBox2.Text" xml:space="preserve">
+    <value>Time Base</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.Name" xml:space="preserve">
+    <value>groupBox2</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <metadata name="saveFileDialog_xml.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>424, 19</value>
   </metadata>
@@ -1327,9 +1042,6 @@
   <data name="openFileDialog_xml.Filter" xml:space="preserve">
     <value>xml files (*.xml)|*.xml|All files (*.*)|*.*</value>
   </data>
-  <metadata name="serialPort1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>570, 19</value>
-  </metadata>
   <metadata name="tmrStatusMessages.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 56</value>
   </metadata>
@@ -1342,6 +1054,171 @@
   <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>498, 78</value>
   </metadata>
+  <data name="d2XXToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>170, 26</value>
+  </data>
+  <data name="d2XXToolStripMenuItem.Text" xml:space="preserve">
+    <value>D2XX</value>
+  </data>
+  <data name="virtualComToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>170, 26</value>
+  </data>
+  <data name="virtualComToolStripMenuItem.Text" xml:space="preserve">
+    <value>Virtual Com</value>
+  </data>
+  <data name="sDCardToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>170, 26</value>
+  </data>
+  <data name="sDCardToolStripMenuItem.Text" xml:space="preserve">
+    <value>SD Card</value>
+  </data>
+  <data name="connectionToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>98, 24</value>
+  </data>
+  <data name="connectionToolStripMenuItem.Text" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="selectedModuleToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>227, 26</value>
+  </data>
+  <data name="selectedModuleToolStripMenuItem.Text" xml:space="preserve">
+    <value>Selected Module</value>
+  </data>
+  <data name="rawChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>227, 26</value>
+  </data>
+  <data name="rawChannelsToolStripMenuItem.Text" xml:space="preserve">
+    <value>Raw Channels</value>
+  </data>
+  <data name="predefinedChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>227, 26</value>
+  </data>
+  <data name="predefinedChannelsToolStripMenuItem.Text" xml:space="preserve">
+    <value>Predefined Channels</value>
+  </data>
+  <data name="displayedChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>152, 24</value>
+  </data>
+  <data name="displayedChannelsToolStripMenuItem.Text" xml:space="preserve">
+    <value>Displayed Channels</value>
+  </data>
+  <data name="scaledToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>152, 26</value>
+  </data>
+  <data name="scaledToolStripMenuItem.Text" xml:space="preserve">
+    <value>Scaled</value>
+  </data>
+  <data name="unscaledToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>152, 26</value>
+  </data>
+  <data name="unscaledToolStripMenuItem.Text" xml:space="preserve">
+    <value>Unscaled</value>
+  </data>
+  <data name="scaleValuesToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>104, 24</value>
+  </data>
+  <data name="scaleValuesToolStripMenuItem.Text" xml:space="preserve">
+    <value>Scale Values</value>
+  </data>
+  <data name="absolutToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 26</value>
+  </data>
+  <data name="absolutToolStripMenuItem.Text" xml:space="preserve">
+    <value>Absolut</value>
+  </data>
+  <data name="relativeToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>145, 26</value>
+  </data>
+  <data name="relativeToolStripMenuItem.Text" xml:space="preserve">
+    <value>Relative</value>
+  </data>
+  <data name="timebaseToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>87, 24</value>
+  </data>
+  <data name="timebaseToolStripMenuItem.Text" xml:space="preserve">
+    <value>Timebase</value>
+  </data>
+  <data name="resyncTimeBaseToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 24</value>
+  </data>
+  <data name="resyncTimeBaseToolStripMenuItem.Text" xml:space="preserve">
+    <value>Resync Time Base</value>
+  </data>
+  <data name="statusToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 26</value>
+  </data>
+  <data name="statusToolStripMenuItem.Text" xml:space="preserve">
+    <value>Display Status</value>
+  </data>
+  <data name="resetDeviceToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 26</value>
+  </data>
+  <data name="resetDeviceToolStripMenuItem.Text" xml:space="preserve">
+    <value>Reset Device</value>
+  </data>
+  <data name="resetPortToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 26</value>
+  </data>
+  <data name="resetPortToolStripMenuItem.Text" xml:space="preserve">
+    <value>Reset Port</value>
+  </data>
+  <data name="cyclePortToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 26</value>
+  </data>
+  <data name="cyclePortToolStripMenuItem.Text" xml:space="preserve">
+    <value>Cycle Port</value>
+  </data>
+  <data name="fTDIToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 24</value>
+  </data>
+  <data name="fTDIToolStripMenuItem.Text" xml:space="preserve">
+    <value>FTDI</value>
+  </data>
+  <data name="readBackToolStripMenuItem.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="readBackToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>182, 26</value>
+  </data>
+  <data name="readBackToolStripMenuItem.Text" xml:space="preserve">
+    <value>Read Back</value>
+  </data>
+  <data name="convertToTxtToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>182, 26</value>
+  </data>
+  <data name="convertToTxtToolStripMenuItem.Text" xml:space="preserve">
+    <value>Convert to txt</value>
+  </data>
+  <data name="sDCardToolStripMenuItemTop.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 24</value>
+  </data>
+  <data name="sDCardToolStripMenuItemTop.Text" xml:space="preserve">
+    <value>SD Card</value>
+  </data>
+  <data name="saveDataToFileToolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>225, 26</value>
+  </data>
+  <data name="saveDataToFileToolStripMenuItem1.Text" xml:space="preserve">
+    <value>Save Data to File</value>
+  </data>
+  <data name="readDataFromFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>225, 26</value>
+  </data>
+  <data name="readDataFromFileToolStripMenuItem.Text" xml:space="preserve">
+    <value>Read Data from File</value>
+  </data>
+  <data name="saveDataToFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>46, 24</value>
+  </data>
+  <data name="saveDataToFileToolStripMenuItem.Text" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="loggingToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>78, 24</value>
+  </data>
+  <data name="loggingToolStripMenuItem.Text" xml:space="preserve">
+    <value>Logging</value>
+  </data>
   <data name="menuStrip1.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
@@ -1369,165 +1246,6 @@
   <data name="&gt;&gt;menuStrip1.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="connectionToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>98, 24</value>
-  </data>
-  <data name="connectionToolStripMenuItem.Text" xml:space="preserve">
-    <value>Connection</value>
-  </data>
-  <data name="d2XXToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>170, 26</value>
-  </data>
-  <data name="d2XXToolStripMenuItem.Text" xml:space="preserve">
-    <value>D2XX</value>
-  </data>
-  <data name="virtualComToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>170, 26</value>
-  </data>
-  <data name="virtualComToolStripMenuItem.Text" xml:space="preserve">
-    <value>Virtual Com</value>
-  </data>
-  <data name="sDCardToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>170, 26</value>
-  </data>
-  <data name="sDCardToolStripMenuItem.Text" xml:space="preserve">
-    <value>SD Card</value>
-  </data>
-  <data name="displayedChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 24</value>
-  </data>
-  <data name="displayedChannelsToolStripMenuItem.Text" xml:space="preserve">
-    <value>Displayed Channels</value>
-  </data>
-  <data name="selectedModuleToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>227, 26</value>
-  </data>
-  <data name="selectedModuleToolStripMenuItem.Text" xml:space="preserve">
-    <value>Selected Module</value>
-  </data>
-  <data name="rawChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>227, 26</value>
-  </data>
-  <data name="rawChannelsToolStripMenuItem.Text" xml:space="preserve">
-    <value>Raw Channels</value>
-  </data>
-  <data name="predefinedChannelsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>227, 26</value>
-  </data>
-  <data name="predefinedChannelsToolStripMenuItem.Text" xml:space="preserve">
-    <value>Predefined Channels</value>
-  </data>
-  <data name="scaleValuesToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 24</value>
-  </data>
-  <data name="scaleValuesToolStripMenuItem.Text" xml:space="preserve">
-    <value>Scale Values</value>
-  </data>
-  <data name="scaledToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 26</value>
-  </data>
-  <data name="scaledToolStripMenuItem.Text" xml:space="preserve">
-    <value>Scaled</value>
-  </data>
-  <data name="unscaledToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 26</value>
-  </data>
-  <data name="unscaledToolStripMenuItem.Text" xml:space="preserve">
-    <value>Unscaled</value>
-  </data>
-  <data name="timebaseToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>87, 24</value>
-  </data>
-  <data name="timebaseToolStripMenuItem.Text" xml:space="preserve">
-    <value>Timebase</value>
-  </data>
-  <data name="absolutToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>145, 26</value>
-  </data>
-  <data name="absolutToolStripMenuItem.Text" xml:space="preserve">
-    <value>Absolut</value>
-  </data>
-  <data name="relativeToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>145, 26</value>
-  </data>
-  <data name="relativeToolStripMenuItem.Text" xml:space="preserve">
-    <value>Relative</value>
-  </data>
-  <data name="resyncTimeBaseToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>140, 24</value>
-  </data>
-  <data name="resyncTimeBaseToolStripMenuItem.Text" xml:space="preserve">
-    <value>Resync Time Base</value>
-  </data>
-  <data name="fTDIToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 24</value>
-  </data>
-  <data name="fTDIToolStripMenuItem.Text" xml:space="preserve">
-    <value>FTDI</value>
-  </data>
-  <data name="statusToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
-  </data>
-  <data name="statusToolStripMenuItem.Text" xml:space="preserve">
-    <value>Display Status</value>
-  </data>
-  <data name="resetDeviceToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
-  </data>
-  <data name="resetDeviceToolStripMenuItem.Text" xml:space="preserve">
-    <value>Reset Device</value>
-  </data>
-  <data name="resetPortToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
-  </data>
-  <data name="resetPortToolStripMenuItem.Text" xml:space="preserve">
-    <value>Reset Port</value>
-  </data>
-  <data name="cyclePortToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>185, 26</value>
-  </data>
-  <data name="cyclePortToolStripMenuItem.Text" xml:space="preserve">
-    <value>Cycle Port</value>
-  </data>
-  <data name="sDCardToolStripMenuItemTop.Size" type="System.Drawing.Size, System.Drawing">
-    <value>77, 24</value>
-  </data>
-  <data name="sDCardToolStripMenuItemTop.Text" xml:space="preserve">
-    <value>SD Card</value>
-  </data>
-  <data name="readBackToolStripMenuItem.Enabled" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
-  <data name="readBackToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>182, 26</value>
-  </data>
-  <data name="readBackToolStripMenuItem.Text" xml:space="preserve">
-    <value>Read Back</value>
-  </data>
-  <data name="convertToTxtToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>182, 26</value>
-  </data>
-  <data name="convertToTxtToolStripMenuItem.Text" xml:space="preserve">
-    <value>Convert to txt</value>
-  </data>
-  <data name="saveDataToFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>46, 24</value>
-  </data>
-  <data name="saveDataToFileToolStripMenuItem.Text" xml:space="preserve">
-    <value>File</value>
-  </data>
-  <data name="saveDataToFileToolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>225, 26</value>
-  </data>
-  <data name="saveDataToFileToolStripMenuItem1.Text" xml:space="preserve">
-    <value>Save Data to File</value>
-  </data>
-  <data name="readDataFromFileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>225, 26</value>
-  </data>
-  <data name="readDataFromFileToolStripMenuItem.Text" xml:space="preserve">
-    <value>Read Data from File</value>
-  </data>
   <metadata name="openFileDialog_cfg.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>613, 78</value>
   </metadata>
@@ -1540,11 +1258,23 @@
   <data name="tlpMeasure.ColumnCount" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
+  <data name="ucSignalAnalyser1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 6</value>
+  </data>
+  <data name="ucSignalAnalyser1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>5, 6, 5, 6</value>
+  </data>
+  <data name="ucSignalAnalyser1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>103, 100</value>
+  </data>
+  <data name="ucSignalAnalyser1.TabIndex" type="System.Int32, mscorlib">
+    <value>176</value>
+  </data>
   <data name="&gt;&gt;ucSignalAnalyser1.Name" xml:space="preserve">
     <value>ucSignalAnalyser1</value>
   </data>
   <data name="&gt;&gt;ucSignalAnalyser1.Type" xml:space="preserve">
-    <value>Math_Net_nuget.ucSignalAnalyser, Math_Net_nuget_Insight, Culture=neutral, PublicKeyToken=null</value>
+    <value>FeedbackDataLibGUI.UcSignalAnalyser, FeedbackDataLibGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;ucSignalAnalyser1.Parent" xml:space="preserve">
     <value>tlpMeasure</value>
@@ -1582,41 +1312,29 @@
   <data name="tlpMeasure.LayoutSettings" type="System.Windows.Forms.TableLayoutSettings, System.Windows.Forms">
     <value>&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;TableLayoutSettings&gt;&lt;Controls&gt;&lt;Control Name="ucSignalAnalyser1" Row="0" RowSpan="1" Column="0" ColumnSpan="1" /&gt;&lt;/Controls&gt;&lt;Columns Styles="Percent,100" /&gt;&lt;Rows Styles="AutoSize,0" /&gt;&lt;/TableLayoutSettings&gt;</value>
   </data>
-  <data name="ucSignalAnalyser1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>5, 6</value>
-  </data>
-  <data name="ucSignalAnalyser1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 6, 5, 6</value>
-  </data>
-  <data name="ucSignalAnalyser1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 100</value>
-  </data>
-  <data name="ucSignalAnalyser1.TabIndex" type="System.Int32, mscorlib">
-    <value>176</value>
-  </data>
-  <data name="&gt;&gt;ucSignalAnalyser1.Name" xml:space="preserve">
-    <value>ucSignalAnalyser1</value>
-  </data>
-  <data name="&gt;&gt;ucSignalAnalyser1.Type" xml:space="preserve">
-    <value>Math_Net_nuget.ucSignalAnalyser, Math_Net_nuget_Insight, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;ucSignalAnalyser1.Parent" xml:space="preserve">
-    <value>tlpMeasure</value>
-  </data>
-  <data name="&gt;&gt;ucSignalAnalyser1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <metadata name="openFileDialog_nmc.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>921, 78</value>
   </metadata>
   <data name="openFileDialog_nmc.Filter" xml:space="preserve">
     <value>nmc files (*.nmc)|*.nmc|All files (*.*)|*.*</value>
   </data>
+  <data name="cFlowChartDX1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="cFlowChartDX1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="cFlowChartDX1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>844, 968</value>
+  </data>
+  <data name="cFlowChartDX1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
   <data name="&gt;&gt;cFlowChartDX1.Name" xml:space="preserve">
     <value>cFlowChartDX1</value>
   </data>
   <data name="&gt;&gt;cFlowChartDX1.Type" xml:space="preserve">
-    <value>FeedbackDataLib_GUI.ucFlowChartDX_NM, FeedbackDataLib_GUI, Culture=neutral, PublicKeyToken=null</value>
+    <value>FeedbackDataLibGUI.UcFlowChartDX_NM, FeedbackDataLibGUI, Culture=neutral, PublicKeyToken=null</value>
   </data>
   <data name="&gt;&gt;cFlowChartDX1.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -1645,35 +1363,11 @@
   <data name="&gt;&gt;panel1.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
-  <data name="cFlowChartDX1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Fill</value>
-  </data>
-  <data name="cFlowChartDX1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 0</value>
-  </data>
-  <data name="cFlowChartDX1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>844, 968</value>
-  </data>
-  <data name="cFlowChartDX1.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;cFlowChartDX1.Name" xml:space="preserve">
-    <value>cFlowChartDX1</value>
-  </data>
-  <data name="&gt;&gt;cFlowChartDX1.Type" xml:space="preserve">
-    <value>FeedbackDataLib_GUI.ucFlowChartDX_NM, FeedbackDataLib_GUI, Culture=neutral, PublicKeyToken=null</value>
-  </data>
-  <data name="&gt;&gt;cFlowChartDX1.Parent" xml:space="preserve">
-    <value>panel1</value>
-  </data>
-  <data name="&gt;&gt;cFlowChartDX1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>108</value>
+    <value>160</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>8, 20</value>
@@ -1698,12 +1392,6 @@
   </data>
   <data name="&gt;&gt;openFileDialog_xml.Type" xml:space="preserve">
     <value>System.Windows.Forms.OpenFileDialog, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;serialPort1.Name" xml:space="preserve">
-    <value>serialPort1</value>
-  </data>
-  <data name="&gt;&gt;serialPort1.Type" xml:space="preserve">
-    <value>System.IO.Ports.SerialPort, System.IO.Ports, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51</value>
   </data>
   <data name="&gt;&gt;tmrStatusMessages.Name" xml:space="preserve">
     <value>tmrStatusMessages</value>
@@ -1877,6 +1565,12 @@
     <value>readDataFromFileToolStripMenuItem</value>
   </data>
   <data name="&gt;&gt;readDataFromFileToolStripMenuItem.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;loggingToolStripMenuItem.Name" xml:space="preserve">
+    <value>loggingToolStripMenuItem</value>
+  </data>
+  <data name="&gt;&gt;loggingToolStripMenuItem.Type" xml:space="preserve">
     <value>System.Windows.Forms.ToolStripMenuItem, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;openFileDialog_cfg.Name" xml:space="preserve">

@@ -32,9 +32,6 @@ namespace Neuromaster_V5
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NeuromasterV5));
-            System.Text.ASCIIEncoding asciiEncodingSealed2 = new System.Text.ASCIIEncoding();
-            System.Text.DecoderReplacementFallback decoderReplacementFallback2 = new System.Text.DecoderReplacementFallback();
-            System.Text.EncoderReplacementFallback encoderReplacementFallback2 = new System.Text.EncoderReplacementFallback();
             btGetConfigModules = new Button();
             btSetConfig = new Button();
             btGetClock = new Button();
@@ -68,7 +65,6 @@ namespace Neuromaster_V5
             radioButton2 = new RadioButton();
             saveFileDialog_xml = new SaveFileDialog();
             openFileDialog_xml = new OpenFileDialog();
-            serialPort1 = new System.IO.Ports.SerialPort(components);
             tmrStatusMessages = new System.Windows.Forms.Timer(components);
             tmrSDDataReader = new System.Windows.Forms.Timer(components);
             folderBrowserDialog1 = new FolderBrowserDialog();
@@ -99,10 +95,11 @@ namespace Neuromaster_V5
             saveDataToFileToolStripMenuItem = new ToolStripMenuItem();
             saveDataToFileToolStripMenuItem1 = new ToolStripMenuItem();
             readDataFromFileToolStripMenuItem = new ToolStripMenuItem();
+            loggingToolStripMenuItem = new ToolStripMenuItem();
             openFileDialog_cfg = new OpenFileDialog();
             tmrFileDataReader = new System.Windows.Forms.Timer(components);
             tlpMeasure = new TableLayoutPanel();
-            ucSignalAnalyser1 = new FeedbackDataLibGUI.UcSignalAnalyser();
+            ucSignalAnalyser1 = new UcSignalAnalyser();
             openFileDialog_nmc = new OpenFileDialog();
             panel1 = new Panel();
             cFlowChartDX1 = new UcFlowChartDX_NM();
@@ -359,25 +356,6 @@ namespace Neuromaster_V5
             resources.ApplyResources(openFileDialog_xml, "openFileDialog_xml");
             openFileDialog_xml.InitialDirectory = "c:\\";
             // 
-            // serialPort1
-            // 
-            serialPort1.BaudRate = 9600;
-            serialPort1.DataBits = 8;
-            serialPort1.DiscardNull = false;
-            serialPort1.DtrEnable = false;
-            serialPort1.Handshake = System.IO.Ports.Handshake.None;
-            serialPort1.NewLine = "\n";
-            serialPort1.Parity = System.IO.Ports.Parity.None;
-            serialPort1.ParityReplace = 63;
-            serialPort1.PortName = "COM1";
-            serialPort1.ReadBufferSize = 4096;
-            serialPort1.ReadTimeout = -1;
-            serialPort1.ReceivedBytesThreshold = 1;
-            serialPort1.RtsEnable = false;
-            serialPort1.StopBits = System.IO.Ports.StopBits.One;
-            serialPort1.WriteBufferSize = 2048;
-            serialPort1.WriteTimeout = -1;
-            // 
             // tmrStatusMessages
             // 
             tmrStatusMessages.Enabled = true;
@@ -392,7 +370,7 @@ namespace Neuromaster_V5
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { connectionToolStripMenuItem, displayedChannelsToolStripMenuItem, scaleValuesToolStripMenuItem, timebaseToolStripMenuItem, resyncTimeBaseToolStripMenuItem, fTDIToolStripMenuItem, sDCardToolStripMenuItemTop, saveDataToFileToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { connectionToolStripMenuItem, displayedChannelsToolStripMenuItem, scaleValuesToolStripMenuItem, timebaseToolStripMenuItem, resyncTimeBaseToolStripMenuItem, fTDIToolStripMenuItem, sDCardToolStripMenuItemTop, saveDataToFileToolStripMenuItem, loggingToolStripMenuItem });
             resources.ApplyResources(menuStrip1, "menuStrip1");
             menuStrip1.Name = "menuStrip1";
             // 
@@ -560,6 +538,12 @@ namespace Neuromaster_V5
             resources.ApplyResources(readDataFromFileToolStripMenuItem, "readDataFromFileToolStripMenuItem");
             readDataFromFileToolStripMenuItem.Click += ReadDataFromFileToolStripMenuItem_Click;
             // 
+            // loggingToolStripMenuItem
+            // 
+            loggingToolStripMenuItem.Name = "loggingToolStripMenuItem";
+            resources.ApplyResources(loggingToolStripMenuItem, "loggingToolStripMenuItem");
+            loggingToolStripMenuItem.Click += loggingToolStripMenuItem_Click;
+            // 
             // openFileDialog_cfg
             // 
             openFileDialog_cfg.FileName = "config";
@@ -597,6 +581,8 @@ namespace Neuromaster_V5
             // 
             // cFlowChartDX1
             // 
+            cFlowChartDX1.BackColor = SystemColors.Control;
+            cFlowChartDX1.ChartBackColor = SystemColors.Control;
             resources.ApplyResources(cFlowChartDX1, "cFlowChartDX1");
             cFlowChartDX1.Name = "cFlowChartDX1";
             cFlowChartDX1.numberOfCharts = 2;
@@ -655,7 +641,6 @@ namespace Neuromaster_V5
 
         private System.Windows.Forms.Button btAllCnhan0On;
         private System.Windows.Forms.Button AllDefaultOn;
-        private System.IO.Ports.SerialPort serialPort1;
         private System.Windows.Forms.Timer tmrStatusMessages;
         private System.Windows.Forms.ProgressBar pbXBEESignalStrength;
         private System.Windows.Forms.Label label1;
@@ -703,6 +688,7 @@ namespace Neuromaster_V5
         private System.Windows.Forms.ToolStripMenuItem convertToTxtToolStripMenuItem;
         private Panel panel1;
         private UcFlowChartDX_NM cFlowChartDX1;
+        private ToolStripMenuItem loggingToolStripMenuItem;
     }
 }
 

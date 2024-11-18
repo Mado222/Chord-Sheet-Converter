@@ -115,15 +115,13 @@ namespace Neuromaster_Demo
             dontReconnectOntbConnect_ToState1 = true;
             AddStatusString("Searching for Neurolink ....");
 
+            // Perform initialization and connection in the background thread
             await Task.Run(() =>
             {
                 // Create Receiver if it does not exist
                 cNMaster ??= new CNMaster();
-
-                EnConnectionStatus? conres; // Connection Result
-
-                // Perform initialization and connection in the background thread
-                conres = cNMaster.Connect(); // Init via FTDI D2XX Driver (faster)
+                
+                EnConnectionStatus? conres = cNMaster.Connect();
 
                 if (conres == EnConnectionStatus.Connected_via_RS232 ||
                     conres == EnConnectionStatus.Connected_via_XBee)
