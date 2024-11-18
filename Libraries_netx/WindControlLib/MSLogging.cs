@@ -11,7 +11,7 @@ namespace WindControlLib
         public bool IsLoggingEnabled { get; set; } = true;
         public string LogFilePath { get; set; } = "";
         public string LogFileName { get; set; } = "";
-        public LogEventLevel LogLevel { get; set; } = LogEventLevel.Error;
+        public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
 
         public LoggingSettings()
         {

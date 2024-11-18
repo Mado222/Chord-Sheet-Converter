@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neuromaster_5_net8", "Neuromaster_5_net8.csproj", "{2639061A-585E-4AFD-B221-CEC4D3D3C642}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Neuromaster5Net8", "Neuromaster5Net8.csproj", "{2639061A-585E-4AFD-B221-CEC4D3D3C642}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeedbackDataLib", "..\Libraries_netx\FeedbackDataLib\FeedbackDataLib.csproj", "{052ED8B1-D63C-45F8-B679-F77AB49E7134}"
 EndProject

@@ -50,6 +50,8 @@ namespace FeedbackDataLib
             set => seriell32 = value;
         }
 
+        public bool IsRS232ReceiverThreadRunning { get; private set; } = false;
+
 
         private EnConnectionStatus _ConnectionStatus = EnConnectionStatus.NoConnection;
         private EnConnectionStatus _ConnectionStatusOld = EnConnectionStatus.NoConnection;
@@ -207,6 +209,7 @@ namespace FeedbackDataLib
 
             try
             {
+                IsRS232ReceiverThreadRunning = true;
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     if (!EnableDataReceiving)
@@ -331,6 +334,8 @@ namespace FeedbackDataLib
             }
             finally
             {
+                _logger.LogInformation("RS232ReceiverThreadAsync Closed");
+                IsRS232ReceiverThreadRunning = false;
             }
         }
         #endregion

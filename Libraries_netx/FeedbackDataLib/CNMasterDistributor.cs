@@ -1,6 +1,5 @@
 ﻿using FeedbackDataLib.Modules;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using WindControlLib;
 
 
@@ -112,6 +111,8 @@ namespace FeedbackDataLib
         {
             if (NMReceiver is null || NMReceiver.Connection is null || NMReceiver.Connection.SerPort is null) return;
 
+            bool isReportedRS232Threadbroken = false;
+
             if (Thread.CurrentThread.Name == null)
                 Thread.CurrentThread.Name = "DistributorThread";
 
@@ -145,7 +146,7 @@ namespace FeedbackDataLib
                     if (!RS232Receiver.CommandResponseQueue.IsEmpty)
                     {
                         //Correct response?
-                        var (btreceived, dtreceived) = RS232Receiver.CommandResponseQueue.Peek();
+                        (byte[] btreceived, DateTime dtreceived) = RS232Receiver.CommandResponseQueue.Peek();
                         EnNeuromasterCommand cmdin = EnNeuromasterCommand.None;
                         if (btreceived != null)
                         {
@@ -161,8 +162,13 @@ namespace FeedbackDataLib
                                 RunningCommand.ResponseData = res;
                                 RunningCommand.Success = true;
                                 if (cmdin != EnNeuromasterCommand.DeviceAlive)
-                                    
                                     EvalCommandResponse(RunningCommand);
+                                else
+                                {
+                                    _ = RS232Receiver.CommandResponseQueue.Pop();
+                                    _logger.LogInformation("Popped DeviceAlive");
+                                    RunningCommand = null;
+                                }
                             }
                             else
                             {
@@ -176,6 +182,7 @@ namespace FeedbackDataLib
                             if (DateTime.Now > dtreceived + TsCommandTimeout)
                             {
                                 (_, _) = RS232Receiver.CommandResponseQueue.Pop();
+                                _logger.LogWarning("DistributorThreadAsync: Incoming timeout");
                             }
                         }
                     }
@@ -185,6 +192,7 @@ namespace FeedbackDataLib
                     {
                         //_ = RS232Receiver.CommandResponseQueue.Pop();
                         OnCommandProcessed(RunningCommand);
+                        _logger.LogWarning("DistributorThreadAsync: Timeout {Message}", Enum.GetName(typeof(EnNeuromasterCommand), RunningCommand.Command));
                         RunningCommand = null;
                     }
 
@@ -194,7 +202,9 @@ namespace FeedbackDataLib
                         //Fire event
                         byte[]? buf = RS232Receiver.CommandToPCQueue.Pop();
                         if (buf != null)
+                        {
                             EvalCommunicationToPC(buf);
+                        }
                     }
 
                     // Incoming: Distribute measurement data 
@@ -215,7 +225,7 @@ namespace FeedbackDataLib
                             CommandRequest? cr = SendingQueue.Pop();
                             if (cr is not null && cr.SendData.Length > 0)
                             {
-                                if (cr.Command is not EnNeuromasterCommand.DeviceAlive)
+                                //if (cr.Command is not EnNeuromasterCommand.DeviceAlive)
                                 {
                                     _logger.LogInformation("DistributorThreadAsync Sending: {Message}", Enum.GetName(typeof(EnNeuromasterCommand), cr.Command));
                                 }
@@ -232,6 +242,12 @@ namespace FeedbackDataLib
                         CommandRequest cr = new(EnNeuromasterCommand.DeviceAlive, AliveSequToSend());
                         SendingQueue.Push(cr);
                         NextAliveSignalToSend = Now + AliveSignalToSendInterv;
+                    }
+
+                    if (!RS232Receiver.IsRS232ReceiverThreadRunning && !isReportedRS232Threadbroken)
+                    {
+                        _logger.LogError("DistributorThreadAsync: RS232ReceiverThreadAsync stopped");
+                        isReportedRS232Threadbroken = true;
                     }
 
                     else
@@ -364,6 +380,10 @@ namespace FeedbackDataLib
                     break;
                 case EnNeuromasterCommand.SetClock:
                     OnSetClockResponse(rc.Success, msg);
+                    break;
+                
+                case EnNeuromasterCommand.DeviceAlive:
+                    RunningCommand = null;
                     break;
             }
         }

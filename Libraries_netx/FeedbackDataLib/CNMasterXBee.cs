@@ -1,7 +1,5 @@
 using BMTCommunicationLib;
-using FeedbackDataLib.Modules.CADS1294x;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 using System.IO.Ports;
 using System.Xml.Serialization;
 using WindControlLib;
@@ -18,7 +16,7 @@ namespace FeedbackDataLib
     /// Basic Component for Insight Instruments "Neuromaster" with XBee Connection
     /// </summary>
     /// <remarks></remarks>
-    public class CXBee : IC8Base, ISerialPort, IDisposable
+    public class CNMasterXBee : IC8Base, ISerialPort, IDisposable
     {
 
         /// <summary>
@@ -46,15 +44,15 @@ namespace FeedbackDataLib
 
         private readonly CHighPerformanceDateTime hp_Timer = new();
 
-        private readonly ILogger<CXBee> _logger;
+        private readonly ILogger<CNMasterXBee> _logger;
 
-        public CXBee()
+        public CNMasterXBee()
         {
-            _logger = AppLogger.CreateLogger<CXBee>();
+            _logger = AppLogger.CreateLogger<CNMasterXBee>();
         }
 
         // Optional: Destructor to release unmanaged resources if Dispose is not called
-        ~CXBee()
+        ~CNMasterXBee()
         {
             Close();
         }
@@ -75,7 +73,7 @@ namespace FeedbackDataLib
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CXBee" /> class.
+        /// Initializes a new instance of the <see cref="CNMasterXBee" /> class.
         /// </summary>
         /// <param name="SerialPort">Serial Port</param>
         public void Init(ISerialPort SerialPort)

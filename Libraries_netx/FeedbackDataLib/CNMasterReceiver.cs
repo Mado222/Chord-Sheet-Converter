@@ -32,7 +32,7 @@ namespace FeedbackDataLib
 
         #region properties
         private CNMasterRS232? c8RS232;
-        private CXBee? c8XBee;
+        private CNMasterXBee? c8XBee;
 
         public EnConnectionStatus ConnectionResult = EnConnectionStatus.NoConnection;
 
@@ -275,7 +275,7 @@ namespace FeedbackDataLib
                             {
                                 IndexOfDeviceToOpen = idxXBEeeConnection
                             };
-                            c8XBee ??= new CXBee();
+                            c8XBee ??= new CNMasterXBee();
                             c8XBee.Init(FTDI_D2xx_temp);
                             c8XBee.Send_to_Sleep();
                             c8XBee.Close();
@@ -292,7 +292,7 @@ namespace FeedbackDataLib
                             c8RS232.Close();
                             FTDI_D2xx.IndexOfDeviceToOpen = idxXBEeeConnection;
                             ConnectionResult = EnConnectionStatus.Connected_via_XBee;
-                            c8XBee = new CXBee();
+                            c8XBee = new CNMasterXBee();
                             c8XBee.Init(FTDI_D2xx);
 
                             try
