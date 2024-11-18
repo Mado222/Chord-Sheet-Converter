@@ -31,4 +31,10 @@
     <Compile Include="..\AssemblyInfoInsight_netx.cs" Link="AssemblyInfoInsight_netx.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="FrmShowLogging.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

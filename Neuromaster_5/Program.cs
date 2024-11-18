@@ -1,8 +1,11 @@
+using ComponentsLibGUI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Neuromaster_V5;
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 using WindControlLib;
 
 namespace Neuromaster5Net8
@@ -16,37 +19,60 @@ namespace Neuromaster5Net8
 
         static void Main()
         {
-            // Define log file path and logging level - these can be configured dynamically
-            var logFilePath = "logs/app.log";  // Default path; change to a variable or configuration value if needed
-            var isLoggingEnabled = true;       // Set to false to disable logging entirely
+            // Set Windows Forms settings before creating any forms
+            ApplicationConfiguration.Initialize();
+            Application.SetCompatibleTextRenderingDefault(false);
 
-            // Configure Serilog as the logging provider
+            // Create logging settings with the initial log level and path
+            var loggingSettings = new LoggingSettings();  // Create instance of LoggingSettings
+
+            // Create the logging form
+            FrmShowLogging loggingWindow = new();
+
+            // Create a single LoggingLevelSwitch that will be used throughout the app
+            var loggingLevelSwitch = new LoggingLevelSwitch(loggingSettings.LogLevel);
+
+            // Configure Serilog as the logging provider with the dynamic level switch
             var loggerConfig = new LoggerConfiguration()
-                .MinimumLevel.Debug()         // Set minimum logging level here
-                .WriteTo.Console();
+                .MinimumLevel.ControlledBy(loggingLevelSwitch) // Use the shared LoggingLevelSwitch for dynamic control
+                .WriteTo.Console()  // Write to console for debugging
+                .WriteTo.Sink(new FormSink(loggingWindow));  // Write to the logging form
 
-            if (isLoggingEnabled)
+            if (loggingSettings.IsLoggingEnabled)
             {
                 // Only add file logging if logging is enabled
-                loggerConfig.WriteTo.File(logFilePath, rollingInterval: RollingInterval.Day);
+                loggerConfig.WriteTo.File(loggingSettings.LogFilePath, rollingInterval: RollingInterval.Day);
             }
 
-            Log.Logger = loggerConfig.CreateLogger();
+            Log.Logger = loggerConfig.CreateLogger(); // Set Log.Logger once at the beginning
+
+            // Start the logging window - run it in its own thread to ensure it's active
+            var loggingWindowThread = new Thread(() =>
+            {
+                Application.Run(loggingWindow);
+            })
+            {
+                IsBackground = true
+            };
+            loggingWindowThread.Start();
 
             // Build the host with Dependency Injection and Serilog
             var host = Host.CreateDefaultBuilder()
-                .UseSerilog() // Use Serilog for logging
+                .UseSerilog(Log.Logger, dispose: true) // Use the already configured Serilog instance
                 .ConfigureServices((context, services) =>
                 {
+                    services.AddLogging(loggingBuilder =>
+                    {
+                        loggingBuilder.ClearProviders(); // Remove other logging providers
+                        loggingBuilder.AddSerilog(); // Add Serilog
+                    });
                     // Register other services here if needed
                 })
                 .Build();
 
-            // Initialize AppLogger with the logger factory
-            var loggingSettings = new LoggingSettings();
-
+            // Initialize AppLogger with the logger factory and pass the shared LoggingLevelSwitch
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-            AppLogger.Initialize(loggerFactory, loggingSettings);
+            AppLogger.Initialize(loggerFactory, loggingSettings, loggingLevelSwitch);
 
             // Use a generic logger context
             var logger = AppLogger.CreateLogger<object>();
@@ -55,10 +81,8 @@ namespace Neuromaster5Net8
             {
                 logger.LogInformation("Application starting");
 
-                // To customize application configuration such as set high DPI settings or default font,
-                ApplicationConfiguration.Initialize();
+                // Start the main application form
                 Application.Run(new NeuromasterV5());
-
             }
             catch (Exception ex)
             {
@@ -69,7 +93,6 @@ namespace Neuromaster5Net8
                 Log.CloseAndFlush(); // Ensure logs are properly flushed on application exit
             }
         }
-
 
     }
 }

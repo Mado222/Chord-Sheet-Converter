@@ -2,6 +2,7 @@
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace WindControlLib
@@ -24,14 +25,16 @@ namespace WindControlLib
             LogFilePath = Path.Combine(logPath, LogFileName);
         }
     }
-public static class AppLogger
+
+    public static class AppLogger
     {
         private static readonly object _lock = new();
         private static ILoggerFactory? _loggerFactory;
         private static LoggingSettings _loggingSettings = new();
         private static Logger? _serilogLogger;
+        private static LoggingLevelSwitch? _loggingLevelSwitch;
 
-        public static void Initialize(ILoggerFactory loggerFactory, LoggingSettings settings)
+        public static void Initialize(ILoggerFactory loggerFactory, LoggingSettings settings, LoggingLevelSwitch loggingLevelSwitch)
         {
             if (_loggerFactory != null)
             {
@@ -40,12 +43,11 @@ public static class AppLogger
 
             lock (_lock)
             {
-                if (_loggerFactory == null)
-                {
-                    _loggerFactory = loggerFactory;
-                    _loggingSettings = settings;
-                    ConfigureSerilog();
-                }
+                _loggerFactory = loggerFactory;
+                _loggingSettings = settings;
+                _loggingLevelSwitch = loggingLevelSwitch; // Use the shared LoggingLevelSwitch
+
+                ConfigureSerilog(); // Configure the logger initially
             }
         }
 
@@ -53,8 +55,18 @@ public static class AppLogger
         {
             lock (_lock)
             {
+                // Update the logging settings
                 _loggingSettings = settings;
-                ConfigureSerilog();
+
+                // Update log level dynamically using the shared LoggingLevelSwitch
+                if (_loggingLevelSwitch  != null)
+                    _loggingLevelSwitch.MinimumLevel = settings.LogLevel;
+
+                // Reconfigure the logger if the log file path changes
+                if (!string.Equals(_loggingSettings.LogFilePath, settings.LogFilePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    ReconfigureFilePath(settings);
+                }
             }
         }
 
@@ -68,76 +80,40 @@ public static class AppLogger
         {
             if (_loggerFactory == null)
             {
-                lock (_lock)
-                {
-                    if (_loggerFactory == null)
-                    {
-                        _loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-                        _loggingSettings = new LoggingSettings
-                        {
-                            LogLevel = LogEventLevel.Information,
-                            LogFilePath = "logs\\default.log"
-                        };
-                        ConfigureSerilog();
-                    }
-                }
+                throw new InvalidOperationException("AppLogger has not been initialized.");
             }
         }
 
         private static void ConfigureSerilog()
         {
-            if (_loggingSettings == null)
-            {
-                throw new InvalidOperationException("Logging settings must not be null.");
-            }
+            if (_loggingLevelSwitch == null) return;
 
             var config = new LoggerConfiguration()
-                .MinimumLevel.Is(_loggingSettings.LogLevel)
+                .MinimumLevel.ControlledBy(_loggingLevelSwitch) // Use the shared LoggingLevelSwitch
                 .WriteTo.File(_loggingSettings.LogFilePath, rollingInterval: RollingInterval.Day)
-                .WriteTo.Debug();
+                .WriteTo.Debug(); // Output to debug for testing
 
-            Log.CloseAndFlush();
+            Log.CloseAndFlush(); // Flush any previous logs
             _serilogLogger = config.CreateLogger();
-            Log.Logger = _serilogLogger;
+            Log.Logger = _serilogLogger; // Set this only once during initialization.
+        }
+
+        private static void ReconfigureFilePath(LoggingSettings settings)
+        {
+            if (_loggingLevelSwitch == null) return;
+            
+            Log.CloseAndFlush(); // Flush the logs before reconfiguring
+
+            var newConfig = new LoggerConfiguration()
+                .MinimumLevel.ControlledBy(_loggingLevelSwitch) // Use the shared LoggingLevelSwitch for dynamic control
+                .WriteTo.File(settings.LogFilePath, rollingInterval: RollingInterval.Day)
+                .WriteTo.Debug(); // Output to debug for testing
+
+            _serilogLogger = newConfig.CreateLogger();
+            Log.Logger = _serilogLogger; // Set Log.Logger only if absolutely needed
         }
     }
 
 
-    public static class AppLogger_old
-    {
-        private static ILoggerFactory? _loggerFactory;
-        private static LoggingSettings _loggingSettings = new ();
-        private static Logger? _serilogLogger;
 
-        public static void Initialize(ILoggerFactory loggerFactory, LoggingSettings settings)
-        {
-            _loggerFactory = loggerFactory;
-            _loggingSettings = settings;
-            ConfigureSerilog();
-        }
-
-        public static void UpdateLoggingSettings(LoggingSettings settings)
-        {
-            _loggingSettings = settings;
-            ConfigureSerilog();
-        }
-
-        private static void ConfigureSerilog()
-        {
-            var config = new LoggerConfiguration()
-                .MinimumLevel.Is(_loggingSettings.LogLevel)  // Set minimum logging level
-
-                // Write to both file and debug output
-                .WriteTo.File(_loggingSettings.LogFilePath, rollingInterval: RollingInterval.Day)
-                .WriteTo.Debug();  // This logs to Debug.WriteLine
-
-            Log.CloseAndFlush();  // Close any previous loggers
-            _serilogLogger = config.CreateLogger();
-            Log.Logger = _serilogLogger;  // Assign the new configuration to the global logger
-        }
-
-
-        public static Microsoft.Extensions.Logging.ILogger<T> CreateLogger<T>() => _loggerFactory!.CreateLogger<T>();
-    }
 }
-

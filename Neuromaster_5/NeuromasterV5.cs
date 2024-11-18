@@ -2,6 +2,9 @@
 using FeedbackDataLib;
 using FeedbackDataLib.Modules;
 using FeedbackDataLibGUI;
+using Microsoft.Extensions.Logging;
+using Neuromaster5Net8;
+using Serilog.Core;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using WindControlLib;
@@ -64,6 +67,10 @@ namespace Neuromaster_V5
         private readonly System.Windows.Forms.Timer tmrUpdateFFT;
         private FrmSpectrum? FrmSpectrum = null;
 
+        private LoggingSettings _loggingSettings = new();
+
+        private readonly ILogger<CNMaster> _logger;
+
         public NeuromasterV5()
         {
             InitializeComponent();
@@ -81,6 +88,21 @@ namespace Neuromaster_V5
                 Enabled = true
             };
             tmrUpdateFFT.Tick += TmrUpdateFFT_Tick;
+
+            // Create an instance of LoggingSettings
+            _loggingSettings = new LoggingSettings();
+
+            // Set the desired log level dynamically
+            _loggingSettings.LogLevel = Serilog.Events.LogEventLevel.Information;
+
+            // Update AppLogger with new settings
+            AppLogger.UpdateLoggingSettings(_loggingSettings);
+
+            // Create a logger instance
+            var logger = AppLogger.CreateLogger<NeuromasterV5>();
+            // Test logging at different levels
+            logger.LogInformation("This is an Info message."); // Should not appear if log level is Error
+            logger.LogError("This is an Error message."); // Should appear if log level is Error        
         }
 
         private void Init_Graphs()
@@ -254,6 +276,9 @@ namespace Neuromaster_V5
         readonly Stopwatch stopwatch = new();
         private async void StartConnection()
         {
+            //_logger.LogInformation("This is an Info message."); // Should not appear if log level is Error
+            //_logger.LogError("This is an Error message."); // Should appear if log level is Error        
+
             DontReconnectOntbConnect_ToState1 = false;
 
             //if (sDCardToolStripMenuItem.Checked)
@@ -1793,7 +1818,6 @@ namespace Neuromaster_V5
             }
         }
 
-        private LoggingSettings _loggingSettings = new();
         private void loggingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             using (var loggingForm = new FrmSetLogging(_loggingSettings))
@@ -1801,8 +1825,8 @@ namespace Neuromaster_V5
                 var result = loggingForm.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-                    var updatedSettings = loggingForm.GetLoggingSettings();
-                    // You can now use `updatedSettings` even though the form is closed
+                    _loggingSettings = loggingForm.GetLoggingSettings();
+                    AppLogger.UpdateLoggingSettings(_loggingSettings);
                 }
             }
         }

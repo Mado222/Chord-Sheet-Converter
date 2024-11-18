@@ -1,4 +1,5 @@
-﻿using Serilog.Events;
+﻿using Serilog.Core;
+using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,6 +15,27 @@ namespace ComponentsLibGUI
 {
     public partial class FrmSetLogging : Form
     {
+        public class ControlWriter(FrmSetLogging loggingWindow) : System.IO.TextWriter
+        {
+            private readonly FrmSetLogging _loggingWindow = loggingWindow;
+
+            public override void Write(char value)
+            {
+                _loggingWindow.AppendLog(value.ToString());
+            }
+
+            public override void Write(string? value)
+            {
+                if (value != null)
+                {
+                    _loggingWindow.AppendLog(value);
+                }
+            }
+
+            public override Encoding Encoding => Encoding.UTF8;
+        }
+
+
         private readonly LoggingSettings _loggingSettings;
         private readonly BindingSource _bindingSource;
         public FrmSetLogging(LoggingSettings logs)
@@ -32,6 +54,7 @@ namespace ComponentsLibGUI
             };
 
             // Bind the form controls to the corresponding properties of LoggingSettings
+            richTextBoxLogs.ReadOnly = true; // Makes it read-only to prevent user edits
             BindControls();
         }
 
@@ -56,10 +79,6 @@ namespace ComponentsLibGUI
         {
         }
 
-        private void FrmSetLogging_FormClosing(object sender, FormClosingEventArgs e)
-        {
-        }
-
         private void TxTLogPath_MouseClick(object sender, MouseEventArgs e)
         {
             saveFileDialog1.InitialDirectory = Path.GetDirectoryName(TxTLogPath.Text);
@@ -68,9 +87,24 @@ namespace ComponentsLibGUI
 
             if (saveFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
-                
+
                 var logFilePath = saveFileDialog1.FileName;
                 TxTLogPath.Text = logFilePath;
+            }
+        }
+
+
+        // Method to add log messages to the RichTextBox
+        public void AppendLog(string message)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => AppendLog(message)));
+            }
+            else
+            {
+                richTextBoxLogs.AppendText(message + Environment.NewLine);
+                richTextBoxLogs.ScrollToCaret(); // Scroll to the latest log
             }
         }
     }
