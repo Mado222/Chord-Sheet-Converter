@@ -95,24 +95,9 @@ namespace FeedbackDataLib.Modules
 
         /// <summary>
         /// SWChannels die vom Modul kommen
-        /// </summary>
-        protected List<CSWChannel> sWChannels_Module = [];
-        /// <summary>
         /// Gets or sets the SW channels for the Module side
         /// </summary>
-        public List<CSWChannel> SWChannels_Module
-        {
-            get => GetSWChannelsModule();
-            set => SetSWChannelsModule(value);
-        }
-
-        /// <summary>SWChannels to Communicate with Module (eg ADS)</summary>
-        /// <returns>The sw channels module.</returns>
-        public virtual List<CSWChannel> GetSWChannelsModule() => sWChannels_Module;
-
-        /// <summary>SWChannels to Communicate with Module (eg ADS)</summary>
-        /// <param name="value">The sw channels module.</param>
-        public virtual void SetSWChannelsModule(List<CSWChannel> value) => sWChannels_Module = value;
+        public List<CSWChannel> SWChannelsModule { get; set; } = [];
 
         /// <summary>
         /// Gets the number of SW channels.
@@ -190,16 +175,10 @@ namespace FeedbackDataLib.Modules
         public bool ModuleBootloaderError { get; private set; }
 
         /// <summary>
-        /// For internal storage
-        /// </summary>
-        protected EnModuleType _ModuleType = EnModuleType.cModuleTypeEmpty;
-        protected EnModuleType _ModuleType_Unmodified = EnModuleType.cModuleTypeEmpty;
-
-        /// <summary>
         /// Gets the type of the module.
         /// </summary>
-        public EnModuleType ModuleType { get; protected set; }
-        public EnModuleType ModuleType_Unmodified { get; protected set; }
+        public EnModuleType ModuleType { get; protected set; } = EnModuleType.cModuleTypeEmpty;
+        public EnModuleType ModuleType_Unmodified { get; protected set; } = EnModuleType.cModuleTypeEmpty;
 
         /// <summary>
         /// Gets the module type number
@@ -222,7 +201,7 @@ namespace FeedbackDataLib.Modules
         public string ModuleName { get; protected set; }
 #endif
 
-        public virtual byte[] Get_SWConfigChannelsByteArray()
+        public virtual byte[] GetSWConfigChannelsByteArray()
         {
             if (SWChannels is not null)
                 return Get_SWConfigChannelsByteArray(SWChannels);
@@ -305,7 +284,7 @@ namespace FeedbackDataLib.Modules
         public virtual int UpdateFromByteArray(byte[] InBuf, int Pointer_To_Array_Start)
         {
             int ptr = UpdateUIDModuleTypeFromByteArray(InBuf, Pointer_To_Array_Start);
-            sWChannels_Module = [];
+            SWChannelsModule = [];
 
             /* 30.9.2024
              * alte Module senden immer alle 4 SW Kanäle, Neu haben unterschiedliche Anzahl

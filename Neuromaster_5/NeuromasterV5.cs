@@ -73,6 +73,8 @@ namespace Neuromaster_V5
 
         private readonly FrmShowLogging _loggingWindow;
 
+        private readonly DualMonitorPlacement _dualMonitorPlacement;
+
         public NeuromasterV5(FrmShowLogging loggingWindow)
         {
             InitializeComponent();
@@ -83,6 +85,15 @@ namespace Neuromaster_V5
             ucSignalAnalysers.Clear();
             ucSignalAnalysers.Add(ucSignalAnalyser1);
             tlpMeasure.Controls.Add(ucSignalAnalyser1, 0, 0);
+
+            _dualMonitorPlacement = new DualMonitorPlacement();
+
+            // Move `this` form to the primary monitor
+            _dualMonitorPlacement.MoveWindowToCorrectMonitor(this, true);
+
+            // move to the secondary monitor:
+            _dualMonitorPlacement.MoveWindowToCorrectMonitor(loggingWindow, false);
+
 
             tmrUpdateFFT = new System.Windows.Forms.Timer
             {
@@ -585,7 +596,7 @@ namespace Neuromaster_V5
                     //Is EEG dabei?
                     for (int i = 0; i < cNMaster!.ModuleInfos!.Count; i++)
                     {
-                        if (cNMaster.ModuleInfos[i].ModuleType == EnModuleType.cModuleEEG)
+                        if (cNMaster.ModuleInfos[i].ModuleType == EnModuleType.cModuleEEG || cNMaster.ModuleInfos[i].ModuleType == EnModuleType.cModuleExGADS94)
                             tmrUpdateFFT.Start();
                     }
                 }
@@ -1755,7 +1766,7 @@ namespace Neuromaster_V5
         {
             if (cNMaster is not null)
             {
-                if (cNMaster.ModuleInfos[idxSelectedModule].ModuleType == EnModuleType.cModuleEEG)
+                if (cNMaster.ModuleInfos[idxSelectedModule].ModuleType == EnModuleType.cModuleEEG || cNMaster.ModuleInfos[idxSelectedModule].ModuleType == EnModuleType.cModuleExGADS94)
                 {
                     try
                     {

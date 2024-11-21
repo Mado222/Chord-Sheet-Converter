@@ -232,9 +232,8 @@ namespace FeedbackDataLib
                 }
                 catch (Exception ex)
                 {
-                    //var logger = AppLogger.CreateLogger<CNMaster>(); // Create a logger for this class
-                    //if (_logger != null)
-                    //    _logger.LogError("Check4Neuromaster: {Message}", ex.Message);
+                    var logger = AppLogger.CreateLogger<CNMaster>(); // Create a logger for this class
+                    logger?.LogError("Check4Neuromaster: {Message}", ex.Message);
                     Failed = true;
                 }
                 if (!Failed)

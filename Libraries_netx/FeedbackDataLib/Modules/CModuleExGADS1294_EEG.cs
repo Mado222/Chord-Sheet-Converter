@@ -73,8 +73,8 @@ namespace FeedbackDataLib.Modules
 
         public CModuleExGADS1294_EEG()
         {
-            _ModuleType_Unmodified = EnModuleType.cModuleExGADS94;
-            _ModuleType = EnModuleType.cModuleEEG;
+            ModuleType_Unmodified = EnModuleType.cModuleExGADS94;
+            ModuleType = EnModuleType.cModuleEEG;
             dtNextSpectrumUpdate = new DateTime[NumRawChannels];
             tsSpectrumUpdateInterval_ms = new TimeSpan[NumRawChannels];
             for (int i = 0; i < NumRawChannels; i++)
@@ -143,13 +143,16 @@ namespace FeedbackDataLib.Modules
         {
             int ret = base.UpdateFromByteArray(InBuf, Pointer_To_Array_Start);
 
+            //SWChannelsModule.Clear();
+            //for (int i = 0; i < SWChannels.Count; i++)
+            //{
+            //    SWChannelsModule.Add((CSWChannel)SWChannels[i].Clone());
+            //}
             //Override Module Type back to EEG
             for (int i = 0; i < SWChannels.Count; i++)
-                SWChannels[i].ModuleType = _ModuleType;
+                SWChannels[i].ModuleType = EnModuleType.cModuleEEG;
 
-            ModuleType = _ModuleType;
-            ModuleType_Unmodified = _ModuleType_Unmodified;
-            //Setup_SWChannels();
+            Setup_SWChannels();
             return ret;
         }
 
@@ -258,7 +261,7 @@ namespace FeedbackDataLib.Modules
             if (originalData.SWcn < NumRawChannels)
             {
                 int swcn = originalData.SWcn;
-                if (sWChannels_Module[swcn].SendChannel)
+                if (SWChannelsModule[swcn].SendChannel)
                 {
                     processedData.Add(originalData);
 
@@ -287,17 +290,17 @@ namespace FeedbackDataLib.Modules
         }
 
 
-        public override byte[] Get_SWConfigChannelsByteArray()
+        public override byte[] GetSWConfigChannelsByteArray()
         {
             if (IsModuleActive())
             {
                 for (int i = 0; i < NumRawChannels; i++)
                 {
-                    SWChannels_Module[i].SWChannelConfig = SWChannels[i].SWChannelConfig; //Raw signals channels are in the beginning
+                    SWChannelsModule[i].SWChannelConfig = SWChannels[i].SWChannelConfig; //Raw signals channels are in the beginning
                 }
                 //Module werden frisch gesetzt - EEG Prozessor aktualisieren
             }
-            return base.Get_SWConfigChannelsByteArray(SWChannels_Module);
+            return base.Get_SWConfigChannelsByteArray(SWChannelsModule);
         }
     }
 }

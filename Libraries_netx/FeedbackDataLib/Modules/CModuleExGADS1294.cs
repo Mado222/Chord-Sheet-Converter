@@ -133,19 +133,14 @@ namespace FeedbackDataLib.Modules
 
         protected virtual void Setup_SWChannels(string prefix = "channel")
         {
-            //Copy from Neuromodul coming Channels to sWChannels_Module
-            sWChannels_Module.Clear();
-            for (int i = 0; i < SWChannels.Count; i++)
-            {
-                CSWChannel swc = (CSWChannel)SWChannels[i].Clone();
-                sWChannels_Module.Add(swc);
-            }
+            //Copy from Neuromodul coming Channels to SWChannelsModule
+            SWChannelsModule = SWChannels.ConvertAll(channel => (CSWChannel)channel.Clone());
 
             SWChannels = [];
             int j = 0;
             while (j < num_SWChannels_sent_by_HW) // num_raw_Channels)
             {
-                if (SWChannels_Module[j].Clone() is CSWChannel sws)
+                if (SWChannelsModule[j].Clone() is CSWChannel sws)
                 {
                     sws.SWChannelName = prefix + j.ToString() + " raw [V]";
                     sws.SWChannelNumber = (byte)j;

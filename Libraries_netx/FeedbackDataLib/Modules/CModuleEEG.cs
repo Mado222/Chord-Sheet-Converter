@@ -6,17 +6,17 @@
         public CModuleEEG()
         {
             _num_raw_Channels = 1;
-            _ModuleType_Unmodified = EnModuleType.cModuleEEG;
-            _ModuleType = EnModuleType.cModuleEEG;
+            ModuleType_Unmodified = EnModuleType.cModuleEEG;
+            ModuleType = EnModuleType.cModuleEEG;
             Init();
         }
 
-        public override byte[] Get_SWConfigChannelsByteArray()
+        public override byte[] GetSWConfigChannelsByteArray()
         {
             if (SWChannels != null)
             {
-                SWChannels_Module[0].SampleInt = SWChannels[0].SampleInt;
-                return base.Get_SWConfigChannelsByteArray();
+                SWChannelsModule[0].SampleInt = SWChannels[0].SampleInt;
+                return base.GetSWConfigChannelsByteArray();
             }
             return [];
         }

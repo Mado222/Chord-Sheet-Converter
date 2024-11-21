@@ -96,7 +96,7 @@ namespace ComponentsLibGUI
                     color = Color.Blue;
                     break;
                 case LogEventLevel.Warning:
-                    color = Color.Yellow;
+                    color = Color.DarkOrange;
                     break;
                 case LogEventLevel.Error:
                 case LogEventLevel.Fatal:

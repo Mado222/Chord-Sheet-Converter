@@ -267,7 +267,7 @@ namespace FeedbackDataLib
             {
                 HWcn = (byte)HWcn
             };
-            SendCommand(EnNeuromasterCommand.SetModuleConfig, moduleInfo.Get_SWConfigChannelsByteArray(), cr);
+            SendCommand(EnNeuromasterCommand.SetModuleConfig, moduleInfo.GetSWConfigChannelsByteArray(), cr);
             return true;
         }
 
