@@ -149,7 +149,7 @@ namespace FeedbackDataLib.Modules
 
             ModuleType = _ModuleType;
             ModuleType_Unmodified = _ModuleType_Unmodified;
-            Setup_SWChannels();
+            //Setup_SWChannels();
             return ret;
         }
 

@@ -69,9 +69,11 @@ namespace Neuromaster_V5
 
         private LoggingSettings _loggingSettings = new();
 
-        private readonly ILogger<CNMaster> _logger;
+        private ILogger _logger;
 
-        public NeuromasterV5()
+        private readonly FrmShowLogging _loggingWindow;
+
+        public NeuromasterV5(FrmShowLogging loggingWindow)
         {
             InitializeComponent();
             SuspendLayout();
@@ -99,10 +101,40 @@ namespace Neuromaster_V5
             AppLogger.UpdateLoggingSettings(_loggingSettings);
 
             // Create a logger instance
-            var logger = AppLogger.CreateLogger<NeuromasterV5>();
+            _logger = AppLogger.CreateLogger<NeuromasterV5>();
             // Test logging at different levels
-            logger.LogInformation("This is an Info message."); // Should not appear if log level is Error
-            logger.LogError("This is an Error message."); // Should appear if log level is Error        
+            _logger.LogInformation("This is an Info message."); // Should not appear if log level is Error
+            _logger.LogError("This is an Error message."); // Should appear if log level is Error
+                                                           // 
+            _loggingWindow = loggingWindow;
+
+            // Optionally, add event handlers to the logging window here
+            _loggingWindow.LoggingSettingsChanged += _loggingWindow_LoggingSettingsChanged;
+        }
+
+        private void _loggingWindow_LoggingSettingsChanged(object? sender, LoggingSettings e)
+        {
+            AppLogger.UpdateLoggingSettings(e);
+        }
+
+        private void NeuromasterV2_Load(object sender, EventArgs e)
+        {
+        }
+
+        private void NeuromasterV2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            tmrStatusMessages.Enabled = false;
+            cFlowChartDX1.Stop();
+            GoDisconnected();
+
+            Neuromaster_Textfile_Importer_Exporter.CloseFile();
+
+            if (_frmSaveData != null)
+            {
+                Neuromaster_Textfile_Importer_Exporter?.CloseFile();
+
+                _frmSaveData.Close();
+            }
         }
 
         private void Init_Graphs()
@@ -221,23 +253,7 @@ namespace Neuromaster_V5
             }
         }
 
-        private void NeuromasterV2_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            tmrStatusMessages.Enabled = false;
-            cFlowChartDX1.Stop();
-            GoDisconnected();
-
-            Neuromaster_Textfile_Importer_Exporter.CloseFile();
-
-            if (_frmSaveData != null)
-            {
-                Neuromaster_Textfile_Importer_Exporter?.CloseFile();
-
-                _frmSaveData.Close();
-            }
-        }
-
-        #region Organise_GUI
+                #region Organise_GUI
 
 
         /// <summary>
@@ -1127,25 +1143,6 @@ namespace Neuromaster_V5
                 return version;
             }
         }
-        private void NeuromasterV2_Load(object sender, EventArgs e)
-        {
-            try
-            {
-                /*
-                this.Text = "Neuromaster / Insight Instruments / " +
-                    ApplicationDeployment.CurrentDeployment.CurrentVersion.Major.ToString() +
-                    "." + ApplicationDeployment.CurrentDeployment.CurrentVersion.Minor.ToString() +
-                    "." + ApplicationDeployment.CurrentDeployment.CurrentVersion.Build.ToString();
-                */
-            }
-            catch (Exception ee)
-            {
-#if DEBUG
-                AddStatusString("NeuromasterV2_Load: " + ee.Message);
-#endif
-            }
-            //this.Text += " / DLL: " + Version.ToString(); //String.Format("Version {0}.{1}", Version.Major.ToString(), Version.Minor.ToString());
-        }
 
         string LastSaveLoadFilename = "";
 
@@ -1826,7 +1823,7 @@ namespace Neuromaster_V5
                 if (result == DialogResult.OK)
                 {
                     _loggingSettings = loggingForm.GetLoggingSettings();
-                    AppLogger.UpdateLoggingSettings(_loggingSettings);
+                    _loggingWindow_LoggingSettingsChanged(this, _loggingSettings);
                 }
             }
         }

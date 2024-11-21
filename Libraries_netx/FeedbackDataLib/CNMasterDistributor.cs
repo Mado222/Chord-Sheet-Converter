@@ -291,7 +291,7 @@ namespace FeedbackDataLib
                     {
                         try
                         {
-                            UpdateModuleFromByteArray(rc.ResponseData);
+                            _ = UpdateModuleFromByteArray(rc.ResponseData);
                             Calculate_SkalMax_SkalMin(); // Calculate max and mins
                             OnGetModuleConfigResponse(ModuleInfos[rc.HWcn], msg);
                         }
@@ -481,7 +481,7 @@ namespace FeedbackDataLib
         public void StartDistributorThreadAsync()
         {
             cancellationTokenDistributor = new CancellationTokenSource();
-            Task.Run(function: () => DistributorThreadAsync(cancellationTokenDistributor.Token));
+            _ = Task.Run(function: () => DistributorThreadAsync(cancellationTokenDistributor.Token));
         }
 
         public void StopDistributorThreadAsync()

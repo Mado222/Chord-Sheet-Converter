@@ -82,7 +82,7 @@ namespace Neuromaster5Net8
                 logger.LogInformation("Application starting");
 
                 // Start the main application form
-                Application.Run(new NeuromasterV5());
+                Application.Run(new NeuromasterV5(loggingWindow));
             }
             catch (Exception ex)
             {

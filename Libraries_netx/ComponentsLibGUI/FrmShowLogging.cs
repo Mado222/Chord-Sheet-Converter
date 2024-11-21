@@ -2,35 +2,33 @@
 using Serilog.Events;
 using System.Text;
 using WindControlLib;
+using Microsoft.Extensions.Logging;
 
 namespace ComponentsLibGUI
 {
     public partial class FrmShowLogging : Form
     {
-        public class ControlWriter(FrmShowLogging loggingWindow) : System.IO.TextWriter
+        public event EventHandler<LoggingSettings>? LoggingSettingsChanged;
+        private void OnLoggingSettingsChanged(LoggingSettings settings)
         {
-            private readonly FrmShowLogging _loggingWindow = loggingWindow;
-
-            public override void Write(char value)
-            {
-                _loggingWindow.AppendLog(value.ToString());
-            }
-
-            public override void Write(string? value)
-            {
-                if (value != null)
-                {
-                    _loggingWindow.AppendLog(value);
-                }
-            }
-
-            public override Encoding Encoding => Encoding.UTF8;
+            LoggingSettingsChanged?.Invoke(this, settings);
         }
 
-        public FrmShowLogging()
+        public FrmShowLogging(LoggingSettings? logs = null)
         {
             InitializeComponent();
+            //_logger = logger;
             richTextBoxLogs.ReadOnly = true; // Makes it read-only to prevent user edits
+            _ucSetLogging.SetButtonVisibility(false);
+
+            _ucSetLogging.Initialize(logs ?? new LoggingSettings());
+
+            _ucSetLogging.LoggingSettingsChanged += _ucSetLogging_LoggingSettingsChanged;
+        }
+
+        private void _ucSetLogging_LoggingSettingsChanged(object? sender, LoggingSettings e)
+        {
+            OnLoggingSettingsChanged(e);
         }
 
         // Method to add log messages to the RichTextBox
@@ -51,17 +49,33 @@ namespace ComponentsLibGUI
         {
             if (InvokeRequired)
             {
-                Invoke(new Action(() => AppendColoredTextToRichTextBox(coloredText)));
+                if (!IsDisposed && IsHandleCreated)
+                    Invoke(new Action(() => AppendColoredTextToRichTextBox(coloredText)));
             }
             else
             {
-                richTextBoxLogs.SelectionStart = richTextBoxLogs.TextLength;
-                richTextBoxLogs.SelectionLength = 0;
-                richTextBoxLogs.SelectionColor = coloredText.Color;
-                richTextBoxLogs.AppendText(coloredText.Text + Environment.NewLine);
-                richTextBoxLogs.SelectionColor = richTextBoxLogs.ForeColor;
-                richTextBoxLogs.ScrollToCaret();
+                if (!IsDisposed && !richTextBoxLogs.IsDisposed && richTextBoxLogs.IsHandleCreated)
+                {
+                    if (_ucSetLogging != null)
+                    {
+                        ColoredText? s = _ucSetLogging.FilterMessage(coloredText);
+                        if (s != null)
+                        {
+                            richTextBoxLogs.SelectionStart = richTextBoxLogs.TextLength;
+                            richTextBoxLogs.SelectionLength = 0;
+                            richTextBoxLogs.SelectionColor = coloredText.Color;
+                            richTextBoxLogs.AppendText(coloredText.Text + Environment.NewLine);
+                            richTextBoxLogs.SelectionColor = richTextBoxLogs.ForeColor;
+                            richTextBoxLogs.ScrollToCaret();
+                        }
+                    }
+                }
             }
+        }
+
+        private void BtClearLog_Click(object sender, EventArgs e)
+        {
+            richTextBoxLogs.Clear();
         }
     }
 
@@ -75,6 +89,9 @@ namespace ComponentsLibGUI
             Color color;
             switch (logEvent.Level)
             {
+                case LogEventLevel.Debug:
+                    color = Color.Brown;
+                    break;
                 case LogEventLevel.Information:
                     color = Color.Blue;
                     break;
@@ -94,14 +111,7 @@ namespace ComponentsLibGUI
             var renderedMessage = logEvent.RenderMessage();
 
             // Shorten log level for display
-            string logLevelShort = logEvent.Level switch
-            {
-                LogEventLevel.Information => "Inf",
-                LogEventLevel.Warning => "War",
-                LogEventLevel.Error => "Err",
-                LogEventLevel.Fatal => "Err",
-                _ => logEvent.Level.ToString().Substring(0, 3)
-            };
+            string logLevelShort = logEvent.Level.ToString()[..3];
 
             // Add the log level and timestamp if needed
             var outputMessage = $"[{logEvent.Timestamp:HH:mm:ss}] [{logLevelShort}] {renderedMessage}";
@@ -112,5 +122,25 @@ namespace ComponentsLibGUI
             // Send the log message to the RichTextBox with appropriate color
             loggingWindow.AppendColoredTextToRichTextBox(coloredText);
         }
+    }
+
+    public class ControlWriter(FrmShowLogging loggingWindow) : System.IO.TextWriter
+    {
+        private readonly FrmShowLogging _loggingWindow = loggingWindow;
+
+        public override void Write(char value)
+        {
+            _loggingWindow.AppendLog(value.ToString());
+        }
+
+        public override void Write(string? value)
+        {
+            if (value != null)
+            {
+                _loggingWindow.AppendLog(value);
+            }
+        }
+
+        public override Encoding Encoding => Encoding.UTF8;
     }
 }

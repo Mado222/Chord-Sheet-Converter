@@ -2,17 +2,72 @@
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 
 namespace WindControlLib
 {
-    public class LoggingSettings
+    public class LoggingSettings : INotifyPropertyChanged
     {
-        public bool IsLoggingEnabled { get; set; } = true;
-        public string LogFilePath { get; set; } = "";
-        public string LogFileName { get; set; } = "";
-        public LogEventLevel LogLevel { get; set; } = LogEventLevel.Information;
+        private bool _isLoggingEnabled= true;
+        private string _logFilePath ="";
+        private string _logFileName = "";
+        private LogEventLevel _logLevel = LogEventLevel.Information;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public bool IsLoggingEnabled
+        {
+            get => _isLoggingEnabled;
+            set
+            {
+                if (_isLoggingEnabled != value)
+                {
+                    _isLoggingEnabled = value;
+                    OnPropertyChanged(nameof(IsLoggingEnabled));
+                }
+            }
+        }
+
+        public string LogFilePath
+        {
+            get => _logFilePath;
+            set
+            {
+                if (_logFilePath != value)
+                {
+                    _logFilePath = value;
+                    OnPropertyChanged(nameof(LogFilePath));
+                }
+            }
+        }
+
+        public string LogFileName
+        {
+            get => _logFileName;
+            set
+            {
+                if (_logFileName != value)
+                {
+                    _logFileName = value;
+                    OnPropertyChanged(nameof(LogFileName));
+                }
+            }
+        }
+
+        public LogEventLevel LogLevel
+        {
+            get => _logLevel;
+            set
+            {
+                if (_logLevel != value)
+                {
+                    _logLevel = value;
+                    OnPropertyChanged(nameof(LogLevel));
+                }
+            }
+        }
 
         public LoggingSettings()
         {
@@ -23,6 +78,11 @@ namespace WindControlLib
 
             LogFileName = $"{applicationName}.log";
             LogFilePath = Path.Combine(logPath, LogFileName);
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

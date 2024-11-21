@@ -305,7 +305,7 @@ namespace FeedbackDataLib
                                                 }
                                             default:
                                                 {
-                                                    _logger.LogInformation("RS232ReceiverThreadAsync default: {Message}" ,BitConverter.ToString(buf).Replace("-", " "));
+                                                    _logger.LogWarning("RS232ReceiverThreadAsync default: {Message}" ,BitConverter.ToString(buf).Replace("-", " "));
                                                     CommandResponseQueue.Push((buf, DateTime.Now)); // Store command for further processing
                                                     break;
                                                 }
