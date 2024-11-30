@@ -14,7 +14,6 @@ namespace ChordSheetConverter
         public static readonly Dictionary<EnLineType, string> LineTypeToStyleMap = new()
         {
         { EnLineType.Unknown, "Standard" },        // Default or fallback style
-        { EnLineType.ChordLine, "songChords" },    // Style for Chord lines
         { EnLineType.TextLine, "songText" },      // Style for Text lines
         { EnLineType.EmptyLine, "Standard" },    // Style for Empty lines
         { EnLineType.CommentLine, "songComment" },// Style for Comment lines
@@ -22,9 +21,15 @@ namespace ChordSheetConverter
         { EnLineType.xmlTagOpenTag, "Standard" },// Style for opening XML tags
         { EnLineType.xmlTagClosingTag, "Standard" },// Style for closing XML tags
         { EnLineType.SectionBegin, "songSectionBegin" },// Style for section begins
+        { EnLineType.SectionEnd, "songSectionEnd" },
         { EnLineType.ColumnBreak, "Standard" },// Style for column breaks
         { EnLineType.PageBreak, "Standard" },     // Style for page breaks
-        { EnLineType.SectionEnd, "songSectionEnd" },     //Style for section ends
+        { EnLineType.TextLineVerse, "songTextLineVerse" },
+        { EnLineType.TextLineChorus, "songTextLineChorus" },
+        { EnLineType.TextLineBridge, "songTextLineBridge" },
+        { EnLineType.ChordLineVerse, "songChordLineVerse" },
+        { EnLineType.ChordLineChorus, "songChordLineChorus" },
+        { EnLineType.ChordLineBridge, "songChordLineBridge" },
     };
 
 
@@ -119,50 +124,66 @@ namespace ChordSheetConverter
                 // Determine the style ID based on the line type
                 string styleID = "Standard";
                 if (LineTypeToStyleMap.TryGetValue(tag, out string? value))
+                {
                     styleID = value;
+                }
 
-                if (tag == EnLineType.EmptyLine)
+                switch (tag)
                 {
-                    // Add an empty line
-                    paragraphs?.Add(new Paragraph(new Run()));
-                }
-                else if (tag == EnLineType.PageBreak)
-                {
-                    // Add a page break
-                    paragraphs?.Add(CreatePageBreak());
-                }
-                else if (tag == EnLineType.ColumnBreak)
-                {
-                    // Add a column break
-                    paragraphs?.Add(CreateColumnBreak());
-                }
-                else if (tag == EnLineType.ChordLine)
-                {
-                    // Create a styled paragraph specifically for chord lines
-                    paragraphs?.Add(CreateStyledChordLine(text, styleID));
-                }
-                else if (tag == EnLineType.SectionBegin)
-                {
-                    if (inSection.Length > 0)
-                    {
-                        string sid = "Standard";
-                        if (LineTypeToStyleMap.TryGetValue(EnLineType.SectionEnd, out string? se))
-                            sid = se;
-                        paragraphs?.Add(CreateStyledParagraph("End + ", sid));
+                    case EnLineType.EmptyLine:
+                        // Add an empty line
+                        if (inSection.Length > 0)
+                        {
+                            string sid = "Standard";
+                            if (LineTypeToStyleMap.TryGetValue(EnLineType.SectionEnd, out string? se))
+                                sid = se;
+                            paragraphs?.Add(CreateStyledParagraph("End " + inSection, sid));
+                            inSection = "";
+                        }
+                        paragraphs?.Add(new Paragraph(new Run()));
+
+                        break;
+                    case EnLineType.PageBreak:
+                        // Add a page break
+                        paragraphs?.Add(CreatePageBreak());
+                        break;
+                    case EnLineType.ColumnBreak:
+                        // Add a column break
+                        paragraphs?.Add(CreateColumnBreak());
+                        break;
+                    case EnLineType.ChordLineVerse:
+                    case EnLineType.ChordLineBridge:
+                    case EnLineType.ChordLineChorus:
+                    case EnLineType.CommentLine:
+                    case EnLineType.TextLine:
+                    case EnLineType.TextLineBridge:
+                    case EnLineType.TextLineChorus:
+                    case EnLineType.TextLineVerse:
+                        // Create a styled paragraph 
+                        
+                        //replace leading spaces
+                        text = Regex.Replace(text, @"^ +", match => new string('\u00A0', match.Length));
+                        paragraphs?.Add(CreateStyledChordLine(text, styleID));
+                        break;
+                    case EnLineType.SectionBegin:
+                        {
+                            if (inSection.Length > 0)
+                            {
+                                //string sid = "Standard";
+                                //if (LineTypeToStyleMap.TryGetValue(EnLineType.SectionEnd, out string? se))
+                                //    sid = se;
+                                //paragraphs?.Add(CreateStyledParagraph("End" + inSection, sid));
+                                inSection = "";
+                            }
+                            inSection = text;
+                            paragraphs?.Add(CreateStyledParagraph(text, styleID));
+                            break;
+                        }
+
+                    case EnLineType.SectionEnd:
+                        paragraphs?.Add(CreateStyledParagraph(text, "songSectionEnd"));
                         inSection = "";
-                    }
-                    inSection = text;
-                    paragraphs?.Add(CreateStyledParagraph(text, styleID));
-                }
-                else if (tag == EnLineType.SectionEnd)
-                {
-                    paragraphs?.Add(CreateStyledParagraph(text, "songSectionEnd"));
-                    inSection = "";
-                }
-                else if (tag == EnLineType.CommentLine || tag == EnLineType.TextLine)
-                {
-                    // Create a styled paragraph for comment or text lines
-                    paragraphs?.Add(CreateStyledParagraph(text, styleID));
+                        break;
                 }
             }
             return paragraphs;
@@ -302,7 +323,7 @@ namespace ChordSheetConverter
         // Helper method to create a paragraph with a style
         private static Paragraph CreateStyledParagraph(string text, string styleId)
         {
-            var run = new Run(new Text(text)
+            Run run = new Run(new Text(text)
             {
                 Space = SpaceProcessingModeValues.Preserve // Preserve spaces in the text
             });

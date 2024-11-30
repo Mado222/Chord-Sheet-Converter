@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
+using static ChordSheetConverter.CScales;
 using EnLineType = ChordSheetConverter.CChordSheetLine.EnLineType;
 
 namespace ChordSheetConverter
@@ -17,17 +19,17 @@ namespace ChordSheetConverter
         // property / tag
         public static readonly Dictionary<string, string> openSongMapTags = new()
         {
-    { "title", "title" },
-    { "composer", "author" },
-    { "copyright", "copyright" },
-    { "key", "key" },
-    { "time", "time_sig" },
-    { "tempo", "tempo" },
-    { "capo", "capo" } };
+    { "Title", "title" },
+    { "Composer", "author" },
+    { "Copyright", "copyright" },
+    { "Key", "key" },
+    { "Time", "time_sig" },
+    { "Tempo", "tempo" },
+    { "Capo", "capo" } };
 
         public override Dictionary<string, string> PropertyMapTags { get; } = openSongMapTags;
 
-        public List<string> GetOpenSongTags()
+        private List<string> GetOpenSongTags()
         {
             var xmlElements = new List<string>();
 
@@ -49,7 +51,6 @@ namespace ChordSheetConverter
 
             return xmlElements;
         }
-
 
         public override List<CChordSheetLine> Analyze(string[] lines) //returns chordSheetLines
         {
@@ -125,6 +126,9 @@ namespace ChordSheetConverter
             // Process lyrics and other lines
             List<string> lyricsLines = new(StringToLines(xmlContent["lyrics"]));
             ChordSheetLines.Clear();
+            EnLineType ltypeText = EnLineType.TextLineVerse;
+            EnLineType ltypeChorus = EnLineType.ChordLineVerse;
+
 
             foreach (string line in lyricsLines)
             {
@@ -137,15 +141,31 @@ namespace ChordSheetConverter
                     char firstChar = line[0];
                     if (firstChar == '.')
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.ChordLine, line[1..]));
+                        ChordSheetLines.Add(new CChordSheetLine(ltypeChorus, line[1..]));
                     }
                     else if (firstChar == ' ' || firstChar == CChordSheetLine.nonBreakingSpaceChar)
                     {
-                        ChordSheetLines.Add(new CChordSheetLine(EnLineType.TextLine, line[1..]));
+                        ChordSheetLines.Add(new CChordSheetLine(ltypeText, line[1..]));
                     }
                     else if (firstChar == '[')
                     {
                         ChordSheetLines.Add(new CChordSheetLine(EnLineType.SectionBegin, checkSectionTag(line)));
+                        if (line.Contains('C'))
+                        {
+                            ltypeText = EnLineType.TextLineChorus;
+                            ltypeChorus = EnLineType.ChordLineChorus;
+                        }
+                        else if (line.Contains('B'))
+                        {
+                            ltypeText = EnLineType.TextLineBridge;
+                            ltypeChorus = EnLineType.ChordLineBridge;
+                        }
+                        else //if (line.Contains('V'))
+                        {
+                            ltypeText = EnLineType.TextLineVerse;
+                            ltypeChorus = EnLineType.ChordLineVerse;
+                        }
+
                     }
                     else if (firstChar == ';')
                     {
@@ -191,54 +211,58 @@ namespace ChordSheetConverter
                 string line = chordSheetLines[i].Line;
                 EnLineType thisLineType = chordSheetLines[i].LineType;
 
-                if (thisLineType == EnLineType.ChordLine)
+                switch (thisLineType)
                 {
-                    //chord line
-                    res.Add("." + line.Trim());
-                }
-                else if (thisLineType == EnLineType.EmptyLine)
-                {
-                    //Empty line
-                    res.Add("");
-                }
-                else if (thisLineType == EnLineType.TextLine)
-                {
-                    res.Add(' ' + line.Trim());
-                }
-                else if (thisLineType == EnLineType.CommentLine)
-                {
-                    //Any other textline
-                    res.Add(";" + line.Trim());
-                }
-                else if (thisLineType == EnLineType.SectionBegin)
-                {
-                    if (line.Contains("Ver"))
-                    {
-                        //Get number from string
-                        string vnum = new(line.Where(char.IsDigit).ToArray());
-                        res.Add("[V" + vnum + "]");
-                    }
-                    else if (line.Contains("Chor"))
-                    {
-                        res.Add("[C]");
-                    }
-                    else if (line.Contains("Bri"))
-                    {
-                        res.Add("[B]");
-                    }
-                }
-                else if (thisLineType == EnLineType.SectionEnd)
-                {
-                    if (line != "")
-                        res.Add("; End " + line);
-                }
-                else if (thisLineType == EnLineType.PageBreak)
-                {
-                    res.Add("-!!");
-                }
-                else if (thisLineType == EnLineType.ColumnBreak)
-                {
-                    res.Add("---");
+                    case EnLineType.ChordLineVerse:
+                    case EnLineType.ChordLineBridge:
+                    case EnLineType.ChordLineChorus:
+                        //chord line
+                        res.Add("." + line.TrimEnd());
+                        break;
+                    case EnLineType.EmptyLine:
+                        //Empty line
+                        res.Add("");
+                        break;
+                    case EnLineType.TextLine:
+                    case EnLineType.TextLineVerse:
+                    case EnLineType.TextLineChorus:
+                    case EnLineType.TextLineBridge:
+                        res.Add(' ' + line.Trim());
+                        break;
+                    case EnLineType.CommentLine:
+                        //Any other textline
+                        res.Add(";" + line.Trim());
+                        break;
+                    case EnLineType.SectionBegin:
+                        {
+                            if (line.Contains("Ver"))
+                            {
+                                //Get number from string
+                                string vnum = new(line.Where(char.IsDigit).ToArray());
+                                res.Add("[V" + vnum + "]");
+                            }
+                            else if (line.Contains("Chor"))
+                            {
+                                res.Add("[C]");
+                            }
+                            else if (line.Contains("Bri"))
+                            {
+                                res.Add("[B]");
+                            }
+
+                            break;
+                        }
+
+                    case EnLineType.SectionEnd:
+                        if (line != "")
+                            res.Add("; End " + line);
+                        break;
+                    case EnLineType.PageBreak:
+                        res.Add("-!!");
+                        break;
+                    case EnLineType.ColumnBreak:
+                        res.Add("---");
+                        break;
                 }
             }
 
@@ -255,5 +279,103 @@ namespace ChordSheetConverter
             return LinesToString ([..res]);
         }
 
+        public override string[] Transpose(string[] linesIn, TranspositionParameters? parameters = null, int? steps = null )
+        {
+            var transposedLines = new List<string>();
+
+            foreach (var lineIn in linesIn)
+            {
+                if (lineIn.StartsWith('.'))
+                {
+                    // Extract chords from the incoming line
+                    (CChordCollection chords, string _) = ExtractChords(lineIn[1..]);
+
+                    // Transpose each chord using CScales class
+                    foreach (var chord in chords)
+                    {
+                        if (steps != null)
+                        {
+                            chord.Chord = CScales.Transpose(chord.Chord, (int) steps);
+                        }
+                        else if (parameters != null)
+                        {
+                            chord.Chord = CScales.Transpose(chord.Chord, parameters);
+                        }
+                    }
+
+                    // Retrieve the transposed, well-spaced chord line
+                    string transposedLine = "." + chords.GetWellSpacedChordLine();
+                    transposedLines.Add(transposedLine);
+                }
+                else
+                {
+                    transposedLines.Add(lineIn);
+                }
+            }
+            return [.. transposedLines];
+        }
+
+        // Helper method to extract chords from a line
+        public override (CChordCollection chords, string lyrics) ExtractChords(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line)) return (new CChordCollection(), "");
+
+            if (line.StartsWith(".")) line = line[1..];
+            if (string.IsNullOrEmpty(line)) return (new CChordCollection(), "");
+
+            var chords = new CChordCollection();
+            var chordBuilder = new StringBuilder();
+            int idxChordBegin = -1;
+
+            line = line.TrimEnd() + ' '; // Ensure the last chord is processed
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] != ' ' && line[i] != '\u00A0')
+                {
+                    if (idxChordBegin == -1) idxChordBegin = i; // Mark the start of a chord
+                    chordBuilder.Append(line[i]);
+                }
+                else if (chordBuilder.Length > 0)
+                {
+                    // End of a chord, add to the collection
+                    if (!CScales.IsValidChord(chordBuilder.ToString()))
+                        return (new CChordCollection(), "");
+                    chords.AddChord(new CChord(chordBuilder.ToString(), idxChordBegin));
+                    chordBuilder.Clear();
+
+                    idxChordBegin = -1;
+                }
+            }
+
+            return (chords, "");
+        }
+
+        public override string ConverToNashville(string text, string key, ScaleType scaleType = ScaleType.Major)
+        {
+            List<CChordSheetLine> linesOut = [];
+
+            List<CChordSheetLine> lines = Analyze(text);
+            foreach (CChordSheetLine line in lines)
+            {
+                if (line.LineType == EnLineType.ChordLineChorus || line.LineType == EnLineType.ChordLineBridge || line.LineType == EnLineType.ChordLineVerse)
+                {
+                    CChordCollection chordsOut = new();
+                    (CChordCollection chords, _) = ExtractChords(line.Line);
+                    foreach (CChord c in chords)
+                    {
+                        c.Chord = ConvertChordToNashville(c.Chord, key, scaleType);
+                        chordsOut.AddChord(c);
+                    }
+                    line.Line = chordsOut.GetWellSpacedChordLine();
+                    linesOut.Add(line);
+                }
+                else
+                {
+                    linesOut.Add(line);
+                }
+            }
+            return Build(linesOut);
+        }
     }
 }

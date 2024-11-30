@@ -7,6 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <AssemblyVersion>2.1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +16,6 @@
 
   <ItemGroup>
     <None Remove="folder-files-and-folders-svgrepo-com.png" />
-    <None Remove="Save-icon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,12 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="folder-files-and-folders-svgrepo-com.png">
+    <None Update="Save-icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
+    </None>
     <None Update="Template1.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

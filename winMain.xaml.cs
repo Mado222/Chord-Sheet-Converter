@@ -1,9 +1,7 @@
 ﻿using Microsoft.Win32;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using static ChordSheetConverter.CScales;
 using FileFormatTypes = ChordSheetConverter.CAllConverters.FileFormatTypes;
@@ -25,7 +23,6 @@ namespace ChordSheetConverter
         private string TargetFileSaved = "";
 
         // ObservableCollection to hold the list of songs
-        public ObservableCollection<CFileItem> FileItems { get; set; }
         private FileFormatTypes SourceFileFormatType { get => GetSelectedEnumValue<FileFormatTypes>(gbSource) ?? FileFormatTypes.ChordPro; set => SetSelectedRadioButton(gbSource, value); }
         private FileFormatTypes TargetFileFormatType { get => GetSelectedEnumValue<FileFormatTypes>(gbTarget) ?? FileFormatTypes.ChordPro; set => SetSelectedRadioButton(gbTarget, value); }
 
@@ -33,55 +30,69 @@ namespace ChordSheetConverter
 
         private MyPdfViewer? docViewerWindow = null;
 
+        private readonly winBatchProcessing winBatchProcessing = new  ();
+
+        private readonly TranspositionParameters transpositionParams;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            //Just samples
-            FileItems =
-        [
-            new () { fileNamePath = @"Drag / Drop here", processStatus = "" }
-        ];
-
             // Set DataContext to this MainWindow
-            DataContext = this; // If binding to a DataGrid in XAML
+            //DataContext = this; // If binding to a DataGrid in XAML
+
+            cbSourceKey.Items.Clear();
+            cbSourceKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
+            cbSourceScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
+
+            cbSourceMode.Items.Clear();
+            cbSourceMode.ItemsSource = Enum.GetValues(enumType: typeof(ScaleMode));
+
+            cbTartgetKey.Items.Clear();
+            cbTartgetKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
+            cbTargetScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
+
+            cbTargetMode.Items.Clear();
+            cbTargetMode.ItemsSource = Enum.GetValues(enumType: typeof(ScaleMode));
+
+            cbTransposeSteps.Items.Clear();
+            cbTransposeSteps.ItemsSource = Enumerable.Range(-11, 23).Reverse().ToList();
+            cbTransposeSteps.SelectedItem = 0;
+            tabControlTranspose.Visibility = Visibility.Collapsed;
+
+            // Initialize TranspositionParameters and set it as DataContext
+            transpositionParams = new TranspositionParameters();
+            DataContext = transpositionParams;
+
+            //ShowHideTranspose(Visibility.Collapsed);
+            updateGUI();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            dgvFiles.AllowDrop = true;
-
             CreateRadioButtonsFromEnum(gbSource, FileFormatTypes.ChordPro, RadioButton_CheckedChanged_Source, [FileFormatTypes.DOCX]);
             CreateRadioButtonsFromEnum(gbTarget, FileFormatTypes.DOCX, RadioButton_CheckedChanged_Target, [FileFormatTypes.DOCX]);
             SetTargetRB(FileFormatTypes.ChordPro);
-            
-            for (int i = 11; i >= -11; i--)
-            {
-                cbTransposeSteps.Items.Add(i);
-            }
-            cbTranspose.IsEnabled = false;
-            cbNashvilleActive.IsEnabled = false;
-            cbTransposeSteps.SelectedItem = 0;
 
-            cbKey.Items.Clear();
-            cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
-            cbScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
-            cbScaleType.SelectedIndex = 0;
+            cbNashvilleKey.Items.Clear();
+            cbNashvilleKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
+            cbNashvilleScaleType.ItemsSource = Enum.GetValues(enumType: typeof(ScaleType));
+            cbNashvilleScaleType.SelectedIndex = 0;
 
             customSettings.LoadSettings();
             loadTemplatesToComboBox(cbTemplates, customSettings);
-            ShowHideTemplate(Visibility.Collapsed);
-            ShowHideNashville(Visibility.Collapsed);
-            ShowHideTranspose(Visibility.Collapsed);
+            updateGUI();
 
-            txtSavingPath.Text = customSettings.DefaultOutputDirectory;
-            spSavePath.Visibility = Visibility.Collapsed;
+            winBatchProcessing.SavingPath = customSettings.DefaultOutputDirectory;
+            winBatchProcessing.Visibility = Visibility.Collapsed;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             docViewerWindow?.Close();
+            winBatchProcessing?.Close();
         }
+
 
         #region RadioButtons_FileFormatTypes
         private static FileFormatTypes? GetSelectedFileFormatType(GroupBox groupBox)
@@ -131,35 +142,6 @@ namespace ChordSheetConverter
                         }
                     }
                 }
-            }
-        }
-
-        private void rbOriginal_Checked(object sender, RoutedEventArgs e)
-        {
-            if (rbOriginal.IsChecked == true)
-            {
-                if (txtSavingPath is not null)
-                    txtSavingPath.IsEnabled = false;
-                if (pbSaveTo is not null)
-                    pbSaveTo.IsEnabled = false;
-                if (spSavePath is not null)
-                    spSavePath.Visibility = Visibility.Collapsed;
-            }
-        }
-
-        private void rbSelected_Checked(object sender, RoutedEventArgs e)
-        {
-            if (rbSelected.IsChecked == true)
-            {
-                txtSavingPath.IsEnabled = true;
-                pbSaveTo.IsEnabled = true;
-
-                if ((txtSavingPath.Text == "") || !Directory.Exists(txtSavingPath.Text))
-                {
-                    txtSavingPath.Text = GetSavePath(txtSavingPath.Text);
-                }
-                if (spSavePath is not null)
-                    spSavePath.Visibility = Visibility.Visible;
             }
         }
 
@@ -285,239 +267,128 @@ namespace ChordSheetConverter
         private void RadioButton_CheckedChanged_Target(object sender, EventArgs e)
         {
             FileFormatTypes? ffts = GetSelectedFileFormatType(gbTarget);
-            if (ffts is not null)
+            //TargetFileFormatType = sender.GetType()
+            if (SourceFileFormatType == FileFormatTypes.ChordPro && TargetFileFormatType == FileFormatTypes.ChordPro ||
+                SourceFileFormatType == FileFormatTypes.OpenSong && TargetFileFormatType == FileFormatTypes.OpenSong)
             {
-                if (ffts == FileFormatTypes.DOCX)
-                {
-                    ShowHideTemplate(Visibility.Visible);
-                }
-                else
-                    ShowHideTemplate(Visibility.Collapsed);
-            }
-            if (SourceFileFormatType == FileFormatTypes.ChordPro && TargetFileFormatType == FileFormatTypes.ChordPro)
-            {
-                cbTranspose.IsEnabled = true;
-                cbNashvilleActive.IsEnabled = true;
                 return;
             }
-            else
-            {
-                cbTranspose.IsEnabled = false;
-                cbNashvilleActive.IsEnabled = false;
-            }
-            ShowHideTranspose(Visibility.Collapsed);
             docViewerWindow?.Hide();
+            updateGUI();
         }
         #endregion
 
         #region GUI_CallBacks
-        private void pbSaveTo_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            txtSavingPath.Text = GetSavePath(txtSavingPath.Text);
-        }
 
         private void btConvert_Click(object sender, RoutedEventArgs e)
         {
-            if (cbTranspose.IsChecked == true && SourceFileFormatType == FileFormatTypes.ChordPro)
+            (string txt, List<CChordSheetLine> chordSheetLines) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
+            txtOut.Text = txt;
+            if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
             {
-                txtOut.Text = CChordPro.TransposeChordPro(txtIn.Text, Convert.ToInt16(cbTransposeSteps.Text));
+                buildDocx(chordSheetLines);
             }
-            else if (cbNashvilleActive.IsChecked == true)
+        }
+
+        string UndoCache = "";
+        private void btTranspose_Click(object sender, RoutedEventArgs e)
+        {
+            UndoCache = txtIn.Text;
+            btTransposeUndo.IsEnabled = true;
+            if ((bool) cbTranspose!.IsChecked!)
             {
-                txtOut.Text = CChordPro.ConvertChordProToNashville(txtIn.Text, cbKey.Text, (ScaleType)cbScaleType.SelectedItem);
-            }
-            else
-            {
-                (string txt, List<CChordSheetLine> chordSheetLines) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
-                txtOut.Text = txt;
-                if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
+                if (tabControlTranspose.SelectedIndex == 0)
                 {
-                    buildDocx(chordSheetLines);
+                    txtIn.Text = allConverters.GetConverter(SourceFileFormatType).Transpose(txtIn.Text, null, (int) cbTransposeSteps.SelectedItem);
+                }
+                else
+                {
+                    txtIn.Text = allConverters.GetConverter(SourceFileFormatType).Transpose(txtIn.Text, transpositionParams);
+                    cbSourceKey.SelectedItem = cbTartgetKey.SelectedItem;
                 }
             }
+            else if (cbNashville.IsChecked == true)
+            {
+                txtIn.Text = allConverters.GetConverter(SourceFileFormatType).ConverToNashville(txtIn.Text, (string)cbNashvilleKey.SelectedItem, (ScaleType)cbNashvilleScaleType.SelectedItem);
+            }
+        }
+        private void btTransposeUndo_Click(object sender, RoutedEventArgs e)
+        {
+            txtIn.Text = UndoCache;
+            btTransposeUndo.IsEnabled = false;
+            UndoCache = "";
         }
 
-        private void cbNashvilleActive_Checked(object sender, RoutedEventArgs e)
+        private void cbNashville_Checked(object sender, RoutedEventArgs e)
         {
-            cbNashvilleCheckedchanged(true);
+            HandleCheckedChanged(true, cbNashvilleKey);
+            cbTranspose.IsChecked = false;
         }
 
-        private void cbNashvilleActive_Unchecked(object sender, RoutedEventArgs e)
+        private void cbNashvill_Unchecked(object sender, RoutedEventArgs e)
         {
-            cbNashvilleCheckedchanged(false);
+            HandleCheckedChanged(false, cbNashvilleKey);
         }
 
         private void cbTranspose_Checked(object sender, RoutedEventArgs e)
         {
-            ShowHideTranspose(Visibility.Visible);
+            HandleCheckedChanged(true, cbSourceKey, cbTartgetKey);
+            cbNashville.IsChecked = false;
         }
 
         private void cbTranspose_Unchecked(object sender, RoutedEventArgs e)
         {
-            ShowHideTranspose(Visibility.Collapsed);
+            HandleCheckedChanged(false, cbSourceKey, cbTartgetKey);
         }
 
 
-        private void cbNashvilleCheckedchanged(bool ischecked)
+        private void HandleCheckedChanged(bool isChecked, ComboBox keyComboBox, ComboBox? targetKeyComboBox = null)
         {
-            ShowHideNashville(ischecked ? Visibility.Visible : Visibility.Collapsed);
-
-            EnDisBatchConverting(ischecked);
-
-            Visibility vis = Visibility.Collapsed;
-            if (ischecked)
+            if (isChecked)
             {
-                vis = Visibility.Visible;
-                cbKey.ItemsSource = chromaticScale;  // Equivalent to cbKey.Items.AddRange
-                string? chord = GuessKey();
-                if (chord != null)
+                keyComboBox.ItemsSource = chromaticScale; // Populate the combobox with the chromatic scale
+
+                // Extract chords from the input text
+                string[] chords = allConverters.ExtractAllChords(SourceFileFormatType, CBasicConverter.StringToLines(txtIn.Text));
+                string key = GuessKey(chords);
+
+                if (key != null)
                 {
-                    cbKey.SelectedItem = chord;
-                }
-                else { cbKey.SelectedIndex = 0; }
-            }
-            ShowHideNashville(vis);
-        }
-
-        private void ShowHideNashville(Visibility v)
-        {
-            GridNashville.Visibility = v;
-        }
-
-
-        private void dgvFiles_Drop(object sender, DragEventArgs e)
-        {
-            if (e is not null && e.Data is not null)
-            {
-                string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
-                if (files is not null && files.Length > 0)
-                {
-                    FileItems.Clear();
-                    foreach (string file in files)
+                    keyComboBox.SelectedItem = key; // Select the guessed key
+                    if (targetKeyComboBox != null)
                     {
-                        if ((SourceFileFormatType == FileFormatTypes.OpenSong &&
-                            string.IsNullOrEmpty(Path.GetExtension(file))) ||
-                            CAllConverters.FileExtensions[SourceFileFormatType].Contains(Path.GetExtension(file)))
-                        {
-                            FileItems.Add(new CFileItem(file, "Not processed"));
-                        }
-                        dgvFiles.ItemsSource = FileItems;
+                        targetKeyComboBox.SelectedItem = key; // Set the same key for the target combobox
+                    }
+                }
+                else
+                {
+                    keyComboBox.SelectedIndex = 0; // Default to the first key if no guess
+                    if (targetKeyComboBox != null)
+                    {
+                        targetKeyComboBox.SelectedIndex = 0; // Default for target combobox as well
                     }
                 }
             }
+            updateGUI();
         }
-
-        private void btBatchConvert_Click(object sender, EventArgs e)
-        {
-            StartBatchProcess();
-        }
-
-        private async void StartBatchProcess()
-        {
-            pbBatchConvert.Maximum = FileItems.Count;
-            pbBatchConvert.Minimum = 0;
-            pbBatchConvert.Width = 300;
-            pbBatchConvert.Visibility = Visibility.Visible;
-
-            // Create a progress reporter to handle updates to the progress bar
-            var progress = new Progress<int>(value =>
-            {
-                pbBatchConvert.Value = value;
-            });
-
-            await Task.Run(() =>
-            {
-                int i = 0;
-
-                foreach (CFileItem fi in FileItems)
-                {
-                    try
-                    {
-                        string text = File.ReadAllText(fi.fileNamePath);
-                        string? SavingPath = Path.GetDirectoryName(fi.fileNamePath);
-
-                        Dispatcher.Invoke(() =>
-                        {
-                            if (rbSelected.IsChecked == true)
-                            {
-                                SavingPath = txtSavingPath.Text;
-                            }
-                        });
-
-                        if (Directory.Exists(SavingPath))
-                        {
-                            // Update text input from file
-                            Dispatcher.Invoke(() => txtIn.Text = text);
-
-                            // Handle conversion based on settings in the UI
-                            Dispatcher.Invoke(() =>
-                            {
-                                if (cbTranspose.IsChecked == true && SourceFileFormatType == FileFormatTypes.ChordPro)
-                                {
-                                    txtOut.Text = CChordPro.TransposeChordPro(txtIn.Text, Convert.ToInt16(cbTransposeSteps.Text));
-                                }
-                                else if (cbNashvilleActive.IsChecked == true)
-                                {
-                                    txtOut.Text = CChordPro.ConvertChordProToNashville(txtIn.Text, cbKey.Text, (ScaleType)cbScaleType.SelectedItem);
-                                }
-                                else
-                                {
-                                    (string txt, List<CChordSheetLine> chordSheetLines) = allConverters.Convert(SourceFileFormatType, TargetFileFormatType, txtIn.Text);
-                                    txtOut.Text = txt;
-
-                                    if (TargetFileFormatType == FileFormatTypes.DOCX && chordSheetLines.Count > 0)
-                                    {
-                                        buildDocx(chordSheetLines, SavingPath + @"\", displayPdf: false);
-                                    }
-                                    else
-                                    {
-                                        File.WriteAllText(SavingPath + @"\" +
-                                            Path.GetFileNameWithoutExtension(fi.fileNamePath) +
-                                            CAllConverters.FileExtensions[TargetFileFormatType][0],
-                                            txtOut.Text);
-                                    }
-                                }
-                            });
-
-                            Dispatcher.Invoke(() =>
-                            {
-                                fi.processStatus = "OK";
-                                dgvFiles.Items.Refresh();
-                            });
-                        }
-                        else
-                        {
-                            Dispatcher.Invoke(() => fi.processStatus = "Failed: Saving path does not exist");
-                        }
-                    }
-                    catch (Exception ee)
-                    {
-                        Dispatcher.Invoke(() => fi.processStatus = "Failed: " + ee.ToString());
-                    }
-
-                    i++;
-                    ((IProgress<int>)progress).Report(i); // Report progress here
-                    DoEvents();
-                }
-            });
-
-            pbBatchConvert.Value = 0;
-            pbBatchConvert.Visibility = Visibility.Collapsed;
-        }
-
-
-        private void btClear_Click(object sender, RoutedEventArgs e) => FileItems.Clear();
 
         private void btMoveTargetToSource_Click(object sender, RoutedEventArgs e)
         {
-            SetSelectedFileFormatType(gbSource, SourceFileFormatType);
+            //SourceFileFormatType = TargetFileFormatType;
+            SetSelectedFileFormatType(gbSource, TargetFileFormatType);
             txtIn.Text = txtOut.Text;
             txtOut.Text = "";
         }
 
-        private void btCopySourceToTarget_Click(object sender, RoutedEventArgs e) => txtOut.Text = txtIn.Text;
-
-        
+        private void btSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow(customSettings);
+            if (settingsWindow.ShowDialog() == true)
+            {
+                customSettings.SaveSettings(); // Save the updated settings
+                winBatchProcessing.SavingPath = customSettings.DefaultOutputDirectory;
+            }
+        }
 
         private void btLoadSource_Click(object sender, RoutedEventArgs e)
         {
@@ -595,6 +466,7 @@ namespace ChordSheetConverter
                 string templateFilePath = customSettings.DefaultTemplateDirectory + @"\" + cbTemplates.Text;
                 templateFilePath = templateFilePath.Replace(@"\\", @"\");
 
+                
                 string ret = CDocxFormatter.ReplaceInTemplate(templateFilePath, docxFilePath, allConverters.GetConverter(FileFormatTypes.DOCX), chordSheetLines);
                 if (ret == "")
                     DocxToPdf(docxFilePath, displayPdf);
@@ -626,80 +498,11 @@ namespace ChordSheetConverter
             }
         }
 
-        private static string? GuessKey()
-        {
-            /*
-            List<string[]> chords = ExtractChords(txtIn.Text.Split(line_separators, StringSplitOptions.None));
-            if (chords.Count > 0)
-                if (chords[^1].Length > 0)
-                    return chords[^1][^1];*/
-            return null;
-        }
-
-        /*
-        public static List<string[]> ExtractChords(string[] inputLines)
-        {
-            List<string[]> ret = [];
-            foreach (string line in inputLines)
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    var chordInfo = CUltimateGuitarConverter.isChordLine(line);
-                    if (chordInfo != null)
-                    {
-                        ret.Add([.. chordInfo.Value.chords]);
-                    }
-                }
-            }
-            return ret;
-        }*/
-
-        private void EnDisBatchConverting(bool EnDis)
-        {
-            dgvFiles.IsEnabled = EnDis;
-            gbSaveTo.IsEnabled = EnDis;
-            txtSavingPath.IsEnabled = EnDis;
-            pbSaveTo.IsEnabled = EnDis;
-            btBatchConvert.IsEnabled = EnDis;
-            btClear.IsEnabled = EnDis;
-        }
-
-        private void ShowHideTemplate(Visibility v)
-        {
-            lblTemplate.Visibility = v;
-            cbTemplates.Visibility = v;
-        }
-
-        private void ShowHideTranspose(Visibility v)
-        {
-            GridTranspose.Visibility = v;
-        }
-
 
         private static void DoEvents() => System.Windows.Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background, new Action(static delegate { }));
         #endregion
 
         #region Loading_Saving
-
-        private string GetSavePath(string startPath)
-        {
-            using (var dialog = new System.Windows.Forms.OpenFileDialog())
-            {
-                dialog.InitialDirectory = Directory.Exists(startPath) ? startPath : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                dialog.Filter = "Folder|*.none"; // Set a filter that doesn’t match any real files
-                dialog.CheckFileExists = false;
-                dialog.CheckPathExists = true;
-                dialog.FileName = "Select Folder"; // Text shown in the File name field
-
-                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    // Use the directory path from the selected "file"
-                    return Path.GetDirectoryName(dialog.FileName) ?? startPath;
-                }
-            }
-
-            return startPath; // Return the original path if the dialog was canceled
-        }
 
 
 
@@ -880,15 +683,83 @@ namespace ChordSheetConverter
 
         #endregion
 
-        private void btSettings_Click(object sender, RoutedEventArgs e)
+
+        //private void ShowHideTranspose(Visibility v)
+        //{
+        //    tabItemTransposeSimple.Visibility = v;
+        //    btTranspose.Visibility = v;
+        //    btTransposeUndo.Visibility = v;
+
+        //    // Temporary variable for the inverted visibility
+        //    Visibility invertedVisibility = v == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+
+        //    // Apply inverted visibility
+        //    btConvert.Visibility = invertedVisibility;
+        //    btMoveTargetToSource.Visibility = invertedVisibility;
+        //    gbTarget.Visibility = invertedVisibility;
+        //}
+        //private void ShowHideNashville(Visibility v)
+        //{
+        //    GridNashville.Visibility = v;
+        //    btTranspose.Visibility = v;
+        //    btTransposeUndo.Visibility = v;
+
+        //    Visibility invertedVisibility = v == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+
+        //    btConvert.Visibility = invertedVisibility;
+        //    btMoveTargetToSource.Visibility = invertedVisibility;
+        //    gbTarget.Visibility = invertedVisibility;
+        //}
+
+        //private void ShowHideTemplate(Visibility v)
+        //{
+        //    lblTemplate.Visibility = v;
+        //    cbTemplates.Visibility = v;
+        //}
+
+
+
+        private void updateGUI()
         {
-            var settingsWindow = new SettingsWindow(customSettings);
-            if (settingsWindow.ShowDialog() == true)
+            tabControlTranspose.Visibility = Visibility.Collapsed;
+            GridNashville.Visibility = Visibility.Collapsed;
+            gbTarget.Visibility= Visibility.Collapsed;
+            btConvert.Visibility= Visibility.Collapsed;
+            spTransposeButtons.Visibility = Visibility.Collapsed;
+
+            lblTemplate.Visibility = Visibility.Collapsed;
+            cbTemplates.Visibility = Visibility.Collapsed;
+
+            if (TargetFileFormatType == FileFormatTypes.DOCX)
             {
-                customSettings.SaveSettings(); // Save the updated settings
-                txtSavingPath.Text=customSettings.DefaultOutputDirectory;
+                lblTemplate.Visibility = Visibility.Visible;
+                cbTemplates.Visibility = Visibility.Visible;
             }
+
+
+            if ((bool) cbTranspose.IsChecked!)
+            {
+                tabControlTranspose.Visibility= Visibility.Visible;
+                btTranspose.Content = "Transpose";
+                spTransposeButtons.Visibility= Visibility.Visible;
+            }
+            else if 
+                ((bool) cbNashville!.IsChecked!) 
+            {
+                GridNashville.Visibility = Visibility.Visible;
+                btTranspose.Content = "Convert";
+                spTransposeButtons.Visibility=Visibility.Visible;
+            }
+            else
+            {
+                btConvert.Visibility = Visibility.Visible;
+                gbTarget.Visibility = Visibility.Visible;
+            }
+
+
+
         }
+
     }
 }
 

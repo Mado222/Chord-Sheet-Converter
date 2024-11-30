@@ -1,10 +1,4 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.Office.Interop.Word;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using static ChordSheetConverter.CScales;
 
 namespace ChordSheetConverter
 {
@@ -76,7 +70,7 @@ namespace ChordSheetConverter
 
         public (string newSong, List<CChordSheetLine> chordSheetLines) Convert(FileFormatTypes sourceFormatType, FileFormatTypes targetFormatType, string text)
         {
-            List<CChordSheetLine> chordSheetLines  = AllFormats[sourceFormatType].Analyze(text);
+            List<CChordSheetLine> chordSheetLines = AllFormats[sourceFormatType].Analyze(text);
             if (sourceFormatType != targetFormatType)
                 ReplaceConverterWithNewObject(targetFormatType);
             AllFormats[targetFormatType].CopyPropertiesFrom(GetConverter(sourceFormatType));
@@ -100,6 +94,28 @@ namespace ChordSheetConverter
                 }
             }
             return AllFormats[sourceFormatType].UpdateTags(textIn);
+        }
+
+        public (CChordCollection chords, string lyrics) ExtractChords(FileFormatTypes sourceFormatType, string line)
+        {
+            return AllFormats[sourceFormatType].ExtractChords(line);
+        }
+
+        public string [] ExtractAllChords(FileFormatTypes sourceFormatType, string[] text)
+        {
+            List <string> allchords = [];
+
+            foreach (string line in text)
+            {
+                (CChordCollection chords, string _) = ExtractChords(sourceFormatType, line);
+
+                if (chords != null && chords.Any())
+                {
+                    foreach (CChord chord in chords)
+                        allchords.Add(chord.Chord);
+                }
+            }
+            return [.. allchords];
         }
     }
 }

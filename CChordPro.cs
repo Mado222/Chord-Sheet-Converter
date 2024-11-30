@@ -80,10 +80,21 @@ namespace ChordSheetConverter
             return Analyze(StringToLines(text));
         }
 
+        enum EnTextType
+        {
+            Undefined,
+            Chorus,
+            Verse,
+            Bridge
+        }
+
         public override List<CChordSheetLine> Analyze(string[] lines)
         {
             List<CChordSheetLine> chordSheetLines = [];
             string lastSectionStart = "";
+            EnLineType ltypeText = EnLineType.Unknown;
+            EnLineType ltypeChorus = EnLineType.Unknown;
+
 
             // Process each line
             foreach (string line in lines)
@@ -102,11 +113,9 @@ namespace ChordSheetConverter
                     //Any other tag
                     if (line.Contains("{start_of_", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionBegin, tagValue));
                         lastSectionStart = tagValue;
-                        continue;
                     }
-                    if (line.Contains("{comment", StringComparison.CurrentCultureIgnoreCase))
+                    else if (line.Contains("{comment", StringComparison.CurrentCultureIgnoreCase))
                     {
                         chordSheetLines.Add(new CChordSheetLine(EnLineType.CommentLine, tagValue));
                         continue;
@@ -120,12 +129,41 @@ namespace ChordSheetConverter
                 //Command
                 if (line.Contains('{') && line.Contains('}'))
                 {
-                    if (line.Contains("{end_of_", StringComparison.CurrentCultureIgnoreCase) ||
-                        line.Contains("{eo", StringComparison.CurrentCultureIgnoreCase))
+                    var sectionMappings = new List<(string[] StartKeywords, string SectionName, EnLineType TextType, EnLineType ChordType)>
                     {
-                        chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionEnd, "End "+ lastSectionStart));
+                        (new[] { "{start_of_verse", "{sov" }, "Verse", EnLineType.TextLineVerse, EnLineType.ChordLineVerse),
+                        (new[] { "{start_of_chorus", "{soc" }, "Chorus", EnLineType.TextLineChorus, EnLineType.ChordLineChorus),
+                        (new[] { "{start_of_bridge", "{sob" }, "Bridge", EnLineType.TextLineBridge, EnLineType.ChordLineBridge)
+                    };
+
+                    bool isStartOfSection = false;
+
+                    foreach (var (keywords, sectionName, textType, chordType) in sectionMappings)
+                    {
+                        if (keywords.Any(keyword => line.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            ltypeText = textType;
+                            ltypeChorus = chordType;
+
+                            if (string.IsNullOrEmpty(lastSectionStart))
+                            {
+                                lastSectionStart = sectionName;
+                            }
+
+                            chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionBegin, lastSectionStart));
+                            isStartOfSection = true;
+                            break;
+                        }
+                    }
+
+                    if (!isStartOfSection &&
+                        (line.Contains("{end_of_", StringComparison.OrdinalIgnoreCase) ||
+                         line.Contains("{eo", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        chordSheetLines.Add(new CChordSheetLine(EnLineType.SectionEnd, "End " + lastSectionStart));
                         lastSectionStart = "";
-                        continue;
+                        ltypeText = EnLineType.TextLine;
+                        ltypeChorus = EnLineType.ChordLineVerse;
                     }
                 }
 
@@ -133,13 +171,13 @@ namespace ChordSheetConverter
                 if (line.Contains('[') && line.Contains(']'))
                 {
                     // Extract the chords and lyrics
-                    (CChordCollection chords, string textLine)= ExtractChords(line);   // Get the chord and text line
+                    (CChordCollection chords, string textLine) = ExtractChords(line);   // Get the chord and text line
                     string chordLine = chords.GetWellSpacedChordLine();
 
                     // Add ChordLine and TextLine separately
-                    chordSheetLines.Add(new CChordSheetLine(EnLineType.ChordLine, chordLine));
+                    chordSheetLines.Add(new CChordSheetLine(ltypeChorus, chordLine));
                     if (!string.IsNullOrEmpty(textLine))
-                        chordSheetLines.Add(new CChordSheetLine(EnLineType.TextLine, textLine));
+                        chordSheetLines.Add(new CChordSheetLine(ltypeText, textLine));
                     continue;
                 }
                 if (line == "")
@@ -250,8 +288,15 @@ namespace ChordSheetConverter
 
                 if (idx < chordSheetLines.Count - 1)
                 {
-                    if ((thisLineType == EnLineType.ChordLine) &&
-                        chordSheetLines[idx + 1].LineType == EnLineType.TextLine)
+                    if (((thisLineType == EnLineType.ChordLineVerse) ||
+                        (thisLineType == EnLineType.ChordLineBridge) ||
+                        (thisLineType == EnLineType.ChordLineChorus))
+                        &&
+                        ((chordSheetLines[idx + 1].LineType == EnLineType.TextLine) ||
+                        (chordSheetLines[idx + 1].LineType == EnLineType.TextLineVerse) ||
+                        (chordSheetLines[idx + 1].LineType == EnLineType.TextLineChorus) ||
+                        (chordSheetLines[idx + 1].LineType == EnLineType.TextLineBridge))
+                        )
                     {
                         //Combine lines
                         //It is a chord line + lyrics combination
@@ -291,7 +336,7 @@ namespace ChordSheetConverter
 
                 //Isolated Line
                 string line = chordSheetLines[idx].Line.Trim();
-                if (thisLineType == EnLineType.ChordLine)
+                if (thisLineType == EnLineType.ChordLineVerse)
                 {
                     //Chorus without following text line = isolated chord line
 
@@ -374,13 +419,7 @@ namespace ChordSheetConverter
         }
 
         //Transpose Letter or Nashville
-        public static string TransposeChordPro(string textIn, int steps, string key="", ScaleType scaleType = ScaleType.Major)
-        {
-            return LinesToString(TransposeChordPro(StringToLines(textIn), steps, key, scaleType));
-        }
-
-        //Transpose Letter or Nashville
-        public static string[] TransposeChordPro(string[] linesIn, int steps, string key="", ScaleType scaleType = ScaleType.Major)
+        public override string[] Transpose(string[] linesIn, TranspositionParameters? parameters = null, int? steps = null)
         {
             List<string> transposedLines = [];
 
@@ -388,10 +427,10 @@ namespace ChordSheetConverter
             {
                 if (line.Contains('[') && line.Contains(']'))
                 {
-                    if (!string.IsNullOrEmpty(key))
-                        transposedLines.Add(TransposeChordProLineNashville(line, steps, key, scaleType));
-                    else
-                        transposedLines.Add(TransposeChordProLine(line, steps));
+                    //if (!string.IsNullOrEmpty(""))
+                    //    transposedLines.Add(TransposeChordProLineNashville(line, sourceKey, sourceScaleType, targetKey, targetScaleType));
+                    //else
+                        transposedLines.Add(TransposeChordProLine(line, parameters));
                 }
                 else
                 {
@@ -403,7 +442,7 @@ namespace ChordSheetConverter
         }
 
         //One letter line
-        private static string TransposeChordProLine(string lineIn, int steps)
+        private string TransposeChordProLine(string lineIn, TranspositionParameters parameters)
         {
             // Pattern to match chords within square brackets, e.g. [C], [F#], [G#m]
             string chordPattern = @"\[([A-G][#b]?m?(maj|sus|dim|aug)?[0-9]?(add[0-9])?)\]";
@@ -414,15 +453,15 @@ namespace ChordSheetConverter
                 string chord = match.Groups[1].Value;
 
                 // Transpose the chord
-                string transposedChord = CScales.Transpose(chord, steps);
+                string transposedChord = Transpose(chord, parameters);
 
-                // Return the transposed chord wrapped in brackets
-                return $"[{transposedChord}]";
+            // Return the transposed chord wrapped in brackets
+            return $"[{transposedChord}]";
             });
         }
 
         //One Nashville line
-        private static string TransposeChordProLineNashville(string line, int steps, string key, ScaleType scaleType)
+        private string TransposeChordProLineNashville(string line, int steps, string key, ScaleType scaleType)
         {
             // Pattern to match chords within square brackets, e.g., [1], [4m], [5maj7]
             string chordPattern = @"\[([1-7](m|maj|sus|dim|aug|7|add[0-9]*)?)\]";

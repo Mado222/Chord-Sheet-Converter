@@ -1,14 +1,19 @@
-﻿using System.IO;
+﻿using System.DirectoryServices;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using System.Xml.Linq;
 using static ChordSheetConverter.CAllConverters;
+using static ChordSheetConverter.CScales;
 
 namespace ChordSheetConverter
 {
-    public partial class CBasicConverter: IChordSheetAnalyzer
+    /// <summary>
+    ///   Basic class for all converters
+    /// </summary>
+    public partial class CBasicConverter : IChordSheetAnalyzer
     {
         //Common properties
         public string Title { get; set; } = "";
@@ -75,7 +80,7 @@ namespace ChordSheetConverter
             set { _chordSheetLines = value ?? []; }  // Null-check
         }
 
-        
+
         public static string[] StringToLines(string text) => text.Split(CChordSheetLine.line_separators, StringSplitOptions.None);
         public static string LinesToString(string[] lines) => string.Join(Environment.NewLine, lines);
 
@@ -289,6 +294,24 @@ namespace ChordSheetConverter
             return ("", "");
         }
 
+        public virtual string Transpose(string textIn, TranspositionParameters? parameters = null, int? steps = null)
+        {
+            return LinesToString(Transpose(StringToLines(textIn), parameters, steps));
+        }
 
+        public virtual string[] Transpose(string[] linesIn, TranspositionParameters? parameters = null, int? steps = null)
+        {
+            return Array.Empty<string>();
+        }
+
+        public virtual (CChordCollection chords, string lyrics) ExtractChords(string line)
+        {
+            return (new CChordCollection(), "");
+        }
+
+        public virtual string ConverToNashville(string text, string key, ScaleType scaleType = ScaleType.Major)
+        {
+            return "";
+        }
     }
 }

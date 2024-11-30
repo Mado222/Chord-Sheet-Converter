@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ChordSheetConverter"
         mc:Ignorable="d"
-        Title="DocViewerWindow" Height="450" Width="800">
+        Title="DocViewerWindow" Height="450" Width="800"
+        Closing="DocViewerWindow_Closing">
     <Grid>
-        <WebBrowser x:Name="webBrowserPdf" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="267*"/>
+            <ColumnDefinition Width="533*"/>
+        </Grid.ColumnDefinitions>
+        <WebBrowser x:Name="webBrowserPdf" Grid.ColumnSpan="2" />
     </Grid>
 </Window>

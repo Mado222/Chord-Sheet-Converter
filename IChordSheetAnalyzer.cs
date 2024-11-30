@@ -1,4 +1,7 @@
-﻿namespace ChordSheetConverter
+﻿using static ChordSheetConverter.CAllConverters;
+using static ChordSheetConverter.CScales;
+
+namespace ChordSheetConverter
 {
     public interface IChordSheetAnalyzer
     {
@@ -27,5 +30,13 @@
 
         Dictionary<string, string> PropertyMapDisplayNames { get; }
         Dictionary<string, string> PropertyMapTags { get; }
+
+        string Transpose(string textIn, TranspositionParameters? parameters = null, int? steps = null);
+
+        string[] Transpose(string[] linesIn, TranspositionParameters? parameters = null, int? steps = null);
+
+        (CChordCollection chords, string lyrics) ExtractChords(string line);
+
+        string ConverToNashville(string text, string key, ScaleType scaleType = ScaleType.Major);
     }
 }

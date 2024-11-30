@@ -25,6 +25,8 @@ namespace ChordSheetConverter
             allChords = [];
         }
 
+        public int Count { get => allChords.Count; }
+        
         // Add a chord to the collection
         public void AddChord(CChord chord)
         {
@@ -50,7 +52,6 @@ namespace ChordSheetConverter
                 chordLine.Append(chord.Chord);
                 currentPosition = chord.Position + chord.Chord.Length;
             }
-
             return chordLine.ToString();
         }
 

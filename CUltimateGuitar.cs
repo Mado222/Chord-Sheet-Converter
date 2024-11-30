@@ -16,7 +16,7 @@ namespace ChordSheetConverter
                 if (res is not null)
                 {
                     //Chord line
-                    ret.Add(new CChordSheetLine(EnLineType.ChordLine, l));
+                    ret.Add(new CChordSheetLine(EnLineType.ChordLineVerse, l));
                 }
                 else
                 {

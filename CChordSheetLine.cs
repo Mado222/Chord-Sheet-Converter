@@ -24,8 +24,13 @@
         public enum EnLineType
         {
             Unknown,
-            ChordLine,
+            ChordLineVerse,
+            ChordLineChorus,
+            ChordLineBridge,
             TextLine,
+            TextLineVerse,
+            TextLineChorus,
+            TextLineBridge,
             EmptyLine,
             CommentLine,
             xmlElement,
@@ -43,7 +48,7 @@
         public static EnLineType GetLineType(string line)
         {
             if (CBasicConverter.IsChordLine(line) != null)
-                return EnLineType.ChordLine;
+                return EnLineType.ChordLineVerse;
 
             //"<title>Blabla</title>"
             if (line.Contains('<') && line.Contains("/<"))
