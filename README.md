@@ -4,9 +4,12 @@
 <h2>Features</h2>
 <ul>
     <li><strong>Multi-Format Support</strong>: Import chord sheet files from <a target="_blank" rel="noopener noreferrer" href="https://opensong.org/">OpenSong</a>, <a target="_blank" rel="noopener noreferrer" href="https://www.ultimate-guitar.com">UltimateGuitar</a>, and <a target="_blank" rel="noopener noreferrer" href="https://www.chordpro.org/">ChordPro</a>.</li>
-    <li><strong>DOCX Export</strong>: Converts your chord sheets into a Microsoft Word document (DOCX) with professional formatting.</li>
+    <li><strong>DOCX and PDF Export</strong>: Converts your chord sheets into a Microsoft Word document (DOCX) and PDF with professional formatting.</li>
     <li><strong>Tag-based Formatting</strong>: Use tags to apply various styles and formatting options, making the output highly customizable.</li>
     <li><strong>Flexible Styling</strong>: Define custom fonts, colors, and other style elements to ensure the generated chord sheet matches your needs.</li>
+    <li><strong>Transposing simple</strong>: Transpose chords simply by half steps up or down</li>
+    <li><strong>Transposing advanced</strong>: Transpose chords from one key to another</li>
+    <li><strong>Convert to Nashville Notation</strong></li>
     <li><strong>Easy to Use</strong>: A simple and intuitive workflow for converting and customizing your chord sheets.</li>
 </ul>
 <h2>How It Works</h2>
@@ -110,7 +113,7 @@ was blind, but now I see.
     <li><strong>Output Directory:</strong> <code>Documents/ChordSheetConverter</code> - stores the generated DOCX files and other output files.</li>
 </ul>
 <h2>Customization</h2>
-<p>Design your Template DOCX entirely to your needs. Hint: use <strong>Template1.docx&nbsp;</strong>as basis for all further custumization.</p>
+<p>Design your Template DOCX entirely to your needs. Hint: use <strong>Template1.docx&nbsp;</strong>as basis for all further customizations.</p>
 <p>In the template<span style="box-sizing:border-box;margin:0px;padding:0px;">, use&nbsp;<strong>tags</strong>&nbsp;to specify where song information is inserted</span>. The following <strong>tags</strong> are supported:</p>
 <ul>
     <li><code><strong>{songBody}</strong>: Section which will be filled with Lyrics and Chords.</code><br><br>&nbsp;</li>
@@ -128,10 +131,15 @@ was blind, but now I see.
 <p><span style="box-sizing:border-box;margin:0px;padding:0px;">A&nbsp;<strong>style</strong>&nbsp;can be included for every <strong>tag</strong>, which is automatically assigned to the <strong>tag</strong>.</span></p>
 <p><code>Styles only related to&nbsp;<strong>{songBody}</strong></code></p>
 <ul>
-    <li><code>songText: Style for lyric lines - only used in <strong>{songBody}</strong></code></li>
-    <li><code>songChords: Style for lines with chords&nbsp;- only used in&nbsp;<strong>{songBody}</strong></code></li>
-    <li><code>songSectionBegin: Style for section labels like “Verse 1”, “Chorus”, - only used in&nbsp;<strong>{songBody}</strong></code></li>
-    <li><code>songSectionEnd: Style for section labels like “End Verse 1”, “End Chorus”, - only used in <strong>{songBody}</strong></code></li>
+    <li><code>songText: Style for neither lyric nor chord line - only used in <strong>{songBody}</strong></code></li>
+    <li><code>songTextLineVerse: Style for lyric lines in the Verse - only used in <strong>{songBody}</strong></code></li>
+    <li><code>songTextLineChorus: Style for lyric lines in the Chorus - only used in <strong>{songBody}</strong></code></li>
+    <li><code>songTextLineBridge: Style for lyric lines in the Bridge - only used in <strong>{songBody}</strong></code></li>
+    <li><code>songChordsLineVerse: Style for lines with chords in the Verse&nbsp;- only used in&nbsp;<strong>{songBody}</strong></code></li>
+    <li><code>songChordsLineChorus: Style for lines with chords in the Chorus&nbsp;- only used in&nbsp;<strong>{songBody}</strong></code></li>
+    <li><code>songChordsLineBridge: Style for lines with chords in the Bridge&nbsp;- only used in&nbsp;<strong>{songBody}</strong></code></li>
+    <li><code>songSectionBegin: Style for section labels like "Verse 1", “Chorus”, - only used in&nbsp;<strong>{songBody}</strong></code></li>
+    <li><code>songSectionEnd: Style for section labels like "End Verse 1", “End Chorus”, - only used in <strong>{songBody}</strong></code></li>
 </ul>
 <p><code>Styles only related to <strong>tags:</strong></code></p>
 <ul>
